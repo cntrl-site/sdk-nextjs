@@ -6,10 +6,10 @@ import {
   TLayout
 } from '@cntrl-site/core';
 import { getLayoutStyles } from '@cntrl-site/sdk';
-import RectangleItem from './items/RectangleItem';
-import ImageItem from './items/ImageItem';
-import VideoItem from './items/VideoItem';
-import RichTextItem from './items/RichTextItem';
+import { RectangleItem } from './items/RectangleItem';
+import { ImageItem } from './items/ImageItem';
+import { VideoItem } from './items/VideoItem';
+import { RichTextItem } from './items/RichTextItem';
 
 export interface ItemProps<I extends TArticleItemAny> {
   layouts: TLayout[];
@@ -25,7 +25,7 @@ const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
 
 const noop = () => null;
 
-const Item: FC<ItemProps<TArticleItemAny>> = ({ item, layouts }) => {
+export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, layouts }) => {
   const layoutValues: Record<string, any>[] = [item.area];
   if (item.layoutParams) {
     layoutValues.push(item.layoutParams);
@@ -66,5 +66,3 @@ interface Axis {
   x: SizingType;
   y: SizingType;
 }
-
-export default Item;

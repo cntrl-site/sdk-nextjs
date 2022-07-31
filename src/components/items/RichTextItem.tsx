@@ -7,7 +7,7 @@ import { RichTextConv } from '../../utils/RichTextConv';
 
 const richTextConv = new RichTextConv();
 
-const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, layouts }) => {
+export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, layouts }) => {
   const [content, styles] = richTextConv.toHtml(item, layouts);
   return (
     <>
@@ -18,5 +18,3 @@ const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, layouts }) => {
     </>
   );
 };
-
-export default RichTextItem;

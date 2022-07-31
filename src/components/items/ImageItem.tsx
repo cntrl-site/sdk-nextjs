@@ -4,7 +4,7 @@ import { getLayoutStyles } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 
-const ImageItem: FC<ItemProps<TImageItem>> = ({ item, layouts }) => (
+export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, layouts }) => (
   <LinkWrapper url={item.link?.url}>
     <>
       <div className={`image-wrapper-${item.id}`}>
@@ -36,5 +36,3 @@ const ImageItem: FC<ItemProps<TImageItem>> = ({ item, layouts }) => (
     </>
   </LinkWrapper>
 );
-
-export default ImageItem;

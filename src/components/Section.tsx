@@ -10,7 +10,7 @@ interface Props {
   children: SectionChild[];
 }
 
-const Section: FC<Props> = ({ section, layouts, children }) => (
+export const Section: FC<Props> = ({ section, layouts, children }) => (
   <>
     <div className={`section-${section.id}`}>
       {children}
@@ -26,6 +26,3 @@ const Section: FC<Props> = ({ section, layouts, children }) => (
     `}</style>
   </>
 );
-
-
-export default Section;

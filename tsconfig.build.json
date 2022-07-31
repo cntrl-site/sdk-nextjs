@@ -3,7 +3,9 @@
   "compilerOptions": {
     "outDir": "./lib",
     "moduleResolution": "Node",
-    "module": "CommonJS"
+    "module": "CommonJS",
+    "jsx": "react-jsx",
+    "lib": ["es2017"]
   },
   "include": [
     "./src/**.ts",

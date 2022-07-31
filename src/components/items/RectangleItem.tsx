@@ -4,7 +4,7 @@ import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { getLayoutStyles } from '@cntrl-site/sdk';
 
-const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, layouts }) => (
+export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, layouts }) => (
   <LinkWrapper url={item.link?.url}>
     <>
       <div className={`rectangle-${item.id}`} />
@@ -26,6 +26,3 @@ const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, layouts }) => (
     </>
   </LinkWrapper>
 );
-
-
-export default RectangleItem;

@@ -4,7 +4,7 @@ import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { getLayoutStyles } from '@cntrl-site/sdk';
 
-const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, layouts }) => (
+export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, layouts }) => (
   <LinkWrapper url={item.link?.url}>
     <>
       <div className={`video-wrapper-${item.id}`}>
@@ -38,6 +38,3 @@ const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, layouts }) => (
     </>
   </LinkWrapper>
 );
-
-
-export default VideoItem;

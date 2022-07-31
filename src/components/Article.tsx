@@ -1,14 +1,14 @@
 import { FC } from 'react';
 import { TArticle, TLayout } from '@cntrl-site/core';
-import Section from './Section';
-import Item from './Item';
+import { Section } from './Section';
+import { Item } from './Item';
 
 interface Props {
   article: TArticle;
   layouts: TLayout[];
 }
 
-const Article: FC<Props> = ({ article, layouts }) => {
+export const Article: FC<Props> = ({ article, layouts }) => {
   return (
     <>
       <div className="article">
@@ -29,5 +29,3 @@ const Article: FC<Props> = ({ article, layouts }) => {
     </>
   );
 };
-
-export default Article;
