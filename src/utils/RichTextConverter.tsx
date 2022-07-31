@@ -33,7 +33,7 @@ export const FontStyles: Record<string, Record<string, string>> = {
   'italic': { 'font-style': 'italic' }
 };
 
-export class RichTextConv {
+export class RichTextConverter {
   toHtml(
     richText: TRichTextItem,
     layouts: TLayout[]
@@ -63,7 +63,7 @@ export class RichTextConv {
           styles: this.normalizeStyles(styles, entities)
         });
       });
-      const sameLayouts = groupBy(newStylesGroup, (item) => RichTextConv.serializeRanges(item.styles ?? []));
+      const sameLayouts = groupBy(newStylesGroup, (item) => RichTextConverter.serializeRanges(item.styles ?? []));
       for (const group of Object.values(sameLayouts)) {
         const blockClass = `rt_${richText.id}-b${blockIndex}_${layouts.map(l => group.some(g => g.layout === l.id) ? '1' : '0').join('')}`;
         const kids: ReactNode[] = [];
@@ -112,7 +112,7 @@ export class RichTextConv {
             for (const styleGroup of entitiesGroup.stylesGroup) {
               styleRules[item.layout].push(`
                 .${blockClass} .s-${styleGroup.start}-${styleGroup.end} {
-                  ${styleGroup.styles.map(s => RichTextConv.fromDraftToInline(s)).join('\n')}
+                  ${styleGroup.styles.map(s => RichTextConverter.fromDraftToInline(s)).join('\n')}
                 }
               `);
             }

@@ -3,9 +3,9 @@ import { TRichTextItem } from '@cntrl-site/core';
 //@ts-ignore
 import JSXStyle from 'styled-jsx/style';
 import { ItemProps } from '../Item';
-import { RichTextConv } from '../../utils/RichTextConv';
+import { RichTextConverter } from '../../utils/RichTextConverter';
 
-const richTextConv = new RichTextConv();
+const richTextConv = new RichTextConverter();
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, layouts }) => {
   const [content, styles] = richTextConv.toHtml(item, layouts);

@@ -1,4 +1,4 @@
-export { RichTextConv as RichTextConverter } from './utils/RichTextConv';
+export { RichTextConverter } from './utils/RichTextConverter';
 
 export { Article } from './components/Article';
 export { Section } from './components/Section';
