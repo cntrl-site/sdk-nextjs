@@ -10,7 +10,7 @@ interface Props {
   meta: TMeta;
 }
 
-const Page: FC<Props> = ({ article, project, meta }) => {
+export const Page: FC<Props> = ({ article, project, meta }) => {
   const googleFonts: ReturnType<typeof domToReact> = HTMLReactParser(project.fonts.google);
   const adobeFonts: ReturnType<typeof domToReact> = HTMLReactParser(project.fonts.adobe);
   const parsedFonts = {
@@ -63,5 +63,3 @@ const Page: FC<Props> = ({ article, project, meta }) => {
     </>
   );
 };
-
-export default Page;

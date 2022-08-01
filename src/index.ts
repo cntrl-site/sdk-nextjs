@@ -1,5 +1,6 @@
 export { RichTextConverter } from './utils/RichTextConverter';
 
+export { Page } from './components/Page';
 export { Article } from './components/Article';
 export { Section } from './components/Section';
 export { Item } from './components/Item';
