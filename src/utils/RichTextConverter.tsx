@@ -44,13 +44,25 @@ export class RichTextConverter {
       rec[layout.id] = [];
       return rec;
     }, {});
+    let currentLineHeight = layouts.reduce<Record<string, string>>((rec, layout) => {
+      const styles = getClosestLayoutValue(richText.layoutParams, layouts, layout.id)?.styles;
+      rec[layout.id] = styles?.find(s => s.style === 'LINEHEIGHT')?.value ?? '0';
+      return rec;
+    }, {});
 
     for (let blockIndex = 0; blockIndex < blocks.length; blockIndex++) {
       const block = blocks[blockIndex];
       const content = text.slice(block.start, block.end);
       const entities = block.entities!.sort((a, b) => a.start - b.start) ?? [];
       if (content.length === 0) {
-        root.push(<div style={{ lineHeight: 0 }}><br /></div>);
+        root.push(<div className={`rt_${richText.id}_br_${blockIndex}`}><br /></div>);
+        layouts.forEach(l => {
+          const lh = RichTextConverter.fromDraftToInline({
+            name: 'LINEHEIGHT',
+            value: currentLineHeight[l.id]
+          });
+          styleRules[l.id].push(`.rt_${richText.id}_br_${blockIndex} {${lh}}`);
+        });
         continue;
       }
       const newStylesGroup = layouts.map(({ id: layoutId }) => {
@@ -63,7 +75,7 @@ export class RichTextConverter {
           styles: this.normalizeStyles(styles, entities)
         });
       });
-      const sameLayouts = groupBy(newStylesGroup, (item) => RichTextConverter.serializeRanges(item.styles ?? []));
+      const sameLayouts = groupBy(newStylesGroup, (item) => this.serializeRanges(item.styles ?? []));
       for (const group of Object.values(sameLayouts)) {
         const blockClass = `rt_${richText.id}-b${blockIndex}_${layouts.map(l => group.some(g => g.layout === l.id) ? '1' : '0').join('')}`;
         const kids: ReactNode[] = [];
@@ -110,6 +122,10 @@ export class RichTextConverter {
           for (const entitiesGroup of entitiesGroups) {
             if (!entitiesGroup.stylesGroup) continue;
             for (const styleGroup of entitiesGroup.stylesGroup) {
+              const lineHeight = styleGroup.styles.find(s => s.name === 'LINEHEIGHT');
+              if (lineHeight?.value) {
+                currentLineHeight[item.layout] = lineHeight.value;
+              }
               styleRules[item.layout].push(`
                 .${blockClass} .s-${styleGroup.start}-${styleGroup.end} {
                   ${styleGroup.styles.map(s => RichTextConverter.fromDraftToInline(s)).join('\n')}
@@ -132,7 +148,7 @@ export class RichTextConverter {
     ];
   }
 
-  private static serializeRanges(ranges: { start: number; end: number; }[]): string {
+  private serializeRanges(ranges: { start: number; end: number; }[]): string {
     return ranges.map(r => `${r.start},${r.end}`).join(' ');
   }
 
@@ -211,6 +227,9 @@ export class RichTextConverter {
       'TEXTDECORATION': { 'text-decoration': value }
     };
     const css = map[name];
+    if (!css) {
+      return '';
+    }
     return Object.entries(css).filter(([, value]) => !!value).map(([prop, value]) => `${prop}: ${value};`).join('\n');
   }
 }
