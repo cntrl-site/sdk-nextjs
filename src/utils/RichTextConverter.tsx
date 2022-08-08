@@ -38,7 +38,8 @@ export class RichTextConverter {
     richText: TRichTextItem,
     layouts: TLayout[]
   ): [ReactNode[], string] {
-    const { text, blocks = [] } = richText.commonParams;
+    const { text: rawText, blocks = [] } = richText.commonParams;
+    const text = Array.from(rawText); // because of emoji
     const root: ReactElement[] = [];
     const styleRules = layouts.reduce<Record<string, string[]>>((rec, layout) => {
       rec[layout.id] = [];
@@ -94,18 +95,18 @@ export class RichTextConverter {
         for (const entity of entitiesGroups) {
           const entityKids: ReactNode[] = [];
           if (offset < entity.start) {
-            kids.push(content.slice(offset, entity.start));
+            kids.push(content.slice(offset, entity.start).join(''));
             offset = entity.start;
           }
           for (const style of entity.stylesGroup) {
             if (offset < style.start) {
-              entityKids.push(content.slice(offset, style.start));
+              entityKids.push(content.slice(offset, style.start).join(''));
             }
-            entityKids.push(<span key={style.start} className={`s-${style.start}-${style.end}`}>{content.slice(style.start, style.end)}</span>);
+            entityKids.push(<span key={style.start} className={`s-${style.start}-${style.end}`}>{content.slice(style.start, style.end).join('')}</span>);
             offset = style.end;
           }
           if (offset < entity.end) {
-            entityKids.push(content.slice(offset, entity.end));
+            entityKids.push(content.slice(offset, entity.end).join(''));
             offset = entity.end;
           }
           if (entity.link) {
@@ -115,7 +116,7 @@ export class RichTextConverter {
           kids.push(...entityKids);
         }
         if (offset < content.length) {
-          kids.push(content.slice(offset));
+          kids.push(content.slice(offset).join(''));
         }
         for (const item of group) {
           const entitiesGroups = this.groupEntities(entities, item.styles) ?? [];
