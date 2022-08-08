@@ -23,7 +23,7 @@ export const Article: FC<Props> = ({ article, layouts }) => {
       <style jsx>{`
           .article {
             position: relative;
-            overflow-x: hidden;
+            overflow: hidden;
           }
       `}</style>
     </>
