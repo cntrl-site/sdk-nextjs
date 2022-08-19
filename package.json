@@ -1,6 +1,6 @@
 {
   "name": "@cntrl-site/sdk-nextjs",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "SDK for Next.js",
   "main": "lib/index.js",
   "types": "src/index.js",
@@ -21,8 +21,8 @@
   },
   "homepage": "https://github.com/cntrl-site/sdk-nextjs#readme",
   "dependencies": {
-    "@cntrl-site/core": "^1.0.6",
-    "@cntrl-site/sdk": "^0.0.2",
+    "@cntrl-site/core": "^1.0.7",
+    "@cntrl-site/sdk": "^0.0.3",
     "html-react-parser": "^3.0.1",
     "styled-jsx": "^5.0.2"
   },
