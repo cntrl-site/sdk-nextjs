@@ -8,6 +8,7 @@ import {
   getClosestLayoutValue,
   getLayoutMediaQuery
 } from '@cntrl-site/core';
+import { LinkWrapper } from '../components/LinkWrapper';
 
 interface StyleGroup {
   start: number;
@@ -110,7 +111,7 @@ export class RichTextConverter {
             offset = entity.end;
           }
           if (entity.link) {
-            kids.push(<a key={entity.start} target="_blank" href={entity.link} rel="noreferrer">{entityKids}</a>);
+            kids.push(<LinkWrapper key={entity.start} url={entity.link} >{entityKids}</LinkWrapper>);
             continue;
           }
           kids.push(...entityKids);
