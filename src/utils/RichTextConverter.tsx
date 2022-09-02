@@ -217,7 +217,7 @@ export class RichTextConverter {
     const { value, name } = draftStyle;
     const map: Record<string, Record<string, string | undefined>> = {
       'COLOR': { 'color': value },
-      'TYPEFACE': { 'font-family': `"${value}"` },
+      'TYPEFACE': { 'font-family': `${value}` },
       'FONTSTYLE': value ? { ...FontStyles[value] } : {},
       'FONTWEIGHT': { 'font-weight': value },
       'FONTSIZE': { 'font-size': `${parseFloat(value!) * 100}vw` },
