@@ -1,4 +1,3 @@
-export * from '@cntrl-site/core';
 export * from '@cntrl-site/sdk';
 
 export { RichTextConverter } from './utils/RichTextConverter';

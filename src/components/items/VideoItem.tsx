@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { TVideoItem } from '@cntrl-site/core';
+import { TVideoItem } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { getLayoutStyles } from '@cntrl-site/sdk';

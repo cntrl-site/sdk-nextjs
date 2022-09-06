@@ -7,7 +7,7 @@ import {
   VerticalAlign,
   getClosestLayoutValue,
   getLayoutMediaQuery
-} from '@cntrl-site/core';
+} from '@cntrl-site/sdk';
 import { LinkWrapper } from '../components/LinkWrapper';
 
 interface StyleGroup {

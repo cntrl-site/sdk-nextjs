@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { TArticle, TLayout } from '@cntrl-site/core';
+import { TArticle, TLayout } from '@cntrl-site/sdk';
 import { Section } from './Section';
 import { Item } from './Item';
 
