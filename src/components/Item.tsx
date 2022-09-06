@@ -1,11 +1,11 @@
 import { ComponentType, FC } from 'react';
 import {
+  getLayoutStyles,
   ArticleItemType,
   ArticleItemSizingType as SizingType,
   TArticleItemAny,
   TLayout
-} from '@cntrl-site/core';
-import { getLayoutStyles } from '@cntrl-site/sdk';
+} from '@cntrl-site/sdk';
 import { RectangleItem } from './items/RectangleItem';
 import { ImageItem } from './items/ImageItem';
 import { VideoItem } from './items/VideoItem';

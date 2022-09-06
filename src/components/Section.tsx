@@ -1,6 +1,5 @@
 import { FC, ReactElement } from 'react';
-import { TLayout, TArticleSection } from '@cntrl-site/core';
-import { getLayoutStyles } from '@cntrl-site/sdk';
+import { getLayoutStyles, TLayout, TArticleSection } from '@cntrl-site/sdk';
 
 type SectionChild = ReactElement<any, any>;
 

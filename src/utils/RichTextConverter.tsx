@@ -7,7 +7,8 @@ import {
   VerticalAlign,
   getClosestLayoutValue,
   getLayoutMediaQuery
-} from '@cntrl-site/core';
+} from '@cntrl-site/sdk';
+import { LinkWrapper } from '../components/LinkWrapper';
 
 interface StyleGroup {
   start: number;
@@ -110,7 +111,7 @@ export class RichTextConverter {
             offset = entity.end;
           }
           if (entity.link) {
-            kids.push(<a key={entity.start} target="_blank" href={entity.link} rel="noreferrer">{entityKids}</a>);
+            kids.push(<LinkWrapper key={entity.start} url={entity.link} >{entityKids}</LinkWrapper>);
             continue;
           }
           kids.push(...entityKids);
@@ -216,7 +217,7 @@ export class RichTextConverter {
     const { value, name } = draftStyle;
     const map: Record<string, Record<string, string | undefined>> = {
       'COLOR': { 'color': value },
-      'TYPEFACE': { 'font-family': `"${value}"` },
+      'TYPEFACE': { 'font-family': `${value}` },
       'FONTSTYLE': value ? { ...FontStyles[value] } : {},
       'FONTWEIGHT': { 'font-weight': value },
       'FONTSIZE': { 'font-size': `${parseFloat(value!) * 100}vw` },

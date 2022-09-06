@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import HTMLReactParser, { domToReact } from 'html-react-parser';
-import { TArticle, TProject, TMeta, TPageMeta } from '@cntrl-site/core';
+import { TArticle, TProject, TMeta, FontFaceGenerator, TPageMeta } from '@cntrl-site/sdk';
 import Head from 'next/head';
 import { Article } from './Article';
 
@@ -32,6 +32,7 @@ export const Page: FC<Props> = ({ article, project, meta }) => {
   const htmlHead = HTMLReactParser(project.html.head);
   const afterBodyOpen = HTMLReactParser(project.html.afterBodyOpen);
   const beforeBodyClose = HTMLReactParser(project.html.beforeBodyClose);
+  const ffGenerator = new FontFaceGenerator(customFonts);
   return (
     <>
       <Head>
@@ -43,15 +44,7 @@ export const Page: FC<Props> = ({ article, project, meta }) => {
         {customFonts.length > 0 && (
           <style
             dangerouslySetInnerHTML={{
-              __html: customFonts.map((font) => (
-                `
-                @font-face {
-                  font-family: ${font.name};
-                  font-weight: ${font.weight};
-                  src: ${font.files.map(file => `url('${file.url}') format('${file.type}')`).join(', ')};
-                }
-              `
-              )).join('\n')
+              __html: ffGenerator.generate()
             }}
           />
         )}

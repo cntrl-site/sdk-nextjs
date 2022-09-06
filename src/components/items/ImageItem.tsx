@@ -1,6 +1,5 @@
 import { FC } from 'react';
-import { TImageItem } from '@cntrl-site/core';
-import { getLayoutStyles } from '@cntrl-site/sdk';
+import { getLayoutStyles, TImageItem } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 
