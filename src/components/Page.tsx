@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import HTMLReactParser, { domToReact } from 'html-react-parser';
-import { TArticle, TProject, TMeta, FontFaceGenerator, TPageMeta } from '@cntrl-site/sdk';
+import { TArticle, TProject, TMeta, FontFaceGenerator } from '@cntrl-site/sdk';
 import Head from 'next/head';
 import { Article } from './Article';
 
@@ -13,17 +13,6 @@ interface Props {
 export const Page: FC<Props> = ({ article, project, meta }) => {
   const googleFonts: ReturnType<typeof domToReact> = HTMLReactParser(project.fonts.google);
   const adobeFonts: ReturnType<typeof domToReact> = HTMLReactParser(project.fonts.adobe);
-
-  const getPageMeta = (projectMeta: TMeta, pageMeta: TPageMeta): TMeta => {
-    return {
-      title: pageMeta.title ? pageMeta.title : projectMeta.title,
-      description: pageMeta.description ? pageMeta.description : projectMeta.description,
-      keywords: pageMeta.keywords ? pageMeta.keywords : projectMeta.keywords,
-      opengraphThumbnail: pageMeta.opengraphThumbnail ? pageMeta.opengraphThumbnail : projectMeta.opengraphThumbnail,
-      favicon: projectMeta.favicon
-    };
-  };
-  const priorityMeta = getPageMeta(project.meta, meta);
   const parsedFonts = {
     ...(typeof googleFonts === 'object' ? googleFonts : {}),
     ...(typeof adobeFonts === 'object' ? adobeFonts : {})
@@ -36,11 +25,11 @@ export const Page: FC<Props> = ({ article, project, meta }) => {
   return (
     <>
       <Head>
-        <title>{priorityMeta.title}</title>
-        <meta name="description" content={priorityMeta.description} />
-        <meta name="keywords" content={priorityMeta.keywords} />
-        <meta property="og:image" content={priorityMeta.opengraphThumbnail} />
-        <link rel="icon" href={priorityMeta.favicon} />
+        <title>{meta.title}</title>
+        <meta name="description" content={meta.description} />
+        <meta name="keywords" content={meta.keywords} />
+        <meta property="og:image" content={meta.opengraphThumbnail} />
+        <link rel="icon" href={meta.favicon} />
         {customFonts.length > 0 && (
           <style
             dangerouslySetInnerHTML={{
