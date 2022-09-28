@@ -84,7 +84,7 @@ export class RichTextConverter {
         const kids: ReactNode[] = [];
         layouts.forEach(l => {
           const ta = getClosestLayoutValue(richText.layoutParams, layouts, l.id).textAlign;
-          const whiteSpace = ta === TextAlign.Justify || ta === TextAlign.Right ? 'normal' : 'pre-wrap'
+          const whiteSpace = ta === TextAlign.Justify || ta === TextAlign.Right ? 'normal' : 'pre-wrap';
           styleRules[l.id].push(`
             .${blockClass} {
               display: ${group.some(g => g.layout === l.id) ? 'block' : 'none'};
