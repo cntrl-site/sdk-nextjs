@@ -1,12 +1,13 @@
 import { ReactElement, ReactNode } from 'react';
 import {
-  TLayout,
-  RichText,
-  TRichTextItem,
-  TextTransform,
-  VerticalAlign,
   getClosestLayoutValue,
-  getLayoutMediaQuery
+  getLayoutMediaQuery,
+  RichText,
+  TextAlign,
+  TextTransform,
+  TLayout,
+  TRichTextItem,
+  VerticalAlign
 } from '@cntrl-site/sdk';
 import { LinkWrapper } from '../components/LinkWrapper';
 
@@ -82,11 +83,14 @@ export class RichTextConverter {
         const blockClass = `rt_${richText.id}-b${blockIndex}_${layouts.map(l => group.some(g => g.layout === l.id) ? '1' : '0').join('')}`;
         const kids: ReactNode[] = [];
         layouts.forEach(l => {
+          const ta = getClosestLayoutValue(richText.layoutParams, layouts, l.id).textAlign;
+          const whiteSpace = ta === TextAlign.Justify || ta === TextAlign.Right ? 'normal' : 'pre-wrap'
           styleRules[l.id].push(`
             .${blockClass} {
               display: ${group.some(g => g.layout === l.id) ? 'block' : 'none'};
-              text-align: ${getClosestLayoutValue(richText.layoutParams, layouts, l.id).textAlign};
+              text-align: ${ta};
               line-height: 0;
+              white-space: ${whiteSpace};
             }
           `);
         });
