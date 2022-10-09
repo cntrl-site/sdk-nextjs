@@ -1,4 +1,4 @@
-import { ComponentType, FC } from 'react';
+import { ComponentType, FC, useContext, useEffect, useState } from 'react';
 import {
   getLayoutStyles,
   ArticleItemType,
@@ -10,10 +10,12 @@ import { RectangleItem } from './items/RectangleItem';
 import { ImageItem } from './items/ImageItem';
 import { VideoItem } from './items/VideoItem';
 import { RichTextItem } from './items/RichTextItem';
+import { CntrlOverrideContext } from './CntrlOverrideContext';
 
 export interface ItemProps<I extends TArticleItemAny> {
   layouts: TLayout[];
   item: I;
+  articleId: string;
 }
 
 const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
@@ -25,18 +27,26 @@ const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
 
 const noop = () => null;
 
-export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, layouts }) => {
+export const Item: FC<ItemProps<TArticleItemAny>> = ({ articleId, item, layouts }) => {
+  const overrideRegistry = useContext(CntrlOverrideContext);
+  const [, setIsOverridden] = useState<boolean>(false);
   const layoutValues: Record<string, any>[] = [item.area];
+  const itemId = item.id;
+
+  useEffect(() => overrideRegistry.onChange(() => {
+    setIsOverridden(overrideRegistry.isItemOverridden(articleId, itemId));
+  }), [overrideRegistry, articleId, itemId]);
+
   if (item.layoutParams) {
     layoutValues.push(item.layoutParams);
   }
 
   const sizingAxis = parseSizing(item.commonParams.sizing);
-  const ItemComponent = itemsMap[item.type] || noop;
+  const ItemComponent = overrideRegistry.getItemOverride(articleId, itemId) ?? itemsMap[item.type] ?? noop;
 
   return (
     <div className={`item-${item.id}`}>
-      <ItemComponent item={item} layouts={layouts} />
+      <ItemComponent articleId={articleId} item={item} layouts={layouts} />
       <style jsx>{`
         ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => (`
            .item-${item.id} {

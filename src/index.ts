@@ -10,3 +10,5 @@ export { RectangleItem } from './components/items/RectangleItem';
 export { RichTextItem } from './components/items/RichTextItem';
 export { VideoItem } from './components/items/VideoItem';
 export { LayoutStyle } from './components/LayoutStyle';
+export { CntrlOverride } from './components/CntrlOverride';
+export { ItemOverride } from './components/ItemOverride';

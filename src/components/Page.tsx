@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import HTMLReactParser, { domToReact } from 'html-react-parser';
 import { TArticle, TProject, TMeta, FontFaceGenerator } from '@cntrl-site/sdk';
 import Head from 'next/head';

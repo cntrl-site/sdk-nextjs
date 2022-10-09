@@ -15,7 +15,7 @@ export const Article: FC<Props> = ({ article, layouts }) => {
         {article.sections.map((section, i) => (
           <Section section={section} key={section.id} layouts={layouts}>
             {article.sections[i].items.map(item => (
-              <Item layouts={layouts} item={item} key={item.id} />
+              <Item articleId={article.id} layouts={layouts} item={item} key={item.id} />
             ))}
           </Section>
         ))}
