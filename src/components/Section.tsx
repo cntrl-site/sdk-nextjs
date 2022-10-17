@@ -1,5 +1,5 @@
 import { FC, ReactElement } from 'react';
-import { getLayoutStyles, TLayout, TArticleSection } from '@cntrl-site/sdk';
+import { getLayoutMediaQuery, getLayoutStyles, TArticleSection, TLayout } from '@cntrl-site/sdk';
 
 type SectionChild = ReactElement<any, any>;
 
@@ -9,19 +9,38 @@ interface Props {
   children: SectionChild[];
 }
 
-export const Section: FC<Props> = ({ section, layouts, children }) => (
-  <>
-    <div className={`section-${section.id}`}>
-      {children}
-    </div>
-    <style jsx>{`
+export const Section: FC<Props> = ({ section, layouts, children }) => {
+  const getSectionVisibilityStyles = () => {
+    return layouts
+      .sort((a, b) => a.startsWith - b.startsWith)
+      .reduce((acc, layout) => {
+        const isHidden = section.hidden[layout.id];
+        return `
+          ${acc}
+          ${getLayoutMediaQuery(layout.id, layouts)} {
+            .section-${section.id} {
+              display: ${isHidden ? 'none': 'block'};
+            }
+          }`;
+      }, '');
+  };
+
+ return (
+    <>
+      <div className={`section-${section.id}`}>
+        {children}
+      </div>
+      <style jsx>{`
       ${
-      getLayoutStyles(layouts, [section.height], ([height]) => (`
+        getLayoutStyles(layouts, [section.height], ([height]) => (`
          .section-${section.id} {
             height: ${height * 100}vw;
+            position: relative;
           }`
-      ))
-    }
+        ))
+      }
+      ${getSectionVisibilityStyles()}
     `}</style>
-  </>
-);
+    </>
+  );
+};
