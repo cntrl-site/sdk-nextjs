@@ -14,14 +14,14 @@ export const Section: FC<Props> = ({ section, layouts, children }) => {
     return layouts
       .sort((a, b) => a.startsWith - b.startsWith)
       .reduce((acc, layout) => {
-          const isHidden = section.hidden[layout.id];
-          return `
-        ${acc}
-        ${getLayoutMediaQuery(layout.id, layouts)} {
-          .section-${section.id} {
-            visibility: ${isHidden ? 'hidden': 'visible'};
-          }
-        }`;
+        const isHidden = section.hidden[layout.id];
+        return `
+          ${acc}
+          ${getLayoutMediaQuery(layout.id, layouts)} {
+            .section-${section.id} {
+              display: ${isHidden ? 'none': 'block'};
+            }
+          }`;
       }, '');
   };
 
