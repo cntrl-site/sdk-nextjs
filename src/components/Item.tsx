@@ -10,6 +10,7 @@ import { RectangleItem } from './items/RectangleItem';
 import { ImageItem } from './items/ImageItem';
 import { VideoItem } from './items/VideoItem';
 import { RichTextItem } from './items/RichTextItem';
+import { VimeoEmbed } from './items/VimeoEmbed';
 
 export interface ItemProps<I extends TArticleItemAny> {
   layouts: TLayout[];
@@ -20,7 +21,8 @@ const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
   [ArticleItemType.Rectangle]: RectangleItem,
   [ArticleItemType.Image]: ImageItem,
   [ArticleItemType.Video]: VideoItem,
-  [ArticleItemType.RichText]: RichTextItem
+  [ArticleItemType.RichText]: RichTextItem,
+  [ArticleItemType.VimeoEmbed]: VimeoEmbed
 };
 
 const noop = () => null;
@@ -38,12 +40,12 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, layouts }) => {
     <div className={`item-${item.id}`}>
       <ItemComponent item={item} layouts={layouts} />
       <style jsx>{`
-        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => (`
+        ${getLayoutStyles(layouts, layoutValues, ([area]) => (`
            .item-${item.id} {
               position: absolute;
               top: ${area.top * 100}vw;
-              left: ${layoutParams?.fullwidth ? 0 : area.left * 100}vw;
-              width: ${layoutParams?.fullwidth ? '100vw' : sizingAxis.x === SizingType.Manual ? `${area.width * 100}vw` : 'auto'};
+              left: ${area.left * 100}vw;
+              width: ${sizingAxis.x === SizingType.Manual ? `${area.width * 100}vw` : 'auto'};
               height: ${sizingAxis.y === SizingType.Manual ? `${area.height * 100}vw` : 'auto'};
               z-index: ${area.zIndex};
               transform: rotate(${area.angle}deg);
