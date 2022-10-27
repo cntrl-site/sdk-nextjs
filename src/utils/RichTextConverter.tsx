@@ -1,6 +1,5 @@
 import { ReactElement, ReactNode } from 'react';
 import {
-  getClosestLayoutValue,
   getLayoutMediaQuery,
   RichText,
   TextAlign,
@@ -48,7 +47,7 @@ export class RichTextConverter {
       return rec;
     }, {});
     let currentLineHeight = layouts.reduce<Record<string, string>>((rec, layout) => {
-      const styles = getClosestLayoutValue(richText.layoutParams, layouts, layout.id)?.styles;
+      const styles = richText.layoutParams[layout.id].styles;
       rec[layout.id] = styles?.find(s => s.style === 'LINEHEIGHT')?.value ?? '0';
       return rec;
     }, {});
@@ -69,7 +68,7 @@ export class RichTextConverter {
         continue;
       }
       const newStylesGroup = layouts.map(({ id: layoutId }) => {
-        const params = getClosestLayoutValue(richText.layoutParams, layouts, layoutId);
+        const params = richText.layoutParams[layoutId];
         const styles = params.styles!
           .filter(s => s.start >= block.start && s.end <= block.end)
           .map(s => ({ ...s, start: s.start - block.start, end: s.end - block.start }));
@@ -83,7 +82,7 @@ export class RichTextConverter {
         const blockClass = `rt_${richText.id}-b${blockIndex}_${layouts.map(l => group.some(g => g.layout === l.id) ? '1' : '0').join('')}`;
         const kids: ReactNode[] = [];
         layouts.forEach(l => {
-          const ta = getClosestLayoutValue(richText.layoutParams, layouts, l.id).textAlign;
+          const ta = richText.layoutParams[l.id].textAlign;
           const whiteSpace = ta === TextAlign.Justify || ta === TextAlign.Right ? 'normal' : 'pre-wrap';
           styleRules[l.id].push(`
             .${blockClass} {

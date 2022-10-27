@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { TArticle, TLayout } from '@cntrl-site/sdk';
+import { TArticle, TLayout, getLayoutStyles } from '@cntrl-site/sdk';
 import { Section } from './Section';
 import { Item } from './Item';
 
@@ -21,10 +21,13 @@ export const Article: FC<Props> = ({ article, layouts }) => {
         ))}
       </div>
       <style jsx>{`
+        ${getLayoutStyles(layouts, [article.color], ([color]) => (`
           .article {
             position: relative;
             overflow: hidden;
+            background-color: ${color ? color : 'transparent'};
           }
+        `))}
       `}</style>
     </>
   );
