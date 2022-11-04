@@ -24,7 +24,6 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, layouts }
 
   return (
     <LinkWrapper url={item.link?.url}>
-      <>
         <div className={`embed-video-wrapper-${item.id}`}>
           <iframe
             className="embedVideo"
@@ -54,7 +53,6 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, layouts }
           border: none;
         }
       `}</style>
-      </>
     </LinkWrapper>
   )
 };
