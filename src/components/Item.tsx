@@ -10,7 +10,7 @@ import { RectangleItem } from './items/RectangleItem';
 import { ImageItem } from './items/ImageItem';
 import { VideoItem } from './items/VideoItem';
 import { RichTextItem } from './items/RichTextItem';
-import { VimeoEmbed } from './items/VimeoEmbed';
+import { VimeoEmbedItem } from './items/VimeoEmbed';
 
 export interface ItemProps<I extends TArticleItemAny> {
   layouts: TLayout[];
@@ -22,7 +22,7 @@ const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
   [ArticleItemType.Image]: ImageItem,
   [ArticleItemType.Video]: VideoItem,
   [ArticleItemType.RichText]: RichTextItem,
-  [ArticleItemType.VimeoEmbed]: VimeoEmbed
+  [ArticleItemType.VimeoEmbed]: VimeoEmbedItem
 };
 
 const noop = () => null;
