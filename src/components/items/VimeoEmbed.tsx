@@ -4,7 +4,6 @@ import { TVimeoEmbedItem } from '@cntrl-site/core';
 import { LinkWrapper } from '../LinkWrapper';
 import { getLayoutStyles } from '@cntrl-site/sdk';
 
-
 export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, layouts }) => {
  const { autoplay, controls, loop, muted, pictureInPicture, url } = item.commonParams;
   const getValidVimeoUrl = (url: string): string => {

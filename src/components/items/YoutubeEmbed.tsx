@@ -1,21 +1,11 @@
 import { FC } from 'react';
 import { ItemProps } from '../Item';
-import { TVimeoEmbedItem } from '@cntrl-site/core';
+import { TYoutubeEmbedItem } from '@cntrl-site/core';
 import { LinkWrapper } from '../LinkWrapper';
 import { getLayoutStyles } from '@cntrl-site/sdk';
 
-export const YoutubeEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, layouts }) => {
+export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, layouts }) => {
   const { autoplay, controls, loop, url } = item.commonParams;
-
-  function getYoutubeId(url: URL): string | null | undefined {
-    if (url.hostname === 'youtu.be') {
-      return url.pathname.replace('/', '');
-    }
-    if (url.hostname === 'www.youtube.com') {
-      const searchParams = new URLSearchParams(url.search);
-      return searchParams.get('v');
-    }
-  };
 
   const getValidYoutubeUrl = (url: string): string => {
     const newUrl = new URL(url);
@@ -36,7 +26,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, layouts
         <iframe
           className="embedYoutubeVideo"
           src={validUrl || ''}
-          allow="autoplay; fullscreen;"
+          allow="autoplay; fullscreen; picture-in-picture;"
           allowFullScreen
         />
       </div>
@@ -54,13 +44,23 @@ export const YoutubeEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, layouts
             }`
       ))
       }
-      .embedYoutubeVideo {
-        width: 100%;
-        height: 100%;
-        z-index: 1;
-        border: none;
-      }
-    `}</style>
+        .embedYoutubeVideo {
+          width: 100%;
+          height: 100%;
+          z-index: 1;
+          border: none;
+        }
+      `}</style>
     </LinkWrapper>
   )
+};
+
+function getYoutubeId(url: URL): string | null | undefined {
+  if (url.hostname === 'youtu.be') {
+    return url.pathname.replace('/', '');
+  }
+  if (url.hostname === 'www.youtube.com') {
+    const searchParams = new URLSearchParams(url.search);
+    return searchParams.get('v');
+  }
 };
