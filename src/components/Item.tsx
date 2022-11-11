@@ -11,6 +11,7 @@ import { ImageItem } from './items/ImageItem';
 import { VideoItem } from './items/VideoItem';
 import { RichTextItem } from './items/RichTextItem';
 import { VimeoEmbedItem } from './items/VimeoEmbed';
+import { YoutubeEmbedItem } from './items/YoutubeEmbed'
 
 export interface ItemProps<I extends TArticleItemAny> {
   layouts: TLayout[];
