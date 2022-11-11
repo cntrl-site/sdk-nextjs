@@ -4,7 +4,6 @@ import { TVimeoEmbedItem } from '@cntrl-site/core';
 import { LinkWrapper } from '../LinkWrapper';
 import { getLayoutStyles } from '@cntrl-site/sdk';
 
-
 export const YoutubeEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, layouts }) => {
   const { autoplay, controls, loop, url } = item.commonParams;
 

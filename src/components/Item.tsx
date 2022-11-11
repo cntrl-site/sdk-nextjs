@@ -23,7 +23,8 @@ const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
   [ArticleItemType.Image]: ImageItem,
   [ArticleItemType.Video]: VideoItem,
   [ArticleItemType.RichText]: RichTextItem,
-  [ArticleItemType.VimeoEmbed]: VimeoEmbedItem
+  [ArticleItemType.VimeoEmbed]: VimeoEmbedItem,
+  [ArticleItemType.YoutubeEmbed]: YoutubeEmbedItem
 };
 
 const noop = () => null;
