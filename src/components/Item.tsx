@@ -11,6 +11,7 @@ import { ImageItem } from './items/ImageItem';
 import { VideoItem } from './items/VideoItem';
 import { RichTextItem } from './items/RichTextItem';
 import { VimeoEmbedItem } from './items/VimeoEmbed';
+import { CustomItem } from './items/CustomItem';
 
 export interface ItemProps<I extends TArticleItemAny> {
   layouts: TLayout[];
@@ -22,7 +23,9 @@ const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
   [ArticleItemType.Image]: ImageItem,
   [ArticleItemType.Video]: VideoItem,
   [ArticleItemType.RichText]: RichTextItem,
-  [ArticleItemType.VimeoEmbed]: VimeoEmbedItem
+  [ArticleItemType.YoutubeEmbed]: () => null,
+  [ArticleItemType.VimeoEmbed]: VimeoEmbedItem,
+  [ArticleItemType.Custom]: CustomItem
 };
 
 const noop = () => null;
