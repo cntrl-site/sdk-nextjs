@@ -15,5 +15,5 @@ export { VideoItem } from './components/items/VideoItem';
 export { LayoutStyle } from './components/LayoutStyle';
 
 // custom items
-export { CustomItemComponent } from './provider/CustomItemTypes';
+export type { CustomItemComponent } from './provider/CustomItemTypes';
 export const CustomItems = cntrlSdkContext.customItems;
