@@ -1,8 +1,8 @@
 import { FC } from 'react';
-import { ItemProps } from '../Item';
-import { TYoutubeEmbedItem } from '@cntrl-site/core';
-import { LinkWrapper } from '../LinkWrapper';
 import { getLayoutStyles } from '@cntrl-site/sdk';
+import { TYoutubeEmbedItem } from '@cntrl-site/core';
+import { ItemProps } from '../Item';
+import { LinkWrapper } from '../LinkWrapper';
 
 export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, layouts }) => {
   const { autoplay, controls, loop, url } = item.commonParams;
@@ -14,7 +14,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, layou
     validUrl.searchParams.append('controls', `${ Number(controls) }`);
     validUrl.searchParams.append('playlist', String(id));
     validUrl.searchParams.append('loop', `${ Number(loop) }`);
-    validUrl.searchParams.append('autoplay', `${ Number(autoplay) }`);
+    validUrl.searchParams.append('autoplay', `${ Number(autoplay) }&mute=1`);
 
     return validUrl.href;
   }
@@ -26,7 +26,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, layou
         <iframe
           className="embedYoutubeVideo"
           src={validUrl || ''}
-          allow="autoplay; fullscreen; picture-in-picture;"
+          allow="accelerometer; autoplay; allowfullscreen;"
           allowFullScreen
         />
       </div>
