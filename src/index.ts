@@ -1,3 +1,5 @@
+import { cntrlSdkContext } from './provider/defaultContext';
+
 export * from '@cntrl-site/sdk';
 
 export { RichTextConverter } from './utils/RichTextConverter';
@@ -12,3 +14,7 @@ export { VideoItem } from './components/items/VideoItem';
 export { LayoutStyle } from './components/LayoutStyle';
 export { VimeoEmbedItem } from './components/items/VimeoEmbed';
 export { YoutubeEmbedItem } from './components/items/YoutubeEmbed';
+
+// custom items
+export type { CustomItemComponent } from './provider/CustomItemTypes';
+export const CustomItems = cntrlSdkContext.customItems;
