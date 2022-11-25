@@ -3,6 +3,7 @@ import { getLayoutStyles } from '@cntrl-site/sdk';
 import { TYoutubeEmbedItem } from '@cntrl-site/core';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
+import { getYoutubeId } from '../../utils/getValidYoutubeUrl';
 
 export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, layouts }) => {
   const { autoplay, controls, loop, url } = item.commonParams;
@@ -56,12 +57,3 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, layou
   )
 };
 
-function getYoutubeId(url: URL): string | null | undefined {
-  if (url.hostname === 'youtu.be') {
-    return url.pathname.replace('/', '');
-  }
-  if (url.hostname === 'www.youtube.com') {
-    const searchParams = new URLSearchParams(url.search);
-    return searchParams.get('v');
-  }
-};
