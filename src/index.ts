@@ -16,5 +16,6 @@ export { VimeoEmbedItem } from './components/items/VimeoEmbed';
 export { YoutubeEmbedItem } from './components/items/YoutubeEmbed';
 
 // custom items
+export { CntrlProvider } from './provider/CntrlProvider';
 export type { CustomItemComponent } from './provider/CustomItemTypes';
 export const CustomItems = cntrlSdkContext.customItems;
