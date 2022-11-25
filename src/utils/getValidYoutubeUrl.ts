@@ -7,4 +7,4 @@ export function getYoutubeId(url: URL): string | null | undefined {
     const searchParams = new URLSearchParams(url.search);
     return searchParams.get('v');
   }
-};
+}
