@@ -1,9 +1,8 @@
 import { FC } from 'react';
-import { ItemProps } from '../Item';
-import { TVimeoEmbedItem } from '@cntrl-site/core';
-import { LinkWrapper } from '../LinkWrapper';
 import { getLayoutStyles } from '@cntrl-site/sdk';
-
+import { TVimeoEmbedItem } from '@cntrl-site/core';
+import { ItemProps } from '../Item';
+import { LinkWrapper } from '../LinkWrapper';
 
 export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, layouts }) => {
  const { autoplay, controls, loop, muted, pictureInPicture, url } = item.commonParams;
