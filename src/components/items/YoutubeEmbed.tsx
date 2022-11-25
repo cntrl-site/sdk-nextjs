@@ -34,18 +34,18 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, layou
       </div>
       <style jsx>{`
         ${getLayoutStyles(layouts, [item.layoutParams], ([{ radius }]) => (`
-           .embed-youtube-video-wrapper-${item.id} {
-              position: absolute;
-              overflow: hidden;
-              width: 100%;
-              height: 100%;
-              top: 50%;
-              left: 50%;
-              transform: translate(-50%, -50%);
-              border-radius: ${radius * 100}vw;
-            }`
-      ))
-      }
+        .embed-youtube-video-wrapper-${item.id} {
+          position: absolute;
+          overflow: hidden;
+          width: 100%;
+          height: 100%;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          border-radius: ${radius * 100}vw;
+        }`
+           ))
+         }
         .embedYoutubeVideo {
           width: 100%;
           height: 100%;

@@ -1,4 +1,5 @@
 export function getYoutubeId(url: URL): string | null | undefined {
+  if (!url) return;
   if (url.hostname === 'youtu.be') {
     return url.pathname.replace('/', '');
   }
