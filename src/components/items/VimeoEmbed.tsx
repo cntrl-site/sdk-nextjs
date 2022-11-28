@@ -8,14 +8,15 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, layouts }
  const { autoplay, controls, loop, muted, pictureInPicture, url } = item.commonParams;
   const getValidVimeoUrl = (url: string): string => {
     const validURL = new URL(url);
-    validURL.searchParams.append('autoplay', String(autoplay));
     validURL.searchParams.append('controls', String(controls));
+    validURL.searchParams.append('autoplay', !controls ? 'true' : String(autoplay));
     validURL.searchParams.append('muted', String(muted));
     validURL.searchParams.append('loop', String(loop));
     validURL.searchParams.append('pip', String(pictureInPicture));
     validURL.searchParams.append('title', '0');
     validURL.searchParams.append('byline', '0');
     validURL.searchParams.append('portrait', '0');
+    validURL.searchParams.append('autopause', 'false');
 
     return validURL.href;
   }
@@ -33,18 +34,17 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, layouts }
         </div>
         <style jsx>{`
         ${getLayoutStyles(layouts, [item.layoutParams], ([{ radius }]) => (`
-           .embed-video-wrapper-${item.id} {
-              position: absolute;
-              overflow: hidden;
-              width: 100%;
-              height: 100%;
-              top: 50%;
-              left: 50%;
-              transform: translate(-50%, -50%);
-              border-radius: ${radius * 100}vw;
-            }`
-        ))
-        }
+          .embed-video-wrapper-${item.id} {
+            position: absolute;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: ${radius * 100}vw;
+          }`
+        ))}
         .embedVideo {
           width: 100%;
           height: 100%;
