@@ -6,16 +6,14 @@ import { LinkWrapper } from '../LinkWrapper';
 import { getYoutubeId } from '../../utils/getValidYoutubeUrl';
 
 export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, layouts }) => {
-  const { autoplay, controls, loop, url } = item.commonParams;
+  const { autoplay, controls, url } = item.commonParams;
 
   const getValidYoutubeUrl = (url: string): string => {
     const newUrl = new URL(url);
     const id = getYoutubeId(newUrl);
     const validUrl = new URL(`https://www.youtube.com/embed/${id}`);
     validUrl.searchParams.append('controls', `${ Number(controls) }`);
-    validUrl.searchParams.append('playlist', String(id));
-    validUrl.searchParams.append('loop', `${ Number(loop) }`);
-    validUrl.searchParams.append('autoplay', `${ Number(autoplay) }`);
+    validUrl.searchParams.append('autoplay', !controls ? 'true' : `${ Number(autoplay) }`);
     validUrl.searchParams.append('mute', `${ Number(autoplay) }`);
 
     return validUrl.href;
