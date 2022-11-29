@@ -4,6 +4,7 @@ export * from '@cntrl-site/sdk';
 
 export { RichTextConverter } from './utils/RichTextConverter';
 export { Page } from './components/Page';
+export { CNTRLHead as Head } from './components/Head';
 export { Article } from './components/Article';
 export { Section } from './components/Section';
 export { Item } from './components/Item';
