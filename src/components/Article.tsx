@@ -21,13 +21,10 @@ export const Article: FC<Props> = ({ article, layouts }) => {
         ))}
       </div>
       <style jsx>{`
-        ${getLayoutStyles(layouts, [article.color], ([color]) => (`
-          .article {
+       .article {
             position: relative;
             overflow: hidden;
-            background-color: ${color ? color : 'transparent'};
           }
-        `))}
       `}</style>
     </>
   );
