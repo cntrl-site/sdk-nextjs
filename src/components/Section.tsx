@@ -1,5 +1,5 @@
 import { FC, ReactElement } from 'react';
-import { getLayoutMediaQuery, getLayoutStyles, TArticleSection, TLayout } from '@cntrl-site/sdk';
+import { getLayoutMediaQuery, getLayoutStyles, TArticleSection, TLayout, TSectionHeight, SectionHeightMode } from '@cntrl-site/sdk';
 
 type SectionChild = ReactElement<any, any>;
 
@@ -34,8 +34,15 @@ export const Section: FC<Props> = ({ section, layouts, children }) => {
       ${
         getLayoutStyles(layouts, [section.height], ([height]) => (`
          .section-${section.id} {
-            height: ${height * 100}vw;
+            height: ${getSectionHeight(height)};
             position: relative;
+          }`
+        ))
+      }
+      ${
+        getLayoutStyles(layouts, [section.color], ([color]) => (`
+         .section-${section.id} {
+            background-color: ${color ? color : 'transparent'};
           }`
         ))
       }
@@ -44,3 +51,10 @@ export const Section: FC<Props> = ({ section, layouts, children }) => {
     </>
   );
 };
+
+function getSectionHeight(heightData: TSectionHeight): string {
+  const { units, vhUnits, mode } = heightData;
+  if (mode === SectionHeightMode.ViewportHeightUnits) return `${vhUnits}vh`;
+  if (mode === SectionHeightMode.ControlUnits) return `${units * 100}vw`;
+  return '0';
+}

@@ -4,7 +4,8 @@ import {
   ArticleItemType,
   ArticleItemSizingType as SizingType,
   TArticleItemAny,
-  TLayout
+  TLayout,
+  AnchorSide
 } from '@cntrl-site/sdk';
 import { RectangleItem } from './items/RectangleItem';
 import { ImageItem } from './items/ImageItem';
@@ -47,7 +48,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, layouts }) => {
         ${getLayoutStyles(layouts, layoutValues, ([area]) => (`
            .item-${item.id} {
               position: absolute;
-              top: ${area.top * 100}vw;
+              top: ${getItemTopStyle(area.top, area.anchorSide)};
               left: ${area.left * 100}vw;
               width: ${sizingAxis.x === SizingType.Manual ? `${area.width * 100}vw` : 'auto'};
               height: ${sizingAxis.y === SizingType.Manual ? `${area.height * 100}vw` : 'auto'};
@@ -60,13 +61,26 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, layouts }) => {
   );
 };
 
-const parseSizing = (sizing: string): Axis => {
+function getItemTopStyle(top: number, anchorSide: AnchorSide) {
+  const defaultValue = `${top * 100}vw`;
+  if (!anchorSide) return defaultValue;
+  switch (anchorSide) {
+    case AnchorSide.Top:
+      return defaultValue;
+    case AnchorSide.Center:
+      return `calc(50% + ${top * 100}vw)`;
+    case AnchorSide.Bottom:
+      return `calc(100% + ${top * 100}vw)`;
+  }
+}
+
+function parseSizing(sizing: string): Axis {
   const axisSizing = sizing.split(' ');
   return {
     y: axisSizing[0],
     x: axisSizing[1] ? axisSizing[1] : axisSizing[0]
   } as Axis;
-};
+}
 
 interface Axis {
   x: SizingType;
