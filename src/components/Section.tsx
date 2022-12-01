@@ -54,7 +54,7 @@ export const Section: FC<Props> = ({ section, layouts, children }) => {
 
 function getSectionHeight(heightData: TSectionHeight): string {
   const { units, vhUnits, mode } = heightData;
-  if (mode === SectionHeightMode.ViewportHeightUnits) return `${vhUnits}vh`
-  if (mode === SectionHeightMode.ControlUnits) return `${units * 100}vw`
+  if (mode === SectionHeightMode.ViewportHeightUnits) return `${vhUnits}vh`;
+  if (mode === SectionHeightMode.ControlUnits) return `${units * 100}vw`;
   return '0';
 }
