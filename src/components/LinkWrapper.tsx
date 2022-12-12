@@ -6,7 +6,7 @@ interface Props {
 }
 
 export const LinkWrapper: React.FC<Props> = ({ url, children }) => {
-  const validUrl = validUrlBuild(url!);
+  const validUrl = buildValidUrl(url!);
   return url ? (
     <a
       href={validUrl}
@@ -21,8 +21,8 @@ export const LinkWrapper: React.FC<Props> = ({ url, children }) => {
 };
 
 
-function validUrlBuild(url: string): string {
-  const protocols = [
+function buildValidUrl(url: string): string {
+  const prefixes = [
     'http://',
     'https://',
     '/',
@@ -33,7 +33,7 @@ function validUrlBuild(url: string): string {
     'javascript',
     '#'
   ];
-  const protocolCheck = protocols.some(protocol => url.startsWith(protocol));
+  const protocolCheck = prefixes.some(prefix => url.startsWith(prefix));
   if (protocolCheck) return url;
   return `//${url}`;
 }
