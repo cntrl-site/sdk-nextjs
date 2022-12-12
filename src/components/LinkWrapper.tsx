@@ -1,4 +1,4 @@
-import React, { MouseEvent, ReactElement, ReactNode, useEffect } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
 interface Props {
   url?: string;
@@ -6,9 +6,10 @@ interface Props {
 }
 
 export const LinkWrapper: React.FC<Props> = ({ url, children }) => {
+  const validUrl = buildValidUrl(url!);
   return url ? (
     <a
-      href={!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('/') ? `//${url}`: url}
+      href={validUrl}
       target={url.startsWith('/') ? '_self' : '_blank'}
       rel="noreferrer"
     >
@@ -20,3 +21,19 @@ export const LinkWrapper: React.FC<Props> = ({ url, children }) => {
 };
 
 
+function buildValidUrl(url: string): string {
+  const prefixes = [
+    'http://',
+    'https://',
+    '/',
+    'mailto:',
+    'tel:',
+    'file:',
+    'ftp:',
+    'javascript',
+    '#'
+  ];
+  const protocolCheck = prefixes.some(prefix => url.startsWith(prefix));
+  if (protocolCheck) return url;
+  return `//${url}`;
+}
