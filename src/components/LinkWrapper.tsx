@@ -6,7 +6,7 @@ interface Props {
 }
 
 export const LinkWrapper: React.FC<Props> = ({ url, children }) => {
-  const validUrl = buildValidUrl(url!);
+  const validUrl = url && buildValidUrl(url);
   return url ? (
     <a
       href={validUrl}
