@@ -83,13 +83,12 @@ export class RichTextConverter {
         const kids: ReactNode[] = [];
         layouts.forEach(l => {
           const ta = richText.layoutParams[l.id].textAlign;
-          const whiteSpace = ta === TextAlign.Justify || ta === TextAlign.Right ? 'normal' : 'pre-wrap';
           styleRules[l.id].push(`
             .${blockClass} {
               display: ${group.some(g => g.layout === l.id) ? 'block' : 'none'};
               text-align: ${ta};
               line-height: 0;
-              white-space: ${whiteSpace};
+              white-space: normal;
               overflow-wrap: break-word;
             }
           `);
