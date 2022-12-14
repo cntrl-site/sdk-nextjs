@@ -2,7 +2,6 @@ import { ReactElement, ReactNode } from 'react';
 import {
   getLayoutMediaQuery,
   RichText,
-  TextAlign,
   TextTransform,
   TLayout,
   TRichTextItem,
