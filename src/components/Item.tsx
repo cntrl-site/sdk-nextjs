@@ -50,8 +50,8 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, layouts }) => {
               position: absolute;
               top: ${getItemTopStyle(area.top, area.anchorSide)};
               left: ${area.left * 100}vw;
-              width: ${sizingAxis.x === SizingType.Manual ? `${area.width * 100}vw` : 'auto'};
-              height: ${sizingAxis.y === SizingType.Manual ? `${area.height * 100}vw` : 'auto'};
+              width: ${sizingAxis.x === SizingType.Manual ? `${area.width * 100}vw` : 'max-content'};
+              height: ${sizingAxis.y === SizingType.Manual ? `${area.height * 100}vw` : 'unset'};
               z-index: ${area.zIndex};
               transform: rotate(${area.angle}deg);
             }
