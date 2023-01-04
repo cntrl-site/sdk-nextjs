@@ -1,21 +1,20 @@
 import { FC } from 'react';
-import { TArticle, TLayout, getLayoutStyles } from '@cntrl-site/sdk';
+import { TArticle } from '@cntrl-site/sdk';
 import { Section } from './Section';
 import { Item } from './Item';
 
 interface Props {
   article: TArticle;
-  layouts: TLayout[];
 }
 
-export const Article: FC<Props> = ({ article, layouts }) => {
+export const Article: FC<Props> = ({ article }) => {
   return (
     <>
       <div className="article">
         {article.sections.map((section, i) => (
-          <Section section={section} key={section.id} layouts={layouts}>
+          <Section section={section} key={section.id}>
             {article.sections[i].items.map(item => (
-              <Item layouts={layouts} item={item} key={item.id} />
+              <Item item={item} key={item.id} />
             ))}
           </Section>
         ))}

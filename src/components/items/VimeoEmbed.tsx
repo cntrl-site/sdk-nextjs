@@ -3,8 +3,10 @@ import { getLayoutStyles } from '@cntrl-site/sdk';
 import { TVimeoEmbedItem } from '@cntrl-site/core';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
+import { useCntrlContext } from '../../provider/useCntrlContext';
 
-export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, layouts }) => {
+export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item }) => {
+  const { layouts } = useCntrlContext();
  const { autoplay, controls, loop, muted, pictureInPicture, url } = item.commonParams;
   const getValidVimeoUrl = (url: string): string => {
     const validURL = new URL(url);
@@ -53,5 +55,5 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, layouts }
         }
       `}</style>
     </LinkWrapper>
-  )
+  );
 };

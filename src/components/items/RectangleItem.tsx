@@ -2,12 +2,15 @@ import { FC } from 'react';
 import { TRectangleItem, getLayoutStyles } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
+import { useCntrlContext } from '../../provider/useCntrlContext';
 
-export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, layouts }) => (
-  <LinkWrapper url={item.link?.url}>
-    <>
-      <div className={`rectangle-${item.id}`} />
-      <style jsx>{`
+export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item }) => {
+  const { layouts } = useCntrlContext();
+  return (
+    <LinkWrapper url={item.link?.url}>
+      <>
+        <div className={`rectangle-${item.id}`} />
+        <style jsx>{`
       ${getLayoutStyles(layouts, [item.layoutParams], ([{ strokeColor, fillColor, radius, strokeWidth }]) => (`
          .rectangle-${item.id} {
             position: absolute;
@@ -22,6 +25,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, layouts }) 
           }`
         ))}
       `}</style>
-    </>
-  </LinkWrapper>
-);
+      </>
+    </LinkWrapper>
+  );
+};

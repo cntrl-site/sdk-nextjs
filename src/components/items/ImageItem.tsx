@@ -2,14 +2,17 @@ import { FC } from 'react';
 import { getLayoutStyles, TImageItem } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
+import { useCntrlContext } from '../../provider/useCntrlContext';
 
-export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, layouts }) => (
-  <LinkWrapper url={item.link?.url}>
-    <>
-      <div className={`image-wrapper-${item.id}`}>
-        <img className="image" src={item.commonParams.url} />
-      </div>
-      <style jsx>{`
+export const ImageItem: FC<ItemProps<TImageItem>> = ({ item }) => {
+  const { layouts } = useCntrlContext();
+  return (
+    <LinkWrapper url={item.link?.url}>
+      <>
+        <div className={`image-wrapper-${item.id}`}>
+          <img className="image" src={item.commonParams.url} />
+        </div>
+        <style jsx>{`
         ${getLayoutStyles(layouts, [item.layoutParams], ([{ strokeColor, radius, strokeWidth, opacity }]) => (`
            .image-wrapper-${item.id} {
               position: absolute;
@@ -23,7 +26,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, layouts }) => (
               opacity: ${opacity};
               border-width: ${strokeWidth * 100}vw;
             }`
-          ))
+        ))
         }
         .image {
           width: 100%;
@@ -33,6 +36,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, layouts }) => (
           pointer-events: none;
         }
       `}</style>
-    </>
-  </LinkWrapper>
-);
+      </>
+    </LinkWrapper>
+  );
+};

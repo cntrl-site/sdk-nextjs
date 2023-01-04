@@ -4,8 +4,10 @@ import { TYoutubeEmbedItem } from '@cntrl-site/core';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { getYoutubeId } from '../../utils/getValidYoutubeUrl';
+import { useCntrlContext } from '../../provider/useCntrlContext';
 
-export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, layouts }) => {
+export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item }) => {
+  const { layouts } = useCntrlContext();
   const { autoplay, controls, url } = item.commonParams;
 
   const getValidYoutubeUrl = (url: string): string => {

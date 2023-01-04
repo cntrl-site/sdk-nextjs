@@ -1,15 +1,16 @@
 import { FC, ReactElement } from 'react';
-import { getLayoutMediaQuery, getLayoutStyles, TArticleSection, TLayout, TSectionHeight, SectionHeightMode } from '@cntrl-site/sdk';
+import { getLayoutMediaQuery, getLayoutStyles, TArticleSection, TSectionHeight, SectionHeightMode } from '@cntrl-site/sdk';
+import { useCntrlContext } from '../provider/useCntrlContext';
 
 type SectionChild = ReactElement<any, any>;
 
 interface Props {
   section: TArticleSection;
-  layouts: TLayout[];
   children: SectionChild[];
 }
 
-export const Section: FC<Props> = ({ section, layouts, children }) => {
+export const Section: FC<Props> = ({ section, children }) => {
+  const { layouts } = useCntrlContext();
   const getSectionVisibilityStyles = () => {
     return layouts
       .sort((a, b) => a.startsWith - b.startsWith)

@@ -7,12 +7,12 @@ import {
   TRichTextItem,
   VerticalAlign
 } from '@cntrl-site/sdk';
-import { LinkWrapper } from '../components/LinkWrapper';
+import { LinkWrapper } from '../../components/LinkWrapper';
 
 interface StyleGroup {
   start: number;
   end: number;
-  styles: DraftStyle[];
+  styles: Style[];
 }
 
 interface EntitiesGroup {
@@ -22,7 +22,7 @@ interface EntitiesGroup {
   end: number;
 }
 
-interface DraftStyle {
+interface Style {
   name: string;
   value?: string;
 }
@@ -36,7 +36,8 @@ export const FontStyles: Record<string, Record<string, string>> = {
 export class RichTextConverter {
   toHtml(
     richText: TRichTextItem,
-    layouts: TLayout[]
+    layouts: TLayout[],
+    hasPreset: boolean
   ): [ReactNode[], string] {
     const { text: rawText, blocks = [] } = richText.commonParams;
     const text = Array.from(rawText); // because of emoji
@@ -86,7 +87,7 @@ export class RichTextConverter {
             .${blockClass} {
               display: ${group.some(g => g.layout === l.id) ? 'block' : 'none'};
               text-align: ${ta};
-              line-height: 0;
+              ${hasPreset ? '' : 'line-height: 0;'}
               white-space: normal;
               overflow-wrap: break-word;
             }
@@ -215,7 +216,7 @@ export class RichTextConverter {
     return entitiesGroups;
   }
 
-  private static fromDraftToInline(draftStyle: DraftStyle): string {
+  private static fromDraftToInline(draftStyle: Style): string {
     const { value, name } = draftStyle;
     const map: Record<string, Record<string, string | undefined>> = {
       'COLOR': { 'color': value },
