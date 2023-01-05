@@ -1,8 +1,10 @@
 import { getLayoutMediaQuery, TLayout, TTypePresets } from '@cntrl-site/sdk';
 
+const reEmptyLines = /^\s*\n/gm;
+
 export function generateTypePresetStyles(preset: TTypePresets, layouts: TLayout[]): string {
   const sorted = layouts.slice().sort((a, b) => a.startsWith - b.startsWith);
-  return (`
+  const stylesStr = (`
     ${preset.presets.map(p => (`
 .cntrl-preset-${p.id} {
   font-family: ${p.fontFamily};
@@ -19,4 +21,5 @@ ${getLayoutMediaQuery(l.id, sorted)} {
     color: ${p.layoutParams[l.id].color};
   }
 }`)).join('\n')}`)).join('\n')}`);
+  return stylesStr.replace(reEmptyLines, '');
 }
