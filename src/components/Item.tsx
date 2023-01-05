@@ -4,7 +4,6 @@ import {
   ArticleItemType,
   ArticleItemSizingType as SizingType,
   TArticleItemAny,
-  TLayout,
   AnchorSide
 } from '@cntrl-site/sdk';
 import { RectangleItem } from './items/RectangleItem';
@@ -14,9 +13,9 @@ import { RichTextItem } from './items/RichTextItem';
 import { VimeoEmbedItem } from './items/VimeoEmbed';
 import { YoutubeEmbedItem } from './items/YoutubeEmbed';
 import { CustomItem } from './items/CustomItem';
+import { useCntrlContext } from '../provider/useCntrlContext';
 
 export interface ItemProps<I extends TArticleItemAny> {
-  layouts: TLayout[];
   item: I;
 }
 
@@ -32,7 +31,8 @@ const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
 
 const noop = () => null;
 
-export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, layouts }) => {
+export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
+  const { layouts } = useCntrlContext();
   const layoutValues: Record<string, any>[] = [item.area];
   if (item.layoutParams) {
     layoutValues.push(item.layoutParams);
@@ -43,7 +43,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, layouts }) => {
 
   return (
     <div className={`item-${item.id}`}>
-      <ItemComponent item={item} layouts={layouts} />
+      <ItemComponent item={item} />
       <style jsx>{`
         ${getLayoutStyles(layouts, layoutValues, ([area]) => (`
            .item-${item.id} {

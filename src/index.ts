@@ -1,8 +1,8 @@
-import { cntrlSdkContext } from './provider/defaultContext';
+export { cntrlSdkContext } from './provider/defaultContext';
 
 export * from '@cntrl-site/sdk';
 
-export { RichTextConverter } from './utils/RichTextConverter';
+export { RichTextConverter } from './utils/RichTextConverter/RichTextConverter';
 export { Page } from './components/Page';
 export { CNTRLHead as Head } from './components/Head';
 export { Article } from './components/Article';
@@ -19,4 +19,3 @@ export { YoutubeEmbedItem } from './components/items/YoutubeEmbed';
 // custom items
 export { CntrlProvider } from './provider/CntrlProvider';
 export type { CustomItemComponent } from './provider/CustomItemTypes';
-export const CustomItems = cntrlSdkContext.customItems;
