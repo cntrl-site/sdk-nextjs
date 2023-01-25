@@ -1,13 +1,13 @@
 import { FC } from 'react';
-import { getLayoutStyles } from '@cntrl-site/sdk';
 import { TVimeoEmbedItem } from '@cntrl-site/core';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useCntrlContext } from '../../provider/useCntrlContext';
+import { useEmbedVideoItem } from './useEmbedVideoItem';
 
 export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item }) => {
-  const { layouts } = useCntrlContext();
- const { autoplay, controls, loop, muted, pictureInPicture, url } = item.commonParams;
+  const { radius } = useEmbedVideoItem(item);
+  const { autoplay, controls, loop, muted, pictureInPicture, url } = item.commonParams;
   const getValidVimeoUrl = (url: string): string => {
     const validURL = new URL(url);
     validURL.searchParams.append('controls', String(controls));
@@ -26,7 +26,11 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item }) => {
 
   return (
     <LinkWrapper url={item.link?.url}>
-        <div className={`embed-video-wrapper-${item.id}`}>
+        <div className={`embed-video-wrapper-${item.id}`}
+          style={{
+            borderRadius: `${radius * 100}vw`
+          }}
+        >
           <iframe
             className="embedVideo"
             src={validUrl || ''}
@@ -35,18 +39,15 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item }) => {
           />
         </div>
         <style jsx>{`
-        ${getLayoutStyles(layouts, [item.layoutParams], ([{ radius }]) => (`
-          .embed-video-wrapper-${item.id} {
-            position: absolute;
-            overflow: hidden;
-            width: 100%;
-            height: 100%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border-radius: ${radius * 100}vw;
-          }`
-        ))}
+        .embed-video-wrapper-${item.id} {
+          position: absolute;
+          overflow: hidden;
+          width: 100%;
+          height: 100%;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
         .embedVideo {
           width: 100%;
           height: 100%;
