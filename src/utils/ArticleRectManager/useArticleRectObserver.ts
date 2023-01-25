@@ -14,4 +14,4 @@ export const useArticleRectObserver = (el?: HTMLElement | null) => {
   }, [el, articleRectObserver]);
 
   return articleRectObserver;
-}
+};

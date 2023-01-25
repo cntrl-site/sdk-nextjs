@@ -11,7 +11,7 @@ interface Props {
 
 export const Article: FC<Props> = ({ article }) => {
   const articleRef = useRef<HTMLDivElement | null>(null);
-  const articleRectObserver = useArticleRectObserver(articleRef.current)
+  const articleRectObserver = useArticleRectObserver(articleRef.current);
 
   return (
     <ArticleRectContext.Provider value={articleRectObserver}>

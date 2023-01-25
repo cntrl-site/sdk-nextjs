@@ -27,7 +27,7 @@ export const useCurrentLayout = () => {
     }, []);
   }, [layouts]);
   const getCurrentLayout = useCallback((articleWidth: number) => {
-    return layoutRanges.find(l => articleWidth >= l.start && articleWidth < l.end)!.layoutId
+    return layoutRanges.find(l => articleWidth >= l.start && articleWidth < l.end)!.layoutId;
   }, [layoutRanges]);
 
   useEffect(() => {
