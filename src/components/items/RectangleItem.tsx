@@ -19,7 +19,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item }) => {
           }}
         />
         <style jsx>{`
-      ${getLayoutStyles(layouts, [item.layoutParams], ([{ strokeColor, fillColor, radius, strokeWidth }]) => (`
+      ${getLayoutStyles(layouts, [item.layoutParams], ([{ strokeColor }]) => (`
          .rectangle-${item.id} {
             position: absolute;
             width: 100%;

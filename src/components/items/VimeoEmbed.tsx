@@ -2,7 +2,6 @@ import { FC } from 'react';
 import { TVimeoEmbedItem } from '@cntrl-site/core';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
-import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useEmbedVideoItem } from './useEmbedVideoItem';
 
 export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item }) => {

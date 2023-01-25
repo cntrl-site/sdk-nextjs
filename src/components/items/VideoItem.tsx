@@ -22,7 +22,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item }) => {
         </video>
       </div>
       <style jsx>{`
-      ${getLayoutStyles(layouts, [item.layoutParams], ([{ strokeColor, radius, strokeWidth, opacity }]) => (`
+      ${getLayoutStyles(layouts, [item.layoutParams], ([{ strokeColor, opacity }]) => (`
          .video-wrapper-${item.id} {
             position: absolute;
             overflow: hidden;

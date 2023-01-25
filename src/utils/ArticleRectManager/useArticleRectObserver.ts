@@ -1,5 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
-import { ArticleRectContext } from '../../provider/ArticleRectContext';
+import { useEffect, useState } from 'react';
 import { ArticleRectObserver } from './ArticleRectObserver';
 
 export const useArticleRectObserver = (el?: HTMLElement | null) => {

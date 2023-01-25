@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef } from 'react';
+import { FC, useRef } from 'react';
 import { TArticle } from '@cntrl-site/sdk';
 import { Section } from './Section';
 import { Item } from './Item';

@@ -20,7 +20,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item }) => {
           <img className="image" src={item.commonParams.url} />
         </div>
         <style jsx>{`
-        ${getLayoutStyles(layouts, [item.layoutParams], ([{ strokeColor, radius, strokeWidth, opacity }]) => (`
+        ${getLayoutStyles(layouts, [item.layoutParams], ([{ strokeColor, opacity }]) => (`
            .image-wrapper-${item.id} {
               position: absolute;
               overflow: hidden;
