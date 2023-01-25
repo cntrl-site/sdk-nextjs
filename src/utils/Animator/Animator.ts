@@ -191,7 +191,7 @@ function createKeyframesMap(): KeyframesMap {
   };
 }
 
-export function rangeMap(
+function rangeMap(
   n: number,
   start1: number,
   stop1: number,

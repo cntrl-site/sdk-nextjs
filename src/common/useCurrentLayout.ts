@@ -11,6 +11,7 @@ interface LayoutData {
 export const useCurrentLayout = () => {
   const { layouts } = useCntrlContext();
   const articleRectObserver = useContext(ArticleRectContext);
+  const [layoutId, setLayoutId] = useState<string | undefined>(undefined);
   const layoutRanges = useMemo(() => {
     const sorted = layouts.slice().sort((la, lb) => la.startsWith - lb.startsWith);
     return sorted.reduce<LayoutData[]>((acc, layout, i, layouts) => {
@@ -28,7 +29,6 @@ export const useCurrentLayout = () => {
   const getCurrentLayout = (articleWidth: number) => {
     return layoutRanges.find(l => articleWidth >= l.start && articleWidth < l.end)!.layoutId
   };
-  const [layoutId, setLayoutId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (!articleRectObserver) return;
