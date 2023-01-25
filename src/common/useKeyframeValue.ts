@@ -1,5 +1,6 @@
-import { KeyframeType, TArticleItemAny } from '@cntrl-site/sdk/src/index';
-import { DependencyList, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { KeyframeType, TArticleItemAny } from '@cntrl-site/sdk';
+import isEqual from 'lodash.isequal';
+import { DependencyList, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ArticleRectContext } from '../provider/ArticleRectContext';
 import { useCurrentLayout } from './useCurrentLayout';
 import { KeyframesContext } from '../provider/KeyframesContext';
@@ -28,7 +29,11 @@ export const useKeyframeValue = <T>(
   const paramValue = useMemo<T>(() => {
     return itemParamsGetterRef.current(item, layoutId);
   }, [item, layoutId, ...deps]);
+
   const [adjustedValue, setAdjustedValue] = useState<T>(paramValue);
+  const adjustedValueRef = useRef<T>(adjustedValue);
+  adjustedValueRef.current = adjustedValue;
+
   const animator = useMemo(() => {
     if (!layoutId || !keyframes.length) return;
     const animationData = keyframes
@@ -59,8 +64,11 @@ export const useKeyframeValue = <T>(
     return articleRectObserver.on('scroll', () => {
       const scroll = articleRectObserver.scroll;
       const newValue = animatorGetterRef.current(animator, scroll, paramValue);
-      setAdjustedValue(newValue);
+      if (!isEqual(newValue, adjustedValueRef.current)) {
+        setAdjustedValue(newValue);
+      }
     });
   }, [animator, articleRectObserver]);
   return adjustedValue;
 };
+

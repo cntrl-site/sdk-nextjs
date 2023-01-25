@@ -1,5 +1,5 @@
 import { useCntrlContext } from '../provider/useCntrlContext';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { ArticleRectContext } from '../provider/ArticleRectContext';
 
 interface LayoutData {
@@ -26,17 +26,17 @@ export const useCurrentLayout = () => {
       ];
     }, []);
   }, [layouts]);
-  const getCurrentLayout = (articleWidth: number) => {
+  const getCurrentLayout = useCallback((articleWidth: number) => {
     return layoutRanges.find(l => articleWidth >= l.start && articleWidth < l.end)!.layoutId
-  };
+  }, [layoutRanges]);
 
   useEffect(() => {
     if (!articleRectObserver) return;
     return articleRectObserver.on('resize', () => {
       const articleWidth = articleRectObserver.width;
       setLayoutId(getCurrentLayout(articleWidth));
-    })
-  }, [articleRectObserver]);
+    });
+  }, [articleRectObserver, getCurrentLayout]);
 
   return layoutId;
 };
