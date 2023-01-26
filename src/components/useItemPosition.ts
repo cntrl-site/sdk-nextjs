@@ -15,7 +15,7 @@ export const useItemPosition = (item: TArticleItemAny) => {
   const layoutId = useCurrentLayout()
   const { top, left } = useKeyframeValue<{ top: number; left: number }>(
     item,
-    (item, layoutId) => layoutId ? item.area[layoutId] : defaultArea,
+    (item, layoutId) => item.area[layoutId],
     (animator, scroll, value) => animator.getPositions(value, scroll),
     [layoutId]
   );

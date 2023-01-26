@@ -39,6 +39,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
   const { top, left } = useItemPosition(item);
   const { width, height } = useItemDimensions(item);
   const layoutValues: Record<string, any>[] = [item.area];
+  const isInitialRef = useRef(true);
   if (item.layoutParams) {
     layoutValues.push(item.layoutParams);
   }
@@ -46,17 +47,23 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
   const sizingAxis = parseSizing(item.commonParams.sizing);
   const ItemComponent = itemsMap[item.type] || noop;
 
+  useEffect(() => {
+    isInitialRef.current = false;
+  }, []);
+
+  const styles = {
+    transform: `rotate(${angle}deg)`,
+    left: `${left * 100}vw`,
+    width: `${sizingAxis.x === SizingType.Manual ? `${width * 100}vw` : 'max-content'}`,
+    height: `${sizingAxis.y === SizingType.Manual ? `${height * 100}vw` : 'unset'}`,
+    top
+  };
+
   return (
     <div
       suppressHydrationWarning={true}
       className={`item-${item.id}`}
-      style={{
-        transform: `rotate(${angle}deg)`,
-        left: `${left * 100}vw`,
-        width: `${sizingAxis.x === SizingType.Manual ? `${width * 100}vw` : 'max-content'}`,
-        height: `${sizingAxis.y === SizingType.Manual ? `${height * 100}vw` : 'unset'}`,
-        top,
-      }}
+      style={isInitialRef.current ? {} : styles }
     >
       <ItemComponent item={item} />
       <style jsx>{`

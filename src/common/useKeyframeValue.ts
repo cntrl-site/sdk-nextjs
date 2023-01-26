@@ -7,7 +7,7 @@ import { KeyframesContext } from '../provider/KeyframesContext';
 import { AnimationData, Animator } from '../utils/Animator/Animator';
 
 export type AnimatorGetter<T> = (animator: Animator, scroll: number, value: T) => T;
-type ItemParamGetter<T> = (item: TArticleItemAny, layoutId: string | undefined) => T;
+type ItemParamGetter<T> = (item: TArticleItemAny, layoutId: string) => T;
 const emptyDeps: DependencyList = [];
 
 export const useKeyframeValue = <T>(
