@@ -6,7 +6,7 @@ export const useItemAngle = (item: TArticleItemAny) => {
     item,
     (item, layoutId) => ({ angle: layoutId ? item.area[layoutId].angle : 0 }),
     (animator, scroll, value) => animator.getRotation(value, scroll)
-    );
+  );
   return angle;
 };
 
