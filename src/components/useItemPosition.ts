@@ -22,7 +22,7 @@ export const useItemPosition = (item: TArticleItemAny) => {
   return { top: getItemTopStyle(top, layoutId ? item.area[layoutId].anchorSide : AnchorSide.Top), left };
 };
 
-function getItemTopStyle(top: number, anchorSide?: AnchorSide) {
+export function getItemTopStyle(top: number, anchorSide?: AnchorSide) {
   const defaultValue = `${top * 100}vw`;
   if (!anchorSide) return defaultValue;
   switch (anchorSide) {
