@@ -1,6 +1,6 @@
 {
   "name": "@cntrl-site/sdk-nextjs",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "SDK for Next.js",
   "main": "lib/index.js",
   "types": "src/index.js",
@@ -29,12 +29,12 @@
     "next": "^12.2.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "lodash.isequal": "^4.5.0"
+    "lodash.isequal": "^4.5.0",
+    "@types/lodash.isequal": "^4.5.6"
   },
   "devDependencies": {
     "@tsconfig/node16": "^1.0.3",
     "@tsconfig/recommended": "^1.0.1",
-    "@types/lodash.isequal": "^4.5.6",
     "@types/jest": "^29.2.5",
     "@types/node": "^18.11.7",
     "@types/react": "^18.0.15",
