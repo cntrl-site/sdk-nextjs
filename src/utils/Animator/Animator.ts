@@ -88,6 +88,24 @@ export class Animator {
     };
   }
 
+  getBorderColor(
+    values: TKeyframeValueMap[KeyframeType.BorderColor],
+    pos: number
+  ): TKeyframeValueMap[KeyframeType.BorderColor] {
+    const keyframes = this.keyframesMap[KeyframeType.BorderColor];
+    if (!keyframes || !keyframes.length) return values;
+    if (keyframes.length === 1) {
+      const [keyframe] = keyframes;
+      return {
+        color: keyframe.value.color
+      };
+    }
+    const { start, end } = this.getStartEnd<KeyframeType.BorderColor>(pos, keyframes);
+    return {
+      color: this.getRgba(start, end, pos)
+    };
+  }
+
   getRadius(
     values: TKeyframeValueMap[KeyframeType.BorderRadius],
     pos: number
@@ -142,6 +160,24 @@ export class Animator {
     };
   }
 
+  getOpacity(
+    values: TKeyframeValueMap[KeyframeType.Opacity],
+    pos: number
+  ): TKeyframeValueMap[KeyframeType.Opacity] {
+    const keyframes = this.keyframesMap[KeyframeType.Opacity];
+    if (!keyframes || !keyframes.length) return values;
+    if (keyframes.length === 1) {
+      const [keyframe] = keyframes;
+      return {
+        opacity: keyframe.value.opacity
+      };
+    }
+    const { start, end } = this.getStartEnd<KeyframeType.Opacity>(pos, keyframes);
+    return {
+      opacity: rangeMap(pos, start.position, end.position, start.value.opacity, end.value.opacity, true)
+    };
+  }
+
   getStartEnd<T extends KeyframeType>(position: number, keyframes: AnimationData<T>[]): PositionKeyframes<T> {
     const index = binSearchInsertAt(keyframes, { position }, compare);
     const end = index === keyframes.length ? index - 1 : index;
@@ -157,8 +193,8 @@ export class Animator {
   }
 
   private getRgba(
-    start: AnimationData<KeyframeType.Color>,
-    end: AnimationData<KeyframeType.Color>,
+    start: AnimationData<KeyframeType.Color | KeyframeType.BorderColor>,
+    end: AnimationData<KeyframeType.Color | KeyframeType.BorderColor>,
     position: number
   ): string {
     const [startR, startG, startB, startA] = parseRgba(start.value.color);
@@ -187,7 +223,9 @@ function createKeyframesMap(): KeyframesMap {
     [KeyframeType.BorderWidth]: [],
     [KeyframeType.BorderRadius]: [],
     [KeyframeType.Color]: [],
-    [KeyframeType.Rotation]: []
+    [KeyframeType.Rotation]: [],
+    [KeyframeType.BorderColor]: [],
+    [KeyframeType.Opacity]: []
   };
 }
 
