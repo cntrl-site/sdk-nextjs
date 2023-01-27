@@ -35,6 +35,15 @@ export const useRectangleItem = (item: TRectangleItem) => {
     },
     (animator, scroll, value) => animator.getColor({ color: value }, scroll).color
   );
+  const strokeColor = useKeyframeValue(
+    item,
+    (item, layoutId) => {
+      if (!layoutId) return defaultColor;
+      const layoutParams = item.layoutParams[layoutId];
+      return 'strokeColor' in layoutParams ? layoutParams.strokeColor : defaultColor;
+    },
+    (animator, scroll, value) => animator.getBorderColor({ color: value }, scroll).color
+  );
 
-  return { fillColor, strokeWidth, radius };
+  return { fillColor, strokeWidth, radius, strokeColor };
 };
