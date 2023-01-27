@@ -1,10 +1,9 @@
-import { ComponentType, FC } from 'react';
+import { ComponentType, FC, useEffect, useRef } from 'react';
 import {
   getLayoutStyles,
   ArticleItemType,
   ArticleItemSizingType as SizingType,
-  TArticleItemAny,
-  AnchorSide
+  TArticleItemAny
 } from '@cntrl-site/sdk';
 import { RectangleItem } from './items/RectangleItem';
 import { ImageItem } from './items/ImageItem';
@@ -14,6 +13,9 @@ import { VimeoEmbedItem } from './items/VimeoEmbed';
 import { YoutubeEmbedItem } from './items/YoutubeEmbed';
 import { CustomItem } from './items/CustomItem';
 import { useCntrlContext } from '../provider/useCntrlContext';
+import { useItemAngle } from './useItemAngle';
+import { getItemTopStyle, useItemPosition } from './useItemPosition';
+import { useItemDimensions } from './useItemDimensions';
 
 export interface ItemProps<I extends TArticleItemAny> {
   item: I;
@@ -33,7 +35,11 @@ const noop = () => null;
 
 export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
   const { layouts } = useCntrlContext();
+  const angle = useItemAngle(item);
+  const { top, left } = useItemPosition(item);
+  const { width, height } = useItemDimensions(item);
   const layoutValues: Record<string, any>[] = [item.area];
+  const isInitialRef = useRef(true);
   if (item.layoutParams) {
     layoutValues.push(item.layoutParams);
   }
@@ -41,13 +47,30 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
   const sizingAxis = parseSizing(item.commonParams.sizing);
   const ItemComponent = itemsMap[item.type] || noop;
 
+  useEffect(() => {
+    isInitialRef.current = false;
+  }, []);
+
+  const styles = {
+    transform: `rotate(${angle}deg)`,
+    left: `${left * 100}vw`,
+    width: `${sizingAxis.x === SizingType.Manual ? `${width * 100}vw` : 'max-content'}`,
+    height: `${sizingAxis.y === SizingType.Manual ? `${height * 100}vw` : 'unset'}`,
+    top
+  };
+
   return (
-    <div className={`item-${item.id}`}>
+    <div
+      suppressHydrationWarning={true}
+      className={`item-${item.id}`}
+      style={isInitialRef.current ? {} : styles }
+    >
       <ItemComponent item={item} />
       <style jsx>{`
         ${getLayoutStyles(layouts, layoutValues, ([area]) => (`
            .item-${item.id} {
               position: absolute;
+              z-index: ${area.zIndex};
               top: ${getItemTopStyle(area.top, area.anchorSide)};
               left: ${area.left * 100}vw;
               width: ${sizingAxis.x === SizingType.Manual ? `${area.width * 100}vw` : 'max-content'};
@@ -60,19 +83,6 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
     </div>
   );
 };
-
-function getItemTopStyle(top: number, anchorSide: AnchorSide) {
-  const defaultValue = `${top * 100}vw`;
-  if (!anchorSide) return defaultValue;
-  switch (anchorSide) {
-    case AnchorSide.Top:
-      return defaultValue;
-    case AnchorSide.Center:
-      return `calc(50% + ${top * 100}vw)`;
-    case AnchorSide.Bottom:
-      return `calc(100% + ${top * 100}vw)`;
-  }
-}
 
 function parseSizing(sizing: string): Axis {
   const axisSizing = sizing.split(' ');

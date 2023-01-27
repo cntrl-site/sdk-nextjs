@@ -3,17 +3,24 @@ import { getLayoutStyles, TImageItem } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useCntrlContext } from '../../provider/useCntrlContext';
+import { useFileItem } from './useFileItem';
 
 export const ImageItem: FC<ItemProps<TImageItem>> = ({ item }) => {
   const { layouts } = useCntrlContext();
+  const { radius, strokeWidth } = useFileItem(item);
   return (
     <LinkWrapper url={item.link?.url}>
       <>
-        <div className={`image-wrapper-${item.id}`}>
+        <div className={`image-wrapper-${item.id}`}
+          style={{
+            borderRadius: `${radius * 100}vw`,
+            borderWidth: `${strokeWidth * 100}vw`
+          }}
+        >
           <img className="image" src={item.commonParams.url} />
         </div>
         <style jsx>{`
-        ${getLayoutStyles(layouts, [item.layoutParams], ([{ strokeColor, radius, strokeWidth, opacity }]) => (`
+        ${getLayoutStyles(layouts, [item.layoutParams], ([{ strokeColor, opacity }]) => (`
            .image-wrapper-${item.id} {
               position: absolute;
               overflow: hidden;
@@ -22,9 +29,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item }) => {
               border-style: solid;
               box-sizing: border-box;
               border-color: ${strokeColor};
-              border-radius: ${radius * 100}vw;
               opacity: ${opacity};
-              border-width: ${strokeWidth * 100}vw;
             }`
         ))
         }

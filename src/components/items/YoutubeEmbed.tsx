@@ -1,14 +1,13 @@
 import { FC } from 'react';
-import { getLayoutStyles } from '@cntrl-site/sdk';
 import { TYoutubeEmbedItem } from '@cntrl-site/core';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { getYoutubeId } from '../../utils/getValidYoutubeUrl';
-import { useCntrlContext } from '../../provider/useCntrlContext';
+import { useEmbedVideoItem } from './useEmbedVideoItem';
 
 export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item }) => {
-  const { layouts } = useCntrlContext();
   const { autoplay, controls, url } = item.commonParams;
+  const { radius } = useEmbedVideoItem(item);
 
   const getValidYoutubeUrl = (url: string): string => {
     const newUrl = new URL(url);
@@ -24,7 +23,11 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item }) => 
 
   return (
     <LinkWrapper url={item.link?.url}>
-      <div className={`embed-youtube-video-wrapper-${item.id}`}>
+      <div className={`embed-youtube-video-wrapper-${item.id}`}
+         style={{
+           borderRadius: `${radius * 100}vw`
+         }}
+      >
         <iframe
           className="embedYoutubeVideo"
           src={validUrl || ''}
@@ -33,18 +36,15 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item }) => 
         />
       </div>
       <style jsx>{`
-        ${getLayoutStyles(layouts, [item.layoutParams], ([{ radius }]) => (`
-          .embed-youtube-video-wrapper-${item.id} {
-            position: absolute;
-            overflow: hidden;
-            width: 100%;
-            height: 100%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border-radius: ${radius * 100}vw;
-          }`
-        ))}
+        .embed-youtube-video-wrapper-${item.id} {
+          position: absolute;
+          overflow: hidden;
+          width: 100%;
+          height: 100%;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
         .embedYoutubeVideo {
           width: 100%;
           height: 100%;

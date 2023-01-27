@@ -4,18 +4,25 @@ import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { getLayoutStyles } from '@cntrl-site/sdk';
 import { useCntrlContext } from '../../provider/useCntrlContext';
+import { useFileItem } from './useFileItem';
 
 export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item }) => {
   const { layouts } = useCntrlContext();
+  const { radius, strokeWidth } = useFileItem(item);
   return (
     <LinkWrapper url={item.link?.url}>
-      <div className={`video-wrapper-${item.id}`}>
+      <div className={`video-wrapper-${item.id}`}
+         style={{
+           borderRadius: `${radius * 100}vw`,
+           borderWidth: `${strokeWidth * 100}vw`
+         }}
+      >
         <video autoPlay muted loop playsInline className="video">
           <source src={item.commonParams.url} />
         </video>
       </div>
       <style jsx>{`
-      ${getLayoutStyles(layouts, [item.layoutParams], ([{ strokeColor, radius, strokeWidth, opacity }]) => (`
+      ${getLayoutStyles(layouts, [item.layoutParams], ([{ strokeColor, opacity }]) => (`
          .video-wrapper-${item.id} {
             position: absolute;
             overflow: hidden;
@@ -24,8 +31,6 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item }) => {
             border-style: solid;
             box-sizing: border-box;
             border-color: ${strokeColor};
-            border-radius: ${radius * 100}vw;
-            border-width: ${strokeWidth * 100}vw;
             opacity: ${opacity};
           }`
       ))
