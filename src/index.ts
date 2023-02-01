@@ -19,3 +19,4 @@ export { YoutubeEmbedItem } from './components/items/YoutubeEmbed';
 // custom items
 export { CntrlProvider } from './provider/CntrlProvider';
 export type { CustomItemComponent } from './provider/CustomItemTypes';
+export { useCntrlContext } from './provider/useCntrlContext';
