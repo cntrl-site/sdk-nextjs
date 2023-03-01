@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/cntrl-site/sdk-nextjs#readme",
   "dependencies": {
-    "@cntrl-site/sdk": "^0.4.2",
+    "@cntrl-site/sdk": "/Users/mac/Desktop/momdesign-projects/sdk/cntrl-site-sdk-0.4.2.tgz",
     "html-react-parser": "^3.0.1",
     "styled-jsx": "^5.0.2"
   },

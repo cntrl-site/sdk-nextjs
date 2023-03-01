@@ -14,8 +14,9 @@ import { YoutubeEmbedItem } from './items/YoutubeEmbed';
 import { CustomItem } from './items/CustomItem';
 import { useCntrlContext } from '../provider/useCntrlContext';
 import { useItemAngle } from './useItemAngle';
-import { getItemTopStyle, useItemPosition } from './useItemPosition';
+import { useItemPosition } from './useItemPosition';
 import { useItemDimensions } from './useItemDimensions';
+import { getItemTopStyle, useItemSticky } from './items/useItemSticky';
 
 export interface ItemProps<I extends TArticleItemAny> {
   item: I;
@@ -36,7 +37,8 @@ const noop = () => null;
 export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
   const { layouts } = useCntrlContext();
   const angle = useItemAngle(item);
-  const { top, left } = useItemPosition(item);
+  const position = useItemPosition(item);
+  const { top, isFixed } = useItemSticky(position.top, item);
   const { width, height } = useItemDimensions(item);
   const layoutValues: Record<string, any>[] = [item.area];
   const isInitialRef = useRef(true);
@@ -53,7 +55,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
 
   const styles = {
     transform: `rotate(${angle}deg)`,
-    left: `${left * 100}vw`,
+    left: `${position.left * 100}vw`,
     width: `${sizingAxis.x === SizingType.Manual ? `${width * 100}vw` : 'max-content'}`,
     height: `${sizingAxis.y === SizingType.Manual ? `${height * 100}vw` : 'unset'}`,
     top
@@ -63,7 +65,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
     <div
       suppressHydrationWarning={true}
       className={`item-${item.id}`}
-      style={isInitialRef.current ? {} : styles }
+      style={isInitialRef.current ? {} : { ...styles, position: isFixed ? 'fixed': 'absolute' } }
     >
       <ItemComponent item={item} />
       <style jsx>{`
