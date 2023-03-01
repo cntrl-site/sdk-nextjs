@@ -6,16 +6,16 @@ export class StickyManager {
   ) {}
 
   getIsSticky(scroll: number): boolean {
-    if (!this.sticky || scroll === 0) return false;
-    return (this.sticky.from < scroll) && (!this.sticky.to || this.sticky.to >= scroll);
+    if (!this.sticky) return false;
+    return (this.sticky.from <= scroll) && (!this.sticky.to || this.sticky.to > scroll);
   }
 
   getPosition(scroll: number, top: number, offsetTop: number): number {
-    if (!this.sticky || scroll === 0) return top;
+    if (!this.sticky) return top;
     if (this.getIsSticky(scroll)) {
       return top - this.sticky.from + offsetTop;
     }
-    if (this.sticky.to !== undefined && this.sticky.to <= scroll) {
+    if (this.sticky.to !== undefined && this.sticky.to < scroll) {
       return top + this.sticky.to - this.sticky.from;
     }
     return top;
