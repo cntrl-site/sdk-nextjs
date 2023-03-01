@@ -1,4 +1,4 @@
-import { ComponentType, FC, useEffect, useRef } from 'react';
+import { ComponentType, FC, useEffect, useRef, useState } from 'react';
 import {
   getLayoutStyles,
   ArticleItemType,
@@ -17,6 +17,7 @@ import { useItemAngle } from './useItemAngle';
 import { useItemPosition } from './useItemPosition';
 import { useItemDimensions } from './useItemDimensions';
 import { getItemTopStyle, useItemSticky } from './items/useItemSticky';
+import { castObject } from '../utils/castObject';
 
 export interface ItemProps<I extends TArticleItemAny> {
   item: I;
@@ -38,7 +39,9 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
   const { layouts } = useCntrlContext();
   const angle = useItemAngle(item);
   const position = useItemPosition(item);
-  const { top, isFixed } = useItemSticky(position.top, item);
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [parentOffsetTop, setParentOffsetTop] = useState(0);
+  const { top, isFixed } = useItemSticky(position.top, parentOffsetTop, item);
   const { width, height } = useItemDimensions(item);
   const layoutValues: Record<string, any>[] = [item.area];
   const isInitialRef = useRef(true);
@@ -53,6 +56,12 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
     isInitialRef.current = false;
   }, []);
 
+  useEffect(() => {
+    if (!ref.current) return;
+    const offsetParent = castObject(ref.current.offsetParent, HTMLElement);
+    setParentOffsetTop(offsetParent.offsetTop / window.innerWidth);
+  }, []);
+
   const styles = {
     transform: `rotate(${angle}deg)`,
     left: `${position.left * 100}vw`,
@@ -65,6 +74,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
     <div
       suppressHydrationWarning={true}
       className={`item-${item.id}`}
+      ref={ref}
       style={isInitialRef.current ? {} : { ...styles, position: isFixed ? 'fixed': 'absolute' } }
     >
       <ItemComponent item={item} />
