@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AnchorSide, TArticleItemAny } from '@cntrl-site/sdk';
 import { StickyManager } from '../../utils/StickyManager/StickyManager';
 import { useCurrentLayout } from '../../common/useCurrentLayout';
@@ -12,18 +12,14 @@ export const useItemSticky = (top: number, parentOffsetTop: number, item: TArtic
   const sticky = useMemo(() => item.layoutParams[layoutId].sticky, [layoutId]);
   const stickyManager = useMemo(() => new StickyManager(sticky), []);
 
-  const handleSticky = (scroll: number) => {
+  const handleSticky = useCallback((scroll: number) => {
     setIsFixed(stickyManager.getIsSticky(scroll));
     setAdjustedTop(stickyManager.getPosition(
       scroll,
       top,
       parentOffsetTop
     ));
-  };
-
-  useEffect(() => {
-    setAdjustedTop(top);
-  }, [top]);
+  }, [top, stickyManager]);
 
   useEffect(() => {
     if (!articleRectObserver || !sticky) return;
