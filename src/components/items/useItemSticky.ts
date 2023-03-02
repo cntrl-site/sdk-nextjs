@@ -19,7 +19,7 @@ export const useItemSticky = (top: number, parentOffsetTop: number, item: TArtic
       top,
       parentOffsetTop
     ));
-  }, [top, stickyManager]);
+  }, [top, stickyManager, parentOffsetTop]);
 
   useEffect(() => {
     if (!articleRectObserver || !sticky) return;

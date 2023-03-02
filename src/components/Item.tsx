@@ -39,7 +39,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
   const { layouts } = useCntrlContext();
   const angle = useItemAngle(item);
   const position = useItemPosition(item);
-  const ref = useRef<HTMLDivElement | null>(null);
+  const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const [parentOffsetTop, setParentOffsetTop] = useState(0);
   const { top, isFixed } = useItemSticky(position.top, parentOffsetTop, item);
   const { width, height } = useItemDimensions(item);
@@ -57,10 +57,10 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
   }, []);
 
   useEffect(() => {
-    if (!ref.current) return;
-    const offsetParent = castObject(ref.current.offsetParent, HTMLElement);
+    if (!ref) return;
+    const offsetParent = castObject(ref.offsetParent, HTMLElement);
     setParentOffsetTop(offsetParent.offsetTop / window.innerWidth);
-  }, []);
+  }, [ref]);
 
   const styles = {
     transform: `rotate(${angle}deg)`,
@@ -74,7 +74,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
     <div
       suppressHydrationWarning={true}
       className={`item-${item.id}`}
-      ref={ref}
+      ref={setRef}
       style={isInitialRef.current ? {} : { ...styles, position: isFixed ? 'fixed': 'absolute' } }
     >
       <ItemComponent item={item} />
