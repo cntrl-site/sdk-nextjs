@@ -1,11 +1,12 @@
-import { FC } from 'react';
-import { TRectangleItem } from '@cntrl-site/sdk';
+import { FC, useEffect, useState } from 'react';
+import { TRectangleItem, CntrlColor } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useRectangleItem } from './useRectangleItem';
 
 export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item }) => {
   const { fillColor, radius, strokeWidth, strokeColor } = useRectangleItem(item);
+
   return (
     <LinkWrapper url={item.link?.url}>
       <>

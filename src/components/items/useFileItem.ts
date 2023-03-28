@@ -1,4 +1,4 @@
-import { TImageItem, TVideoItem } from '@cntrl-site/sdk';
+import { CntrlColor, TImageItem, TVideoItem } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../../common/useKeyframeValue';
 import { useCurrentLayout } from '../../common/useCurrentLayout';
 
@@ -45,7 +45,10 @@ export const useFileItem = (item: TImageItem | TVideoItem) => {
       const layoutParams = item.layoutParams[layoutId];
       return 'strokeColor' in layoutParams ? layoutParams.strokeColor : defaultColor;
     },
-    (animator, scroll, value) => animator.getBorderColor({ color: value }, scroll).color
+    (animator, scroll, value) => {
+      const color = animator.getBorderColor({ color: value }, scroll).color;
+      return CntrlColor.parse(color).toCss();
+    }
   );
 
   return { radius, strokeWidth, opacity, strokeColor };

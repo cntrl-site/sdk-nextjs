@@ -1,4 +1,4 @@
-import { getLayoutMediaQuery, TLayout, TTypePresets } from '@cntrl-site/sdk';
+import { getLayoutMediaQuery, TLayout, TTypePresets, CntrlColor } from '@cntrl-site/sdk';
 
 const reEmptyLines = /^\s*\n/gm;
 
@@ -18,7 +18,7 @@ ${getLayoutMediaQuery(l.id, sorted)} {
     line-height: ${p.layoutParams[l.id].lineHeight * 100}vw;
     letter-spacing: ${p.layoutParams[l.id].letterSpacing * 100}vw;
     word-spacing: ${p.layoutParams[l.id].wordSpacing * 100}vw;
-    color: ${p.layoutParams[l.id].color};
+    color: ${CntrlColor.parse(p.layoutParams[l.id].color).toCss()};
   }
 }`)).join('\n')}`)).join('\n')}`);
   return stylesStr.replace(reEmptyLines, '');
