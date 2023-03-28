@@ -33,10 +33,7 @@ export const useRectangleItem = (item: TRectangleItem) => {
       const layoutParams = item.layoutParams[layoutId];
       return 'fillColor' in layoutParams ? layoutParams.fillColor : defaultColor;
     },
-    (animator, scroll, value) => {
-      const color = animator.getColor({ color: value }, scroll).color;
-      return CntrlColor.parse(color).toCss();
-    },
+    (animator, scroll, value) => animator.getColor({ color: value }, scroll).color,
     [layoutId]
   );
   const strokeColor = useKeyframeValue(
@@ -46,10 +43,7 @@ export const useRectangleItem = (item: TRectangleItem) => {
       const layoutParams = item.layoutParams[layoutId];
       return 'strokeColor' in layoutParams ? layoutParams.strokeColor : defaultColor;
     },
-    (animator, scroll, value) => {
-      const color = animator.getBorderColor({ color: value }, scroll).color;
-      return CntrlColor.parse(color).toCss();
-    },
+    (animator, scroll, value) => animator.getBorderColor({ color: value }, scroll).color,
     [layoutId]
   );
   return { fillColor, strokeWidth, radius, strokeColor };

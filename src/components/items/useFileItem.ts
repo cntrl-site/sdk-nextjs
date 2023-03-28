@@ -45,10 +45,7 @@ export const useFileItem = (item: TImageItem | TVideoItem) => {
       const layoutParams = item.layoutParams[layoutId];
       return 'strokeColor' in layoutParams ? layoutParams.strokeColor : defaultColor;
     },
-    (animator, scroll, value) => {
-      const color = animator.getBorderColor({ color: value }, scroll).color;
-      return CntrlColor.parse(color).toCss();
-    }
+    (animator, scroll, value) => animator.getBorderColor({ color: value }, scroll).color
   );
 
   return { radius, strokeWidth, opacity, strokeColor };

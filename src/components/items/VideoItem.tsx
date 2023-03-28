@@ -1,11 +1,12 @@
-import { FC } from 'react';
-import { TVideoItem } from '@cntrl-site/sdk';
+import { FC, useMemo } from 'react';
+import { CntrlColor, TVideoItem } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useFileItem } from './useFileItem';
 
 export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item }) => {
   const { radius, strokeWidth, strokeColor, opacity } = useFileItem(item);
+  const borderColor = useMemo(() => CntrlColor.parse(strokeColor).toCss(), [strokeColor]);
   return (
     <LinkWrapper url={item.link?.url}>
       <div className={`video-wrapper-${item.id}`}
@@ -13,7 +14,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item }) => {
            borderRadius: `${radius * 100}vw`,
            borderWidth: `${strokeWidth * 100}vw`,
            opacity: `${opacity}`,
-           borderColor: `${strokeColor}`
+           borderColor: `${borderColor}`
          }}
       >
         <video autoPlay muted loop playsInline className="video">
