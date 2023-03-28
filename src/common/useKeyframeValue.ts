@@ -48,7 +48,7 @@ export const useKeyframeValue = <T>(
 
   useEffect(() => {
     setAdjustedValue(paramValue);
-  } ,[paramValue]);
+  }, [paramValue]);
 
   useEffect(() => {
     if (!animator || !articleRectObserver) return;
