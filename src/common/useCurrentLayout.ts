@@ -31,10 +31,6 @@ export const useCurrentLayout = () => {
   const [layoutId, setLayoutId] = useState<string>(getCurrentLayout(0));
 
   useEffect(() => {
-    getCurrentLayout(window.innerWidth);
-  }, [])
-
-  useEffect(() => {
     if (!articleRectObserver) return;
     return articleRectObserver.on('resize', () => {
       const articleWidth = articleRectObserver.width;
@@ -44,7 +40,3 @@ export const useCurrentLayout = () => {
 
   return layoutId;
 };
-
-function isServer(): boolean {
-  return typeof window === 'undefined';
-}
