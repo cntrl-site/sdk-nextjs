@@ -1,28 +1,4 @@
-import { AllowedTags, TTypePresets } from '@cntrl-site/sdk';
-
-const layoutParams = {
-  'desktop': {
-    fontSize: 0.011111,
-    lineHeight: 0.013888,
-    wordSpacing: 0.0006944,
-    letterSpacing: 0.0006944,
-    color: 'rgba(0, 0, 0, 1)'
-  },
-  'tablet': {
-    fontSize: 0.02604,
-    lineHeight: 0.03125,
-    wordSpacing: 0,
-    letterSpacing: 0,
-    color: 'rgba(0, 0, 0, 1)'
-  },
-  'mobile': {
-    fontSize: 0.053333,
-    lineHeight: 0.064,
-    wordSpacing: 0.008,
-    letterSpacing: 0.008,
-    color: 'rgba(0, 0, 0, 1)'
-  }
-};
+import { TTypePresets, TypePresetStatus } from '@cntrl-site/sdk';
 
 export const presetMock: TTypePresets = {
   id: 'presetId',
@@ -33,17 +9,25 @@ export const presetMock: TTypePresets = {
       fontWeight: '400',
       fontStyle: '',
       name: 'Heading',
-      tag: AllowedTags.h1,
-      layoutParams
+      fontSize: 24,
+      lineHeight: 36,
+      wordSpacing: 1,
+      letterSpacing: 1,
+      color: 'rgba(0, 0, 0, 1)',
+      status: TypePresetStatus.Active
     },
     {
       id: 'heading02',
       fontFamily: 'Aeonik',
       fontWeight: '400',
       fontStyle: 'italic',
-      name: 'Heading',
-      tag: AllowedTags.h1,
-      layoutParams
+      name: 'Heading 2',
+      fontSize: 24,
+      lineHeight: 36,
+      wordSpacing: 1,
+      letterSpacing: 1,
+      color: 'rgba(0, 0, 0, 1)',
+      status: TypePresetStatus.Active
     }
   ]
 };

@@ -8,28 +8,28 @@ describe('generateTypePresetStyles', () => {
     const expectedMedia = (id: string) =>
 `@media (min-width: 0px) and (max-width: 767px) {
   .cntrl-preset-${id} {
-    font-size: 5.3332999999999995vw;
-    line-height: 6.4vw;
-    letter-spacing: 0.8vw;
-    word-spacing: 0.8vw;
+    font-size: 6.4vw;
+    line-height: 9.6vw;
+    letter-spacing: 0.26666666666666666vw;
+    word-spacing: 0.26666666666666666vw;
     color: rgba(0, 0, 0, 1);
   }
 }
 @media (min-width: 768px) and (max-width: 1023px) {
   .cntrl-preset-${id} {
-    font-size: 2.604vw;
-    line-height: 3.125vw;
-    letter-spacing: 0vw;
-    word-spacing: 0vw;
+    font-size: 3.125vw;
+    line-height: 4.6875vw;
+    letter-spacing: 0.13020833333333331vw;
+    word-spacing: 0.13020833333333331vw;
     color: rgba(0, 0, 0, 1);
   }
 }
 @media (min-width: 1024px) {
   .cntrl-preset-${id} {
-    font-size: 1.1111vw;
-    line-height: 1.3888vw;
-    letter-spacing: 0.06944vw;
-    word-spacing: 0.06944vw;
+    font-size: 1.6666666666666667vw;
+    line-height: 2.5vw;
+    letter-spacing: 0.06944444444444445vw;
+    word-spacing: 0.06944444444444445vw;
     color: rgba(0, 0, 0, 1);
   }
 }`;
