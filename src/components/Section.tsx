@@ -1,6 +1,14 @@
 import { FC, ReactElement } from 'react';
-import { getLayoutMediaQuery, getLayoutStyles, TArticleSection, TSectionHeight, SectionHeightMode } from '@cntrl-site/sdk';
+import {
+  getLayoutMediaQuery,
+  getLayoutStyles,
+  TArticleSection,
+  TSectionHeight,
+  SectionHeightMode,
+  CntrlColor
+} from '@cntrl-site/sdk';
 import { useCntrlContext } from '../provider/useCntrlContext';
+import { useSectionColor } from './useSectionColor';
 
 type SectionChild = ReactElement<any, any>;
 
@@ -11,6 +19,7 @@ interface Props {
 
 export const Section: FC<Props> = ({ section, children }) => {
   const { layouts } = useCntrlContext();
+  const backgroundColor = useSectionColor(section.color);
   const getSectionVisibilityStyles = () => {
     return layouts
       .sort((a, b) => a.startsWith - b.startsWith)
@@ -28,7 +37,12 @@ export const Section: FC<Props> = ({ section, children }) => {
 
  return (
     <>
-      <div className={`section-${section.id}`}>
+      <div
+        className={`section-${section.id}`}
+        style={{
+          backgroundColor: backgroundColor
+        }}
+      >
         {children}
       </div>
       <style jsx>{`
@@ -37,13 +51,6 @@ export const Section: FC<Props> = ({ section, children }) => {
          .section-${section.id} {
             height: ${getSectionHeight(height)};
             position: relative;
-          }`
-        ))
-      }
-      ${
-        getLayoutStyles(layouts, [section.color], ([color]) => (`
-         .section-${section.id} {
-            background-color: ${color ? color : 'transparent'};
           }`
         ))
       }

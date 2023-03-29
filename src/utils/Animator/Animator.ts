@@ -1,4 +1,4 @@
-import { KeyframeType, TKeyframeValueMap } from '@cntrl-site/sdk';
+import { KeyframeType, TKeyframeValueMap, CntrlColor } from '@cntrl-site/sdk';
 import { binSearchInsertAt, createInsert } from '../binSearchInsertAt';
 
 export interface AnimationData<T extends KeyframeType> {
@@ -84,7 +84,7 @@ export class Animator {
     }
     const { start, end } = this.getStartEnd<KeyframeType.Color>(pos, keyframes);
     return {
-      color: this.getRgba(start, end, pos)
+      color: this.getRangeColor(start, end, pos)
     };
   }
 
@@ -102,7 +102,7 @@ export class Animator {
     }
     const { start, end } = this.getStartEnd<KeyframeType.BorderColor>(pos, keyframes);
     return {
-      color: this.getRgba(start, end, pos)
+      color: this.getRangeColor(start, end, pos)
     };
   }
 
@@ -192,29 +192,19 @@ export class Animator {
     }
   }
 
-  private getRgba(
+  private getRangeColor(
     start: AnimationData<KeyframeType.Color | KeyframeType.BorderColor>,
     end: AnimationData<KeyframeType.Color | KeyframeType.BorderColor>,
     position: number
   ): string {
-    const [startR, startG, startB, startA] = parseRgba(start.value.color);
-    const [endR, endG, endB, endA] = parseRgba(end.value.color);
-    const r = rangeMap(position, start.position, end.position, startR, endR, true);
-    const g = rangeMap(position, start.position, end.position, startG, endG, true);
-    const b = rangeMap(position, start.position, end.position, startB, endB, true);
-    const a = rangeMap(position, start.position, end.position, startA, endA, true);
-    return `rgba(${r},${g},${b},${a})`;
+    const rangeAmount = rangeMap(position, start.position, end.position, 0, 1, true);
+    const startColor = CntrlColor.parse(start.value.color);
+    const endColor = CntrlColor.parse(end.value.color);
+    const mixedColor = startColor.mix(endColor, rangeAmount);
+    return mixedColor.fmt('oklch');
   }
 }
 
-const reRgba = /^rgba?\( *(\d+) *, *(\d+) *, *(\d+)(?: *, *(\d+(?:\.\d+)?))? *\)$/i;
-
-function parseRgba(color: string): [r: number, g: number, b: number, a: number] {
-  const match = reRgba.exec(color);
-  if (!match) return [0, 0, 0, 1];
-  const [, r, g, b, a] = match;
-  return [parseInt(r, 10), parseInt(g, 10), parseInt(b, 10), a ? parseFloat(a) : NaN];
-}
 
 function createKeyframesMap(): KeyframesMap {
   return {

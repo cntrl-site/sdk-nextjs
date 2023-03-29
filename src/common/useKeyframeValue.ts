@@ -47,6 +47,10 @@ export const useKeyframeValue = <T>(
   }, [keyframes, layoutId]);
 
   useEffect(() => {
+    setAdjustedValue(paramValue);
+  }, [paramValue]);
+
+  useEffect(() => {
     if (!animator || !articleRectObserver) return;
     return articleRectObserver.on('resize', () => {
       const scroll = articleRectObserver.scroll;

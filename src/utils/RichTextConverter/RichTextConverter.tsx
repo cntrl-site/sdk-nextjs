@@ -1,5 +1,6 @@
 import { ReactElement, ReactNode } from 'react';
 import {
+  CntrlColor,
   getLayoutMediaQuery,
   RichText,
   TextTransform,
@@ -219,7 +220,7 @@ export class RichTextConverter {
   private static fromDraftToInline(draftStyle: Style): string {
     const { value, name } = draftStyle;
     const map: Record<string, Record<string, string | undefined>> = {
-      'COLOR': { 'color': value },
+      'COLOR': { 'color': getResolvedValue(value, name) },
       'TYPEFACE': { 'font-family': `${value}` },
       'FONTSTYLE': value ? { ...FontStyles[value] } : {},
       'FONTWEIGHT': { 'font-weight': value },
@@ -249,4 +250,9 @@ function groupBy<I>(items: I[], getKey: (item: I) => PropertyKey): Record<Proper
     groups[key]!.push(item);
   }
   return groups;
+}
+
+function getResolvedValue(value: string | undefined, name: string) {
+  if (name !== 'COLOR') return value;
+  return value ? CntrlColor.parse(value).toCss() : value;
 }

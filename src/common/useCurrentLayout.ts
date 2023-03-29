@@ -10,7 +10,6 @@ interface LayoutData {
 
 export const useCurrentLayout = () => {
   const { layouts } = useCntrlContext();
-  const [initialLayout] = layouts;
   const articleRectObserver = useContext(ArticleRectContext);
   const layoutRanges = useMemo(() => {
     const sorted = layouts.slice().sort((la, lb) => la.startsWith - lb.startsWith);
@@ -29,7 +28,7 @@ export const useCurrentLayout = () => {
   const getCurrentLayout = useCallback((articleWidth: number) => {
     return layoutRanges.find(l => articleWidth >= l.start && articleWidth < l.end)!.layoutId;
   }, [layoutRanges]);
-  const [layoutId, setLayoutId] = useState<string>(getCurrentLayout(isServer() ? 0 : window.innerWidth));
+  const [layoutId, setLayoutId] = useState<string>(getCurrentLayout(0));
 
   useEffect(() => {
     if (!articleRectObserver) return;
@@ -41,7 +40,3 @@ export const useCurrentLayout = () => {
 
   return layoutId;
 };
-
-function isServer(): boolean {
-  return typeof window === 'undefined';
-}

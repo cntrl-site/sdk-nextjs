@@ -1,11 +1,12 @@
-import { FC } from 'react';
-import { TImageItem } from '@cntrl-site/sdk';
+import { FC, useMemo } from 'react';
+import { CntrlColor, TImageItem } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useFileItem } from './useFileItem';
 
 export const ImageItem: FC<ItemProps<TImageItem>> = ({ item }) => {
   const { radius, strokeWidth, opacity, strokeColor } = useFileItem(item);
+  const borderColor = useMemo(() => CntrlColor.parse(strokeColor).toCss(), [strokeColor]);
   return (
     <LinkWrapper url={item.link?.url}>
       <>
@@ -14,7 +15,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item }) => {
             borderRadius: `${radius * 100}vw`,
             borderWidth: `${strokeWidth * 100}vw`,
             opacity: `${opacity}`,
-            borderColor: `${strokeColor}`
+            borderColor: `${borderColor}`
           }}
         >
           <img className="image" src={item.commonParams.url} />
