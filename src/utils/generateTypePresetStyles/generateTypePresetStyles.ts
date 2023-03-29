@@ -14,11 +14,11 @@ export function generateTypePresetStyles(preset: TTypePresets, layouts: TLayout[
   ${sorted.map(l => (`
 ${getLayoutMediaQuery(l.id, sorted)} {
   .cntrl-preset-${p.id} {
-    font-size: ${p.layoutParams[l.id].fontSize * 100}vw;
-    line-height: ${p.layoutParams[l.id].lineHeight * 100}vw;
-    letter-spacing: ${p.layoutParams[l.id].letterSpacing * 100}vw;
-    word-spacing: ${p.layoutParams[l.id].wordSpacing * 100}vw;
-    color: ${CntrlColor.parse(p.layoutParams[l.id].color).toCss()};
+    font-size: ${p.fontSize / l.exemplary * 100}vw;
+    line-height: ${p.lineHeight / l.exemplary * 100}vw;
+    letter-spacing: ${p.letterSpacing / l.exemplary * 100}vw;
+    word-spacing: ${p.wordSpacing / l.exemplary * 100}vw;
+    color: ${CntrlColor.parse(p.color).toCss()};
   }
 }`)).join('\n')}`)).join('\n')}`);
   return stylesStr.replace(reEmptyLines, '');
