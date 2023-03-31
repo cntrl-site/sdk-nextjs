@@ -10,7 +10,7 @@ export const useItemSticky = (top: number, parentOffsetTop: number, item: TArtic
   const articleRectObserver = useContext(ArticleRectContext);
   const layoutId = useCurrentLayout();
   const sticky = useMemo(() => item.layoutParams[layoutId].sticky, [layoutId]);
-  const stickyManager = useMemo(() => new StickyManager(sticky), []);
+  const stickyManager = useMemo(() => new StickyManager(sticky), [sticky]);
 
   const handleSticky = useCallback((scroll: number) => {
     setIsFixed(stickyManager.getIsSticky(scroll));
@@ -20,6 +20,10 @@ export const useItemSticky = (top: number, parentOffsetTop: number, item: TArtic
       parentOffsetTop
     ));
   }, [top, stickyManager, parentOffsetTop]);
+
+  useEffect(() => {
+    setAdjustedTop(top);
+  }, [top]);
 
   useEffect(() => {
     if (!articleRectObserver || !sticky) return;
