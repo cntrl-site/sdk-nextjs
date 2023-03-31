@@ -31,6 +31,12 @@ export const useCurrentLayout = () => {
   const [layoutId, setLayoutId] = useState<string>(getCurrentLayout(0));
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      getCurrentLayout(window.innerWidth);
+    }
+  }, []);
+
+  useEffect(() => {
     if (!articleRectObserver) return;
     return articleRectObserver.on('resize', () => {
       const articleWidth = articleRectObserver.width;
