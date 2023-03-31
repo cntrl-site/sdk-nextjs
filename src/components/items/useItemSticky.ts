@@ -9,8 +9,8 @@ export const useItemSticky = (top: number, parentOffsetTop: number, item: TArtic
   const [adjustedTop, setAdjustedTop] = useState(top);
   const articleRectObserver = useContext(ArticleRectContext);
   const layoutId = useCurrentLayout();
-  const sticky = useMemo(() => item.layoutParams[layoutId].sticky, [layoutId]);
-  const stickyManager = useMemo(() => new StickyManager(sticky), []);
+  const sticky = useMemo(() => layoutId ? item.layoutParams[layoutId].sticky : null, [layoutId]);
+  const stickyManager = useMemo(() => new StickyManager(sticky), [sticky]);
 
   const handleSticky = useCallback((scroll: number) => {
     setIsFixed(stickyManager.getIsSticky(scroll));
@@ -22,6 +22,10 @@ export const useItemSticky = (top: number, parentOffsetTop: number, item: TArtic
   }, [top, stickyManager, parentOffsetTop]);
 
   useEffect(() => {
+    setAdjustedTop(top);
+  }, [top, layoutId]);
+
+  useEffect(() => {
     if (!articleRectObserver || !sticky) return;
     return articleRectObserver.on('scroll', () => {
       handleSticky(articleRectObserver.scroll);
@@ -29,7 +33,7 @@ export const useItemSticky = (top: number, parentOffsetTop: number, item: TArtic
   }, [handleSticky, articleRectObserver, sticky]);
   return {
     isFixed,
-    top: sticky ? `${adjustedTop * 100}vw` : getItemTopStyle(adjustedTop, layoutId ? item.area[layoutId].anchorSide : AnchorSide.Top)
+    top: sticky ? `${adjustedTop * 100}vw` : getItemTopStyle(top, layoutId ? item.area[layoutId].anchorSide : AnchorSide.Top)
   };
 };
 

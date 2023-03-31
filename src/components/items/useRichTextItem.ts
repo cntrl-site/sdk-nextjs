@@ -9,7 +9,7 @@ const richTextConv = new RichTextConverter();
 export const useRichTextItem = (item: TRichTextItem): [ReactNode[], string, TTypePresetEntry | null] => {
   const layoutId = useCurrentLayout();
   const { layouts, typePresets } = useCntrlContext();
-  const presetId = item.layoutParams[layoutId].preset;
+  const presetId = layoutId ? item.layoutParams[layoutId].preset : null;
   const preset = presetId
     ? typePresets?.presets.find(p => p.id === presetId) ?? null
     : null;

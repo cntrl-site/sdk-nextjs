@@ -1,5 +1,5 @@
 import { useCntrlContext } from '../provider/useCntrlContext';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ArticleRectContext } from '../provider/ArticleRectContext';
 
 interface LayoutData {
@@ -28,7 +28,7 @@ export const useCurrentLayout = () => {
   const getCurrentLayout = useCallback((articleWidth: number) => {
     return layoutRanges.find(l => articleWidth >= l.start && articleWidth < l.end)!.layoutId;
   }, [layoutRanges]);
-  const [layoutId, setLayoutId] = useState<string>(getCurrentLayout(0));
+  const [layoutId, setLayoutId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (!articleRectObserver) return;

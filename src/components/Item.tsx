@@ -53,7 +53,9 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
   const ItemComponent = itemsMap[item.type] || noop;
 
   useEffect(() => {
-    isInitialRef.current = false;
+    if (typeof window !== 'undefined') {
+      isInitialRef.current = false;
+    }
   }, []);
 
   useEffect(() => {
@@ -67,7 +69,8 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
     left: `${position.left * 100}vw`,
     width: `${sizingAxis.x === SizingType.Manual ? `${width * 100}vw` : 'max-content'}`,
     height: `${sizingAxis.y === SizingType.Manual ? `${height * 100}vw` : 'unset'}`,
-    top
+    top,
+    position: isFixed ? 'fixed' : 'absolute'
   };
 
   return (
@@ -75,7 +78,8 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
       suppressHydrationWarning={true}
       className={`item-${item.id}`}
       ref={setRef}
-      style={isInitialRef.current ? {} : { ...styles, position: isFixed ? 'fixed': 'absolute' } }
+      // @ts-ignore
+      style={styles}
     >
       <ItemComponent item={item} />
       <style jsx>{`

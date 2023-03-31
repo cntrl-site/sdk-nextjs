@@ -8,7 +8,7 @@ const DEFAULT_COLOR = 'transparent';
 export const useSectionColor = (colorData: Record<LayoutIdentifier, string | null>): string => {
   const layoutId = useCurrentLayout();
    return useMemo(() => {
-     const layoutColor = colorData[layoutId];
+     const layoutColor = layoutId ? colorData[layoutId] : undefined;
      return !layoutColor ? DEFAULT_COLOR : CntrlColor.parse(layoutColor).toCss();
    }, []);
 };
