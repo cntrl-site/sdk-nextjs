@@ -8,7 +8,7 @@ interface LayoutData {
   end: number;
 }
 
-export const useCurrentLayout = () => {
+export const useCurrentLayout = (): string => {
   const { layouts } = useCntrlContext();
   const articleRectObserver = useContext(ArticleRectContext);
   const layoutRanges = useMemo(() => {

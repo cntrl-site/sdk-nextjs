@@ -1,8 +1,9 @@
 import { ComponentType, FC, useEffect, useRef, useState } from 'react';
 import {
-  getLayoutStyles,
-  ArticleItemType,
   ArticleItemSizingType as SizingType,
+  ArticleItemType,
+  getLayoutStyles,
+  TArticleItem,
   TArticleItemAny
 } from '@cntrl-site/sdk';
 import { RectangleItem } from './items/RectangleItem';
@@ -18,6 +19,7 @@ import { useItemPosition } from './useItemPosition';
 import { useItemDimensions } from './useItemDimensions';
 import { getItemTopStyle, useItemSticky } from './items/useItemSticky';
 import { castObject } from '../utils/castObject';
+import { useCurrentLayout } from '../common/useCurrentLayout';
 
 export interface ItemProps<I extends TArticleItemAny> {
   item: I;
@@ -39,6 +41,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
   const { layouts } = useCntrlContext();
   const angle = useItemAngle(item);
   const position = useItemPosition(item);
+  const layout = useCurrentLayout();
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const [parentOffsetTop, setParentOffsetTop] = useState(0);
   const { top, isFixed } = useItemSticky(position.top, parentOffsetTop, item);
@@ -49,7 +52,10 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
     layoutValues.push(item.layoutParams);
   }
 
-  const sizingAxis = parseSizing(item.commonParams.sizing);
+  const sizing = isItemType(item, ArticleItemType.RichText)
+    ? item.layoutParams[layout].sizing
+    : undefined;
+  const sizingAxis = parseSizing(sizing);
   const ItemComponent = itemsMap[item.type] || noop;
 
   useEffect(() => {
@@ -79,7 +85,9 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
     >
       <ItemComponent item={item} />
       <style jsx>{`
-        ${getLayoutStyles(layouts, layoutValues, ([area]) => (`
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
+          const sizingAxis = parseSizing(layoutParams.sizing);
+          return (`
            .item-${item.id} {
               position: absolute;
               z-index: ${area.zIndex};
@@ -90,13 +98,14 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
               z-index: ${area.zIndex};
               transform: rotate(${area.angle}deg);
             }
-        `))}
+          `);
+        })}
       `}</style>
     </div>
   );
 };
 
-function parseSizing(sizing: string): Axis {
+function parseSizing(sizing: string = 'manual'): Axis {
   const axisSizing = sizing.split(' ');
   return {
     y: axisSizing[0],
@@ -107,4 +116,8 @@ function parseSizing(sizing: string): Axis {
 interface Axis {
   x: SizingType;
   y: SizingType;
+}
+
+export function isItemType<T extends ArticleItemType>(item: TArticleItemAny, itemType: T): item is TArticleItem<T> {
+  return item.type === itemType;
 }
