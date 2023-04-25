@@ -4,8 +4,7 @@ import {
   getLayoutStyles,
   TArticleSection,
   TSectionHeight,
-  SectionHeightMode,
-  CntrlColor
+  SectionHeightMode
 } from '@cntrl-site/sdk';
 import { useCntrlContext } from '../provider/useCntrlContext';
 import { useSectionColor } from './useSectionColor';
@@ -39,6 +38,7 @@ export const Section: FC<Props> = ({ section, children }) => {
     <>
       <div
         className={`section-${section.id}`}
+        id={section.name}
         style={{
           backgroundColor: backgroundColor
         }}

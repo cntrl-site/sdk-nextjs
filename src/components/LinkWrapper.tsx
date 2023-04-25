@@ -10,7 +10,7 @@ export const LinkWrapper: React.FC<Props> = ({ url, children }) => {
   return url ? (
     <a
       href={validUrl}
-      target={url.startsWith('/') ? '_self' : '_blank'}
+      target={url.startsWith('/') || url.startsWith('#') ? '_self' : '_blank'}
       rel="noreferrer"
     >
       {children}
