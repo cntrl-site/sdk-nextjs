@@ -6,7 +6,8 @@ import {
   TextTransform,
   TLayout,
   TRichTextItem,
-  VerticalAlign
+  VerticalAlign,
+  TextAlign
 } from '@cntrl-site/sdk';
 import { LinkWrapper } from '../../components/LinkWrapper';
 
@@ -84,11 +85,12 @@ export class RichTextConverter {
         const kids: ReactNode[] = [];
         layouts.forEach(l => {
           const ta = richText.layoutParams[l.id].textAlign;
+          const whiteSpace = ta === TextAlign.Justify || ta === TextAlign.Right ? 'normal' : 'pre-wrap';
           styleRules[l.id].push(`
             .${blockClass} {
               display: ${group.some(g => g.layout === l.id) ? 'block' : 'none'};
               text-align: ${ta};
-              white-space: pre-wrap;
+              white-space: ${whiteSpace};
               overflow-wrap: break-word;
               ${!hasPreset && 'line-height: 0;'}
             }
