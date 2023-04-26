@@ -88,7 +88,7 @@ export class RichTextConverter {
             .${blockClass} {
               display: ${group.some(g => g.layout === l.id) ? 'block' : 'none'};
               text-align: ${ta};
-              white-space: normal;
+              white-space: pre-wrap;
               overflow-wrap: break-word;
               ${!hasPreset && 'line-height: 0;'}
             }
