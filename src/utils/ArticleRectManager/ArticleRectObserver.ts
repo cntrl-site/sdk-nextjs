@@ -13,7 +13,6 @@ export class ArticleRectObserver extends EventEmitter<EventMap> {
 
   constructor() {
     super();
-    this.handleScroll(window.scrollY);
     this.resizeObserver = new ResizeObserver(this.handleResize);
   }
 
