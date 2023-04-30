@@ -59,7 +59,7 @@ export class ArticleRectObserver extends EventEmitter<EventMap> {
     const element = entry.target;
     if (!(element instanceof HTMLElement)) return;
     this.notify(element);
-    this.handleScroll(window.scrollY);
+    this.setScroll(window.scrollY / this.articleWidth);
     this.emit('resize', undefined);
   };
 
