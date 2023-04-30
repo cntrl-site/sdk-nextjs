@@ -55,6 +55,10 @@ export const useKeyframeValue = <T>(
   }, [animator, paramValue]);
 
   useEffect(() => {
+    setAdjustedValue(paramValue);
+  }, [paramValue]);
+
+  useEffect(() => {
     if (!articleRectObserver) return;
     const scroll = articleRectObserver.scroll;
     handleKeyframeValue(scroll);
