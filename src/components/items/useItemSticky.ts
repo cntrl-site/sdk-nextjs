@@ -22,8 +22,9 @@ export const useItemSticky = (top: number, parentOffsetTop: number, item: TArtic
   }, [top, stickyManager, parentOffsetTop]);
 
   useEffect(() => {
-    setAdjustedTop(top);
-  }, [top]);
+    if (!articleRectObserver) return;
+      handleSticky(articleRectObserver.scroll);
+  }, [handleSticky, articleRectObserver]);
 
   useEffect(() => {
     if (!articleRectObserver || !sticky) return;

@@ -25,7 +25,7 @@ export const useKeyframeValue = <T>(
   const articleRectObserver = useContext(ArticleRectContext);
   const layoutId = useCurrentLayout();
   const keyframesRepo = useContext(KeyframesContext);
-  const keyframes = keyframesRepo.getItemKeyframes(item.id);
+  const keyframes = useMemo(() => keyframesRepo.getItemKeyframes(item.id), [item.id, keyframesRepo]);
   const paramValue = useMemo<T>(() => {
     return itemParamsGetterRef.current(item, layoutId);
   }, [item, layoutId, ...deps]);
@@ -46,29 +46,39 @@ export const useKeyframeValue = <T>(
     return new Animator(animationData);
   }, [keyframes, layoutId]);
 
+  const handleKeyframeValue = useCallback((scroll: number) => {
+    if (!animator) return;
+    const newValue = animatorGetterRef.current(animator, scroll, paramValue);
+    if (!isEqual(newValue, adjustedValueRef.current)) {
+      setAdjustedValue(newValue);
+    }
+  }, [animator, paramValue]);
+
   useEffect(() => {
     setAdjustedValue(paramValue);
   }, [paramValue]);
 
   useEffect(() => {
-    if (!animator || !articleRectObserver) return;
-    return articleRectObserver.on('resize', () => {
-      const scroll = articleRectObserver.scroll;
-      const newValue = animatorGetterRef.current(animator, scroll, paramValue);
-      setAdjustedValue(newValue);
-    });
-  }, [animator, articleRectObserver]);
+    if (!articleRectObserver) return;
+    const scroll = articleRectObserver.scroll;
+    handleKeyframeValue(scroll);
+  }, [articleRectObserver, handleKeyframeValue])
 
   useEffect(() => {
-    if (!animator || !articleRectObserver) return;
+    if (!articleRectObserver) return;
+    return articleRectObserver.on('resize', () => {
+      const scroll = articleRectObserver.scroll;
+      handleKeyframeValue(scroll);
+    });
+  }, [handleKeyframeValue, articleRectObserver]);
+
+  useEffect(() => {
+    if (!articleRectObserver) return;
     return articleRectObserver.on('scroll', () => {
       const scroll = articleRectObserver.scroll;
-      const newValue = animatorGetterRef.current(animator, scroll, paramValue);
-      if (!isEqual(newValue, adjustedValueRef.current)) {
-        setAdjustedValue(newValue);
-      }
+      handleKeyframeValue(scroll);
     });
-  }, [animator, articleRectObserver]);
+  }, [handleKeyframeValue, articleRectObserver]);
   return adjustedValue;
 };
 
