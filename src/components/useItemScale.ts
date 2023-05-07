@@ -9,8 +9,7 @@ export const useItemScale = (item: TArticleItemAny) => {
     (item, layoutId) => ({ scale: layoutId ? item.area[layoutId].scale : 1 }),
     (animator, scroll, value) => animator.getScale(value, scroll)
   );
-  const scaleAnchor = item.area[layout].scaleAnchor
+  const scaleAnchor = item.area[layout].scaleAnchor;
 
   return { scale, scaleAnchor };
-
 };

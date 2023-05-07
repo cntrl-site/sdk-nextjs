@@ -101,7 +101,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
               height: ${sizingAxis.y === SizingType.Manual ? `${area.height * 100}vw` : 'unset'};
               z-index: ${area.zIndex};
               transform: rotate(${area.angle}deg) scale(${scale});
-              transform-origin: ${ScaleAnchorMap[scaleAnchor]}
+              transform-origin: ${ScaleAnchorMap[scaleAnchor]};
             }
           `);
         })}
