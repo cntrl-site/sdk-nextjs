@@ -14,7 +14,6 @@ import { VimeoEmbedItem } from './items/VimeoEmbed';
 import { YoutubeEmbedItem } from './items/YoutubeEmbed';
 import { CustomItem } from './items/CustomItem';
 import { useCntrlContext } from '../provider/useCntrlContext';
-import { useItemAngle } from './useItemAngle';
 import { useItemPosition } from './useItemPosition';
 import { useItemDimensions } from './useItemDimensions';
 import { getItemTopStyle, useItemSticky } from './items/useItemSticky';
