@@ -72,7 +72,8 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
   }, [ref]);
 
   const styles = {
-    transform: `rotate(${angle}deg)`,
+    transform: `rotate(${angle}deg) scale(${scale})`,
+    transformOrigin: ScaleAnchorMap[scaleAnchor],
     left: `${position.left * 100}vw`,
     width: `${sizingAxis.x === SizingType.Manual ? `${width * 100}vw` : 'max-content'}`,
     height: `${sizingAxis.y === SizingType.Manual ? `${height * 100}vw` : 'unset'}`,
