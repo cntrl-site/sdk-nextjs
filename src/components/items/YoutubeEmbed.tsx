@@ -4,10 +4,12 @@ import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { getYoutubeId } from '../../utils/getValidYoutubeUrl';
 import { useEmbedVideoItem } from './useEmbedVideoItem';
+import { useItemAngle } from '../useItemAngle';
 
 export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item }) => {
   const { autoplay, controls, url } = item.commonParams;
   const { radius } = useEmbedVideoItem(item);
+  const angle = useItemAngle(item);
 
   const getValidYoutubeUrl = (url: string): string => {
     const newUrl = new URL(url);
@@ -41,9 +43,6 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item }) => 
           overflow: hidden;
           width: 100%;
           height: 100%;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
         }
         .embedYoutubeVideo {
           width: 100%;

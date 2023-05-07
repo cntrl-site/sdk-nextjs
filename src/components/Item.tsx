@@ -41,7 +41,7 @@ const noop = () => null;
 
 export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
   const { layouts } = useCntrlContext();
-  const angle = useItemAngle(item);
+  // const angle = useItemAngle(item);
   const { scale, scaleAnchor } = useItemScale(item);
   const position = useItemPosition(item);
   const layout = useCurrentLayout();
@@ -72,7 +72,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
   }, [ref]);
 
   const styles = {
-    transform: `rotate(${angle}deg) scale(${scale})`,
+    transform: `scale(${scale})`,
     transformOrigin: ScaleAnchorMap[scaleAnchor],
     left: `${position.left * 100}vw`,
     width: `${sizingAxis.x === SizingType.Manual ? `${width * 100}vw` : 'max-content'}`,
@@ -100,7 +100,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
               width: ${sizingAxis.x === SizingType.Manual ? `${area.width * 100}vw` : 'max-content'};
               height: ${sizingAxis.y === SizingType.Manual ? `${area.height * 100}vw` : 'unset'};
               z-index: ${area.zIndex};
-              transform: rotate(${area.angle}deg) scale(${scale});
+              transform: scale(${scale});
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
             }
           `);

@@ -3,9 +3,11 @@ import { TRectangleItem, CntrlColor } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useRectangleItem } from './useRectangleItem';
+import { useItemAngle } from '../useItemAngle';
 
 export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item }) => {
   const { fillColor, radius, strokeWidth, strokeColor } = useRectangleItem(item);
+  const angle = useItemAngle(item);
   const backgroundColor = useMemo(() => CntrlColor.parse(fillColor).toCss(), [fillColor]);
   const borderColor = useMemo(() => CntrlColor.parse(strokeColor).toCss(), [strokeColor]);
 
@@ -17,7 +19,8 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item }) => {
             backgroundColor: `${backgroundColor}`,
             borderRadius: `${radius * 100}vw`,
             borderWidth: `${strokeWidth * 100}vw`,
-            borderColor: `${borderColor}`
+            borderColor: `${borderColor}`,
+            transform: `rotate(${angle}deg)`
           }}
         />
         <style jsx>{`
