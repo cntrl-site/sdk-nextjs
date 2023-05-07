@@ -3,9 +3,11 @@ import { CntrlColor, TVideoItem } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useFileItem } from './useFileItem';
+import { useItemAngle } from '../useItemAngle';
 
 export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item }) => {
   const { radius, strokeWidth, strokeColor, opacity } = useFileItem(item);
+  const angle = useItemAngle(item);
   const borderColor = useMemo(() => CntrlColor.parse(strokeColor).toCss(), [strokeColor]);
   return (
     <LinkWrapper url={item.link?.url}>
@@ -14,7 +16,8 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item }) => {
            borderRadius: `${radius * 100}vw`,
            borderWidth: `${strokeWidth * 100}vw`,
            opacity: `${opacity}`,
-           borderColor: `${borderColor}`
+           borderColor: `${borderColor}`,
+           transform: `rotate(${angle}deg)`
          }}
       >
         <video autoPlay muted loop playsInline className="video">

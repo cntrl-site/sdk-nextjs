@@ -3,9 +3,11 @@ import { TVimeoEmbedItem } from '@cntrl-site/core';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useEmbedVideoItem } from './useEmbedVideoItem';
+import { useItemAngle } from '../useItemAngle';
 
 export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item }) => {
   const { radius } = useEmbedVideoItem(item);
+  const angle = useItemAngle(item);
   const { autoplay, controls, loop, muted, pictureInPicture, url } = item.commonParams;
   const getValidVimeoUrl = (url: string): string => {
     const validURL = new URL(url);
@@ -27,7 +29,8 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item }) => {
     <LinkWrapper url={item.link?.url}>
         <div className={`embed-video-wrapper-${item.id}`}
           style={{
-            borderRadius: `${radius * 100}vw`
+            borderRadius: `${radius * 100}vw`,
+            transform: `rotate(${angle}deg)`
           }}
         >
           <iframe
@@ -43,9 +46,6 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item }) => {
           overflow: hidden;
           width: 100%;
           height: 100%;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
         }
         .embedVideo {
           width: 100%;
