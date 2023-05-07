@@ -40,7 +40,6 @@ const noop = () => null;
 
 export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
   const { layouts } = useCntrlContext();
-  // const angle = useItemAngle(item);
   const { scale, scaleAnchor } = useItemScale(item);
   const position = useItemPosition(item);
   const layout = useCurrentLayout();
