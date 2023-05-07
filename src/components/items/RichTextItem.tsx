@@ -12,10 +12,11 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item }) => {
   const className = preset ? `cntrl-preset-${preset.id}` : undefined;
   return (
     <>
-      <div className={className}
-           style={{
-             transform: `rotate(${angle}deg)`
-           }}
+      <div
+        className={className}
+        style={{
+          transform: `rotate(${angle}deg)`
+        }}
       >
         {content}
       </div>
