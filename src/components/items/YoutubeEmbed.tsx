@@ -27,7 +27,8 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item }) => 
     <LinkWrapper url={item.link?.url}>
       <div className={`embed-youtube-video-wrapper-${item.id}`}
          style={{
-           borderRadius: `${radius * 100}vw`
+           borderRadius: `${radius * 100}vw`,
+           transform: `rotate(${angle}deg)`
          }}
       >
         <iframe

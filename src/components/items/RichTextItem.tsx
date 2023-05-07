@@ -15,7 +15,10 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item }) => {
       <div className={className}
            style={{
              transform: `rotate(${angle}deg)`
-           }}>{content}</div>
+           }}
+      >
+        {content}
+      </div>
       <JSXStyle id={item.id}>
         {styles}
       </JSXStyle>
