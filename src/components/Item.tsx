@@ -20,6 +20,8 @@ import { useItemDimensions } from './useItemDimensions';
 import { getItemTopStyle, useItemSticky } from './items/useItemSticky';
 import { castObject } from '../utils/castObject';
 import { useCurrentLayout } from '../common/useCurrentLayout';
+import { useItemScale } from './useItemScale';
+import { ScaleAnchorMap } from '../utils/ScaleAnchorMap';
 
 export interface ItemProps<I extends TArticleItemAny> {
   item: I;
@@ -40,6 +42,7 @@ const noop = () => null;
 export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
   const { layouts } = useCntrlContext();
   const angle = useItemAngle(item);
+  const { scale, scaleAnchor } = useItemScale(item);
   const position = useItemPosition(item);
   const layout = useCurrentLayout();
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
@@ -96,7 +99,8 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
               width: ${sizingAxis.x === SizingType.Manual ? `${area.width * 100}vw` : 'max-content'};
               height: ${sizingAxis.y === SizingType.Manual ? `${area.height * 100}vw` : 'unset'};
               z-index: ${area.zIndex};
-              transform: rotate(${area.angle}deg);
+              transform: rotate(${area.angle}deg) scale(${scale});
+              transform-origin: ${ScaleAnchorMap[scaleAnchor]}
             }
           `);
         })}
