@@ -41,8 +41,7 @@ export class RichTextConverter {
     layouts: TLayout[],
     hasPreset: boolean
   ): [ReactNode[], string] {
-    const { text: rawText, blocks = [] } = richText.commonParams;
-    const text = Array.from(rawText); // because of emoji
+    const { text, blocks = [] } = richText.commonParams;
     const root: ReactElement[] = [];
     const styleRules = layouts.reduce<Record<string, string[]>>((rec, layout) => {
       rec[layout.id] = [];
@@ -102,18 +101,18 @@ export class RichTextConverter {
         for (const entity of entitiesGroups) {
           const entityKids: ReactNode[] = [];
           if (offset < entity.start) {
-            kids.push(content.slice(offset, entity.start).join(''));
+            kids.push(sliceSymbols(content, offset, entity.start));
             offset = entity.start;
           }
           for (const style of entity.stylesGroup) {
             if (offset < style.start) {
-              entityKids.push(content.slice(offset, style.start).join(''));
+              entityKids.push(sliceSymbols(content, offset, style.start));
             }
-            entityKids.push(<span key={style.start} className={`s-${style.start}-${style.end}`}>{content.slice(style.start, style.end).join('')}</span>);
+            entityKids.push(<span key={style.start} className={`s-${style.start}-${style.end}`}>{sliceSymbols(content, style.start, style.end)}</span>);
             offset = style.end;
           }
           if (offset < entity.end) {
-            entityKids.push(content.slice(offset, entity.end).join(''));
+            entityKids.push(sliceSymbols(content, offset, entity.end));
             offset = entity.end;
           }
           if (entity.link) {
@@ -122,8 +121,8 @@ export class RichTextConverter {
           }
           kids.push(...entityKids);
         }
-        if (offset < content.length) {
-          kids.push(content.slice(offset).join(''));
+        if (offset < getSymbolsCount(content)) {
+          kids.push(sliceSymbols(content, offset));
         }
         for (const item of group) {
           const entitiesGroups = this.groupEntities(entities, item.styles) ?? [];
@@ -257,4 +256,29 @@ function groupBy<I>(items: I[], getKey: (item: I) => PropertyKey): Record<Proper
 function getResolvedValue(value: string | undefined, name: string) {
   if (name !== 'COLOR') return value;
   return value ? CntrlColor.parse(value).toCss() : value;
+}
+
+function sliceSymbols(text: string, start: number, end: number = NaN): string {
+  let startOffset = NaN;
+  let endOffset = 0;
+  let count = -1;
+  for (const ch of text) {
+    count += 1;
+    if (count === start) {
+      startOffset = endOffset;
+    }
+    if (count === end) break;
+    endOffset += ch.length;
+  }
+  if (isNaN(startOffset)) return '';
+  return text.slice(startOffset, endOffset + 1);
+}
+
+function getSymbolsCount(input: string): number {
+  let count = 0;
+  let ch: string;
+  for (ch of input) {
+    count += 1;
+  }
+  return count;
 }

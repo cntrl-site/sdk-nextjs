@@ -178,6 +178,24 @@ export class Animator {
     };
   }
 
+  getScale(
+    values: TKeyframeValueMap[KeyframeType.Scale],
+    pos: number
+  ): TKeyframeValueMap[KeyframeType.Scale] {
+    const keyframes = this.keyframesMap[KeyframeType.Scale];
+    if (!keyframes || !keyframes.length) return values;
+    if (keyframes.length === 1) {
+      const [keyframe] = keyframes;
+      return {
+        scale: keyframe.value.scale
+      };
+    }
+    const { start, end } = this.getStartEnd<KeyframeType.Scale>(pos, keyframes);
+    return {
+      scale: rangeMap(pos, start.position, end.position, start.value.scale, end.value.scale, true)
+    };
+  }
+
   getStartEnd<T extends KeyframeType>(position: number, keyframes: AnimationData<T>[]): PositionKeyframes<T> {
     const index = binSearchInsertAt(keyframes, { position }, compare);
     const end = index === keyframes.length ? index - 1 : index;
@@ -215,7 +233,8 @@ function createKeyframesMap(): KeyframesMap {
     [KeyframeType.Color]: [],
     [KeyframeType.Rotation]: [],
     [KeyframeType.BorderColor]: [],
-    [KeyframeType.Opacity]: []
+    [KeyframeType.Opacity]: [],
+    [KeyframeType.Scale]: []
   };
 }
 
