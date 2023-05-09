@@ -9,7 +9,7 @@ export const useItemSticky = (top: number, parentOffsetTop: number, item: TArtic
   const [adjustedTop, setAdjustedTop] = useState(top);
   const articleRectObserver = useContext(ArticleRectContext);
   const layoutId = useCurrentLayout();
-  const sticky = useMemo(() => item.layoutParams[layoutId].sticky, [layoutId]);
+  const sticky = useMemo(() => item.sticky[layoutId], [layoutId]);
   const stickyManager = useMemo(() => new StickyManager(sticky), [sticky]);
 
   const handleSticky = useCallback((scroll: number) => {
