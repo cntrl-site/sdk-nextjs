@@ -185,7 +185,7 @@ export class RichTextConverter {
 
   private groupEntities(entities: RichText.Entity[], styleGroups?: StyleGroup[]): EntitiesGroup[] | undefined {
     const entitiesGroups: EntitiesGroup[] = [];
-    if (!styleGroups) return;
+    if (!styleGroups || styleGroups.length === 0) return;
     if (entities.length === 0) {
       entitiesGroups.push({
         stylesGroup: styleGroups,
