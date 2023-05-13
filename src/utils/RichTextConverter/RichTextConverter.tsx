@@ -108,7 +108,11 @@ export class RichTextConverter {
             if (offset < style.start) {
               entityKids.push(sliceSymbols(content, offset, style.start));
             }
-            entityKids.push(<span key={style.start} className={`s-${style.start}-${style.end}`}>{sliceSymbols(content, style.start, style.end)}</span>);
+            entityKids.push(
+              <span key={style.start} className={`s-${style.start}-${style.end}`}>
+                {sliceSymbols(content, style.start, style.end)}
+              </span>
+            );
             offset = style.end;
           }
           if (offset < entity.end) {
@@ -271,7 +275,7 @@ function sliceSymbols(text: string, start: number, end: number = NaN): string {
     endOffset += ch.length;
   }
   if (isNaN(startOffset)) return '';
-  return text.slice(startOffset, endOffset + 1);
+  return text.slice(startOffset, endOffset);
 }
 
 function getSymbolsCount(input: string): number {
