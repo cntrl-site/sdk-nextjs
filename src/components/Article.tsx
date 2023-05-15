@@ -27,7 +27,7 @@ export const Article: FC<Props> = ({ article }) => {
       <style jsx>{`
        .article {
             position: relative;
-            overflow: hidden;
+            overflow: clip;
           }
       `}</style>
     </ArticleRectContext.Provider>
