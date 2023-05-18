@@ -1,4 +1,5 @@
-import { FC, useMemo } from 'react';
+import { FC, useId, useMemo } from 'react';
+import JSXStyle from 'styled-jsx/style';
 import { TRectangleItem, CntrlColor } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
@@ -6,6 +7,7 @@ import { useRectangleItem } from './useRectangleItem';
 import { useItemAngle } from '../useItemAngle';
 
 export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item }) => {
+  const id = useId();
   const { fillColor, radius, strokeWidth, strokeColor } = useRectangleItem(item);
   const angle = useItemAngle(item);
   const backgroundColor = useMemo(() => CntrlColor.parse(fillColor).toCss(), [fillColor]);
@@ -23,7 +25,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item }) => {
             transform: `rotate(${angle}deg)`
           }}
         />
-        <style jsx>{`
+        <JSXStyle id={id}>{`
          .rectangle-${item.id} {
             position: absolute;
             width: 100%;
@@ -31,7 +33,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item }) => {
             border-style: solid;
             box-sizing: border-box;
           }
-      `}</style>
+      `}</JSXStyle>
       </>
     </LinkWrapper>
   );

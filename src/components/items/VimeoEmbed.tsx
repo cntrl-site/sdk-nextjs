@@ -1,4 +1,5 @@
-import { FC } from 'react';
+import { FC, useId } from 'react';
+import JSXStyle from 'styled-jsx/style';
 import { TVimeoEmbedItem } from '@cntrl-site/core';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
@@ -6,6 +7,7 @@ import { useEmbedVideoItem } from './useEmbedVideoItem';
 import { useItemAngle } from '../useItemAngle';
 
 export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item }) => {
+  const id = useId();
   const { radius } = useEmbedVideoItem(item);
   const angle = useItemAngle(item);
   const { autoplay, controls, loop, muted, pictureInPicture, url } = item.commonParams;
@@ -40,7 +42,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item }) => {
             allowFullScreen
           />
         </div>
-        <style jsx>{`
+        <JSXStyle id={id}>{`
         .embed-video-wrapper-${item.id} {
           position: absolute;
           overflow: hidden;
@@ -53,7 +55,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item }) => {
           z-index: 1;
           border: none;
         }
-      `}</style>
+      `}</JSXStyle>
     </LinkWrapper>
   );
 };

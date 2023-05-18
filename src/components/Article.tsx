@@ -1,4 +1,5 @@
-import { FC, useRef } from 'react';
+import { FC, useId, useRef } from 'react';
+import JSXStyle from 'styled-jsx/style';
 import { TArticle } from '@cntrl-site/sdk';
 import { Section } from './Section';
 import { Item } from './Item';
@@ -12,6 +13,7 @@ interface Props {
 export const Article: FC<Props> = ({ article }) => {
   const articleRef = useRef<HTMLDivElement | null>(null);
   const articleRectObserver = useArticleRectObserver(articleRef.current);
+  const id = useId();
 
   return (
     <ArticleRectContext.Provider value={articleRectObserver}>
@@ -24,12 +26,12 @@ export const Article: FC<Props> = ({ article }) => {
           </Section>
         ))}
       </div>
-      <style jsx>{`
+      <JSXStyle id={id}>{`
        .article {
             position: relative;
             overflow: clip;
           }
-      `}</style>
+      `}</JSXStyle>
     </ArticleRectContext.Provider>
   );
 };

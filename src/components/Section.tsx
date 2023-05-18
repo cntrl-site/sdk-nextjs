@@ -1,4 +1,5 @@
-import { FC, ReactElement } from 'react';
+import { FC, ReactElement, useId } from 'react';
+import JSXStyle from 'styled-jsx/style';
 import {
   getLayoutMediaQuery,
   getLayoutStyles,
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export const Section: FC<Props> = ({ section, children }) => {
+  const id = useId();
   const { layouts } = useCntrlContext();
   const backgroundColor = useSectionColor(section.color);
   const getSectionVisibilityStyles = () => {
@@ -45,7 +47,7 @@ export const Section: FC<Props> = ({ section, children }) => {
       >
         {children}
       </div>
-      <style jsx>{`
+      <JSXStyle id={id}>{`
       ${
         getLayoutStyles(layouts, [section.height], ([height]) => (`
          .section-${section.id} {
@@ -55,7 +57,7 @@ export const Section: FC<Props> = ({ section, children }) => {
         ))
       }
       ${getSectionVisibilityStyles()}
-    `}</style>
+    `}</JSXStyle>
     </>
   );
 };
