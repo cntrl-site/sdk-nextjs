@@ -1,6 +1,5 @@
 import { FC } from 'react';
 import { TRichTextItem } from '@cntrl-site/sdk';
-//@ts-ignore
 import JSXStyle from 'styled-jsx/style';
 import { ItemProps } from '../Item';
 import { useRichTextItem } from './useRichTextItem';

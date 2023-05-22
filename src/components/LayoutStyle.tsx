@@ -1,6 +1,5 @@
 import React, { FC } from 'react';
 import { getLayoutMediaQuery, TLayout } from '@cntrl-site/sdk';
-// @ts-ignore
 import JSXStyle from 'styled-jsx/style';
 
 export interface LayoutStyleProps {

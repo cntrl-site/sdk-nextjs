@@ -1,4 +1,5 @@
-import { ComponentType, FC, useEffect, useRef, useState } from 'react';
+import { ComponentType, FC, useEffect, useId, useRef, useState } from 'react';
+import JSXStyle from 'styled-jsx/style';
 import {
   ArticleItemSizingType as SizingType,
   ArticleItemType,
@@ -39,6 +40,7 @@ const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
 const noop = () => null;
 
 export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
+  const id = useId();
   const { layouts } = useCntrlContext();
   const { scale, scaleAnchor } = useItemScale(item);
   const position = useItemPosition(item);
@@ -86,7 +88,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
       style={isInitialRef.current ? {} : { ...styles, position: isFixed ? 'fixed': 'absolute' } }
     >
       <ItemComponent item={item} />
-      <style jsx>{`
+      <JSXStyle id={id}>{`
         ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
           const sizingAxis = parseSizing(layoutParams.sizing);
           return (`
@@ -103,7 +105,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
             }
           `);
         })}
-      `}</style>
+      `}</JSXStyle>
     </div>
   );
 };

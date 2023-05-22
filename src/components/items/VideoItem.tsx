@@ -1,4 +1,5 @@
-import { FC, useMemo } from 'react';
+import { FC, useId, useMemo } from 'react';
+import JSXStyle from 'styled-jsx/style';
 import { CntrlColor, TVideoItem } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
@@ -6,6 +7,7 @@ import { useFileItem } from './useFileItem';
 import { useItemAngle } from '../useItemAngle';
 
 export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item }) => {
+  const id = useId();
   const { radius, strokeWidth, strokeColor, opacity } = useFileItem(item);
   const angle = useItemAngle(item);
   const borderColor = useMemo(() => CntrlColor.parse(strokeColor).toCss(), [strokeColor]);
@@ -24,7 +26,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item }) => {
           <source src={item.commonParams.url} />
         </video>
       </div>
-      <style jsx>{`
+      <JSXStyle id={id}>{`
        .video-wrapper-${item.id} {
           position: absolute;
           overflow: hidden;
@@ -42,7 +44,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item }) => {
           object-fit: cover;
           pointer-events: none;
         }
-    `}</style>
+    `}</JSXStyle>
     </LinkWrapper>
   );
 };

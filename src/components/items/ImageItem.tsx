@@ -1,4 +1,5 @@
-import { FC, useMemo } from 'react';
+import { FC, useId, useMemo } from 'react';
+import JSXStyle from 'styled-jsx/style';
 import { CntrlColor, TImageItem } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
@@ -6,6 +7,7 @@ import { useFileItem } from './useFileItem';
 import { useItemAngle } from '../useItemAngle';
 
 export const ImageItem: FC<ItemProps<TImageItem>> = ({ item }) => {
+  const id = useId();
   const { radius, strokeWidth, opacity, strokeColor } = useFileItem(item);
   const angle = useItemAngle(item);
   const borderColor = useMemo(() => CntrlColor.parse(strokeColor).toCss(), [strokeColor]);
@@ -23,7 +25,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item }) => {
         >
           <img className="image" src={item.commonParams.url} />
         </div>
-        <style jsx>{`
+        <JSXStyle id={id}>{`
          .image-wrapper-${item.id} {
             position: absolute;
             overflow: hidden;
@@ -39,7 +41,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item }) => {
             object-fit: cover;
             pointer-events: none;
           }
-      `}</style>
+      `}</JSXStyle>
       </>
     </LinkWrapper>
   );

@@ -1,4 +1,5 @@
-import { FC } from 'react';
+import { FC, useId } from 'react';
+import JSXStyle from 'styled-jsx/style';
 import { TYoutubeEmbedItem } from '@cntrl-site/core';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
@@ -7,6 +8,7 @@ import { useEmbedVideoItem } from './useEmbedVideoItem';
 import { useItemAngle } from '../useItemAngle';
 
 export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item }) => {
+  const id = useId();
   const { autoplay, controls, url } = item.commonParams;
   const { radius } = useEmbedVideoItem(item);
   const angle = useItemAngle(item);
@@ -38,7 +40,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item }) => 
           allowFullScreen
         />
       </div>
-      <style jsx>{`
+      <JSXStyle id={id}>{`
         .embed-youtube-video-wrapper-${item.id} {
           position: absolute;
           overflow: hidden;
@@ -51,7 +53,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item }) => 
           z-index: 1;
           border: none;
         }
-      `}</style>
+      `}</JSXStyle>
     </LinkWrapper>
   )
 };
