@@ -1,7 +1,6 @@
 import { CustomItemRegistry } from './CustomItemRegistry';
 import { TLayout, TTypePresets,  } from '@cntrl-site/sdk';
 
-
 export class CntrlSdkContext {
   private _typePresets?: TTypePresets;
   private _layouts: TLayout[] = [];

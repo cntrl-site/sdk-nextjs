@@ -8,14 +8,14 @@ import { useCntrlContext } from '../provider/useCntrlContext';
 import { generateTypePresetStyles } from '../utils/generateTypePresetStyles/generateTypePresetStyles';
 import { Keyframes } from '../provider/Keyframes';
 
-interface Props {
+export interface PageProps {
   article: TArticle;
   project: TProject;
   meta: TMeta;
   keyframes: TKeyframeAny[];
 }
 
-export const Page: FC<Props> = ({ article, project, meta, keyframes }) => {
+export const Page: FC<PageProps> = ({ article, project, meta, keyframes }) => {
   const afterBodyOpen = HTMLReactParser(project.html.afterBodyOpen);
   const beforeBodyClose = HTMLReactParser(project.html.beforeBodyClose);
   const keyframesRepo = useMemo(() => new Keyframes(keyframes), [keyframes]);
