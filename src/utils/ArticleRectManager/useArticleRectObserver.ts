@@ -10,7 +10,7 @@ export const useArticleRectObserver = (el?: HTMLElement | null) => {
 
   useEffect(() => {
     if (!el || !articleRectObserver) return;
-    return articleRectObserver.start(el);
+    return articleRectObserver.init(el);
   }, [el, articleRectObserver]);
 
   return articleRectObserver;

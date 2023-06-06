@@ -25,6 +25,7 @@ import { ScaleAnchorMap } from '../utils/ScaleAnchorMap';
 
 export interface ItemProps<I extends TArticleItemAny> {
   item: I;
+  sectionId: string;
 }
 
 const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
@@ -39,10 +40,10 @@ const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
 
 const noop = () => null;
 
-export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
+export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
   const id = useId();
   const { layouts } = useCntrlContext();
-  const { scale, scaleAnchor } = useItemScale(item);
+  const { scale, scaleAnchor } = useItemScale(item, sectionId);
   const position = useItemPosition(item);
   const layout = useCurrentLayout();
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
@@ -87,7 +88,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item }) => {
       ref={setRef}
       style={isInitialRef.current ? {} : { ...styles, position: isFixed ? 'fixed': 'absolute' } }
     >
-      <ItemComponent item={item} />
+      <ItemComponent item={item} sectionId={sectionId} />
       <JSXStyle id={id}>{`
         ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
           const sizingAxis = parseSizing(layoutParams.sizing);

@@ -8,8 +8,11 @@ interface EventMap {
 export class ArticleRectObserver extends EventEmitter<EventMap> {
   private resizeObserver: ResizeObserver;
   private articleWidth: number = 0;
+  private registry: Map<string, HTMLElement> = new Map();
   private scrollPos: number = window.scrollY;
   private animationFrame: number = NaN;
+  private parent: HTMLElement | undefined;
+  private sectionsScrollMap: Map<string, number> = new Map();
 
   constructor() {
     super();
@@ -20,6 +23,12 @@ export class ArticleRectObserver extends EventEmitter<EventMap> {
     return this.scrollPos;
   }
 
+  getSectionScroll(sectionId: string): number {
+    const sectionTop = this.sectionsScrollMap.get(sectionId);
+    if (!sectionTop) return 0;
+    return sectionTop / this.articleWidth - this.scrollPos;
+  }
+
   get width(): number {
     return this.articleWidth;
   }
@@ -28,8 +37,8 @@ export class ArticleRectObserver extends EventEmitter<EventMap> {
     this.scrollPos = scroll;
   }
 
-  start(el: HTMLElement) {
-    this.resizeObserver.observe(el);
+  init(parent: HTMLElement) {
+    this.parent = parent;
     const onScroll = () => {
       this.handleScroll(window.scrollY);
       if (!isNaN(this.animationFrame)) return;
@@ -40,7 +49,7 @@ export class ArticleRectObserver extends EventEmitter<EventMap> {
     };
     window.addEventListener('scroll', onScroll);
     return () => {
-      this.resizeObserver.unobserve(el);
+      this.parent = undefined;
       window.removeEventListener('scroll', onScroll);
       if (!isNaN(this.animationFrame)) {
         window.cancelAnimationFrame(this.animationFrame);
@@ -49,22 +58,30 @@ export class ArticleRectObserver extends EventEmitter<EventMap> {
     };
   }
 
+  register(el: HTMLElement, sectionId: string) {
+    this.registry.set(sectionId, el);
+    this.resizeObserver.observe(el);
+    return () => {
+      this.registry.delete(sectionId);
+      this.resizeObserver.unobserve(el);
+    };
+  }
+
   private handleScroll = (scroll: number) => {
     this.setScroll(scroll / this.articleWidth);
   };
 
-  private handleResize: ResizeObserverCallback = (entries: ResizeObserverEntry[]) => {
-    const [entry] = entries;
-    if (!entry) return;
-    const element = entry.target;
-    if (!(element instanceof HTMLElement)) return;
-    this.notify(element);
+  private handleResize: ResizeObserverCallback = () => {
+    if (!this.parent) return;
+    const parentBoundary = this.parent.getBoundingClientRect();
+    this.articleWidth = parentBoundary.width;
     this.setScroll(window.scrollY / this.articleWidth);
     this.emit('resize', undefined);
+    for (const sectionId of this.registry.keys()) {
+      const el = this.registry.get(sectionId);
+      if (!el) continue;
+      const rect = el.getBoundingClientRect();
+      this.sectionsScrollMap.set(sectionId, rect.top - parentBoundary.top)
+    }
   };
-
-  private notify(el: HTMLElement) {
-    const elBoundary = el.getBoundingClientRect();
-    this.articleWidth = elBoundary.width;
-  }
 }

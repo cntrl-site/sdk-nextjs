@@ -1,4 +1,4 @@
-import { FC, ReactElement, useId } from 'react';
+import { FC, ReactElement, useId, useRef } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import {
   getLayoutMediaQuery,
@@ -9,6 +9,7 @@ import {
 } from '@cntrl-site/sdk';
 import { useCntrlContext } from '../provider/useCntrlContext';
 import { useSectionColor } from './useSectionColor';
+import { useSectionRegistry } from '../utils/ArticleRectManager/useSectionRegistry';
 
 type SectionChild = ReactElement<any, any>;
 
@@ -18,9 +19,11 @@ interface Props {
 }
 
 export const Section: FC<Props> = ({ section, children }) => {
+  const sectionRef = useRef<HTMLDivElement | null>(null);
   const id = useId();
   const { layouts } = useCntrlContext();
   const backgroundColor = useSectionColor(section.color);
+  useSectionRegistry(section.id, sectionRef.current);
   const getSectionVisibilityStyles = () => {
     return layouts
       .sort((a, b) => a.startsWith - b.startsWith)
@@ -44,6 +47,7 @@ export const Section: FC<Props> = ({ section, children }) => {
         style={{
           backgroundColor: backgroundColor
         }}
+        ref={sectionRef}
       >
         {children}
       </div>
