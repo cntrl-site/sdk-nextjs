@@ -8,7 +8,7 @@ import { ArticleRectContext } from '../provider/ArticleRectContext';
 
 interface Props {
   article: TArticle;
-  sectionData: Record<string, any>;
+  sectionData: Record<SectionName, any>;
 }
 
 export const Article: FC<Props> = ({ article, sectionData }) => {
@@ -39,3 +39,5 @@ export const Article: FC<Props> = ({ article, sectionData }) => {
     </ArticleRectContext.Provider>
   );
 };
+
+type SectionName = string;

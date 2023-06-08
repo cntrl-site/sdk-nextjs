@@ -13,7 +13,7 @@ export interface PageProps {
   project: TProject;
   meta: TMeta;
   keyframes: TKeyframeAny[];
-  sectionData: Record<string, any>;
+  sectionData: Record<SectionName, any>;
 }
 
 export const Page: FC<PageProps> = ({ article, project, meta, keyframes, sectionData }) => {
@@ -35,3 +35,5 @@ export const Page: FC<PageProps> = ({ article, project, meta, keyframes, section
     </>
   );
 };
+
+type SectionName = string;
