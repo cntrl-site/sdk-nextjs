@@ -8,9 +8,10 @@ import { ArticleRectContext } from '../provider/ArticleRectContext';
 
 interface Props {
   article: TArticle;
+  sectionData: Record<SectionName, any>;
 }
 
-export const Article: FC<Props> = ({ article }) => {
+export const Article: FC<Props> = ({ article, sectionData }) => {
   const articleRef = useRef<HTMLDivElement | null>(null);
   const articleRectObserver = useArticleRectObserver(articleRef.current);
   const id = useId();
@@ -18,13 +19,16 @@ export const Article: FC<Props> = ({ article }) => {
   return (
     <ArticleRectContext.Provider value={articleRectObserver}>
       <div className="article" ref={articleRef}>
-        {article.sections.map((section, i) => (
-          <Section section={section} key={section.id}>
-            {article.sections[i].items.map(item => (
-              <Item item={item} key={item.id} />
-            ))}
-          </Section>
-        ))}
+        {article.sections.map((section, i) => {
+          const data = section.name ? sectionData[section.name] : {};
+          return (
+            <Section section={section} key={section.id} data={data}>
+              {article.sections[i].items.map(item => (
+                <Item item={item} key={item.id} />
+              ))}
+            </Section>
+          );
+        })}
       </div>
       <JSXStyle id={id}>{`
        .article {
@@ -35,3 +39,5 @@ export const Article: FC<Props> = ({ article }) => {
     </ArticleRectContext.Provider>
   );
 };
+
+type SectionName = string;
