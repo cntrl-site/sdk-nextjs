@@ -15,12 +15,14 @@ type SectionChild = ReactElement<any, any>;
 interface Props {
   section: TArticleSection;
   children: SectionChild[];
+  data?: any;
 }
 
-export const Section: FC<Props> = ({ section, children }) => {
+export const Section: FC<Props> = ({ section, data, children }) => {
   const id = useId();
-  const { layouts } = useCntrlContext();
+  const { layouts, customSections } = useCntrlContext();
   const backgroundColor = useSectionColor(section.color);
+  const SectionComponent = section.name ? customSections.getComponent(section.name) : undefined;
   const getSectionVisibilityStyles = () => {
     return layouts
       .sort((a, b) => a.startsWith - b.startsWith)
@@ -35,6 +37,8 @@ export const Section: FC<Props> = ({ section, children }) => {
           }`;
       }, '');
   };
+
+  if (SectionComponent) return <SectionComponent data={data}>{children}</SectionComponent>;
 
  return (
     <>
@@ -53,7 +57,7 @@ export const Section: FC<Props> = ({ section, children }) => {
          .section-${section.id} {
             height: ${getSectionHeight(height)};
             position: relative;
-          }`
+         }`
         ))
       }
       ${getSectionVisibilityStyles()}

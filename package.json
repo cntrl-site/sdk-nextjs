@@ -3,7 +3,7 @@
   "version": "0.10.1",
   "description": "SDK for Next.js",
   "main": "lib/index.js",
-  "types": "src/index.js",
+  "types": "src/index.ts",
   "scripts": {
     "test": "jest",
     "prebuild": "rm -rf ./lib",
