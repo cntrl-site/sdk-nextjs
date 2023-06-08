@@ -3,17 +3,17 @@ import React, { PropsWithChildren } from 'react';
 export class CustomSectionRegistry {
   private definitions: Map<string, CustomSection<any>> = new Map();
 
-  define<TData>(type: string, section: CustomSection<TData>): this {
-    this.definitions.set(type, section);
+  define<TData>(name: string, section: CustomSection<TData>): this {
+    this.definitions.set(name, section);
     return this;
   }
 
-  getComponent(type: string): CustomSectionComponent<any> | undefined {
-    return this.definitions.get(type)?.component;
+  getComponent(name: string): CustomSectionComponent<any> | undefined {
+    return this.definitions.get(name)?.component;
   }
 
-  getResolver(type: string): (() => Promise<any>) | undefined {
-    return this.definitions.get(type)?.dataResolver;
+  getResolver(name: string): (() => Promise<any>) | undefined {
+    return this.definitions.get(name)?.dataResolver;
   }
 }
 
