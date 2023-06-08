@@ -5,9 +5,9 @@ import { ItemProps } from '../Item';
 import { useRichTextItem } from './useRichTextItem';
 import { useItemAngle } from '../useItemAngle';
 
-export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item }) => {
+export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId }) => {
   const [content, styles, preset] = useRichTextItem(item);
-  const angle = useItemAngle(item);
+  const angle = useItemAngle(item, sectionId);
   const className = preset ? `cntrl-preset-${preset.id}` : undefined;
   return (
     <>

@@ -11,12 +11,12 @@ export class ArticleRectObserver extends EventEmitter<EventMap> {
   private registry: Map<string, HTMLElement> = new Map();
   private scrollPos: number = window.scrollY;
   private animationFrame: number = NaN;
-  private parent: HTMLElement | undefined;
+  private parent: HTMLElement | undefined = undefined;
   private sectionsScrollMap: Map<string, number> = new Map();
 
   constructor() {
     super();
-    this.resizeObserver = new ResizeObserver(this.handleResize);
+    this.resizeObserver = new ResizeObserver(this.handleResize.bind(this));
   }
 
   get scroll(): number {
@@ -25,8 +25,8 @@ export class ArticleRectObserver extends EventEmitter<EventMap> {
 
   getSectionScroll(sectionId: string): number {
     const sectionTop = this.sectionsScrollMap.get(sectionId);
-    if (!sectionTop) return 0;
-    return sectionTop / this.articleWidth - this.scrollPos;
+    if (sectionTop === undefined) return 0;
+    return - (sectionTop / this.articleWidth - this.scrollPos);
   }
 
   get width(): number {
@@ -71,7 +71,7 @@ export class ArticleRectObserver extends EventEmitter<EventMap> {
     this.setScroll(scroll / this.articleWidth);
   };
 
-  private handleResize: ResizeObserverCallback = () => {
+  private handleResize (){
     if (!this.parent) return;
     const parentBoundary = this.parent.getBoundingClientRect();
     this.articleWidth = parentBoundary.width;

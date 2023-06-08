@@ -18,7 +18,6 @@ import { useCntrlContext } from '../provider/useCntrlContext';
 import { useItemPosition } from './useItemPosition';
 import { useItemDimensions } from './useItemDimensions';
 import { getItemTopStyle, useItemSticky } from './items/useItemSticky';
-import { castObject } from '../utils/castObject';
 import { useCurrentLayout } from '../common/useCurrentLayout';
 import { useItemScale } from './useItemScale';
 import { ScaleAnchorMap } from '../utils/ScaleAnchorMap';
@@ -44,12 +43,10 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
   const id = useId();
   const { layouts } = useCntrlContext();
   const { scale, scaleAnchor } = useItemScale(item, sectionId);
-  const position = useItemPosition(item);
+  const position = useItemPosition(item, sectionId);
   const layout = useCurrentLayout();
-  const [ref, setRef] = useState<HTMLDivElement | null>(null);
-  const [parentOffsetTop, setParentOffsetTop] = useState(0);
-  const { top, isFixed } = useItemSticky(position.top, parentOffsetTop, item);
-  const { width, height } = useItemDimensions(item);
+  const { top, isFixed } = useItemSticky(position.top, item, sectionId);
+  const { width, height } = useItemDimensions(item, sectionId);
   const layoutValues: Record<string, any>[] = [item.area];
   const isInitialRef = useRef(true);
   if (item.layoutParams) {
@@ -66,12 +63,6 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
     isInitialRef.current = false;
   }, []);
 
-  useEffect(() => {
-    if (!ref) return;
-    const offsetParent = castObject(ref.offsetParent, HTMLElement);
-    setParentOffsetTop(offsetParent.offsetTop / window.innerWidth);
-  }, [ref]);
-
   const styles = {
     transform: `scale(${scale})`,
     transformOrigin: ScaleAnchorMap[scaleAnchor],
@@ -85,7 +76,6 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
     <div
       suppressHydrationWarning={true}
       className={`item-${item.id}`}
-      ref={setRef}
       style={isInitialRef.current ? {} : { ...styles, position: isFixed ? 'fixed': 'absolute' } }
     >
       <ItemComponent item={item} sectionId={sectionId} />

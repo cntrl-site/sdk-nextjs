@@ -6,10 +6,10 @@ import { LinkWrapper } from '../LinkWrapper';
 import { useFileItem } from './useFileItem';
 import { useItemAngle } from '../useItemAngle';
 
-export const ImageItem: FC<ItemProps<TImageItem>> = ({ item }) => {
+export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId }) => {
   const id = useId();
-  const { radius, strokeWidth, opacity, strokeColor } = useFileItem(item);
-  const angle = useItemAngle(item);
+  const { radius, strokeWidth, opacity, strokeColor } = useFileItem(item, sectionId);
+  const angle = useItemAngle(item, sectionId);
   const borderColor = useMemo(() => CntrlColor.parse(strokeColor).toCss(), [strokeColor]);
   return (
     <LinkWrapper url={item.link?.url}>

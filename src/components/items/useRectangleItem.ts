@@ -4,7 +4,7 @@ import { useCurrentLayout } from '../../common/useCurrentLayout';
 
 const defaultColor = 'rgba(0, 0, 0, 1)';
 
-export const useRectangleItem = (item: TRectangleItem) => {
+export const useRectangleItem = (item: TRectangleItem, sectionId: string) => {
   const layoutId = useCurrentLayout();
   const radius = useKeyframeValue(
     item,
@@ -14,7 +14,8 @@ export const useRectangleItem = (item: TRectangleItem) => {
       return  'radius' in layoutParams ? layoutParams.radius : 0;
     },
     (animator, scroll, value) => animator.getRadius({ radius: value }, scroll).radius,
-    [layoutId]
+    sectionId,
+    [layoutId],
   );
   const strokeWidth = useKeyframeValue(
     item,
@@ -24,6 +25,7 @@ export const useRectangleItem = (item: TRectangleItem) => {
       return 'strokeWidth' in layoutParams ? layoutParams.strokeWidth : 0;
     },
     (animator, scroll, value) => animator.getBorderWidth({ borderWidth: value }, scroll).borderWidth,
+    sectionId,
     [layoutId]
   );
   const fillColor = useKeyframeValue(
@@ -34,6 +36,7 @@ export const useRectangleItem = (item: TRectangleItem) => {
       return 'fillColor' in layoutParams ? layoutParams.fillColor : defaultColor;
     },
     (animator, scroll, value) => animator.getColor({ color: value }, scroll).color,
+    sectionId,
     [layoutId]
   );
   const strokeColor = useKeyframeValue(
@@ -44,6 +47,7 @@ export const useRectangleItem = (item: TRectangleItem) => {
       return 'strokeColor' in layoutParams ? layoutParams.strokeColor : defaultColor;
     },
     (animator, scroll, value) => animator.getBorderColor({ color: value }, scroll).color,
+    sectionId,
     [layoutId]
   );
   return { fillColor, strokeWidth, radius, strokeColor };

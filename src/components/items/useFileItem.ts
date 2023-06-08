@@ -4,7 +4,7 @@ import { useCurrentLayout } from '../../common/useCurrentLayout';
 
 const defaultColor = 'rgba(0, 0, 0, 1)';
 
-export const useFileItem = (item: TImageItem | TVideoItem) => {
+export const useFileItem = (item: TImageItem | TVideoItem, sectionId: string) => {
   const layoutId = useCurrentLayout();
   const radius = useKeyframeValue(
     item,
@@ -14,6 +14,7 @@ export const useFileItem = (item: TImageItem | TVideoItem) => {
       return  'radius' in layoutParams ? layoutParams.radius : 0;
     },
     (animator, scroll, value) => animator.getRadius({ radius: value }, scroll).radius,
+    sectionId,
     [layoutId]
   );
   const strokeWidth = useKeyframeValue(
@@ -24,6 +25,7 @@ export const useFileItem = (item: TImageItem | TVideoItem) => {
       return 'strokeWidth' in layoutParams ? layoutParams.strokeWidth : 0;
     },
     (animator, scroll, value) => animator.getBorderWidth({ borderWidth: value }, scroll).borderWidth,
+    sectionId,
     [layoutId]
   );
 
@@ -35,6 +37,7 @@ export const useFileItem = (item: TImageItem | TVideoItem) => {
       return 'opacity' in layoutParams ? layoutParams.opacity : 0;
     },
     (animator, scroll, value) => animator.getOpacity({ opacity: value }, scroll).opacity,
+    sectionId,
     [layoutId]
   );
 
@@ -45,7 +48,8 @@ export const useFileItem = (item: TImageItem | TVideoItem) => {
       const layoutParams = item.layoutParams[layoutId];
       return 'strokeColor' in layoutParams ? layoutParams.strokeColor : defaultColor;
     },
-    (animator, scroll, value) => animator.getBorderColor({ color: value }, scroll).color
+    (animator, scroll, value) => animator.getBorderColor({ color: value }, scroll).color,
+    sectionId
   );
 
   return { radius, strokeWidth, opacity, strokeColor };

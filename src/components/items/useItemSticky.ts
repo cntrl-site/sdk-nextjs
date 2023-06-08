@@ -4,7 +4,7 @@ import { StickyManager } from '../../utils/StickyManager/StickyManager';
 import { useCurrentLayout } from '../../common/useCurrentLayout';
 import { ArticleRectContext } from '../../provider/ArticleRectContext';
 
-export const useItemSticky = (top: number, parentOffsetTop: number, item: TArticleItemAny) => {
+export const useItemSticky = (top: number, item: TArticleItemAny, sectionId: string) => {
   const [isFixed, setIsFixed] = useState(false);
   const [adjustedTop, setAdjustedTop] = useState(top);
   const articleRectObserver = useContext(ArticleRectContext);
@@ -16,20 +16,19 @@ export const useItemSticky = (top: number, parentOffsetTop: number, item: TArtic
     setIsFixed(stickyManager.getIsSticky(scroll));
     setAdjustedTop(stickyManager.getPosition(
       scroll,
-      top,
-      parentOffsetTop
+      top
     ));
-  }, [top, stickyManager, parentOffsetTop]);
+  }, [top, stickyManager]);
 
   useEffect(() => {
     if (!articleRectObserver) return;
-      handleSticky(articleRectObserver.scroll);
+      handleSticky(articleRectObserver.getSectionScroll(sectionId));
   }, [handleSticky, articleRectObserver]);
 
   useEffect(() => {
     if (!articleRectObserver || !sticky) return;
     return articleRectObserver.on('scroll', () => {
-      handleSticky(articleRectObserver.scroll);
+      handleSticky(articleRectObserver.getSectionScroll(sectionId));
     });
   }, [handleSticky, articleRectObserver, sticky]);
   return {

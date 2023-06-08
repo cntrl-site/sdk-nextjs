@@ -1,11 +1,11 @@
-import { useEffect } from 'react';
-import { ArticleRectObserver } from './ArticleRectObserver';
+import { useContext, useEffect } from 'react';
+import { ArticleRectContext } from '../../provider/ArticleRectContext';
 
 export const useSectionRegistry = ( sectionId: string, el?: HTMLElement | null) => {
-  const articleRectObserver = new ArticleRectObserver();
+  const articleRectObserver = useContext(ArticleRectContext);
 
   useEffect(() => {
     if (!el || !articleRectObserver) return;
     return articleRectObserver.register(el, sectionId);
-  }, [el, articleRectObserver])
+  }, [el, articleRectObserver]);
 };
