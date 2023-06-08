@@ -1,4 +1,4 @@
-import { CntrlColor, TImageItem, TVideoItem } from '@cntrl-site/sdk';
+import { TImageItem, TVideoItem } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../../common/useKeyframeValue';
 import { useCurrentLayout } from '../../common/useCurrentLayout';
 

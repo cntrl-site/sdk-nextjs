@@ -1,4 +1,4 @@
-import { ComponentType, FC, useEffect, useId, useRef, useState } from 'react';
+import { ComponentType, FC, useEffect, useId, useRef } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import {
   ArticleItemSizingType as SizingType,

@@ -1,4 +1,4 @@
-import { CntrlColor, TRectangleItem } from '@cntrl-site/sdk';
+import { TRectangleItem } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../../common/useKeyframeValue';
 import { useCurrentLayout } from '../../common/useCurrentLayout';
 
