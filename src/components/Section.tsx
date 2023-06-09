@@ -16,13 +16,15 @@ type SectionChild = ReactElement<any, any>;
 interface Props {
   section: TArticleSection;
   children: SectionChild[];
+  data?: any;
 }
 
-export const Section: FC<Props> = ({ section, children }) => {
-  const sectionRef = useRef<HTMLDivElement | null>(null);
+export const Section: FC<Props> = ({ section, data, children }) => {
   const id = useId();
-  const { layouts } = useCntrlContext();
+  const sectionRef = useRef<HTMLDivElement | null>(null);
+  const { layouts, customSections } = useCntrlContext();
   const backgroundColor = useSectionColor(section.color);
+  const SectionComponent = section.name ? customSections.getComponent(section.name) : undefined;
   useSectionRegistry(section.id, sectionRef.current);
   const getSectionVisibilityStyles = () => {
     return layouts
@@ -38,6 +40,8 @@ export const Section: FC<Props> = ({ section, children }) => {
           }`;
       }, '');
   };
+
+  if (SectionComponent) return <SectionComponent data={data}>{children}</SectionComponent>;
 
  return (
     <>
@@ -57,7 +61,7 @@ export const Section: FC<Props> = ({ section, children }) => {
          .section-${section.id} {
             height: ${getSectionHeight(height)};
             position: relative;
-          }`
+         }`
         ))
       }
       ${getSectionVisibilityStyles()}

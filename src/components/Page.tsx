@@ -8,14 +8,15 @@ import { useCntrlContext } from '../provider/useCntrlContext';
 import { generateTypePresetStyles } from '../utils/generateTypePresetStyles/generateTypePresetStyles';
 import { Keyframes } from '../provider/Keyframes';
 
-interface Props {
+export interface PageProps {
   article: TArticle;
   project: TProject;
   meta: TMeta;
   keyframes: TKeyframeAny[];
+  sectionData: Record<SectionName, any>;
 }
 
-export const Page: FC<Props> = ({ article, project, meta, keyframes }) => {
+export const Page: FC<PageProps> = ({ article, project, meta, keyframes, sectionData }) => {
   const afterBodyOpen = HTMLReactParser(project.html.afterBodyOpen);
   const beforeBodyClose = HTMLReactParser(project.html.beforeBodyClose);
   const keyframesRepo = useMemo(() => new Keyframes(keyframes), [keyframes]);
@@ -25,7 +26,7 @@ export const Page: FC<Props> = ({ article, project, meta, keyframes }) => {
       <CNTRLHead project={project} meta={meta} />
       {afterBodyOpen}
       <KeyframesContext.Provider value={keyframesRepo}>
-        <Article article={article} />
+        <Article article={article} sectionData={sectionData} />
       </KeyframesContext.Provider>
       {beforeBodyClose}
       {typePresets && typePresets.presets.length > 0 && (
@@ -34,3 +35,5 @@ export const Page: FC<Props> = ({ article, project, meta, keyframes }) => {
     </>
   );
 };
+
+type SectionName = string;
