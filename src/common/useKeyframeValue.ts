@@ -61,14 +61,14 @@ export const useKeyframeValue = <T>(
 
   useEffect(() => {
     if (!articleRectObserver || !animator) return;
-    const scroll = articleRectObserver.getSectionScroll(sectionId!);
+    const scroll = articleRectObserver.getSectionScroll(sectionId);
     handleKeyframeValue(scroll);
   }, [articleRectObserver, handleKeyframeValue, animator])
 
   useEffect(() => {
     if (!articleRectObserver || !animator) return;
     return articleRectObserver.on('resize', () => {
-      const scroll = articleRectObserver.getSectionScroll(sectionId!);
+      const scroll = articleRectObserver.getSectionScroll(sectionId);
       handleKeyframeValue(scroll);
     });
   }, [handleKeyframeValue, articleRectObserver, animator]);
@@ -76,7 +76,7 @@ export const useKeyframeValue = <T>(
   useEffect(() => {
     if (!articleRectObserver || !animator) return;
     return articleRectObserver.on('scroll', () => {
-      const scroll = articleRectObserver.getSectionScroll(sectionId!);
+      const scroll = articleRectObserver.getSectionScroll(sectionId);
       handleKeyframeValue(scroll);
     });
   }, [handleKeyframeValue, articleRectObserver, animator]);
