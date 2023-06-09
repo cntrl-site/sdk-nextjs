@@ -15,7 +15,7 @@ export const useKeyframeValue = <T>(
   itemParamsGetter: ItemParamGetter<T>,
   animatorGetter: AnimatorGetter<T>,
   sectionId: string,
-  deps: DependencyList = emptyDeps,
+  deps: DependencyList = emptyDeps
 ) => {
   const animatorGetterRef = useRef(animatorGetter);
   const itemParamsGetterRef = useRef(itemParamsGetter);

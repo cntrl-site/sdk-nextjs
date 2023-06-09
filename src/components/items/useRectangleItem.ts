@@ -15,7 +15,7 @@ export const useRectangleItem = (item: TRectangleItem, sectionId: string) => {
     },
     (animator, scroll, value) => animator.getRadius({ radius: value }, scroll).radius,
     sectionId,
-    [layoutId],
+    [layoutId]
   );
   const strokeWidth = useKeyframeValue(
     item,

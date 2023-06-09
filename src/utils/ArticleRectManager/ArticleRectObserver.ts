@@ -81,7 +81,7 @@ export class ArticleRectObserver extends EventEmitter<EventMap> {
       const el = this.registry.get(sectionId);
       if (!el) continue;
       const rect = el.getBoundingClientRect();
-      this.sectionsScrollMap.set(sectionId, rect.top - parentBoundary.top)
+      this.sectionsScrollMap.set(sectionId, rect.top - parentBoundary.top);
     }
   };
 }
