@@ -71,7 +71,7 @@ export class ArticleRectObserver extends EventEmitter<EventMap> {
     this.setScroll(scroll / this.articleWidth);
   };
 
-  private handleResize (){
+  private handleResize() {
     if (!this.parent) return;
     const parentBoundary = this.parent.getBoundingClientRect();
     this.articleWidth = parentBoundary.width;
