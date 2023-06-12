@@ -7,11 +7,11 @@ import { getYoutubeId } from '../../utils/getValidYoutubeUrl';
 import { useEmbedVideoItem } from './useEmbedVideoItem';
 import { useItemAngle } from '../useItemAngle';
 
-export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item }) => {
+export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, sectionId }) => {
   const id = useId();
   const { autoplay, controls, url } = item.commonParams;
-  const { radius } = useEmbedVideoItem(item);
-  const angle = useItemAngle(item);
+  const { radius } = useEmbedVideoItem(item, sectionId);
+  const angle = useItemAngle(item, sectionId);
 
   const getValidYoutubeUrl = (url: string): string => {
     const newUrl = new URL(url);

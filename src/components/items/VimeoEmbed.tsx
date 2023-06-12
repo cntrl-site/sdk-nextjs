@@ -6,10 +6,10 @@ import { LinkWrapper } from '../LinkWrapper';
 import { useEmbedVideoItem } from './useEmbedVideoItem';
 import { useItemAngle } from '../useItemAngle';
 
-export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item }) => {
+export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId }) => {
   const id = useId();
-  const { radius } = useEmbedVideoItem(item);
-  const angle = useItemAngle(item);
+  const { radius } = useEmbedVideoItem(item, sectionId);
+  const angle = useItemAngle(item, sectionId);
   const { autoplay, controls, loop, muted, pictureInPicture, url } = item.commonParams;
   const getValidVimeoUrl = (url: string): string => {
     const validURL = new URL(url);

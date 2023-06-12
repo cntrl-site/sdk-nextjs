@@ -14,6 +14,7 @@ export const useKeyframeValue = <T>(
   item: TArticleItemAny,
   itemParamsGetter: ItemParamGetter<T>,
   animatorGetter: AnimatorGetter<T>,
+  sectionId: string,
   deps: DependencyList = emptyDeps
 ) => {
   const animatorGetterRef = useRef(animatorGetter);
@@ -59,26 +60,26 @@ export const useKeyframeValue = <T>(
   }, [paramValue]);
 
   useEffect(() => {
-    if (!articleRectObserver) return;
-    const scroll = articleRectObserver.scroll;
+    if (!articleRectObserver || !animator) return;
+    const scroll = articleRectObserver.getSectionScroll(sectionId);
     handleKeyframeValue(scroll);
-  }, [articleRectObserver, handleKeyframeValue])
+  }, [articleRectObserver, handleKeyframeValue, animator])
 
   useEffect(() => {
-    if (!articleRectObserver) return;
+    if (!articleRectObserver || !animator) return;
     return articleRectObserver.on('resize', () => {
-      const scroll = articleRectObserver.scroll;
+      const scroll = articleRectObserver.getSectionScroll(sectionId);
       handleKeyframeValue(scroll);
     });
-  }, [handleKeyframeValue, articleRectObserver]);
+  }, [handleKeyframeValue, articleRectObserver, animator]);
 
   useEffect(() => {
-    if (!articleRectObserver) return;
+    if (!articleRectObserver || !animator) return;
     return articleRectObserver.on('scroll', () => {
-      const scroll = articleRectObserver.scroll;
+      const scroll = articleRectObserver.getSectionScroll(sectionId);
       handleKeyframeValue(scroll);
     });
-  }, [handleKeyframeValue, articleRectObserver]);
+  }, [handleKeyframeValue, articleRectObserver, animator]);
   return adjustedValue;
 };
 

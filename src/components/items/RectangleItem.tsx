@@ -6,10 +6,10 @@ import { LinkWrapper } from '../LinkWrapper';
 import { useRectangleItem } from './useRectangleItem';
 import { useItemAngle } from '../useItemAngle';
 
-export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item }) => {
+export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId }) => {
   const id = useId();
-  const { fillColor, radius, strokeWidth, strokeColor } = useRectangleItem(item);
-  const angle = useItemAngle(item);
+  const { fillColor, radius, strokeWidth, strokeColor } = useRectangleItem(item, sectionId);
+  const angle = useItemAngle(item, sectionId);
   const backgroundColor = useMemo(() => CntrlColor.parse(fillColor).toCss(), [fillColor]);
   const borderColor = useMemo(() => CntrlColor.parse(strokeColor).toCss(), [strokeColor]);
 

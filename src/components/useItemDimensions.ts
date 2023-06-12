@@ -11,12 +11,13 @@ const defaultArea = {
   zIndex: 0
 };
 
-export const useItemDimensions = (item: TArticleItemAny) => {
+export const useItemDimensions = (item: TArticleItemAny, sectionId: string) => {
   const layoutId = useCurrentLayout();
   const { width, height } = useKeyframeValue<{ width: number; height: number }>(
     item,
     (item, layoutId) => layoutId ? item.area[layoutId] : defaultArea,
     (animator, scroll, value) => animator.getDimensions(value, scroll),
+    sectionId,
     [layoutId]
   );
   return { width, height };

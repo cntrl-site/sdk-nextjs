@@ -24,7 +24,7 @@ export const Article: FC<Props> = ({ article, sectionData }) => {
           return (
             <Section section={section} key={section.id} data={data}>
               {article.sections[i].items.map(item => (
-                <Item item={item} key={item.id} />
+                <Item item={item} key={item.id} sectionId={section.id} />
               ))}
             </Section>
           );

@@ -6,10 +6,10 @@ import { LinkWrapper } from '../LinkWrapper';
 import { useFileItem } from './useFileItem';
 import { useItemAngle } from '../useItemAngle';
 
-export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item }) => {
+export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId }) => {
   const id = useId();
-  const { radius, strokeWidth, strokeColor, opacity } = useFileItem(item);
-  const angle = useItemAngle(item);
+  const { radius, strokeWidth, strokeColor, opacity } = useFileItem(item, sectionId);
+  const angle = useItemAngle(item, sectionId);
   const borderColor = useMemo(() => CntrlColor.parse(strokeColor).toCss(), [strokeColor]);
   return (
     <LinkWrapper url={item.link?.url}>
