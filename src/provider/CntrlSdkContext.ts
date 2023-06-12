@@ -1,5 +1,5 @@
 import { CustomItemRegistry } from './CustomItemRegistry';
-import { TLayout, TTypePresets } from '@cntrl-site/sdk';
+import { TArticleSection, TLayout, TTypePresets } from '@cntrl-site/sdk';
 import { CustomSectionRegistry } from './CustomSectionRegistry';
 
 export class CntrlSdkContext {
@@ -9,6 +9,20 @@ export class CntrlSdkContext {
     public readonly customItems: CustomItemRegistry,
     public readonly customSections: CustomSectionRegistry
   ) {}
+
+  async resolveSectionData(sections: TArticleSection[]): Promise<Record<string, any>> {
+    const resolvers = sections.map(section => {
+      const resolver = section.name ? this.customSections.getResolver(section.name) : undefined;
+      if (!resolver) return;
+      return {
+        name: section.name,
+        resolver
+      };
+    }).filter(isDefined);
+    return Object.fromEntries(
+      await Promise.all(resolvers.map(async ({ name, resolver }) => [name, await resolver()]))
+    );
+  }
 
   setTypePresets(typePresets: TTypePresets) {
     this._typePresets = typePresets;
@@ -25,4 +39,8 @@ export class CntrlSdkContext {
   get typePresets(): TTypePresets | undefined {
     return this._typePresets;
   }
+}
+
+function isDefined<T>(value: T): value is Exclude<T, undefined> {
+  return value !== undefined;
 }
