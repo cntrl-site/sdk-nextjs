@@ -16,9 +16,8 @@ import { VimeoEmbedItem } from './items/VimeoEmbed';
 import { YoutubeEmbedItem } from './items/YoutubeEmbed';
 import { CustomItem } from './items/CustomItem';
 import { useCntrlContext } from '../provider/useCntrlContext';
-import { useItemPosition } from './useItemPosition';
+import { getItemTopStyle, useItemPosition } from './useItemPosition';
 import { useItemDimensions } from './useItemDimensions';
-import { getItemTopStyle, useItemSticky } from './items/useItemSticky';
 import { useCurrentLayout } from '../common/useCurrentLayout';
 import { useItemScale } from './useItemScale';
 import { ScaleAnchorMap } from '../utils/ScaleAnchorMap';
@@ -104,7 +103,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
               pointer-events: none;
               top: ${getItemTopStyle(area.top, area.anchorSide)};
               left: ${area.left * 100}vw;
-              height: ${sticky ? `${getStickyItemParentHeight(sticky, area.height) * 100}vw` : 'unset'};
+              height: ${sticky ? `${getStickyItemWrapperHeight(sticky, area.height) * 100}vw` : 'unset'};
             }
           `);
       })}
@@ -125,7 +124,7 @@ function getAnchoredItemTop(top: number, sectionHeight: string, anchorSide: Anch
 
 type Sticky = { from: number; to?: number; };
 
-function getStickyItemParentHeight(sticky: Sticky, itemHeight: number): number {
+function getStickyItemWrapperHeight(sticky: Sticky, itemHeight: number): number {
   const end = sticky.to ?? 100;
   return end - sticky.from + itemHeight;
 }
