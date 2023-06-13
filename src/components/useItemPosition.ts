@@ -1,6 +1,7 @@
-import { TArticleItemAny } from '@cntrl-site/sdk';
+import { AnchorSide, TArticleItemAny } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../common/useKeyframeValue';
 import { useCurrentLayout } from '../common/useCurrentLayout';
+import { getItemTopStyle } from './items/useItemSticky';
 
 export const useItemPosition = (item: TArticleItemAny, sectionId: string) => {
   const layoutId = useCurrentLayout();
@@ -11,6 +12,9 @@ export const useItemPosition = (item: TArticleItemAny, sectionId: string) => {
     sectionId,
     [layoutId]
   );
-  return { top, left };
+  return {
+    top:  getItemTopStyle(top, item.area[layoutId].anchorSide),
+    left: `${left * 100}vw`
+  };
 };
 
