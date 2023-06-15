@@ -1,10 +1,17 @@
 import { CustomItemRegistry } from './CustomItemRegistry';
-import { TArticleSection, TLayout, TTypePresets } from '@cntrl-site/sdk';
+import { TArticle, TArticleSection, TLayout, TProject, TSectionHeight, TTypePresets } from '@cntrl-site/sdk';
 import { CustomSectionRegistry } from './CustomSectionRegistry';
+
+interface SdkContextInitProps {
+  typePresets: TTypePresets;
+  project: TProject;
+  article: TArticle;
+}
 
 export class CntrlSdkContext {
   private _typePresets?: TTypePresets;
   private _layouts: TLayout[] = [];
+  private sectionHeightMap: Map<string, Record<string, TSectionHeight>> = new Map();
   constructor(
     public readonly customItems: CustomItemRegistry,
     public readonly customSections: CustomSectionRegistry
@@ -24,12 +31,29 @@ export class CntrlSdkContext {
     );
   }
 
+  init({ project, typePresets, article }: SdkContextInitProps) {
+    this.setTypePresets(typePresets);
+    this.setLayouts(project.layouts);
+    this.setSectionsHeight(article.sections);
+  }
+
   setTypePresets(typePresets: TTypePresets) {
     this._typePresets = typePresets;
   }
 
   setLayouts(layouts: TLayout[]) {
     this._layouts = layouts;
+  }
+
+  setSectionsHeight(sections: TArticleSection[]) {
+    for (const section of sections) {
+      this.sectionHeightMap.set(section.id, section.height)
+    }
+  }
+
+  getSectionHeightData(sectionId: string) {
+    const sectionHeightData = this.sectionHeightMap.get(sectionId);
+    return sectionHeightData;
   }
 
   get layouts(): TLayout[] {
