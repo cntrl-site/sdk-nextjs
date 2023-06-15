@@ -110,6 +110,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
               top: ${sticky ? `${getAnchoredItemTop(area.top - sticky.from, sectionHeight, area.anchorSide)}`  : 0};
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
               pointer-events: auto;
+              --webkit-backface-visibility: hidden;
             }
             .item-wrapper-${item.id} {
               position: absolute;
