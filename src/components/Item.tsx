@@ -129,13 +129,13 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
 function getAnchoredItemTop(top: number, sectionHeight: string, anchorSide: AnchorSide) {
   const styleTop = `${top * 100}vw`;
   switch (anchorSide) {
-    case AnchorSide.Top: return styleTop;
     case AnchorSide.Center: return `calc(${styleTop} + ${sectionHeight} / 2)`;
     case AnchorSide.Bottom: return `calc(${styleTop} + ${sectionHeight})`;
-    default: return styleTop;
+    case AnchorSide.Top:
+    default:
+      return styleTop;
   }
 }
-
 
 function getStickyItemWrapperHeight(sticky: TStickyParams, itemHeight: number): number {
   const end = sticky.to ?? 100;
