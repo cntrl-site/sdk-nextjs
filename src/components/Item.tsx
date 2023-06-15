@@ -1,4 +1,4 @@
-import { ComponentType, FC, useEffect, useId, useRef } from 'react';
+import { ComponentType, FC, useEffect, useId, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import {
   AnchorSide,
@@ -6,7 +6,9 @@ import {
   ArticleItemType,
   getLayoutStyles,
   TArticleItem,
-  TArticleItemAny
+  TStickyParams,
+  TArticleItemAny,
+
 } from '@cntrl-site/sdk';
 import { RectangleItem } from './items/RectangleItem';
 import { ImageItem } from './items/ImageItem';
@@ -26,6 +28,7 @@ import { useSectionHeightData } from './useSectionHeightMap';
 export interface ItemProps<I extends TArticleItemAny> {
   item: I;
   sectionId: string;
+  onResize?: (height: number) => void;
 }
 
 const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
@@ -43,6 +46,7 @@ const noop = () => null;
 export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
   const id = useId();
   const { layouts } = useCntrlContext();
+  const [wrapperHeight, setWrapperHeight] = useState<undefined | number>(undefined);
   const { scale, scaleAnchor } = useItemScale(item, sectionId);
   const { top, left } = useItemPosition(item, sectionId);
   const sectionHeight = useSectionHeightData(sectionId);
@@ -62,6 +66,16 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
   const sizingAxis = parseSizing(sizing);
   const ItemComponent = itemsMap[item.type] || noop;
 
+  const handleItemResize = (height: number) => {
+    const sticky = item.sticky[layout];
+    if (!sticky) {
+      setWrapperHeight(undefined);
+      return;
+    }
+    const wrapperHeight = getStickyItemWrapperHeight(sticky, height)
+    setWrapperHeight(wrapperHeight);
+  };
+
   useEffect(() => {
     isInitialRef.current = false;
   }, []);
@@ -75,14 +89,14 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
 
   return (
     <div className={`item-wrapper-${item.id}`}
-      style={{ top, left }}
+      style={{ top, left, ...(wrapperHeight ? { height: `${wrapperHeight * 100}vw` } : {}) }}
     >
       <div
         suppressHydrationWarning={true}
         className={`item-${item.id}`}
         style={isInitialRef.current ? {} : styles }
       >
-        <ItemComponent item={item} sectionId={sectionId}  />
+        <ItemComponent item={item} sectionId={sectionId} onResize={handleItemResize} />
       </div>
       <JSXStyle id={id}>{`
         ${getLayoutStyles(layouts, layoutValues, ([area, sticky, sectionHeight, layoutParams]) => {
@@ -122,9 +136,8 @@ function getAnchoredItemTop(top: number, sectionHeight: string, anchorSide: Anch
   }
 }
 
-type Sticky = { from: number; to?: number; };
 
-function getStickyItemWrapperHeight(sticky: Sticky, itemHeight: number): number {
+function getStickyItemWrapperHeight(sticky: TStickyParams, itemHeight: number): number {
   const end = sticky.to ?? 100;
   return end - sticky.from + itemHeight;
 }
