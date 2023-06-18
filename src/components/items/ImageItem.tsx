@@ -41,7 +41,6 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId }) => {
             opacity: 1;
             object-fit: cover;
             pointer-events: none;
-            display: block;
           }
       `}</JSXStyle>
       </>
