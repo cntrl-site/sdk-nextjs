@@ -33,6 +33,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId }) => {
             height: 100%;
             border-style: solid;
             box-sizing: border-box;
+            display: flex;
           }
           .image {
             width: 100%;
@@ -40,6 +41,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId }) => {
             opacity: 1;
             object-fit: cover;
             pointer-events: none;
+            display: block;
           }
       `}</JSXStyle>
       </>
