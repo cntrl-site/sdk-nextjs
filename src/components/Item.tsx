@@ -115,6 +115,8 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
             .item-wrapper-${item.id} {
               position: absolute;
               z-index: ${area.zIndex};
+              -webkit-transform: translate3d(0, 0, 0);
+              transform: translate3d(0, 0, 0);
               pointer-events: none;
               top: ${getItemTopStyle(area.top, area.anchorSide)};
               left: ${area.left * 100}vw;
