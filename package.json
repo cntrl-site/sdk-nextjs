@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/cntrl-site/sdk-nextjs#readme",
   "dependencies": {
-    "@cntrl-site/sdk": "^1.1.4",
+    "@cntrl-site/sdk": "^1.1.5",
     "html-react-parser": "^3.0.1",
     "styled-jsx": "^5.0.2"
   },
