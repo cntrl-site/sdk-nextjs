@@ -100,17 +100,18 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
       </div>
       <JSXStyle id={id}>{`
         ${getLayoutStyles(layouts, layoutValues, ([area, sticky, sectionHeight, layoutParams]) => {
-        const sizingAxis = parseSizing(layoutParams.sizing);
-        return (`
-           .item-${item.id} {
+          const sizingAxis = parseSizing(layoutParams.sizing);
+          return (`
+            .item-${item.id} {
               position: ${sticky ? 'sticky' : 'absolute'};
               width: ${sizingAxis.x === SizingType.Manual ? `${area.width * 100}vw` : 'max-content'};
               height: ${sizingAxis.y === SizingType.Manual ? `w${area.height * 100}vw` : 'unset'};
               transform: scale(${scale});
-              top: ${sticky ? `${getAnchoredItemTop(area.top - sticky.from, sectionHeight, area.anchorSide)}`  : 0};
+              top: ${sticky ? `${getAnchoredItemTop(area.top - sticky.from, sectionHeight, area.anchorSide)}` : 0};
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
               pointer-events: auto;
               --webkit-backface-visibility: hidden;
+              visibility: ${item.hidden[layout] ? 'hidden' : 'visible'};
             }
             .item-wrapper-${item.id} {
               position: absolute;
