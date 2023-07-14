@@ -52,7 +52,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
   const sectionHeight = useSectionHeightData(sectionId);
   const layout = useCurrentLayout();
   const { width, height } = useItemDimensions(item, sectionId);
-  const layoutValues: Record<string, any>[] = [item.area];
+  const layoutValues: Record<string, any>[] = [item.area, item.hidden];
   const isInitialRef = useRef(true);
   layoutValues.push(item.sticky);
   layoutValues.push(sectionHeight);
@@ -88,7 +88,8 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
   };
 
   return (
-    <div className={`item-wrapper-${item.id}`}
+    <div
+      className={`item-wrapper-${item.id}`}
       style={{ top, left, ...(wrapperHeight ? { height: `${wrapperHeight * 100}vw` } : {}) }}
     >
       <div
@@ -99,11 +100,12 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
         <ItemComponent item={item} sectionId={sectionId} onResize={handleItemResize} />
       </div>
       <JSXStyle id={id}>{`
-        ${getLayoutStyles(layouts, layoutValues, ([area, sticky, sectionHeight, layoutParams]) => {
+        ${getLayoutStyles(layouts, layoutValues, ([area, hidden, sticky, sectionHeight, layoutParams]) => {
           const sizingAxis = parseSizing(layoutParams.sizing);
+
           return (`
             .item-${item.id} {
-              position: ${sticky ? 'sticky' : 'absolute'};
+              position: ${sticky ? 'sticky' : 'absolute'};xw
               width: ${sizingAxis.x === SizingType.Manual ? `${area.width * 100}vw` : 'max-content'};
               height: ${sizingAxis.y === SizingType.Manual ? `w${area.height * 100}vw` : 'unset'};
               transform: scale(${scale});
@@ -111,7 +113,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
               pointer-events: auto;
               --webkit-backface-visibility: hidden;
-              visibility: ${item.hidden[layout] ? 'hidden' : 'visible'};
+              visibility: ${hidden ? 'hidden' : 'visible'};
             }
             .item-wrapper-${item.id} {
               position: absolute;
