@@ -41,7 +41,7 @@ export const Section: FC<Props> = ({ section, data, children }) => {
       }, '');
   };
 
-  if (SectionComponent) return <SectionComponent data={data}>{children}</SectionComponent>;
+  if (SectionComponent) return <div ref={sectionRef}><SectionComponent data={data}>{children}</SectionComponent></div>;
 
  return (
     <>
