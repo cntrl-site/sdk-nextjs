@@ -3,12 +3,16 @@ import { useMemo } from 'react';
 import { CntrlColor } from '@cntrl-site/sdk';
 
 type LayoutIdentifier = string;
-const DEFAULT_COLOR = 'transparent';
+const DEFAULT_COLOR = 'rgba(0, 0, 0, 0)';
 
-export const useSectionColor = (colorData: Record<LayoutIdentifier, string | null>): string => {
+export const useSectionColor = (colorData: Record<LayoutIdentifier, string | null>): CntrlColor => {
   const layoutId = useCurrentLayout();
    return useMemo(() => {
      const layoutColor = colorData[layoutId];
-     return !layoutColor ? DEFAULT_COLOR : CntrlColor.parse(layoutColor).toCss();
+     return CntrlColor.parse(
+       !layoutColor
+         ? DEFAULT_COLOR
+         : layoutColor
+     );
    }, []);
 };
