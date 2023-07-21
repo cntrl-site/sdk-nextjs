@@ -134,6 +134,7 @@ export class RichTextConverter {
             if (!entitiesGroup.stylesGroup) continue;
             for (const styleGroup of entitiesGroup.stylesGroup) {
               const lineHeight = styleGroup.styles.find(s => s.name === 'LINEHEIGHT');
+              const color = styleGroup.styles.find(s => s.name === 'COLOR');
               if (lineHeight?.value) {
                 currentLineHeight[item.layout] = lineHeight.value;
               }
@@ -142,6 +143,15 @@ export class RichTextConverter {
                   ${styleGroup.styles.map(s => RichTextConverter.fromDraftToInline(s)).join('\n')}
                 }
               `);
+              if (color) {
+                styleRules[item.layout].push(`
+                @supports not (color: oklch(42% 0.3 90 / 1)) {
+                  .${blockClass} .s-${styleGroup.start}-${styleGroup.end} {
+                    color: ${CntrlColor.parse(getResolvedValue(color.value, 'COLOR')!).fmt('rgba')};
+                  }
+                }
+              `);
+              }
             }
           }
         }

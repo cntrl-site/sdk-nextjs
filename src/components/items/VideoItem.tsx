@@ -10,24 +10,30 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId }) => {
   const id = useId();
   const { radius, strokeWidth, strokeColor, opacity } = useFileItem(item, sectionId);
   const angle = useItemAngle(item, sectionId);
-  const borderColor = useMemo(() => CntrlColor.parse(strokeColor).toCss(), [strokeColor]);
+  const borderColor = useMemo(() => CntrlColor.parse(strokeColor), [strokeColor]);
   return (
     <LinkWrapper url={item.link?.url}>
-      <div className={`video-wrapper-${item.id}`}
-         style={{
-           borderRadius: `${radius * 100}vw`,
-           borderWidth: `${strokeWidth * 100}vw`,
-           opacity: `${opacity}`,
-           borderColor: `${borderColor}`,
-           transform: `rotate(${angle}deg)`
-         }}
+      <div
+        className={`video-wrapper-${item.id}`}
+        style={{
+          borderRadius: `${radius * 100}vw`,
+          borderWidth: `${strokeWidth * 100}vw`,
+          opacity: `${opacity}`,
+          borderColor: `${borderColor.toCss()}`,
+          transform: `rotate(${angle}deg)`
+        }}
       >
         <video autoPlay muted loop playsInline className="video">
           <source src={item.commonParams.url} />
         </video>
       </div>
       <JSXStyle id={id}>{`
-       .video-wrapper-${item.id} {
+        @supports not (color: oklch(42% 0.3 90 / 1)) {
+          .video-wrapper-${item.id} {
+            border-color: ${borderColor.fmt('rgba')};
+          }
+        }
+        .video-wrapper-${item.id} {
           position: absolute;
           overflow: hidden;
           width: 100%;

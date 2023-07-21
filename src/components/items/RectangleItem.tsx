@@ -16,7 +16,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId }
   return (
     <LinkWrapper url={item.link?.url}>
       <>
-        <div  className={`rectangle-${item.id}`}
+        <div className={`rectangle-${item.id}`}
           style={{
             backgroundColor: `${backgroundColor.toCss()}`,
             borderRadius: `${radius * 100}vw`,
@@ -26,12 +26,6 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId }
           }}
         />
         <JSXStyle id={id}>{`
-        @supports (color: oklch(42% 0.3 90 / 1)) {
-          .rectangle-${item.id} {
-            background-color: ${backgroundColor.fmt('oklch')};
-            border-color: ${borderColor.fmt('oklch')};
-          }
-        }
         @supports not (color: oklch(42% 0.3 90 / 1)) {
           .rectangle-${item.id} {
             background-color: ${backgroundColor.fmt('rgba')};
