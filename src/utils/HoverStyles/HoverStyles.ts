@@ -1,7 +1,11 @@
 import { THoverParams, ArticleItemType, TItemHoverStatesMap, CntrlColor, AnchorSide } from '@cntrl-site/sdk';
 import { getItemTopStyle } from '../getItemTopStyle';
+import { ItemHoverState } from '@cntrl-site/core/src/article/ItemState';
 
-const hoverTransformationMap = {
+type UnionToIntersection<U> = (U extends any ? (arg: U) => void : never) extends (arg: infer I) => void ? I : never;
+type HoverParamsGetter = (value: any, anchorSide?: AnchorSide) => string;
+
+const hoverTransformationMap: Record<keyof UnionToIntersection<ItemHoverState>, HoverParamsGetter> = {
   'width': (width: number) => `width: ${width * 100}vw !important;`,
   'height': (height: number) => `height: ${height * 100}vw !important;`,
   'top': (top: number, anchorSide?: AnchorSide) => `top: ${getItemTopStyle(top, anchorSide)} !important;`,
@@ -15,7 +19,7 @@ const hoverTransformationMap = {
   'fillColor': (fillColor: string) => `background-color: ${CntrlColor.parse(fillColor).toCss()} !important;`,
 };
 
-const CSSPropertyNameMap = {
+const CSSPropertyNameMap: Record<keyof UnionToIntersection<ItemHoverState>, string> = {
   'width': 'width',
   'height': 'height',
   'top': 'top',
@@ -30,7 +34,7 @@ const CSSPropertyNameMap = {
 };
 
 export function getTransitions<T extends ArticleItemType>(
-  values: Array<keyof TItemHoverStatesMap[T]>,
+  values: Array<keyof ItemHoverState>,
   hover?: TItemHoverStatesMap[T]
 ): string {
   if (!hover) return 'unset';
@@ -39,7 +43,6 @@ export function getTransitions<T extends ArticleItemType>(
       const hoverProperties = hover[valueName] as THoverParams<string | number>;
       return [
         ...acc,
-        // @ts-ignore
         `${CSSPropertyNameMap[valueName]} ${hoverProperties!.duration}ms ${hoverProperties!.timing} ${hoverProperties!.delay}ms`
       ];
     }
@@ -50,8 +53,8 @@ export function getTransitions<T extends ArticleItemType>(
 }
 
 export function getHoverStyles<T extends ArticleItemType>(
-  values: Array<keyof TItemHoverStatesMap[T]>,
-  hover?: TItemHoverStatesMap[T],
+  values: Array<keyof UnionToIntersection<ItemHoverState>>,
+  hover?: UnionToIntersection<ItemHoverState>,
   anchorSide?: AnchorSide
 ): string {
   if (!hover) return '';
@@ -60,7 +63,6 @@ export function getHoverStyles<T extends ArticleItemType>(
       const hoverProperties = hover[valueName] as THoverParams<string | number>;
       return [
         ...acc,
-        // @ts-ignore
         hoverTransformationMap[valueName](hoverProperties.value, anchorSide)
       ];
     }
