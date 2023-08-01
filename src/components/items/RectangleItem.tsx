@@ -1,13 +1,16 @@
 import { FC, useId, useMemo } from 'react';
 import JSXStyle from 'styled-jsx/style';
-import { TRectangleItem, CntrlColor } from '@cntrl-site/sdk';
+import { TRectangleItem, CntrlColor, getLayoutStyles, ArticleItemType } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useRectangleItem } from './useRectangleItem';
 import { useItemAngle } from '../useItemAngle';
+import { useCntrlContext } from '../../provider/useCntrlContext';
+import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
 
 export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId }) => {
   const id = useId();
+  const { layouts } = useCntrlContext();
   const { fillColor, radius, strokeWidth, strokeColor } = useRectangleItem(item, sectionId);
   const angle = useItemAngle(item, sectionId);
   const backgroundColor = useMemo(() => CntrlColor.parse(fillColor), [fillColor]);
@@ -39,6 +42,16 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId }
           border-style: solid;
           box-sizing: border-box;
         }
+        ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
+          return (`
+            .rectangle-${item.id} {
+              transition: ${getTransitions<ArticleItemType.Rectangle>(['angle', 'fillColor', 'strokeWidth', 'radius', 'strokeColor'], hoverParams)};
+            }
+            .rectangle-${item.id}:hover {
+              ${getHoverStyles<ArticleItemType.Rectangle>(['angle', 'fillColor', 'strokeWidth', 'radius', 'strokeColor'], hoverParams)}
+            }
+          `);
+        })}
       `}</JSXStyle>
       </>
     </LinkWrapper>

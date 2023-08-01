@@ -1,6 +1,6 @@
 {
   "name": "@cntrl-site/sdk-nextjs",
-  "version": "0.12.9",
+  "version": "0.12.10",
   "description": "SDK for Next.js",
   "main": "lib/index.js",
   "types": "src/index.ts",
@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/cntrl-site/sdk-nextjs#readme",
   "dependencies": {
-    "@cntrl-site/sdk": "^1.1.5",
+    "@cntrl-site/sdk": "/Users/mac/Desktop/momdesign-projects/sdk/cntrl-site-sdk-1.1.5.tgz",
     "html-react-parser": "^3.0.1",
     "styled-jsx": "^5.0.2"
   },

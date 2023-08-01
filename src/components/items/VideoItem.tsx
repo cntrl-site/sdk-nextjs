@@ -1,13 +1,16 @@
 import { FC, useId, useMemo } from 'react';
 import JSXStyle from 'styled-jsx/style';
-import { CntrlColor, TVideoItem } from '@cntrl-site/sdk';
+import { ArticleItemType, CntrlColor, getLayoutStyles, TVideoItem } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useFileItem } from './useFileItem';
 import { useItemAngle } from '../useItemAngle';
+import { useCntrlContext } from '../../provider/useCntrlContext';
+import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
 
 export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId }) => {
   const id = useId();
+  const { layouts } = useCntrlContext();
   const { radius, strokeWidth, strokeColor, opacity } = useFileItem(item, sectionId);
   const angle = useItemAngle(item, sectionId);
   const borderColor = useMemo(() => CntrlColor.parse(strokeColor), [strokeColor]);
@@ -50,6 +53,16 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId }) => {
           object-fit: cover;
           pointer-events: none;
         }
+        ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
+          return (`
+            .video-wrapper-${item.id} {
+              transition: ${getTransitions<ArticleItemType.Video>(['angle', 'strokeWidth', 'radius', 'strokeColor', 'opacity'], hoverParams)};
+            }
+            .video-wrapper-${item.id}:hover {
+              ${getHoverStyles<ArticleItemType.Video>(['angle', 'strokeWidth', 'radius', 'strokeColor', 'opacity'], hoverParams)}
+            }
+          `);
+        })}
     `}</JSXStyle>
     </LinkWrapper>
   );

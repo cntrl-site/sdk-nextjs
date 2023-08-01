@@ -18,12 +18,14 @@ import { VimeoEmbedItem } from './items/VimeoEmbed';
 import { YoutubeEmbedItem } from './items/YoutubeEmbed';
 import { CustomItem } from './items/CustomItem';
 import { useCntrlContext } from '../provider/useCntrlContext';
-import { getItemTopStyle, useItemPosition } from './useItemPosition';
+import { useItemPosition } from './useItemPosition';
 import { useItemDimensions } from './useItemDimensions';
 import { useCurrentLayout } from '../common/useCurrentLayout';
 import { useItemScale } from './useItemScale';
 import { ScaleAnchorMap } from '../utils/ScaleAnchorMap';
 import { useSectionHeightData } from './useSectionHeightMap';
+import { getHoverStyles, getTransitions } from '../utils/HoverStyles/HoverStyles';
+import { getItemTopStyle } from '../utils/getItemTopStyle';
 
 export interface ItemProps<I extends TArticleItemAny> {
   item: I;
@@ -52,7 +54,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
   const sectionHeight = useSectionHeightData(sectionId);
   const layout = useCurrentLayout();
   const { width, height } = useItemDimensions(item, sectionId);
-  const layoutValues: Record<string, any>[] = [item.area, item.hidden];
+  const layoutValues: Record<string, any>[] = [item.area, item.hidden, item.state.hover];
   const isInitialRef = useRef(true);
   layoutValues.push(item.sticky);
   layoutValues.push(sectionHeight);
@@ -100,12 +102,11 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
         <ItemComponent item={item} sectionId={sectionId} onResize={handleItemResize} />
       </div>
       <JSXStyle id={id}>{`
-        ${getLayoutStyles(layouts, layoutValues, ([area, hidden, sticky, sectionHeight, layoutParams]) => {
+        ${getLayoutStyles(layouts, layoutValues, ([area, hidden, hoverParams, sticky, sectionHeight, layoutParams]) => {
           const sizingAxis = parseSizing(layoutParams.sizing);
-
           return (`
             .item-${item.id} {
-              position: ${sticky ? 'sticky' : 'absolute'};xw
+              position: ${sticky ? 'sticky' : 'absolute'};
               width: ${sizingAxis.x === SizingType.Manual ? `${area.width * 100}vw` : 'max-content'};
               height: ${sizingAxis.y === SizingType.Manual ? `w${area.height * 100}vw` : 'unset'};
               transform: scale(${scale});
@@ -113,7 +114,9 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
               pointer-events: auto;
               --webkit-backface-visibility: hidden;
+              cursor: ${hoverParams ? 'pointer' : 'default'};
               visibility: ${hidden ? 'hidden' : 'visible'};
+              transition: ${getTransitions(['width', 'height', 'scale'], hoverParams)};
             }
             .item-wrapper-${item.id} {
               position: absolute;
@@ -124,6 +127,13 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
               top: ${getItemTopStyle(area.top, area.anchorSide)};
               left: ${area.left * 100}vw;
               height: ${sticky ? `${getStickyItemWrapperHeight(sticky, area.height) * 100}vw` : 'unset'};
+              transition: ${getTransitions(['left', 'top'], hoverParams)};
+            }
+            .item-${item.id}:hover {
+              ${getHoverStyles(['width', 'height', 'scale'], hoverParams)}
+            }
+            .item-wrapper-${item.id}:hover {
+              ${getHoverStyles(['left', 'top'], hoverParams, area.anchorSide)}
             }
           `);
       })}
