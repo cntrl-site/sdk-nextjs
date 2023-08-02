@@ -39,6 +39,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
       >
         <iframe
           className="embedYoutubeVideo"
+
           src={validUrl || ''}
           allow="accelerometer; autoplay; allowfullscreen;"
           allowFullScreen
@@ -59,7 +60,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
         }
         ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
           return (`
-            .embed-youtube-video-wrapper${item.id} {
+            .embed-youtube-video-wrapper-${item.id} {
               transition: ${getTransitions<ArticleItemType.YoutubeEmbed>(['angle', 'radius'], hoverParams)};
             }
             .embed-youtube-video-wrapper-${item.id}:hover {

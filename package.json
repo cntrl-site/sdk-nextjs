@@ -1,6 +1,6 @@
 {
   "name": "@cntrl-site/sdk-nextjs",
-  "version": "0.12.10",
+  "version": "0.12.11",
   "description": "SDK for Next.js",
   "main": "lib/index.js",
   "types": "src/index.ts",
@@ -21,7 +21,9 @@
   },
   "homepage": "https://github.com/cntrl-site/sdk-nextjs#readme",
   "dependencies": {
-    "@cntrl-site/sdk": "/Users/mac/Desktop/momdesign-projects/sdk/cntrl-site-sdk-1.1.5.tgz",
+    "@cntrl-site/sdk": "/Users/mac/Desktop/momdesign-projects/sdk/cntrl-site-sdk-1.1.6.tgz",
+    "@types/vimeo__player": "^2.18.0",
+    "@vimeo/player": "^2.20.1",
     "html-react-parser": "^3.0.1",
     "styled-jsx": "^5.0.2"
   },

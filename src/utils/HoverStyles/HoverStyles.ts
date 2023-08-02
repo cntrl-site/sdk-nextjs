@@ -1,11 +1,11 @@
-import { THoverParams, ArticleItemType, TItemHoverStatesMap, CntrlColor, AnchorSide } from '@cntrl-site/sdk';
+import { THoverParams, ArticleItemType, CntrlColor, AnchorSide, TItemHoverState } from '@cntrl-site/sdk';
 import { getItemTopStyle } from '../getItemTopStyle';
-import { ItemHoverState } from '@cntrl-site/core/src/article/ItemState';
 
 type UnionToIntersection<U> = (U extends any ? (arg: U) => void : never) extends (arg: infer I) => void ? I : never;
 type HoverParamsGetter = (value: any, anchorSide?: AnchorSide) => string;
+type ItemHoverParams = Omit<UnionToIntersection<TItemHoverState>, 'autoplay'>;
 
-const hoverTransformationMap: Record<keyof UnionToIntersection<ItemHoverState>, HoverParamsGetter> = {
+const hoverTransformationMap: Record<keyof ItemHoverParams, HoverParamsGetter> = {
   'width': (width: number) => `width: ${width * 100}vw !important;`,
   'height': (height: number) => `height: ${height * 100}vw !important;`,
   'top': (top: number, anchorSide?: AnchorSide) => `top: ${getItemTopStyle(top, anchorSide)} !important;`,
@@ -19,7 +19,7 @@ const hoverTransformationMap: Record<keyof UnionToIntersection<ItemHoverState>, 
   'fillColor': (fillColor: string) => `background-color: ${CntrlColor.parse(fillColor).toCss()} !important;`,
 };
 
-const CSSPropertyNameMap: Record<keyof UnionToIntersection<ItemHoverState>, string> = {
+const CSSPropertyNameMap: Record<keyof ItemHoverParams, string> = {
   'width': 'width',
   'height': 'height',
   'top': 'top',
@@ -34,8 +34,8 @@ const CSSPropertyNameMap: Record<keyof UnionToIntersection<ItemHoverState>, stri
 };
 
 export function getTransitions<T extends ArticleItemType>(
-  values: Array<keyof ItemHoverState>,
-  hover?: TItemHoverStatesMap[T]
+  values: Array<keyof ItemHoverParams>,
+  hover?: ItemHoverParams
 ): string {
   if (!hover) return 'unset';
   const transitionValues = values.reduce<string[]>((acc, valueName) => {
@@ -53,8 +53,8 @@ export function getTransitions<T extends ArticleItemType>(
 }
 
 export function getHoverStyles<T extends ArticleItemType>(
-  values: Array<keyof UnionToIntersection<ItemHoverState>>,
-  hover?: UnionToIntersection<ItemHoverState>,
+  values: Array<keyof ItemHoverParams>,
+  hover?: ItemHoverParams,
   anchorSide?: AnchorSide
 ): string {
   if (!hover) return '';
