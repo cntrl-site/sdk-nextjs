@@ -6,9 +6,13 @@ import { LinkWrapper } from '../LinkWrapper';
 import { getYoutubeId } from '../../utils/getValidYoutubeUrl';
 import { useEmbedVideoItem } from './useEmbedVideoItem';
 import { useItemAngle } from '../useItemAngle';
+import { ArticleItemType, getLayoutStyles } from '@cntrl-site/sdk';
+import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
+import { useCntrlContext } from '../../provider/useCntrlContext';
 
 export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, sectionId }) => {
   const id = useId();
+  const { layouts } = useCntrlContext();
   const { autoplay, controls, url } = item.commonParams;
   const { radius } = useEmbedVideoItem(item, sectionId);
   const angle = useItemAngle(item, sectionId);
@@ -18,7 +22,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
     const id = getYoutubeId(newUrl);
     const validUrl = new URL(`https://www.youtube.com/embed/${id}`);
     validUrl.searchParams.append('controls', `${ Number(controls) }`);
-    validUrl.searchParams.append('autoplay', !controls ? 'true' : `${ Number(autoplay) }`);
+    validUrl.searchParams.append('autoplay', `${ Number(autoplay) }`);
     validUrl.searchParams.append('mute', `${ Number(autoplay) }`);
 
     return validUrl.href;
@@ -53,6 +57,16 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
           z-index: 1;
           border: none;
         }
+        ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
+          return (`
+            .embed-youtube-video-wrapper-${item.id} {
+              transition: ${getTransitions<ArticleItemType.YoutubeEmbed>(['angle', 'radius'], hoverParams)};
+            }
+            .embed-youtube-video-wrapper-${item.id}:hover {
+              ${getHoverStyles<ArticleItemType.YoutubeEmbed>(['angle', 'radius'], hoverParams)}
+            }
+          `);
+      })}
       `}</JSXStyle>
     </LinkWrapper>
   )

@@ -1,20 +1,24 @@
 import { FC, useId, useMemo } from 'react';
 import JSXStyle from 'styled-jsx/style';
-import { CntrlColor, TImageItem } from '@cntrl-site/sdk';
+import { ArticleItemType, CntrlColor, getLayoutStyles, TImageItem } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useFileItem } from './useFileItem';
 import { useItemAngle } from '../useItemAngle';
+import { useCntrlContext } from '../../provider/useCntrlContext';
+import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
 
 export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId }) => {
   const id = useId();
+  const { layouts } = useCntrlContext();
   const { radius, strokeWidth, opacity, strokeColor } = useFileItem(item, sectionId);
   const angle = useItemAngle(item, sectionId);
   const borderColor = useMemo(() => CntrlColor.parse(strokeColor), [strokeColor]);
   return (
     <LinkWrapper url={item.link?.url}>
       <>
-        <div className={`image-wrapper-${item.id}`}
+        <div
+          className={`image-wrapper-${item.id}`}
           style={{
             borderRadius: `${radius * 100}vw`,
             borderWidth: `${strokeWidth * 100}vw`,
@@ -47,6 +51,16 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId }) => {
             object-fit: cover;
             pointer-events: none;
           }
+          ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
+            return (`
+              .image-wrapper-${item.id} {
+                transition: ${getTransitions<ArticleItemType.Image>(['angle', 'strokeWidth', 'radius', 'strokeColor', 'opacity'], hoverParams)};
+              }
+              .image-wrapper-${item.id}:hover {
+                ${getHoverStyles<ArticleItemType.Image>(['angle', 'strokeWidth', 'radius', 'strokeColor', 'opacity'], hoverParams)}
+              }
+            `);
+         })}
       `}</JSXStyle>
       </>
     </LinkWrapper>

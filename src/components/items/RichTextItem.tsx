@@ -1,14 +1,18 @@
-import { FC, useEffect, useState } from 'react';
-import { TRichTextItem } from '@cntrl-site/sdk';
+import { FC, useEffect, useId, useState } from 'react';
+import { ArticleItemType, getLayoutStyles, TRichTextItem } from '@cntrl-site/sdk';
 import JSXStyle from 'styled-jsx/style';
 import { ItemProps } from '../Item';
 import { useRichTextItem } from './useRichTextItem';
 import { useItemAngle } from '../useItemAngle';
+import { useCntrlContext } from '../../provider/useCntrlContext';
+import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize }) => {
   const [content, styles, preset] = useRichTextItem(item);
+  const id = useId();
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const angle = useItemAngle(item, sectionId);
+  const { layouts } = useCntrlContext();
   const className = preset ? `cntrl-preset-${preset.id}` : undefined;
 
   useEffect(() => {
@@ -27,15 +31,25 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
     <>
       <div
         ref={setRef}
-        className={className}
+        className={`${className} rich-text-wrapper-${item.id}`}
         style={{
           transform: `rotate(${angle}deg)`
         }}
       >
         {content}
       </div>
-      <JSXStyle id={item.id}>
+      <JSXStyle id={id}>
         {styles}
+        {`${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
+          return (`
+            .rich-text-wrapper-${item.id} {
+              transition: ${getTransitions<ArticleItemType.RichText>(['angle'], hoverParams)};
+            }
+            .rich-text-wrapper-${item.id}:hover {
+              ${getHoverStyles<ArticleItemType.RichText>(['angle'], hoverParams)}
+            }
+          `);
+        })}`}
       </JSXStyle>
     </>
   );
