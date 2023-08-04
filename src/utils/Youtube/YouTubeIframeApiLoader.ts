@@ -31,6 +31,7 @@ export class YouTubeIframeApiLoader {
       const script = document.createElement('script');
       script.src = YT_IFRAME_API_URL;
       const loadError = new Error('YouTube IFrame API loading failed');
+      captureStackTrace(loadError);
       script.addEventListener('abort', () => {
         reject(loadError);
       });
@@ -44,4 +45,14 @@ export class YouTubeIframeApiLoader {
       document.head.appendChild(script);
     });
   }
+}
+
+export function captureStackTrace(error: Error): void {
+  if (typeof Error.captureStackTrace === 'function') {
+    Error.captureStackTrace(error);
+    return;
+  }
+  try {
+    throw error;
+  } catch (errWithStack) {}
 }

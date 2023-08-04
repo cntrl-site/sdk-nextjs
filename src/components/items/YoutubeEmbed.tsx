@@ -39,9 +39,8 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
     if (!YT || !videoId || !div) return;
     const divRect = div.getBoundingClientRect();
     const placeholder = document.createElement('div');
+    div.appendChild(placeholder);
     const player = new YT.Player(placeholder, {
-      width: divRect.width,
-      height: divRect.height,
       videoId,
       playerVars: {
         autoplay: play === 'auto' ? '1' : '0',
@@ -50,6 +49,9 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
       events: {
         onReady: (event) => {
           setPlayer(event.target);
+          if (play !== 'on-click') {
+            player.mute();
+          }
         }
       }
     });
@@ -58,31 +60,25 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
       player.destroy();
       placeholder.parentElement?.removeChild(placeholder);
     };
-  }, []);
-
-  useEffect(() => {
-    if (!player) return;
-    if (play === 'auto') {
-      player.mute();
-    }
-  }, [player, play]);
+  }, [YT, div]);
 
   return (
     <LinkWrapper url={item.link?.url}>
       <div className={`embed-youtube-video-wrapper-${item.id}`}
          onMouseEnter={() => {
-           player?.playVideo();
+           if (!player || play !== 'on-hover') return;
+           player.playVideo();
          }}
          onMouseLeave={() => {
-           player?.pauseVideo();
+           if (!player || play !== 'on-hover') return;
+           player.pauseVideo();
          }}
          ref={setDiv}
          style={{
            borderRadius: `${radius * 100}vw`,
            transform: `rotate(${angle}deg)`
          }}
-      >
-      </div>
+      ></div>
       <JSXStyle id={id}>{`
         .embed-youtube-video-wrapper-${item.id} {
           position: absolute;
@@ -90,7 +86,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
           width: 100%;
           height: 100%;
         }
-        .embedYoutubeVideo {
+        .embed-youtube-video-wrapper-${item.id} iframe {
           width: 100%;
           height: 100%;
           z-index: 1;
