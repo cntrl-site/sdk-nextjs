@@ -1,17 +1,16 @@
-import { FC, useId } from 'react';
-import JSXStyle from 'styled-jsx/style';
 import { TYoutubeEmbedItem } from '@cntrl-site/core';
+import { getLayoutStyles } from '@cntrl-site/sdk';
+import { FC } from 'react';
+import JSXStyle from 'styled-jsx/style';
+import { useCntrlContext } from '../../provider/useCntrlContext';
+import { getYoutubeId } from '../../utils/getValidYoutubeUrl';
+import { getItemClassName } from '../../utils/itemClassName';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
-import { getYoutubeId } from '../../utils/getValidYoutubeUrl';
-import { useEmbedVideoItem } from './useEmbedVideoItem';
-import { useItemAngle } from '../useItemAngle';
 
-export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, sectionId }) => {
-  const id = useId();
+export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, className }) => {
+  const { layouts } = useCntrlContext();
   const { autoplay, controls, url } = item.commonParams;
-  const { radius } = useEmbedVideoItem(item, sectionId);
-  const angle = useItemAngle(item, sectionId);
 
   const getValidYoutubeUrl = (url: string): string => {
     const newUrl = new URL(url);
@@ -27,33 +26,35 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
 
   return (
     <LinkWrapper url={item.link?.url}>
-      <div className={`embed-youtube-video-wrapper-${item.id}`}
-         style={{
-           borderRadius: `${radius * 100}vw`,
-           transform: `rotate(${angle}deg)`
-         }}
-      >
+      <div className={`${getItemClassName(item.id, 'style')} ${className ?? ''}`}>
         <iframe
-          className="embedYoutubeVideo"
+          className={`embed-video-${item.id}`}
           src={validUrl || ''}
           allow="accelerometer; autoplay; allowfullscreen;"
           allowFullScreen
         />
       </div>
-      <JSXStyle id={id}>{`
-        .embed-youtube-video-wrapper-${item.id} {
-          position: absolute;
-          overflow: hidden;
-          width: 100%;
-          height: 100%;
-        }
-        .embedYoutubeVideo {
-          width: 100%;
-          height: 100%;
-          z-index: 1;
-          border: none;
-        }
-      `}</JSXStyle>
+      <JSXStyle id={`embed-video-${item.id}`}>
+        {getLayoutStyles(layouts, [item.layoutParams], ([{ radius }]) => {
+          return `
+            .${getItemClassName(item.id, 'style')} {
+              position: absolute;
+              overflow: hidden;
+              width: 100%;
+              height: 100%;
+              border-radius: ${radius * 100}vw;
+            }
+          `;
+        })}
+        {`
+          .embed-video-${item.id} {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            border: none;
+          }
+        `}
+      </JSXStyle>
     </LinkWrapper>
   )
 };

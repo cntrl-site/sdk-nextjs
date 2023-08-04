@@ -1,19 +1,22 @@
-import { FC, useId, useRef } from 'react';
+import { FC, useId, useMemo, useRef } from 'react';
 import JSXStyle from 'styled-jsx/style';
-import { TArticle } from '@cntrl-site/sdk';
+import { TArticle, TKeyframeAny } from '@cntrl-site/sdk';
 import { Section } from './Section';
 import { Item } from './Item';
 import { useArticleRectObserver } from '../utils/ArticleRectManager/useArticleRectObserver';
 import { ArticleRectContext } from '../provider/ArticleRectContext';
+import { Keyframes } from '../provider/Keyframes';
 
 interface Props {
   article: TArticle;
+  keyframes: TKeyframeAny[];
   sectionData: Record<SectionName, any>;
 }
 
-export const Article: FC<Props> = ({ article, sectionData }) => {
+export const Article: FC<Props> = ({ article, sectionData, keyframes }) => {
   const articleRef = useRef<HTMLDivElement | null>(null);
   const articleRectObserver = useArticleRectObserver(articleRef.current);
+  const kfRepo = useMemo(() => new Keyframes(keyframes), [keyframes]);
   const id = useId();
 
   return (
@@ -21,8 +24,9 @@ export const Article: FC<Props> = ({ article, sectionData }) => {
       <div className="article" ref={articleRef}>
         {article.sections.map((section, i) => {
           const data = section.name ? sectionData[section.name] : {};
+          const sectionKeyframes = kfRepo.getItemsKeyframes(section.items.map(item => item.id));
           return (
-            <Section section={section} key={section.id} data={data}>
+            <Section section={section} key={section.id} data={data} keyframes={sectionKeyframes}>
               {article.sections[i].items.map(item => (
                 <Item item={item} key={item.id} sectionId={section.id} />
               ))}

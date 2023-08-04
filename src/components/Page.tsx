@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 import HTMLReactParser from 'html-react-parser';
 import { TArticle, TProject, TMeta, TKeyframeAny } from '@cntrl-site/sdk';
 import { Article } from './Article';
@@ -19,15 +19,12 @@ export interface PageProps {
 export const Page: FC<PageProps> = ({ article, project, meta, keyframes, sectionData }) => {
   const afterBodyOpen = HTMLReactParser(project.html.afterBodyOpen);
   const beforeBodyClose = HTMLReactParser(project.html.beforeBodyClose);
-  const keyframesRepo = useMemo(() => new Keyframes(keyframes), [keyframes]);
   const { typePresets, layouts } = useCntrlContext();
   return (
     <>
       <CNTRLHead project={project} meta={meta} />
       {afterBodyOpen}
-      <KeyframesContext.Provider value={keyframesRepo}>
-        <Article article={article} sectionData={sectionData} />
-      </KeyframesContext.Provider>
+      <Article article={article} sectionData={sectionData} keyframes={keyframes} />
       {beforeBodyClose}
       {typePresets && typePresets.presets.length > 0 && (
         <style>{generateTypePresetStyles(typePresets, layouts)}</style>

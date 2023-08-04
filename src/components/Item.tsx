@@ -1,34 +1,30 @@
-import { ComponentType, FC, useEffect, useId, useRef, useState } from 'react';
-import JSXStyle from 'styled-jsx/style';
 import {
-  AnchorSide,
-  ArticleItemSizingType as SizingType,
   ArticleItemType,
-  getLayoutStyles,
+  ArticleItemSizingType as SizingType,
   TArticleItem,
-  TStickyParams,
   TArticleItemAny,
-
+  TStickyParams,
+  getLayoutStyles
 } from '@cntrl-site/sdk';
-import { RectangleItem } from './items/RectangleItem';
+import { ComponentType, FC, useEffect, useRef } from 'react';
+import JSXStyle from 'styled-jsx/style';
+import { useCntrlContext } from '../provider/useCntrlContext';
+import { ScaleAnchorMap } from '../utils/ScaleAnchorMap';
+import { getItemClassName } from '../utils/itemClassName';
+import { CustomItem } from './items/CustomItem';
 import { ImageItem } from './items/ImageItem';
-import { VideoItem } from './items/VideoItem';
+import { RectangleItem } from './items/RectangleItem';
 import { RichTextItem } from './items/RichTextItem';
+import { VideoItem } from './items/VideoItem';
 import { VimeoEmbedItem } from './items/VimeoEmbed';
 import { YoutubeEmbedItem } from './items/YoutubeEmbed';
-import { CustomItem } from './items/CustomItem';
-import { useCntrlContext } from '../provider/useCntrlContext';
-import { getItemTopStyle, useItemPosition } from './useItemPosition';
-import { useItemDimensions } from './useItemDimensions';
-import { useCurrentLayout } from '../common/useCurrentLayout';
-import { useItemScale } from './useItemScale';
-import { ScaleAnchorMap } from '../utils/ScaleAnchorMap';
-import { useSectionHeightData } from './useSectionHeightMap';
+import { getItemTopStyle } from './useItemPosition';
 
 export interface ItemProps<I extends TArticleItemAny> {
   item: I;
   sectionId: string;
   onResize?: (height: number) => void;
+  className?: string;
 }
 
 const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
@@ -44,78 +40,43 @@ const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
 const noop = () => null;
 
 export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
-  const id = useId();
   const { layouts } = useCntrlContext();
-  const [wrapperHeight, setWrapperHeight] = useState<undefined | number>(undefined);
-  const { scale, scaleAnchor } = useItemScale(item, sectionId);
-  const { top, left } = useItemPosition(item, sectionId);
-  const sectionHeight = useSectionHeightData(sectionId);
-  const layout = useCurrentLayout();
-  const { width, height } = useItemDimensions(item, sectionId);
-  const layoutValues: Record<string, any>[] = [item.area, item.hidden];
-  const isInitialRef = useRef(true);
-  layoutValues.push(item.sticky);
-  layoutValues.push(sectionHeight);
-  if (item.layoutParams) {
-    layoutValues.push(item.layoutParams);
-  }
+  const itemRef = useRef<HTMLDivElement>(null);
 
-  const sizing = isItemType(item, ArticleItemType.RichText)
-    ? item.layoutParams[layout].sizing
-    : undefined;
-  const sizingAxis = parseSizing(sizing);
+  const layoutValues = [
+    item.area,
+    item.hidden,
+    item.sticky,
+    item.layoutParams
+  ] as const;
   const ItemComponent = itemsMap[item.type] || noop;
 
-  const handleItemResize = (height: number) => {
-    const sticky = item.sticky[layout];
-    if (!sticky) {
-      setWrapperHeight(undefined);
-      return;
-    }
-    const wrapperHeight = getStickyItemWrapperHeight(sticky, height)
-    setWrapperHeight(wrapperHeight);
-  };
-
   useEffect(() => {
-    isInitialRef.current = false;
+    const handleScroll = () => {
+      const itemEl = itemRef.current;
+      if (!itemEl) return;
+      itemEl.style.setProperty('--sticky-top', `${itemEl.offsetTop}px`);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
-  const styles = {
-    transform: `scale(${scale})`,
-    transformOrigin: ScaleAnchorMap[scaleAnchor],
-    width: `${sizingAxis.x === SizingType.Manual ? `${width * 100}vw` : 'max-content'}`,
-    height: `${sizingAxis.y === SizingType.Manual ? `${height * 100}vw` : 'unset'}`,
-  };
-
   return (
-    <div
-      className={`item-wrapper-${item.id}`}
-      style={{ top, left, ...(wrapperHeight ? { height: `${wrapperHeight * 100}vw` } : {}) }}
-    >
-      <div
-        suppressHydrationWarning={true}
-        className={`item-${item.id}`}
-        style={isInitialRef.current ? {} : styles }
-      >
-        <ItemComponent item={item} sectionId={sectionId} onResize={handleItemResize} />
+    <div ref={itemRef} className={getItemClassName(item.id, 'position')}>
+      <div className={`${getItemClassName(item.id, 'size')} ${getItemClassName(item.id, 'scale')} ${getItemClassName(item.id, 'sticky')}`}>
+        <ItemComponent
+          className={`${getItemClassName(item.id, 'style')} ${getItemClassName(item.id, 'rotate')}`}
+          item={item}
+          sectionId={sectionId}
+        />
       </div>
-      <JSXStyle id={id}>{`
-        ${getLayoutStyles(layouts, layoutValues, ([area, hidden, sticky, sectionHeight, layoutParams]) => {
-          const sizingAxis = parseSizing(layoutParams.sizing);
-
-          return (`
-            .item-${item.id} {
-              position: ${sticky ? 'sticky' : 'absolute'};xw
-              width: ${sizingAxis.x === SizingType.Manual ? `${area.width * 100}vw` : 'max-content'};
-              height: ${sizingAxis.y === SizingType.Manual ? `w${area.height * 100}vw` : 'unset'};
-              transform: scale(${scale});
-              top: ${sticky ? `${getAnchoredItemTop(area.top - sticky.from, sectionHeight, area.anchorSide)}` : 0};
-              transform-origin: ${ScaleAnchorMap[scaleAnchor]};
-              pointer-events: auto;
-              --webkit-backface-visibility: hidden;
-              visibility: ${hidden ? 'hidden' : 'visible'};
-            }
-            .item-wrapper-${item.id} {
+      <JSXStyle id={`item-${item.id}`}>
+        {getLayoutStyles(layouts, layoutValues, ([area, hidden, sticky, layoutParams]) => {
+          const sizingAxis = parseSizing('sizing' in layoutParams ? layoutParams.sizing : undefined);
+          return `
+            .${getItemClassName(item.id, 'position')} {
               position: absolute;
               z-index: ${area.zIndex};
               -webkit-transform: translate3d(0, 0, 0);
@@ -125,23 +86,39 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
               left: ${area.left * 100}vw;
               height: ${sticky ? `${getStickyItemWrapperHeight(sticky, area.height) * 100}vw` : 'unset'};
             }
-          `);
-      })}
-      `}</JSXStyle>
+
+            .${getItemClassName(item.id, 'size')} {
+              width: ${sizingAxis.x === SizingType.Manual ? `${area.width * 100}vw` : 'max-content'};
+              height: ${sizingAxis.y === SizingType.Manual ? `${area.height * 100}vw` : 'unset'};
+            }
+
+            .${getItemClassName(item.id, 'scale')} {
+              transform: scale(${area.scale});
+              transform-origin: ${ScaleAnchorMap[area.scaleAnchor]};
+            }
+
+            .${getItemClassName(item.id, 'sticky')} {
+              position: ${sticky ? 'sticky' : 'absolute'};
+              top: ${sticky ? 'var(--sticky-top, 0)' : '0'};
+            }
+
+            .${getItemClassName(item.id, 'rotate')} {
+              transform: rotate(${area.angle}deg);
+              transform-origin: center center;
+            }
+
+            .${getItemClassName(item.id, 'style')} {
+              width: 100%;
+              height: 100%;
+              pointer-events: all;
+              visibility: ${hidden ? 'hidden' : 'visible'};
+            }
+          `;
+        })}
+      </JSXStyle>
     </div>
   );
 };
-
-function getAnchoredItemTop(top: number, sectionHeight: string, anchorSide: AnchorSide) {
-  const styleTop = `${top * 100}vw`;
-  switch (anchorSide) {
-    case AnchorSide.Center: return `calc(${styleTop} + ${sectionHeight} / 2)`;
-    case AnchorSide.Bottom: return `calc(${styleTop} + ${sectionHeight})`;
-    case AnchorSide.Top:
-    default:
-      return styleTop;
-  }
-}
 
 function getStickyItemWrapperHeight(sticky: TStickyParams, itemHeight: number): number {
   const end = sticky.to ?? 100;
@@ -152,7 +129,7 @@ function parseSizing(sizing: string = 'manual'): Axis {
   const axisSizing = sizing.split(' ');
   return {
     y: axisSizing[0],
-    x: axisSizing[1] ? axisSizing[1] : axisSizing[0]
+    x: axisSizing[1] ?? axisSizing[0]
   } as Axis;
 }
 

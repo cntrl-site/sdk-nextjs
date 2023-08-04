@@ -1,15 +1,14 @@
-import { FC, useId } from 'react';
-import JSXStyle from 'styled-jsx/style';
 import { TVimeoEmbedItem } from '@cntrl-site/core';
+import { getLayoutStyles } from '@cntrl-site/sdk';
+import { FC } from 'react';
+import JSXStyle from 'styled-jsx/style';
+import { useCntrlContext } from '../../provider/useCntrlContext';
+import { getItemClassName } from '../../utils/itemClassName';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
-import { useEmbedVideoItem } from './useEmbedVideoItem';
-import { useItemAngle } from '../useItemAngle';
 
-export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId }) => {
-  const id = useId();
-  const { radius } = useEmbedVideoItem(item, sectionId);
-  const angle = useItemAngle(item, sectionId);
+export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, className }) => {
+  const { layouts } = useCntrlContext();
   const { autoplay, controls, loop, muted, pictureInPicture, url } = item.commonParams;
   const getValidVimeoUrl = (url: string): string => {
     const validURL = new URL(url);
@@ -29,33 +28,35 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
 
   return (
     <LinkWrapper url={item.link?.url}>
-        <div className={`embed-video-wrapper-${item.id}`}
-          style={{
-            borderRadius: `${radius * 100}vw`,
-            transform: `rotate(${angle}deg)`
-          }}
-        >
-          <iframe
-            className="embedVideo"
-            src={validUrl || ''}
-            allow="autoplay; fullscreen; picture-in-picture;"
-            allowFullScreen
-          />
-        </div>
-        <JSXStyle id={id}>{`
-        .embed-video-wrapper-${item.id} {
-          position: absolute;
-          overflow: hidden;
-          width: 100%;
-          height: 100%;
-        }
-        .embedVideo {
-          width: 100%;
-          height: 100%;
-          z-index: 1;
-          border: none;
-        }
-      `}</JSXStyle>
+      <div className={`${getItemClassName(item.id, 'style')} ${className ?? ''}`}>
+        <iframe
+          className={`embed-video-${item.id}`}
+          src={validUrl || ''}
+          allow="autoplay; fullscreen; picture-in-picture;"
+          allowFullScreen
+        />
+      </div>
+      <JSXStyle id={`embed-video-${item.id}`}>
+        {getLayoutStyles(layouts, [item.layoutParams], ([{ radius }]) => {
+          return `
+            .${getItemClassName(item.id, 'style')} {
+              position: absolute;
+              overflow: hidden;
+              width: 100%;
+              height: 100%;
+              border-radius: ${radius * 100}vw;
+            }
+          `;
+        })}
+        {`
+          .embed-video-${item.id} {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            border: none;
+          }
+        `}
+      </JSXStyle>
     </LinkWrapper>
   );
 };

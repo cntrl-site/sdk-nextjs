@@ -5,11 +5,13 @@ import { AnimationLayout } from './SectionAnimations';
 
 interface ScrollTrackerProps {
   selector: string;
+  cssVarName: string;
   layouts?: AnimationLayout[];
 }
 
 export const ScrollTracker: FC<ScrollTrackerProps> = ({
   selector,
+  cssVarName,
   layouts
 }) => {
   const element = typeof document !== 'undefined' ? document.querySelector(selector) : undefined;
@@ -22,9 +24,9 @@ export const ScrollTracker: FC<ScrollTrackerProps> = ({
       if (!layout) return;
       const s = layout.startPosition * 1000;
       const e = layout.endPosition * 1000;
-      const top = (rect.top * 1000) / rect.width;
+      const top = -(rect.top * 1000) / rect.width;
       const animTop = Math.max(0, Math.min(((top - s) / (e - s)) * 1000, 1000));
-      element.style.setProperty('--section-animation-position', `-${animTop}`);
+      element.style.setProperty(`--${cssVarName}`, `-${animTop}`);
     };
     const observer = new ResizeObserver(updateScrollPosition);
     observer.observe(element);
@@ -33,7 +35,7 @@ export const ScrollTracker: FC<ScrollTrackerProps> = ({
       observer.unobserve(element);
       window.removeEventListener('scroll', updateScrollPosition);
     };
-  }, [element, layouts]);
+  }, [element, cssVarName, layouts]);
 
   return null;
 };

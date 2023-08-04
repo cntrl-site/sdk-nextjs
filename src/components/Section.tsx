@@ -1,31 +1,44 @@
-import { FC, ReactElement, useId, useRef } from 'react';
-import JSXStyle from 'styled-jsx/style';
 import {
-  getLayoutMediaQuery,
-  getLayoutStyles,
+  CntrlColor,
+  SectionHeightMode,
   TArticleSection,
+  TKeyframeAny,
   TSectionHeight,
-  SectionHeightMode
+  getLayoutMediaQuery,
+  getLayoutStyles
 } from '@cntrl-site/sdk';
+import { FC, ReactElement, useRef } from 'react';
+import JSXStyle from 'styled-jsx/style';
 import { useCntrlContext } from '../provider/useCntrlContext';
-import { useSectionColor } from './useSectionColor';
 import { useSectionRegistry } from '../utils/ArticleRectManager/useSectionRegistry';
+import { ScrollTracker } from './ScrollTracker';
+import { getSectionAnimations } from './useSectionAnimations';
+
+const CSS_VAR_SCROLL_POS = 'section-animation-position';
+const DEFAULT_COLOR = 'rgba(0 0 0 / 0)';
 
 type SectionChild = ReactElement<any, any>;
 
 interface Props {
   section: TArticleSection;
   children: SectionChild[];
+  keyframes?: TKeyframeAny[];
   data?: any;
 }
 
-export const Section: FC<Props> = ({ section, data, children }) => {
-  const id = useId();
+export const Section: FC<Props> = ({ section, data, children, keyframes }) => {
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const { layouts, customSections } = useCntrlContext();
-  const backgroundColor = useSectionColor(section.color);
   const SectionComponent = section.name ? customSections.getComponent(section.name) : undefined;
+  const [animStyles, tracks] = getSectionAnimations({
+    section,
+    keyframes,
+    layouts,
+    cssVarName: CSS_VAR_SCROLL_POS
+  });
+
   useSectionRegistry(section.id, sectionRef.current);
+
   const getSectionVisibilityStyles = () => {
     return layouts
       .sort((a, b) => a.startsWith - b.startsWith)
@@ -35,42 +48,56 @@ export const Section: FC<Props> = ({ section, data, children }) => {
           ${acc}
           ${getLayoutMediaQuery(layout.id, layouts)} {
             .section-${section.id} {
-              display: ${isHidden ? 'none': 'block'};
+              display: ${isHidden ? 'none' : 'block'};
             }
-          }`;
+          }
+        `;
       }, '');
   };
 
-  if (SectionComponent) return <div ref={sectionRef}><SectionComponent data={data}>{children}</SectionComponent></div>;
+  if (SectionComponent) {
+    return (
+      <div ref={sectionRef}>
+        <SectionComponent data={data}>{children}</SectionComponent>
+      </div>
+    );
+  }
 
- return (
+  return (
     <>
       <div
         className={`section-${section.id}`}
         id={section.name}
-        style={{
-          backgroundColor: backgroundColor.toCss()
-        }}
         ref={sectionRef}
       >
         {children}
       </div>
-      <JSXStyle id={id}>{`
-      ${
-        getLayoutStyles(layouts, [section.height], ([height]) => (`
-         .section-${section.id} {
-            height: ${getSectionHeight(height)};
-            position: relative;
-         }`
-        ))
-      }
-      ${getSectionVisibilityStyles()}
-      @supports not (color: oklch(42% 0.3 90 / 1)) {
-        .section-${section.id} {
-          background-color: ${backgroundColor.fmt('rgba')};
-        }
-      }
-    `}</JSXStyle>
+      <ScrollTracker
+        selector={`.section-${section.id}`}
+        cssVarName={CSS_VAR_SCROLL_POS}
+        layouts={tracks}
+      />
+      <JSXStyle id={`section-${section.id}-styles`}>
+        {getLayoutStyles(layouts, [section.height, section.color], ([height, color]) => {
+          const bgColor = CntrlColor.parse(color ?? DEFAULT_COLOR);
+          return `
+            .section-${section.id} {
+              height: ${getSectionHeight(height)};
+              color: ${bgColor.fmt('oklch')};
+              position: relative;
+            }
+            @supports not (color: oklch(42% 0.3 90 / 1)) {
+              .section-${section.id} {
+                background-color: ${bgColor.fmt('rgba')};
+              }
+            }
+          `;
+        })}
+      </JSXStyle>
+      <JSXStyle id={`section-${section.id}-visibility`}>
+        {getSectionVisibilityStyles()}
+      </JSXStyle>
+      {animStyles && <JSXStyle id={`section-${section.id}-animations`}>{animStyles}</JSXStyle>}
     </>
   );
 };

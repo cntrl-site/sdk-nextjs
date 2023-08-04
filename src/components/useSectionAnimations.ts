@@ -1,6 +1,17 @@
-import { KeyframeType, TKeyframe, TKeyframeAny, TLayout, getLayoutMediaQuery } from '@cntrl-site/sdk';
+import {
+  AnchorSide,
+  KeyframeType,
+  TArticleSection,
+  TKeyframe,
+  TKeyframeAny,
+  TLayout,
+  getClosestLayoutValue,
+  getLayoutMediaQuery
+} from '@cntrl-site/sdk';
 import groupBy from 'lodash.groupby';
 import { AnimationLayout } from './SectionAnimations';
+import { getItemClassName } from '../utils/itemClassName';
+import { getItemTopStyle } from './useItemPosition';
 
 type AnimationStructure = {
   [layoutId: string]: {
@@ -10,7 +21,7 @@ type AnimationStructure = {
 }
 
 type KeyframeStyleMap = {
-  [T in KeyframeType]: (kf: TKeyframe<T>) => string;
+  [T in KeyframeType]: (kf: TKeyframe<T>, ctx: AnimationGenContext) => string;
 };
 
 interface AnimationTrack {
@@ -20,10 +31,14 @@ interface AnimationTrack {
   getKeyframePosition(pos: number): string;
 }
 
+interface AnimationGenContext {
+  getItemAnchorSide: (itemId: string, layoutId: string) => AnchorSide;
+}
+
 interface KeyframeGroups {
   position: TKeyframeAny[];
-  dimension: TKeyframeAny[];
-  item: TKeyframeAny[];
+  size: TKeyframeAny[];
+  style: TKeyframeAny[];
   rotation: TKeyframe<KeyframeType.Rotation>[];
   scale: TKeyframe<KeyframeType.Scale>[];
 }
@@ -35,7 +50,10 @@ const keyframeStyleMap: KeyframeStyleMap = {
   [KeyframeType.Color]: kf => `color: ${kf.value.color};`,
   [KeyframeType.Dimensions]: kf => `width: ${kf.value.width * 100}vw; height: ${kf.value.height * 100}vw;`,
   [KeyframeType.Opacity]: kf => `opacity: ${kf.value.opacity};`,
-  [KeyframeType.Position]: kf => `top: ${kf.value.left * 100}vw; left: ${kf.value.left * 100}vw;`,
+  [KeyframeType.Position]: (kf, { getItemAnchorSide }) => {
+    const side = getItemAnchorSide(kf.itemId, kf.layoutId);
+    return `top: ${getItemTopStyle(kf.value.top, side)}; left: ${kf.value.left * 100}vw;`;
+  },
   [KeyframeType.Rotation]: kf => `transform: rotate(${kf.value.angle}deg);`,
   [KeyframeType.Scale]: kf => `transform: scale(${kf.value.scale});`,
 };
@@ -46,30 +64,39 @@ const collator = new Intl.Collator(undefined, {
   numeric: true
 });
 
-interface UseSectionKeyframesReturn {
-  // layout ID -> animation styles
-  styles: string;
-  getItemClass: (itemId: string) => string;
-  getItemScaleClass: (itemId: string) => string;
-  getItemRotateClass: (itemId: string) => string;
-}
-
 interface UseSectionKeyframesParams {
+  section: TArticleSection;
   keyframes?: TKeyframeAny[];
   layouts: TLayout[];
+  cssVarName: string;
 }
 
 type SectionAnimations = [
-  styles: string,
+  styles: string | undefined,
   layouts: AnimationLayout[]
 ];
 
-export function getSectionAnimations({ keyframes, layouts }: UseSectionKeyframesParams): SectionAnimations | undefined {
-  if (!keyframes) return undefined;
+export function getSectionAnimations({
+  section,
+  keyframes,
+  layouts,
+  cssVarName
+}: UseSectionKeyframesParams): SectionAnimations {
+  if (!keyframes) return [undefined, []];
   const struct = getAnimationStructure(keyframes);
   const blocks: string[] = [];
   const animLayouts: AnimationLayout[] = [];
   const sortedLayouts = layouts.slice().sort((l1, l2) => l1.startsWith - l2.startsWith);
+  const context: AnimationGenContext = {
+    getItemAnchorSide(itemId, layoutId) {
+      const item = section.items.find(item => item.id === itemId);
+      if (!item) {
+        throw new Error(`There is no item w/ id="${itemId}"`);
+      }
+      const [area] = getClosestLayoutValue(item.area, layouts, layoutId);
+      return area.anchorSide ?? AnchorSide.Top;
+    }
+  };
   for (const [layoutId, { track, items }] of Object.entries(struct)) {
     const layoutIndex = sortedLayouts.findIndex(l => l.id === layoutId);
     if (layoutIndex === -1) continue;
@@ -84,7 +111,7 @@ export function getSectionAnimations({ keyframes, layouts }: UseSectionKeyframes
     });
     for (const [itemId, itemData] of Object.entries(items)) {
       blocks.push(`${media} {
-        ${genItemAnimations(itemId, itemData, track)}
+        ${genItemAnimations(itemId, itemData, track, cssVarName, context)}
       }`);
     }
   }
@@ -94,61 +121,67 @@ export function getSectionAnimations({ keyframes, layouts }: UseSectionKeyframes
 function genItemAnimations(
   itemId: string,
   kfGroups: KeyframeGroups,
-  track: AnimationTrack
+  track: AnimationTrack,
+  cssVarName: string,
+  context: AnimationGenContext
 ): string {
   const blocks: string[] = [`
-    .${getItemPositionClass(itemId)},
-    .${getItemDimensionClass(itemId)},
-    .${getItemClass(itemId)},
-    .${getItemScaleClass(itemId)},
-    .${getItemRotateClass(itemId)} {
+    .${getItemClassName(itemId, 'position')},
+    .${getItemClassName(itemId, 'size')},
+    .${getItemClassName(itemId, 'style')},
+    .${getItemClassName(itemId, 'scale')},
+    .${getItemClassName(itemId, 'rotate')} {
       animation-duration: 1000s;
       animation-timing-function: linear;
       animation-play-state: paused;
-      animation-delay: calc(var(--section-animation-position, 0) * 1s);
+      animation-delay: calc(var(--${cssVarName}, 0) * 1s);
       animation-fill-mode: both;
       animation-iteration-count: 1;
     }
   `];
   if (kfGroups.position.length > 0) {
     const animationName = `item-${itemId}-area`;
-    blocks.push(`.${getItemPositionClass(itemId)} { animation-name: ${animationName}; }`);
+    blocks.push(`.${getItemClassName(itemId, 'position')} { animation-name: ${animationName}; }`);
     blocks.push(`@keyframes ${animationName} {
-      ${genKeyframesRuleContent(kfGroups.position, track)}
+      ${genKeyframesRuleContent(kfGroups.position, track, context)}
     }`);
   }
-  if (kfGroups.dimension.length > 0) {
+  if (kfGroups.size.length > 0) {
     const animationName = `item-${itemId}-area`;
-    blocks.push(`.${getItemDimensionClass(itemId)} { animation-name: ${animationName}; }`);
+    blocks.push(`.${getItemClassName(itemId, 'size')} { animation-name: ${animationName}; }`);
     blocks.push(`@keyframes ${animationName} {
-      ${genKeyframesRuleContent(kfGroups.dimension, track)}
+      ${genKeyframesRuleContent(kfGroups.size, track, context)}
     }`);
   }
-  if (kfGroups.item.length > 0) {
-    const animationName = `item-${itemId}-animation`;
-    blocks.push(`.${getItemClass(itemId)} { animation-name: ${animationName}; }`);
+  if (kfGroups.style.length > 0) {
+    const animationName = `item-${itemId}-style`;
+    blocks.push(`.${getItemClassName(itemId, 'style')} { animation-name: ${animationName}; }`);
     blocks.push(`@keyframes ${animationName} {
-      ${genKeyframesRuleContent(kfGroups.item, track)}
+      ${genKeyframesRuleContent(kfGroups.style, track, context)}
     }`);
   }
   if (kfGroups.scale.length > 0) {
     const animationName = `item-${itemId}-scale`;
-    blocks.push(`.${getItemScaleClass(itemId)} { animation-name: ${animationName}; }`);
+    blocks.push(`.${getItemClassName(itemId, 'scale')} { animation-name: ${animationName}; }`);
     blocks.push(`@keyframes ${animationName} {
-      ${genKeyframesRuleContent(kfGroups.scale, track)}
+      ${genKeyframesRuleContent(kfGroups.scale, track, context)}
     }`);
   }
   if (kfGroups.rotation.length > 0) {
     const animationName = `item-${itemId}-rotation`;
-    blocks.push(`.${getItemRotateClass(itemId)} { animation-name: ${animationName}; }`);
+    blocks.push(`.${getItemClassName(itemId, 'rotate')} { animation-name: ${animationName}; }`);
     blocks.push(`@keyframes ${animationName} {
-      ${genKeyframesRuleContent(kfGroups.rotation, track)}
+      ${genKeyframesRuleContent(kfGroups.rotation, track, context)}
     }`);
   }
   return blocks.join('\n');
 }
 
-function genKeyframesRuleContent(kfs: TKeyframeAny[], track: AnimationTrack): string {
+function genKeyframesRuleContent(
+  kfs: TKeyframeAny[],
+  track: AnimationTrack,
+  context: AnimationGenContext
+): string {
   const groups = Object.entries(groupBy(kfs, kf => track.getKeyframePosition(kf.position)))
     .sort(([p1], [p2]) => collator.compare(p1, p2));
   const first = groups[0];
@@ -161,7 +194,7 @@ function genKeyframesRuleContent(kfs: TKeyframeAny[], track: AnimationTrack): st
   }
   const blocks = groups.map(([pos, kfs]) => {
     // @ts-ignore redo TKeyframeAny as union
-    return `${pos} { ${kfs.map(kf => keyframeStyleMap[kf.type](kf)).join(' ')} }`;
+    return `${pos} { ${kfs.map(kf => keyframeStyleMap[kf.type](kf,context)).join(' ')} }`;
   });
   return blocks.join('\n');
 }
@@ -185,8 +218,8 @@ function getAnimationStructure(kfs: TKeyframeAny[]): AnimationStructure {
 function getKeyframeGroups(kfs: TKeyframeAny[]): KeyframeGroups {
   const groups: KeyframeGroups = {
     position: [],
-    dimension: [],
-    item: [],
+    size: [],
+    style: [],
     rotation: [],
     scale: []
   };
@@ -204,10 +237,10 @@ function getKeyframeGroups(kfs: TKeyframeAny[]): KeyframeGroups {
       continue;
     }
     if (isKeyframeOfType(kf, KeyframeType.Dimensions)) {
-      groups.dimension.push(kf);
+      groups.size.push(kf);
       continue;
     }
-    groups.item.push(kf);
+    groups.style.push(kf);
   }
   return groups;
 }
@@ -230,26 +263,6 @@ function getAnimationTrack([firstKf, ...kfs]: TKeyframeAny[]): AnimationTrack {
       return `${normValue.toFixed(2)}%`;
     }
   };
-}
-
-export function getItemPositionClass(itemId: string): string {
-  return `item-${itemId}-position`;
-}
-
-export function getItemDimensionClass(itemId: string): string {
-  return `item-${itemId}-dimension`;
-}
-
-export function getItemClass(itemId: string): string {
-  return `item-${itemId}`;
-}
-
-export function getItemScaleClass(itemId: string): string {
-  return `item-${itemId}-scale`;
-}
-
-export function getItemRotateClass(itemId: string): string {
-  return `item-${itemId}-rotate`;
 }
 
 function isKeyframeOfType<T extends KeyframeType>(kf: TKeyframeAny, type: T): kf is TKeyframe<T> {
