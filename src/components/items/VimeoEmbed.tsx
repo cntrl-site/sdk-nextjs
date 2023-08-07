@@ -14,22 +14,16 @@ import { useCurrentLayout } from '../../common/useCurrentLayout';
 export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
-  const layout = useCurrentLayout()
   const { radius } = useEmbedVideoItem(item, sectionId);
   const [iframeRef, setIframeRef] = useState<HTMLIFrameElement | null>(null);
   const vimeoPlayer = useMemo(() => iframeRef ? new Player(iframeRef) : undefined, [iframeRef]);
-  const isAutoPlayOnHover = useMemo(() => {
-    const layoutHoverStates = item.state.hover[layout];
-    if (!layoutHoverStates) return false;
-    return layoutHoverStates.autoplay === true;
-  }, [layout, item]);
   const angle = useItemAngle(item, sectionId);
   const { play, controls, loop, muted, pictureInPicture, url } = item.commonParams;
   const getValidVimeoUrl = (url: string): string => {
     const validURL = new URL(url);
     validURL.searchParams.append('controls', String(controls));
     validURL.searchParams.append('autoplay', String(play === 'auto'));
-    validURL.searchParams.append('muted', String(muted));
+    validURL.searchParams.append('muted', String(play !== 'on-click' ? true : muted));
     validURL.searchParams.append('loop', String(loop));
     validURL.searchParams.append('pip', String(pictureInPicture));
     validURL.searchParams.append('title', '0');
@@ -49,11 +43,11 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
           transform: `rotate(${angle}deg)`
         }}
         onMouseEnter={() => {
-          if (!vimeoPlayer || !isAutoPlayOnHover) return;
+          if (!vimeoPlayer || play !== 'on-hover') return;
           vimeoPlayer.play();
         }}
         onMouseLeave={() =>{
-          if (!vimeoPlayer || !isAutoPlayOnHover) return;
+          if (!vimeoPlayer || play !== 'on-hover') return;
           vimeoPlayer.pause();
         }}
       >

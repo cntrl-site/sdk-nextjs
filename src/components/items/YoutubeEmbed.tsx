@@ -22,17 +22,6 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   const [div, setDiv] = useState<HTMLDivElement | null>(null);
   const [player, setPlayer] = useState<YTPlayer | undefined>(undefined);
 
-  // const getValidYoutubeUrl = (url: string): string => {
-  //   const newUrl = new URL(url);
-  //   const id = getYoutubeId(newUrl);
-  //   const validUrl = new URL(`https://www.youtube.com/embed/${id}`);
-  //   validUrl.searchParams.append('controls', `${ Number(controls) }`);
-  //   validUrl.searchParams.append('autoplay', `${ Number(play === 'auto') }`);
-  //   validUrl.searchParams.append('mute', `${ Number(play === 'auto') }`);
-  //   return validUrl.href;
-  // }
-  // const validUrl = getValidYoutubeUrl(url);
-
   useEffect(() => {
     const newUrl = new URL(url);
     const videoId = getYoutubeId(newUrl);
