@@ -27,6 +27,7 @@ import { useSectionHeightData } from './useSectionHeightMap';
 import { getHoverStyles, getTransitions } from '../utils/HoverStyles/HoverStyles';
 import { getItemTopStyle } from '../utils/getItemTopStyle';
 import { useStickyItemTop } from './items/useStickyItemTop';
+import { getAnchoredItemTop } from '../utils/getAnchoredItemTop';
 
 export interface ItemProps<I extends TArticleItemAny> {
   item: I;
@@ -101,7 +102,6 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
         suppressHydrationWarning={true}
         className={`item-${item.id}`}
         style={isInitialRef.current ? {} : styles }
-
       >
         <ItemComponent item={item} sectionId={sectionId} onResize={handleItemResize} />
       </div>
@@ -145,17 +145,6 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
     </div>
   );
 };
-
-export function getAnchoredItemTop(top: number, sectionHeight: string, anchorSide?: AnchorSide) {
-  const styleTop = `${top * 100}vw`;
-  switch (anchorSide) {
-    case AnchorSide.Center: return `calc(${styleTop} + ${sectionHeight} / 2)`;
-    case AnchorSide.Bottom: return `calc(${styleTop} + ${sectionHeight})`;
-    case AnchorSide.Top:
-    default:
-      return styleTop;
-  }
-}
 
 function getStickyItemWrapperHeight(sticky: TStickyParams, itemHeight: number): number {
   const end = sticky.to ?? 100;

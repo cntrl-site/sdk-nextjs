@@ -1,7 +1,7 @@
 import { TArticleItemAny } from '@cntrl-site/sdk';
 import { useCurrentLayout } from '../../common/useCurrentLayout';
 import { useKeyframeValue } from '../../common/useKeyframeValue';
-import { getAnchoredItemTop } from '../Item';
+import { getAnchoredItemTop } from '../../utils/getAnchoredItemTop';
 
 export function useStickyItemTop(item: TArticleItemAny, sectionHeightMap: Record<string, string>, sectionId: string) {
   const layoutId = useCurrentLayout();
