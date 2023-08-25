@@ -26,6 +26,7 @@ import { ScaleAnchorMap } from '../utils/ScaleAnchorMap';
 import { useSectionHeightData } from './useSectionHeightMap';
 import { getHoverStyles, getTransitions } from '../utils/HoverStyles/HoverStyles';
 import { getItemTopStyle } from '../utils/getItemTopStyle';
+import { useStickyItemTop } from './items/useStickyItemTop';
 
 export interface ItemProps<I extends TArticleItemAny> {
   item: I;
@@ -52,6 +53,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
   const { scale, scaleAnchor } = useItemScale(item, sectionId);
   const { top, left } = useItemPosition(item, sectionId);
   const sectionHeight = useSectionHeightData(sectionId);
+  const stickyTop = useStickyItemTop(item, sectionHeight, sectionId);
   const layout = useCurrentLayout();
   const { width, height } = useItemDimensions(item, sectionId);
   const layoutValues: Record<string, any>[] = [item.area, item.hidden, item.state.hover];
@@ -87,6 +89,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
     transformOrigin: ScaleAnchorMap[scaleAnchor],
     width: `${sizingAxis.x === SizingType.Manual ? `${width * 100}vw` : 'max-content'}`,
     height: `${sizingAxis.y === SizingType.Manual ? `${height * 100}vw` : 'unset'}`,
+    top: stickyTop
   };
 
   return (
@@ -98,6 +101,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
         suppressHydrationWarning={true}
         className={`item-${item.id}`}
         style={isInitialRef.current ? {} : styles }
+
       >
         <ItemComponent item={item} sectionId={sectionId} onResize={handleItemResize} />
       </div>
@@ -142,7 +146,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
   );
 };
 
-function getAnchoredItemTop(top: number, sectionHeight: string, anchorSide: AnchorSide) {
+export function getAnchoredItemTop(top: number, sectionHeight: string, anchorSide?: AnchorSide) {
   const styleTop = `${top * 100}vw`;
   switch (anchorSide) {
     case AnchorSide.Center: return `calc(${styleTop} + ${sectionHeight} / 2)`;
