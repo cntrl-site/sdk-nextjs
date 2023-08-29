@@ -1,4 +1,4 @@
-import { FC, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { FC, useId, useMemo, useState } from 'react';
 import Player from '@vimeo/player';
 import JSXStyle from 'styled-jsx/style';
 import { TVimeoEmbedItem } from '@cntrl-site/core';
@@ -9,7 +9,6 @@ import { useItemAngle } from '../useItemAngle';
 import { ArticleItemType, getLayoutStyles } from '@cntrl-site/sdk';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
-import { useCurrentLayout } from '../../common/useCurrentLayout';
 
 export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId }) => {
   const id = useId();
