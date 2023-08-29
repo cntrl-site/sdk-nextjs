@@ -6,6 +6,8 @@ import { useRichTextItem } from './useRichTextItem';
 import { useItemAngle } from '../useItemAngle';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
+import { useKeyframeValue } from '../../common/useKeyframeValue';
+import { useCurrentLayout } from '../../common/useCurrentLayout';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize }) => {
   const [content, styles, preset] = useRichTextItem(item);
@@ -14,6 +16,18 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   const angle = useItemAngle(item, sectionId);
   const { layouts } = useCntrlContext();
   const className = preset ? `cntrl-preset-${preset.id}` : undefined;
+  const layoutId = useCurrentLayout();
+  const blur = useKeyframeValue(
+    item,
+    (item, layoutId) => {
+      if (!layoutId) return 0;
+      const layoutParams = item.layoutParams[layoutId];
+      return 'blur' in layoutParams ? layoutParams.blur : 0;
+    },
+    (animator, scroll, value) => animator.getBlur({ blur: value }, scroll).blur,
+    sectionId,
+    [layoutId]
+  );
 
   useEffect(() => {
     if (!ref || !onResize) return;
@@ -33,7 +47,8 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
         ref={setRef}
         className={`${className} rich-text-wrapper-${item.id}`}
         style={{
-          transform: `rotate(${angle}deg)`
+          transform: `rotate(${angle}deg)`,
+          filter: `blur(${blur * 100}vw)`
         }}
       >
         {content}
@@ -43,10 +58,10 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
         {`${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
           return (`
             .rich-text-wrapper-${item.id} {
-              transition: ${getTransitions<ArticleItemType.RichText>(['angle'], hoverParams)};
+              transition: ${getTransitions<ArticleItemType.RichText>(['angle', 'blur'], hoverParams)};
             }
             .rich-text-wrapper-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.RichText>(['angle'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.RichText>(['angle', 'blur'], hoverParams)}
             }
           `);
         })}`}

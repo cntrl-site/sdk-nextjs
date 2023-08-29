@@ -11,7 +11,7 @@ import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverSty
 export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
-  const { fillColor, radius, strokeWidth, strokeColor } = useRectangleItem(item, sectionId);
+  const { fillColor, radius, strokeWidth, strokeColor, blur, backdropBlur } = useRectangleItem(item, sectionId);
   const angle = useItemAngle(item, sectionId);
   const backgroundColor = useMemo(() => CntrlColor.parse(fillColor), [fillColor]);
   const borderColor = useMemo(() => CntrlColor.parse(strokeColor), [strokeColor]);
@@ -25,7 +25,9 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId }
             borderRadius: `${radius * 100}vw`,
             borderWidth: `${strokeWidth * 100}vw`,
             borderColor: `${borderColor.toCss()}`,
-            transform: `rotate(${angle}deg)`
+            transform: `rotate(${angle}deg)`,
+            filter: blur !== 0 ? `blur(${blur * 100}vw)` : '',
+            backdropFilter: backdropBlur !== 0 ? `blur(${backdropBlur * 100}vw)`: ''
           }}
         />
         <JSXStyle id={id}>{`
@@ -45,10 +47,10 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId }
         ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
           return (`
             .rectangle-${item.id} {
-              transition: ${getTransitions<ArticleItemType.Rectangle>(['angle', 'fillColor', 'strokeWidth', 'radius', 'strokeColor'], hoverParams)};
+              transition: ${getTransitions<ArticleItemType.Rectangle>(['angle', 'fillColor', 'strokeWidth', 'radius', 'strokeColor', 'blur', 'backdropBlur'], hoverParams)};
             }
             .rectangle-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.Rectangle>(['angle', 'fillColor', 'strokeWidth', 'radius', 'strokeColor'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.Rectangle>(['angle', 'fillColor', 'strokeWidth', 'radius', 'strokeColor', 'blur', 'backdropBlur'], hoverParams)}
             }
           `);
         })}

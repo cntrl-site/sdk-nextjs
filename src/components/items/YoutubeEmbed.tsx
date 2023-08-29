@@ -16,7 +16,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   const id = useId();
   const { layouts } = useCntrlContext();
   const { play, controls, url } = item.commonParams;
-  const { radius } = useEmbedVideoItem(item, sectionId);
+  const { radius, blur } = useEmbedVideoItem(item, sectionId);
   const angle = useItemAngle(item, sectionId);
   const YT = useYouTubeIframeApi();
   const [div, setDiv] = useState<HTMLDivElement | null>(null);
@@ -65,7 +65,8 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
          ref={setDiv}
          style={{
            borderRadius: `${radius * 100}vw`,
-           transform: `rotate(${angle}deg)`
+           transform: `rotate(${angle}deg)`,
+           filter: `blur(${blur * 100}vw)`
          }}
       ></div>
       <JSXStyle id={id}>{`
@@ -84,10 +85,10 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
         ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
           return (`
             .embed-youtube-video-wrapper-${item.id} {
-              transition: ${getTransitions<ArticleItemType.YoutubeEmbed>(['angle', 'radius'], hoverParams)};
+              transition: ${getTransitions<ArticleItemType.YoutubeEmbed>(['angle', 'radius', 'blur'], hoverParams)};
             }
             .embed-youtube-video-wrapper-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.YoutubeEmbed>(['angle', 'radius'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.YoutubeEmbed>(['angle', 'radius', 'blur'], hoverParams)}
             }
           `);
       })}
