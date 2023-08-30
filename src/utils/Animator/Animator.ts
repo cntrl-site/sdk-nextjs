@@ -196,6 +196,42 @@ export class Animator {
     };
   }
 
+  getBlur(
+    values: TKeyframeValueMap[KeyframeType.Blur],
+    pos: number
+  ): TKeyframeValueMap[KeyframeType.Blur] {
+    const keyframes = this.keyframesMap[KeyframeType.Blur];
+    if (!keyframes || !keyframes.length) return values;
+    if (keyframes.length === 1) {
+      const [keyframe] = keyframes;
+      return {
+        blur: keyframe.value.blur
+      };
+    }
+    const { start, end } = this.getStartEnd<KeyframeType.Blur>(pos, keyframes);
+    return {
+      blur: rangeMap(pos, start.position, end.position, start.value.blur, end.value.blur, true)
+    };
+  }
+
+  getBackdropBlur(
+    values: TKeyframeValueMap[KeyframeType.BackdropBlur],
+    pos: number
+  ): TKeyframeValueMap[KeyframeType.BackdropBlur] {
+    const keyframes = this.keyframesMap[KeyframeType.BackdropBlur];
+    if (!keyframes || !keyframes.length) return values;
+    if (keyframes.length === 1) {
+      const [keyframe] = keyframes;
+      return {
+        backdropBlur: keyframe.value.backdropBlur
+      };
+    }
+    const { start, end } = this.getStartEnd<KeyframeType.BackdropBlur>(pos, keyframes);
+    return {
+      backdropBlur: rangeMap(pos, start.position, end.position, start.value.backdropBlur, end.value.backdropBlur, true)
+    };
+  }
+
   getStartEnd<T extends KeyframeType>(position: number, keyframes: AnimationData<T>[]): PositionKeyframes<T> {
     const index = binSearchInsertAt(keyframes, { position }, compare);
     const end = index === keyframes.length ? index - 1 : index;
@@ -234,7 +270,9 @@ function createKeyframesMap(): KeyframesMap {
     [KeyframeType.Rotation]: [],
     [KeyframeType.BorderColor]: [],
     [KeyframeType.Opacity]: [],
-    [KeyframeType.Scale]: []
+    [KeyframeType.Scale]: [],
+    [KeyframeType.Blur]: [],
+    [KeyframeType.BackdropBlur]: []
   };
 }
 

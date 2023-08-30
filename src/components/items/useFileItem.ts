@@ -52,5 +52,16 @@ export const useFileItem = (item: TImageItem | TVideoItem, sectionId: string) =>
     sectionId
   );
 
-  return { radius, strokeWidth, opacity, strokeColor };
+  const blur = useKeyframeValue(
+    item,
+    (item, layoutId) => {
+      if (!layoutId) return 0;
+      const layoutParams = item.layoutParams[layoutId];
+      return 'blur' in layoutParams ? layoutParams.blur : 0;
+    },
+    (animator, scroll, value) => animator.getBlur({ blur: value }, scroll).blur,
+    sectionId
+  );
+
+  return { radius, strokeWidth, opacity, strokeColor, blur };
 };

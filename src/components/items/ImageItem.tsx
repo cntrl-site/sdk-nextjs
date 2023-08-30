@@ -11,7 +11,7 @@ import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverSty
 export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
-  const { radius, strokeWidth, opacity, strokeColor } = useFileItem(item, sectionId);
+  const { radius, strokeWidth, opacity, strokeColor, blur } = useFileItem(item, sectionId);
   const angle = useItemAngle(item, sectionId);
   const borderColor = useMemo(() => CntrlColor.parse(strokeColor), [strokeColor]);
   return (
@@ -24,7 +24,8 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId }) => {
             borderWidth: `${strokeWidth * 100}vw`,
             opacity: `${opacity}`,
             borderColor: `${borderColor.toCss()}`,
-            transform: `rotate(${angle}deg)`
+            transform: `rotate(${angle}deg)`,
+            filter: `blur(${blur * 100}vw)`
           }}
         >
           <img className="image" src={item.commonParams.url} />
@@ -54,10 +55,10 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId }) => {
           ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
             return (`
               .image-wrapper-${item.id} {
-                transition: ${getTransitions<ArticleItemType.Image>(['angle', 'strokeWidth', 'radius', 'strokeColor', 'opacity'], hoverParams)};
+                transition: ${getTransitions<ArticleItemType.Image>(['angle', 'strokeWidth', 'radius', 'strokeColor', 'opacity', 'blur'], hoverParams)};
               }
               .image-wrapper-${item.id}:hover {
-                ${getHoverStyles<ArticleItemType.Image>(['angle', 'strokeWidth', 'radius', 'strokeColor', 'opacity'], hoverParams)}
+                ${getHoverStyles<ArticleItemType.Image>(['angle', 'strokeWidth', 'radius', 'strokeColor', 'opacity', 'blur'], hoverParams)}
               }
             `);
          })}

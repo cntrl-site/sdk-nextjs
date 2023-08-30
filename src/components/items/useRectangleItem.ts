@@ -50,5 +50,27 @@ export const useRectangleItem = (item: TRectangleItem, sectionId: string) => {
     sectionId,
     [layoutId]
   );
-  return { fillColor, strokeWidth, radius, strokeColor };
+  const blur = useKeyframeValue(
+    item,
+    (item, layoutId) => {
+      if (!layoutId) return 0;
+      const layoutParams = item.layoutParams[layoutId];
+      return 'blur' in layoutParams ? layoutParams.blur : 0;
+    },
+    (animator, scroll, value) => animator.getBlur({ blur: value }, scroll).blur,
+    sectionId,
+    [layoutId]
+  );
+  const backdropBlur = useKeyframeValue(
+    item,
+    (item, layoutId) => {
+      if (!layoutId) return 0;
+      const layoutParams = item.layoutParams[layoutId];
+      return 'backdropBlur' in layoutParams ? layoutParams.backdropBlur : 0;
+    },
+    (animator, scroll, value) => animator.getBackdropBlur({ backdropBlur: value }, scroll).backdropBlur,
+    sectionId,
+    [layoutId]
+  );
+  return { fillColor, strokeWidth, radius, strokeColor, blur, backdropBlur };
 };

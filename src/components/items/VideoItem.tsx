@@ -11,7 +11,7 @@ import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverSty
 export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
-  const { radius, strokeWidth, strokeColor, opacity } = useFileItem(item, sectionId);
+  const { radius, strokeWidth, strokeColor, opacity, blur } = useFileItem(item, sectionId);
   const angle = useItemAngle(item, sectionId);
   const borderColor = useMemo(() => CntrlColor.parse(strokeColor), [strokeColor]);
   return (
@@ -23,7 +23,8 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId }) => {
           borderWidth: `${strokeWidth * 100}vw`,
           opacity: `${opacity}`,
           borderColor: `${borderColor.toCss()}`,
-          transform: `rotate(${angle}deg)`
+          transform: `rotate(${angle}deg)`,
+          filter: `blur(${blur * 100}vw)`
         }}
       >
         <video autoPlay muted loop playsInline className="video">
@@ -56,10 +57,10 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId }) => {
         ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
           return (`
             .video-wrapper-${item.id} {
-              transition: ${getTransitions<ArticleItemType.Video>(['angle', 'strokeWidth', 'radius', 'strokeColor', 'opacity'], hoverParams)};
+              transition: ${getTransitions<ArticleItemType.Video>(['angle', 'strokeWidth', 'radius', 'strokeColor', 'opacity', 'blur'], hoverParams)};
             }
             .video-wrapper-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.Video>(['angle', 'strokeWidth', 'radius', 'strokeColor', 'opacity'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.Video>(['angle', 'strokeWidth', 'radius', 'strokeColor', 'opacity', 'blur'], hoverParams)}
             }
           `);
         })}

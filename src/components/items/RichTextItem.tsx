@@ -3,17 +3,17 @@ import { ArticleItemType, getLayoutStyles, TRichTextItem } from '@cntrl-site/sdk
 import JSXStyle from 'styled-jsx/style';
 import { ItemProps } from '../Item';
 import { useRichTextItem } from './useRichTextItem';
-import { useItemAngle } from '../useItemAngle';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
+import { useRichTextItemValues } from './useRichTextItemValues';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize }) => {
   const [content, styles, preset] = useRichTextItem(item);
   const id = useId();
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
-  const angle = useItemAngle(item, sectionId);
   const { layouts } = useCntrlContext();
   const className = preset ? `cntrl-preset-${preset.id}` : undefined;
+  const { angle, blur } = useRichTextItemValues(item, sectionId);
 
   useEffect(() => {
     if (!ref || !onResize) return;
@@ -33,7 +33,8 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
         ref={setRef}
         className={`${className} rich-text-wrapper-${item.id}`}
         style={{
-          transform: `rotate(${angle}deg)`
+          transform: `rotate(${angle}deg)`,
+          filter: `blur(${blur * 100}vw)`
         }}
       >
         {content}
@@ -43,10 +44,10 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
         {`${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
           return (`
             .rich-text-wrapper-${item.id} {
-              transition: ${getTransitions<ArticleItemType.RichText>(['angle'], hoverParams)};
+              transition: ${getTransitions<ArticleItemType.RichText>(['angle', 'blur'], hoverParams)};
             }
             .rich-text-wrapper-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.RichText>(['angle'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.RichText>(['angle', 'blur'], hoverParams)}
             }
           `);
         })}`}

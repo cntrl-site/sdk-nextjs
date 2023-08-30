@@ -17,6 +17,8 @@ const hoverTransformationMap: Record<keyof ItemHoverParams, HoverParamsGetter> =
   'strokeWidth': (strokeWidth: number) => `border-width: ${strokeWidth * 100}vw !important;`,
   'strokeColor': (strokeColor: string) => `border-color: ${CntrlColor.parse(strokeColor).toCss()} !important;`,
   'fillColor': (fillColor: string) => `background-color: ${CntrlColor.parse(fillColor).toCss()} !important;`,
+  'blur': (blur: number) => `filter: blur(${blur * 100}vw) !important;`,
+  'backdropBlur': (backdropBlur: number) => `backdrop-filter: blur(${backdropBlur * 100}vw) !important;`
 };
 
 const CSSPropertyNameMap: Record<keyof ItemHoverParams, string> = {
@@ -30,7 +32,9 @@ const CSSPropertyNameMap: Record<keyof ItemHoverParams, string> = {
   'radius': 'border-radius',
   'strokeWidth': 'border-width',
   'strokeColor': 'border-color',
-  'fillColor': 'background-color'
+  'fillColor': 'background-color',
+  'blur': 'filter',
+  'backdropBlur': 'backdrop-filter'
 };
 
 export function getTransitions<T extends ArticleItemType>(

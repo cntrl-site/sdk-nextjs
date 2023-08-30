@@ -1,4 +1,4 @@
-import { FC, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { FC, useId, useMemo, useState } from 'react';
 import Player from '@vimeo/player';
 import JSXStyle from 'styled-jsx/style';
 import { TVimeoEmbedItem } from '@cntrl-site/core';
@@ -9,12 +9,11 @@ import { useItemAngle } from '../useItemAngle';
 import { ArticleItemType, getLayoutStyles } from '@cntrl-site/sdk';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
-import { useCurrentLayout } from '../../common/useCurrentLayout';
 
 export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
-  const { radius } = useEmbedVideoItem(item, sectionId);
+  const { radius, blur } = useEmbedVideoItem(item, sectionId);
   const [iframeRef, setIframeRef] = useState<HTMLIFrameElement | null>(null);
   const vimeoPlayer = useMemo(() => iframeRef ? new Player(iframeRef) : undefined, [iframeRef]);
   const angle = useItemAngle(item, sectionId);
@@ -40,7 +39,8 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
       <div className={`embed-video-wrapper-${item.id}`}
         style={{
           borderRadius: `${radius * 100}vw`,
-          transform: `rotate(${angle}deg)`
+          transform: `rotate(${angle}deg)`,
+          filter: `blur(${blur * 100}vw)`
         }}
         onMouseEnter={() => {
           if (!vimeoPlayer || play !== 'on-hover') return;
@@ -75,10 +75,10 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
       ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
         return (`
           .embed-video-wrapper-${item.id} {
-            transition: ${getTransitions<ArticleItemType.VimeoEmbed>(['angle', 'radius'], hoverParams)};
+            transition: ${getTransitions<ArticleItemType.VimeoEmbed>(['angle', 'radius', 'blur'], hoverParams)};
           }
           .embed-video-wrapper-${item.id}:hover {
-            ${getHoverStyles<ArticleItemType.VimeoEmbed>(['angle', 'radius'], hoverParams)}
+            ${getHoverStyles<ArticleItemType.VimeoEmbed>(['angle', 'radius', 'blur'], hoverParams)}
           }
         `);
       })}
