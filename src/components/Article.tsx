@@ -5,6 +5,7 @@ import { Section } from './Section';
 import { Item } from './Item';
 import { useArticleRectObserver } from '../utils/ArticleRectManager/useArticleRectObserver';
 import { ArticleRectContext } from '../provider/ArticleRectContext';
+import { ArticleWrapper } from './ArticleWrapper';
 
 interface Props {
   article: TArticle;
@@ -18,18 +19,20 @@ export const Article: FC<Props> = ({ article, sectionData }) => {
 
   return (
     <ArticleRectContext.Provider value={articleRectObserver}>
-      <div className="article" ref={articleRef}>
-        {article.sections.map((section, i) => {
-          const data = section.name ? sectionData[section.name] : {};
-          return (
-            <Section section={section} key={section.id} data={data}>
-              {article.sections[i].items.map(item => (
-                <Item item={item} key={item.id} sectionId={section.id} />
-              ))}
-            </Section>
-          );
-        })}
-      </div>
+      <ArticleWrapper>
+        <div className="article" ref={articleRef}>
+          {article.sections.map((section, i) => {
+            const data = section.name ? sectionData[section.name] : {};
+            return (
+              <Section section={section} key={section.id} data={data}>
+                {article.sections[i].items.map(item => (
+                  <Item item={item} key={item.id} sectionId={section.id} />
+                ))}
+              </Section>
+            );
+          })}
+        </div>
+      </ArticleWrapper>
       <JSXStyle id={id}>{`
        .article {
             position: relative;

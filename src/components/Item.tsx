@@ -20,7 +20,6 @@ import { CustomItem } from './items/CustomItem';
 import { useCntrlContext } from '../provider/useCntrlContext';
 import { useItemPosition } from './useItemPosition';
 import { useItemDimensions } from './useItemDimensions';
-import { useCurrentLayout } from '../common/useCurrentLayout';
 import { useItemScale } from './useItemScale';
 import { ScaleAnchorMap } from '../utils/ScaleAnchorMap';
 import { useSectionHeightData } from './useSectionHeightMap';
@@ -28,6 +27,7 @@ import { getHoverStyles, getTransitions } from '../utils/HoverStyles/HoverStyles
 import { getItemTopStyle } from '../utils/getItemTopStyle';
 import { useStickyItemTop } from './items/useStickyItemTop';
 import { getAnchoredItemTop } from '../utils/getAnchoredItemTop';
+import { useLayoutContext } from './useLayoutContext';
 
 export interface ItemProps<I extends TArticleItemAny> {
   item: I;
@@ -50,12 +50,12 @@ const noop = () => null;
 export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
   const id = useId();
   const { layouts } = useCntrlContext();
+  const layout = useLayoutContext()
   const [wrapperHeight, setWrapperHeight] = useState<undefined | number>(undefined);
   const { scale, scaleAnchor } = useItemScale(item, sectionId);
   const { top, left } = useItemPosition(item, sectionId);
   const sectionHeight = useSectionHeightData(sectionId);
   const stickyTop = useStickyItemTop(item, sectionHeight, sectionId);
-  const layout = useCurrentLayout();
   const { width, height } = useItemDimensions(item, sectionId);
   const layoutValues: Record<string, any>[] = [item.area, item.hidden, item.state.hover];
   const isInitialRef = useRef(true);
@@ -65,13 +65,14 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
     layoutValues.push(item.layoutParams);
   }
 
-  const sizing = isItemType(item, ArticleItemType.RichText)
+  const sizing = layout && isItemType(item, ArticleItemType.RichText)
     ? item.layoutParams[layout].sizing
     : undefined;
   const sizingAxis = parseSizing(sizing);
   const ItemComponent = itemsMap[item.type] || noop;
 
   const handleItemResize = (height: number) => {
+    if (!layout) return;
     const sticky = item.sticky[layout];
     if (!sticky) {
       setWrapperHeight(undefined);
@@ -82,7 +83,9 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
   };
 
   useEffect(() => {
-    isInitialRef.current = false;
+    setTimeout(() => {
+      isInitialRef.current = false;
+    }, 0);
   }, []);
 
   const styles = {
@@ -96,7 +99,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
   return (
     <div
       className={`item-wrapper-${item.id}`}
-      style={{ top, left, ...(wrapperHeight ? { height: `${wrapperHeight * 100}vw` } : {}) }}
+      style={isInitialRef.current ? {} : { top, left, ...(wrapperHeight ? { height: `${wrapperHeight * 100}vw` } : {}) }}
     >
       <div
         suppressHydrationWarning={true}

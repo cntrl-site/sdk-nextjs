@@ -2,12 +2,12 @@ import { KeyframeType, TArticleItemAny } from '@cntrl-site/sdk';
 import isEqual from 'lodash.isequal';
 import { DependencyList, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ArticleRectContext } from '../provider/ArticleRectContext';
-import { useCurrentLayout } from './useCurrentLayout';
 import { KeyframesContext } from '../provider/KeyframesContext';
 import { AnimationData, Animator } from '../utils/Animator/Animator';
+import { useLayoutContext } from '../components/useLayoutContext';
 
 export type AnimatorGetter<T> = (animator: Animator, scroll: number, value: T) => T;
-type ItemParamGetter<T> = (item: TArticleItemAny, layoutId: string) => T;
+type ItemParamGetter<T> = (item: TArticleItemAny, layoutId: string | undefined) => T;
 const emptyDeps: DependencyList = [];
 
 export const useKeyframeValue = <T>(
@@ -24,7 +24,7 @@ export const useKeyframeValue = <T>(
   itemParamsGetterRef.current = itemParamsGetter;
 
   const articleRectObserver = useContext(ArticleRectContext);
-  const layoutId = useCurrentLayout();
+  const layoutId = useLayoutContext();
   const keyframesRepo = useContext(KeyframesContext);
   const keyframes = useMemo(() => keyframesRepo.getItemKeyframes(item.id), [item.id, keyframesRepo]);
   const paramValue = useMemo<T>(() => {

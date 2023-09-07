@@ -1,6 +1,6 @@
 import { TArticleItemAny } from '@cntrl-site/sdk';
-import { useCurrentLayout } from '../common/useCurrentLayout';
 import { useKeyframeValue } from '../common/useKeyframeValue';
+import { useLayoutContext } from './useLayoutContext';
 
 const defaultArea = {
   left: 0,
@@ -12,7 +12,7 @@ const defaultArea = {
 };
 
 export const useItemDimensions = (item: TArticleItemAny, sectionId: string) => {
-  const layoutId = useCurrentLayout();
+  const layoutId = useLayoutContext();
   const { width, height } = useKeyframeValue<{ width: number; height: number }>(
     item,
     (item, layoutId) => layoutId ? item.area[layoutId] : defaultArea,

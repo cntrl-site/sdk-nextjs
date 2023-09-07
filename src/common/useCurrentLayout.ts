@@ -8,7 +8,7 @@ interface LayoutData {
   end: number;
 }
 
-export const useCurrentLayout = (): string => {
+export const useCurrentLayout = (): string | undefined => {
   const { layouts } = useCntrlContext();
   const articleRectObserver = useContext(ArticleRectContext);
   const layoutRanges = useMemo(() => {
@@ -28,14 +28,7 @@ export const useCurrentLayout = (): string => {
   const getCurrentLayout = useCallback((articleWidth: number) => {
     return layoutRanges.find(l => articleWidth >= l.start && articleWidth < l.end)!.layoutId;
   }, [layoutRanges]);
-  const [layoutId, setLayoutId] = useState<string>(getCurrentLayout(0));
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      getCurrentLayout(window.innerWidth);
-    }
-  }, []);
-
+  const [layoutId, setLayoutId] = useState<string | undefined>(undefined);
   useEffect(() => {
     if (!articleRectObserver) return;
     return articleRectObserver.on('resize', () => {
