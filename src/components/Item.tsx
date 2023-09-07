@@ -83,9 +83,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
   };
 
   useEffect(() => {
-    setTimeout(() => {
-      isInitialRef.current = false;
-    }, 0);
+    isInitialRef.current = false;
   }, []);
 
   const styles = {
