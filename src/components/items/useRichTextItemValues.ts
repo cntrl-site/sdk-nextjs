@@ -1,10 +1,9 @@
-import { useCurrentLayout } from '../../common/useCurrentLayout';
 import { useKeyframeValue } from '../../common/useKeyframeValue';
 import { TRichTextItem } from '@cntrl-site/sdk';
+import { useLayoutContext } from '../useLayoutContext';
 
 export const useRichTextItemValues = (item: TRichTextItem, sectionId: string) => {
-  const layoutId = useCurrentLayout();
-
+  const layoutId = useLayoutContext();
   const angle = useKeyframeValue(
     item,
     (item, layoutId) => ({ angle: layoutId ? item.area[layoutId].angle : 0 }),
