@@ -8,7 +8,7 @@ export const useItemPosition = (item: TArticleItemAny, sectionId: string) => {
   const { top, left } = useKeyframeValue<{ top: number; left: number }>(
     item,
     (item, layoutId) => {
-      if (!layoutId) return { top: 0, left: 0 };
+      if (!layoutId) return { top: 0, left: -10 };
       return item.area[layoutId]
     },
     (animator, scroll, value) => animator.getPositions(value, scroll),

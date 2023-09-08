@@ -50,7 +50,7 @@ const noop = () => null;
 export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
   const id = useId();
   const { layouts } = useCntrlContext();
-  const layout = useLayoutContext()
+  const layout = useLayoutContext();
   const [wrapperHeight, setWrapperHeight] = useState<undefined | number>(undefined);
   const { scale, scaleAnchor } = useItemScale(item, sectionId);
   const { top, left } = useItemPosition(item, sectionId);
