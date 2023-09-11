@@ -113,7 +113,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
             .item-${item.id} {
               position: ${sticky ? 'sticky' : 'absolute'};
               width: ${sizingAxis.x === SizingType.Manual ? `${area.width * 100}vw` : 'max-content'};
-              height: ${sizingAxis.y === SizingType.Manual ? `w${area.height * 100}vw` : 'unset'};
+              height: ${sizingAxis.y === SizingType.Manual ? `${area.height * 100}vw` : 'unset'};
               transform: scale(${scale});
               top: ${sticky ? `${getAnchoredItemTop(area.top - sticky.from, sectionHeight, area.anchorSide)}` : 0};
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
