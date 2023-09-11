@@ -26,8 +26,8 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId }
             borderWidth: `${strokeWidth * 100}vw`,
             borderColor: `${borderColor.toCss()}`,
             transform: `rotate(${angle}deg)`,
-            filter: blur !== 0 ? `blur(${blur * 100}vw)` : '',
-            backdropFilter: backdropBlur !== 0 ? `blur(${backdropBlur * 100}vw)`: ''
+            filter: blur !== 0 ? `blur(${blur * 100}vw)` : 'unset',
+            backdropFilter: backdropBlur !== 0 ? `blur(${backdropBlur * 100}vw)`: 'unset'
           }}
         />
         <JSXStyle id={id}>{`
