@@ -18,6 +18,15 @@ export const CNTRLHead: FC<Props> = ({ meta, project }) => {
   const customFonts = project.fonts.custom;
   const htmlHead = HTMLReactParser(project.html.head);
   const ffGenerator = new FontFaceGenerator(customFonts);
+  const links = Object.values(parsedFonts as ReturnType<typeof domToReact>).map((value, i) => {
+    if (!value) return;
+    const rel = value?.rel || value.props?.rel;
+    const href = value?.href || value.props?.href;
+    if (!rel || !href) return;
+    return (
+      <link key={`link-${rel}-${href}`} rel={rel} href={href} />
+    );
+  });
   return (
     <Head>
       <title>{meta.title}</title>
@@ -32,15 +41,7 @@ export const CNTRLHead: FC<Props> = ({ meta, project }) => {
           }}
         />
       )}
-      {Object.values(parsedFonts as ReturnType<typeof domToReact>).map((value, i) => {
-        if (!value) return undefined;
-        const rel = value?.rel || value.props?.rel;
-        const href = value?.href || value.props?.href;
-        if (!rel || !href) return undefined;
-        return (
-          <link key={i} rel={rel} href={href} />
-        );
-      })}
+      {links}
       {htmlHead}
 
     </Head>
