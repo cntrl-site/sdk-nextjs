@@ -1,4 +1,5 @@
 import { EventEmitter } from '../EventEmitter';
+import ResizeObserver from 'resize-observer-polyfill';
 
 interface EventMap {
   'scroll': undefined;
