@@ -37,7 +37,12 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
           filter: `blur(${blur * 100}vw)`
         }}
       >
-        {content}
+        <div className="rich-text-scale" style={{
+          transformOrigin: 'top left',
+          transform: 'scale(var(--layout-deviation))'
+        }}>
+          {content}
+        </div>
       </div>
       <JSXStyle id={id}>
         {styles}

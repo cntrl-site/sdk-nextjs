@@ -51,6 +51,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
   const id = useId();
   const { layouts } = useCntrlContext();
   const layout = useLayoutContext();
+  const exemplary = layouts.find(l => l.id === layout)?.exemplary ?? 1;
   const [wrapperHeight, setWrapperHeight] = useState<undefined | number>(undefined);
   const { scale, scaleAnchor } = useItemScale(item, sectionId);
   const { top, left } = useItemPosition(item, sectionId);
@@ -86,10 +87,16 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
     isInitialRef.current = false;
   }, []);
 
+  const isRichText = isItemType(item, ArticleItemType.RichText);
+
   const styles = {
     transform: `scale(${scale})`,
     transformOrigin: ScaleAnchorMap[scaleAnchor],
-    width: `${sizingAxis.x === SizingType.Manual ? `${width * 100}vw` : 'max-content'}`,
+    width: `${sizingAxis.x === SizingType.Manual
+      ? isRichText
+        ? `${width * exemplary}px`
+        : `${width * 100}vw`
+      : 'max-content'}`,
     height: `${sizingAxis.y === SizingType.Manual ? `${height * 100}vw` : 'unset'}`,
     top: stickyTop
   };
