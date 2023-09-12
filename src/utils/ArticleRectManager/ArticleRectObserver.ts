@@ -19,7 +19,7 @@ export class ArticleRectObserver extends EventEmitter<EventMap> {
     this.resizeObserver = new ResizeObserver(this.handleResize.bind(this));
   }
 
-  get scroll(): number {
+  scroll(): number {
     return this.scrollPos;
   }
 

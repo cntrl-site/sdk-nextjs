@@ -1,6 +1,6 @@
 {
   "name": "@cntrl-site/sdk-nextjs",
-  "version": "0.15.1",
+  "version": "0.15.2",
   "description": "SDK for Next.js",
   "main": "lib/index.js",
   "types": "src/index.ts",
@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/cntrl-site/sdk-nextjs#readme",
   "dependencies": {
-    "@cntrl-site/sdk": "^1.1.9",
+    "@cntrl-site/sdk": "/Users/arsenbatyuchok/Desktop/cntrl/sdk/cntrl-site-sdk-1.1.10.tgz",
     "@types/vimeo__player": "^2.18.0",
     "@vimeo/player": "^2.20.1",
     "html-react-parser": "^3.0.1",
