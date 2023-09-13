@@ -88,16 +88,12 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
   }, []);
 
   const isRichText = isItemType(item, ArticleItemType.RichText);
+  const scaleIfRichText = isRichText
+    ? { transformOrigin: 'top left', transform: 'scale(var(--layout-deviation))' }
+    : {};
 
   const styles = {
-    transform: `scale(${scale})`,
-    transformOrigin: ScaleAnchorMap[scaleAnchor],
-    width: `${sizingAxis.x === SizingType.Manual
-      ? isRichText
-        ? `${width * exemplary}px`
-        : `${width * 100}vw`
-      : 'max-content'}`,
-    height: `${sizingAxis.y === SizingType.Manual ? `${height * 100}vw` : 'unset'}`,
+    ...scaleIfRichText,
     top: stickyTop
   };
 
@@ -111,7 +107,18 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
         className={`item-${item.id}`}
         style={isInitialRef.current ? {} : styles }
       >
-        <ItemComponent item={item} sectionId={sectionId} onResize={handleItemResize} />
+        <div style={{
+          width: `${sizingAxis.x === SizingType.Manual
+            ? isRichText
+              ? `${width * exemplary}px`
+              : `${width * 100}vw`
+            : 'max-content'}`,
+          height: `${sizingAxis.y === SizingType.Manual ? `${height * 100}vw` : 'unset'}`,
+          transform: `scale(${scale})`,
+          transformOrigin: ScaleAnchorMap[scaleAnchor]
+        }}>
+          <ItemComponent item={item} sectionId={sectionId} onResize={handleItemResize} />
+        </div>
       </div>
       <JSXStyle id={id}>{`
         ${getLayoutStyles(layouts, layoutValues, ([area, hidden, hoverParams, sticky, sectionHeight, layoutParams]) => {

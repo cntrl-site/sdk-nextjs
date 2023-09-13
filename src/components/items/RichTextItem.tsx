@@ -39,8 +39,8 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
         }}
       >
         <div className="rich-text-scale" style={{
-          transformOrigin: 'top left',
-          transform: 'scale(var(--layout-deviation))'
+          // transformOrigin: 'top left',
+          // transform: 'scale(var(--layout-deviation))'
         }}>
           {content}
         </div>
