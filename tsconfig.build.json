@@ -5,7 +5,8 @@
     "moduleResolution": "Node",
     "module": "CommonJS",
     "jsx": "react-jsx",
-    "lib": ["es2017", "DOM"]
+    "target": "ES2015",
+    "lib": ["DOM"]
   },
   "include": [
     "./src/**.ts",

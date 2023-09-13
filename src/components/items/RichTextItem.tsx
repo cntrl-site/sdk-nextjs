@@ -6,6 +6,7 @@ import { useRichTextItem } from './useRichTextItem';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
 import { useRichTextItemValues } from './useRichTextItemValues';
+import ResizeObserver from 'resize-observer-polyfill';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize }) => {
   const [content, styles, preset] = useRichTextItem(item);
