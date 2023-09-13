@@ -12,11 +12,11 @@ export const ArticleWrapper: FC<PropsWithChildren<{}>> = ({ children }) => {
     const onPageLoad = () => {
       setIsPageLoaded(true);
     };
-    if (document.readyState === 'complete') {
-      onPageLoad();
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', onPageLoad);
+      return () => window.removeEventListener('DOMContentLoaded', onPageLoad);
     } else {
-      window.addEventListener('load', onPageLoad);
-      return () => window.removeEventListener('load', onPageLoad);
+      onPageLoad();
     }
   }, []);
 
