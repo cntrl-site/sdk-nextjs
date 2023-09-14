@@ -90,6 +90,7 @@ export class RichTextConverter {
               text-align: ${ta};
               white-space: ${whiteSpace};
               overflow-wrap: break-word;
+              line-height: 0;
             }
           `);
         });
