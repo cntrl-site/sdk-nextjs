@@ -4,7 +4,7 @@ import { useLayoutContext } from '../useLayoutContext';
 
 export const useRichTextItemValues = (item: TRichTextItem, sectionId: string) => {
   const layoutId = useLayoutContext();
-  const angle = useKeyframeValue(
+  const { angle } = useKeyframeValue(
     item,
     (item, layoutId) => ({ angle: layoutId ? item.area[layoutId].angle : 0 }),
     (animator, scroll, value) => animator.getRotation(value, scroll),
