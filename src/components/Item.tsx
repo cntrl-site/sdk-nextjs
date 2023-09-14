@@ -107,16 +107,19 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
         className={`item-${item.id}`}
         style={isInitialRef.current ? {} : styles }
       >
-        <div style={{
-          width: `${sizingAxis.x === SizingType.Manual
-            ? isRichText
-              ? `${width * exemplary}px`
-              : `${width * 100}vw`
-            : 'max-content'}`,
-          height: `${sizingAxis.y === SizingType.Manual ? `${height * 100}vw` : 'unset'}`,
-          transform: `scale(${scale})`,
-          transformOrigin: ScaleAnchorMap[scaleAnchor]
-        }}>
+        <div
+          className={`item-${item.id}-inner`}
+          style={{
+            width: `${sizingAxis.x === SizingType.Manual
+              ? isRichText
+                ? `${width * exemplary}px`
+                : `${width * 100}vw`
+              : 'max-content'}`,
+            height: `${sizingAxis.y === SizingType.Manual ? `${height * 100}vw` : 'unset'}`,
+            transform: `scale(${scale})`,
+            transformOrigin: ScaleAnchorMap[scaleAnchor]
+          }}
+        >
           <ItemComponent item={item} sectionId={sectionId} onResize={handleItemResize} />
         </div>
       </div>
@@ -135,6 +138,8 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
               --webkit-backface-visibility: hidden;
               cursor: ${hoverParams ? 'pointer' : 'default'};
               visibility: ${hidden ? 'hidden' : 'visible'};
+            }
+            .item-${item.id}-inner {
               transition: ${getTransitions(['width', 'height', 'scale'], hoverParams)};
             }
             .item-wrapper-${item.id} {
@@ -148,7 +153,7 @@ export const Item: FC<ItemProps<TArticleItemAny>> = ({ item, sectionId}) => {
               height: ${sticky ? `${getStickyItemWrapperHeight(sticky, area.height) * 100}vw` : 'unset'};
               transition: ${getTransitions(['left', 'top'], hoverParams)};
             }
-            .item-${item.id}:hover {
+            .item-${item.id}-inner:hover {
               ${getHoverStyles(['width', 'height', 'scale'], hoverParams)}
             }
             .item-wrapper-${item.id}:hover {
