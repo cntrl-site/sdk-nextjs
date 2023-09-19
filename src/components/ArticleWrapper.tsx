@@ -1,4 +1,4 @@
-import React, { FC, PropsWithChildren, useEffect, useId, useState } from 'react';
+import React, { CSSProperties, FC, PropsWithChildren, useEffect, useId, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { useCurrentLayout } from '../common/useCurrentLayout';
 import { LayoutContext } from '../provider/LayoutContext';
@@ -6,7 +6,7 @@ import { LayoutContext } from '../provider/LayoutContext';
 export const ArticleWrapper: FC<PropsWithChildren<{}>> = ({ children }) => {
   const id = useId();
   const [isPageLoaded, setIsPageLoaded] = useState(false);
-  const layoutId = useCurrentLayout();
+  const { layoutId, layoutDeviation } = useCurrentLayout();
 
   useEffect(() => {
     const onPageLoad = () => {
@@ -19,10 +19,17 @@ export const ArticleWrapper: FC<PropsWithChildren<{}>> = ({ children }) => {
       onPageLoad();
     }
   }, []);
+  const layoutDeviationStyle = {'--layout-deviation': layoutDeviation} as CSSProperties;
 
   return (
     <LayoutContext.Provider value={layoutId}>
-      <div className="article-wrapper" style={{ opacity: layoutId && isPageLoaded ? 1 : 0 }}>
+      <div
+        className="article-wrapper"
+        style={{
+          opacity: layoutId && isPageLoaded ? 1 : 0,
+          ...layoutDeviationStyle
+        }}
+      >
         {children}
       </div>
       <JSXStyle id={id}>{`

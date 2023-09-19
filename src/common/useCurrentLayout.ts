@@ -4,11 +4,17 @@ import { ArticleRectContext } from '../provider/ArticleRectContext';
 
 interface LayoutData {
   layoutId: string;
+  exemplary: number;
   start: number;
   end: number;
 }
 
-export const useCurrentLayout = (): string | undefined => {
+type UseCurrentLayoutReturn = {
+  layoutId: string | undefined;
+  layoutDeviation: number;
+};
+
+export const useCurrentLayout = (): UseCurrentLayoutReturn => {
   const { layouts } = useCntrlContext();
   const articleRectObserver = useContext(ArticleRectContext);
   const layoutRanges = useMemo(() => {
@@ -19,6 +25,7 @@ export const useCurrentLayout = (): string | undefined => {
         ...acc,
         {
           layoutId: layout.id,
+          exemplary: layout.exemplary,
           start: layout.startsWith,
           end: next ? next.startsWith : Number.MAX_SAFE_INTEGER
         }
@@ -26,16 +33,20 @@ export const useCurrentLayout = (): string | undefined => {
     }, []);
   }, [layouts]);
   const getCurrentLayout = useCallback((articleWidth: number) => {
-    return layoutRanges.find(l => articleWidth >= l.start && articleWidth < l.end)?.layoutId;
+    const range = layoutRanges.find(l => articleWidth >= l.start && articleWidth < l.end);
+    return range;
   }, [layoutRanges]);
   const [layoutId, setLayoutId] = useState<string | undefined>(undefined);
+  const [deviation, setDeviation] = useState(1);
   useEffect(() => {
     if (!articleRectObserver) return;
     return articleRectObserver.on('resize', () => {
       const articleWidth = articleRectObserver.width;
-      setLayoutId(getCurrentLayout(articleWidth));
+      const { layoutId, exemplary } = getCurrentLayout(articleWidth)!;
+      setLayoutId(layoutId);
+      setDeviation(articleWidth / exemplary);
     });
   }, [articleRectObserver, getCurrentLayout]);
 
-  return layoutId;
+  return { layoutId, layoutDeviation: deviation };
 };

@@ -9,11 +9,10 @@ import { useRichTextItemValues } from './useRichTextItemValues';
 import ResizeObserver from 'resize-observer-polyfill';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize }) => {
-  const [content, styles, preset] = useRichTextItem(item);
+  const [content, styles] = useRichTextItem(item);
   const id = useId();
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const { layouts } = useCntrlContext();
-  const className = preset ? `cntrl-preset-${preset.id}` : undefined;
   const { angle, blur } = useRichTextItemValues(item, sectionId);
 
   useEffect(() => {
@@ -32,7 +31,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
     <>
       <div
         ref={setRef}
-        className={`${className} rich-text-wrapper-${item.id}`}
+        className={`rich-text-wrapper-${item.id}`}
         style={{
           transform: `rotate(${angle}deg)`,
           filter: `blur(${blur * 100}vw)`

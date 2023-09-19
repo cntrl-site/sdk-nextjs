@@ -38,8 +38,7 @@ export const FontStyles: Record<string, Record<string, string>> = {
 export class RichTextConverter {
   toHtml(
     richText: TRichTextItem,
-    layouts: TLayout[],
-    hasPreset: boolean
+    layouts: TLayout[]
   ): [ReactNode[], string] {
     const { text, blocks = [] } = richText.commonParams;
     const root: ReactElement[] = [];
@@ -63,7 +62,7 @@ export class RichTextConverter {
           const lh = RichTextConverter.fromDraftToInline({
             name: 'LINEHEIGHT',
             value: currentLineHeight[l.id]
-          });
+          }, l.exemplary);
           styleRules[l.id].push(`.rt_${richText.id}_br_${blockIndex} {${lh}}`);
         });
         continue;
@@ -91,7 +90,7 @@ export class RichTextConverter {
               text-align: ${ta};
               white-space: ${whiteSpace};
               overflow-wrap: break-word;
-              ${!hasPreset ? 'line-height: 0;' : ''}
+              line-height: 0;
             }
           `);
         });
@@ -129,6 +128,7 @@ export class RichTextConverter {
           kids.push(sliceSymbols(content, offset));
         }
         for (const item of group) {
+          const { exemplary } = layouts.find(l => l.id === item.layout)!;
           const entitiesGroups = this.groupEntities(entities, item.styles) ?? [];
           for (const entitiesGroup of entitiesGroups) {
             if (!entitiesGroup.stylesGroup) continue;
@@ -140,7 +140,7 @@ export class RichTextConverter {
               }
               styleRules[item.layout].push(`
                 .${blockClass} .s-${styleGroup.start}-${styleGroup.end} {
-                  ${styleGroup.styles.map(s => RichTextConverter.fromDraftToInline(s)).join('\n')}
+                  ${styleGroup.styles.map(s => RichTextConverter.fromDraftToInline(s, exemplary)).join('\n')}
                 }
               `);
               if (color) {
@@ -232,17 +232,17 @@ export class RichTextConverter {
     return entitiesGroups;
   }
 
-  private static fromDraftToInline(draftStyle: Style): string {
+  private static fromDraftToInline(draftStyle: Style, exemplary: number): string {
     const { value, name } = draftStyle;
     const map: Record<string, Record<string, string | undefined>> = {
       'COLOR': { 'color': getResolvedValue(value, name) },
       'TYPEFACE': { 'font-family': `${value}` },
       'FONTSTYLE': value ? { ...FontStyles[value] } : {},
       'FONTWEIGHT': { 'font-weight': value },
-      'FONTSIZE': { 'font-size': `${parseFloat(value!) * 100}vw` },
-      'LINEHEIGHT': { 'line-height': `${parseFloat(value!) * 100}vw` },
-      'LETTERSPACING': { 'letter-spacing': `${parseFloat(value!) * 100}vw` },
-      'WORDSPACING': { 'word-spacing': `${parseFloat(value!) * 100}vw` },
+      'FONTSIZE': { 'font-size': `${parseFloat(value!) * exemplary}px` },
+      'LINEHEIGHT': { 'line-height': `${parseFloat(value!) * exemplary}px` },
+      'LETTERSPACING': { 'letter-spacing': `${parseFloat(value!) * exemplary}px` },
+      'WORDSPACING': { 'word-spacing': `${parseFloat(value!) * exemplary}px` },
       'TEXTTRANSFORM': value ? { 'text-transform': value as TextTransform } : { 'text-transform': TextTransform.None },
       'VERTICALALIGN': value ? { 'vertical-align': value as VerticalAlign } : { 'vertical-align': VerticalAlign.Unset },
       'TEXTDECORATION': { 'text-decoration': value }

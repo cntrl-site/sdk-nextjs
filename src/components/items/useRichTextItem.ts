@@ -13,6 +13,6 @@ export const useRichTextItem = (item: TRichTextItem): [ReactNode[], string, TTyp
   const preset = presetId
     ? typePresets?.presets.find(p => p.id === presetId) ?? null
     : null;
-  const [content, styles] = richTextConv.toHtml(item, layouts, !!preset);
+  const [content, styles] = richTextConv.toHtml(item, layouts);
   return [content, styles, preset];
 };
