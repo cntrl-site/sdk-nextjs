@@ -46,9 +46,9 @@ export class RichTextConverter {
       rec[layout.id] = [];
       return rec;
     }, {});
-    let currentLineHeight = layouts.reduce<Record<string, string>>((rec, layout) => {
-      const styles = richText.layoutParams[layout.id].styles;
-      rec[layout.id] = styles?.find(s => s.style === 'LINEHEIGHT')?.value ?? '0';
+    let currentLineHeight = layouts.reduce<Record<string, string | undefined>>((rec, layout) => {
+      const styles = richText.layoutParams[layout.id].rangeStyles;
+      rec[layout.id] = styles?.find(s => s.style === 'LINEHEIGHT')?.value;
       return rec;
     }, {});
 
@@ -59,9 +59,11 @@ export class RichTextConverter {
       if (content.length === 0) {
         root.push(<div className={`rt_${richText.id}_br_${blockIndex}`}><br /></div>);
         layouts.forEach(l => {
-          const lh = RichTextConverter.fromDraftToInline({
+          const lhForLayout = currentLineHeight[l.id];
+          if (lhForLayout === undefined) return;
+          const lh = RichTextConverter.fromRangeStylesToInline({
             name: 'LINEHEIGHT',
-            value: currentLineHeight[l.id]
+            value: lhForLayout
           }, l.exemplary);
           styleRules[l.id].push(`.rt_${richText.id}_br_${blockIndex} {${lh}}`);
         });
@@ -69,7 +71,7 @@ export class RichTextConverter {
       }
       const newStylesGroup = layouts.map(({ id: layoutId }) => {
         const params = richText.layoutParams[layoutId];
-        const styles = params.styles!
+        const styles = params.rangeStyles!
           .filter(s => s.start >= block.start && s.end <= block.end)
           .map(s => ({ ...s, start: s.start - block.start, end: s.end - block.start }));
         return ({
@@ -90,7 +92,6 @@ export class RichTextConverter {
               text-align: ${ta};
               white-space: ${whiteSpace};
               overflow-wrap: break-word;
-              line-height: 0;
             }
           `);
         });
@@ -140,7 +141,7 @@ export class RichTextConverter {
               }
               styleRules[item.layout].push(`
                 .${blockClass} .s-${styleGroup.start}-${styleGroup.end} {
-                  ${styleGroup.styles.map(s => RichTextConverter.fromDraftToInline(s, exemplary)).join('\n')}
+                  ${styleGroup.styles.map(s => RichTextConverter.fromRangeStylesToInline(s, exemplary)).join('\n')}
                 }
               `);
               if (color) {
@@ -232,7 +233,7 @@ export class RichTextConverter {
     return entitiesGroups;
   }
 
-  private static fromDraftToInline(draftStyle: Style, exemplary: number): string {
+  private static fromRangeStylesToInline(draftStyle: Style, exemplary: number): string {
     const { value, name } = draftStyle;
     const map: Record<string, Record<string, string | undefined>> = {
       'COLOR': { 'color': getResolvedValue(value, name) },
@@ -245,7 +246,8 @@ export class RichTextConverter {
       'WORDSPACING': { 'word-spacing': `${parseFloat(value!) * exemplary}px` },
       'TEXTTRANSFORM': value ? { 'text-transform': value as TextTransform } : { 'text-transform': TextTransform.None },
       'VERTICALALIGN': value ? { 'vertical-align': value as VerticalAlign } : { 'vertical-align': VerticalAlign.Unset },
-      'TEXTDECORATION': { 'text-decoration': value }
+      'TEXTDECORATION': { 'text-decoration': value },
+      'FONTVARIANT': { 'font-variant': value }
     };
     const css = map[name];
     if (!css) {

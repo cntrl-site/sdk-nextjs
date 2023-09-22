@@ -1,5 +1,5 @@
 import { FC, useEffect, useId, useState } from 'react';
-import { ArticleItemType, getLayoutStyles, TRichTextItem } from '@cntrl-site/sdk';
+import { ArticleItemType, CntrlColor, getLayoutStyles, TRichTextItem } from '@cntrl-site/sdk';
 import JSXStyle from 'styled-jsx/style';
 import { ItemProps } from '../Item';
 import { useRichTextItem } from './useRichTextItem';
@@ -50,6 +50,29 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
               ${getHoverStyles<ArticleItemType.RichText>(['angle', 'blur'], hoverParams)}
             }
           `);
+        })}`}
+        {`${getLayoutStyles(layouts, [item.layoutParams], ([layoutParams], exemplary) => {
+          const color = CntrlColor.parse(layoutParams.color);
+          return (`
+            .rich-text-wrapper-${item.id} {
+                font-size: ${Math.round(layoutParams.fontSize * exemplary)}px;
+                line-height: ${layoutParams.lineHeight * exemplary}px;
+                letter-spacing: ${layoutParams.letterSpacing * exemplary}px;
+                word-spacing: ${layoutParams.wordSpacing * exemplary}px;
+                font-family: ${layoutParams.typeFace};
+                font-weight: ${layoutParams.fontWeight};
+                font-style: ${layoutParams.fontStyle ? layoutParams.fontStyle : 'normal'};
+                text-decoration: ${layoutParams.textDecoration};
+                vertical-align: ${layoutParams.verticalAlign};
+                font-variant: ${layoutParams.fontVariant};
+                color: ${color.toCss()};
+            }
+            @supports not (color: oklch(42% 0.3 90 / 1)) {
+              .rich-text-wrapper-${item.id} {
+                color: ${color.fmt('rgba')};
+              }
+            }
+            `);
         })}`}
       </JSXStyle>
     </>
