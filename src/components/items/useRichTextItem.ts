@@ -4,7 +4,7 @@ import { useCntrlContext } from '../../provider/useCntrlContext';
 import { ReactNode } from 'react';
 import { useLayoutContext } from '../useLayoutContext';
 
-const richTextConv = new RichTextConverter();
+const richTextConverter = new RichTextConverter();
 
 export const useRichTextItem = (item: TRichTextItem): [ReactNode[], string, TTypePresetEntry | null] => {
   const layoutId = useLayoutContext();
@@ -13,6 +13,6 @@ export const useRichTextItem = (item: TRichTextItem): [ReactNode[], string, TTyp
   const preset = presetId
     ? typePresets?.presets.find(p => p.id === presetId) ?? null
     : null;
-  const [content, styles] = richTextConv.toHtml(item, layouts);
+  const [content, styles] = richTextConverter.toHtml(item, layouts);
   return [content, styles, preset];
 };

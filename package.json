@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/cntrl-site/sdk-nextjs#readme",
   "dependencies": {
-    "@cntrl-site/sdk": "^1.1.10",
+    "@cntrl-site/sdk": "^1.1.11-1",
     "@types/vimeo__player": "^2.18.0",
     "@vimeo/player": "^2.20.1",
     "html-react-parser": "^3.0.1",
