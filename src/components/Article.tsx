@@ -1,4 +1,4 @@
-import { FC, useId, useRef } from 'react';
+import { FC, useEffect, useId, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { TArticle } from '@cntrl-site/sdk';
 import { Section } from './Section';
@@ -16,6 +16,14 @@ export const Article: FC<Props> = ({ article, sectionData }) => {
   const articleRef = useRef<HTMLDivElement | null>(null);
   const articleRectObserver = useArticleRectObserver(articleRef.current);
   const id = useId();
+  const [articleRatio, setArticleRatio] = useState(1);
+
+  useEffect(() => {
+    if (!articleRectObserver) return;
+    return articleRectObserver.on('resize', (rect) => {
+      setArticleRatio(rect.height / rect.width);
+    });
+  }, [articleRectObserver]);
 
   return (
     <ArticleRectContext.Provider value={articleRectObserver}>
@@ -24,9 +32,18 @@ export const Article: FC<Props> = ({ article, sectionData }) => {
           {article.sections.map((section, i) => {
             const data = section.name ? sectionData[section.name] : {};
             return (
-              <Section section={section} key={section.id} data={data}>
+              <Section
+                section={section}
+                key={section.id}
+                data={data}
+              >
                 {article.sections[i].items.map(item => (
-                  <Item item={item} key={item.id} sectionId={section.id} />
+                  <Item
+                    item={item}
+                    key={item.id}
+                    sectionId={section.id}
+                    articleRatio={articleRatio}
+                  />
                 ))}
               </Section>
             );
@@ -36,7 +53,7 @@ export const Article: FC<Props> = ({ article, sectionData }) => {
       <JSXStyle id={id}>{`
        .article {
             position: relative;
-            overflow: clip;
+            overflow: hidden;
           }
       `}</JSXStyle>
     </ArticleRectContext.Provider>

@@ -3,7 +3,7 @@ import ResizeObserver from 'resize-observer-polyfill';
 
 interface EventMap {
   'scroll': undefined;
-  'resize': undefined;
+  'resize': DOMRect;
 }
 
 export class ArticleRectObserver extends EventEmitter<EventMap> {
@@ -77,7 +77,7 @@ export class ArticleRectObserver extends EventEmitter<EventMap> {
     const parentBoundary = this.parent.getBoundingClientRect();
     this.articleWidth = parentBoundary.width;
     this.setScroll(window.scrollY / this.articleWidth);
-    this.emit('resize', undefined);
+    this.emit('resize', parentBoundary);
     for (const sectionId of this.registry.keys()) {
       const el = this.registry.get(sectionId);
       if (!el) continue;
