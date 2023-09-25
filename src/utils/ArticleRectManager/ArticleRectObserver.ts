@@ -30,6 +30,11 @@ export class ArticleRectObserver extends EventEmitter<EventMap> {
     return - (sectionTop / this.articleWidth - this.scrollPos);
   }
 
+  getSectionTop(sectionId: string): number {
+    const sectionTop = this.sectionsScrollMap.get(sectionId);
+    return sectionTop ?? 0;
+  }
+
   get width(): number {
     return this.articleWidth;
   }

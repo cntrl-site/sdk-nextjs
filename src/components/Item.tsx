@@ -1,4 +1,4 @@
-import { ComponentType, FC, PropsWithChildren, useEffect, useId, useRef, useState } from 'react';
+import { ComponentType, FC, PropsWithChildren, useContext, useEffect, useId, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import {
   ArticleItemSizingType as SizingType,
@@ -26,6 +26,8 @@ import { getItemTopStyle } from '../utils/getItemTopStyle';
 import { useStickyItemTop } from './items/useStickyItemTop';
 import { getAnchoredItemTop } from '../utils/getAnchoredItemTop';
 import { useLayoutContext } from './useLayoutContext';
+import { ArticleRectContext } from "../provider/ArticleRectContext";
+import { useExemplary } from "../common/useExemplary";
 
 export interface ItemProps<I extends TArticleItemAny> {
   item: I;
@@ -34,7 +36,7 @@ export interface ItemProps<I extends TArticleItemAny> {
 }
 
 export interface ItemWrapperProps extends ItemProps<TArticleItemAny> {
-  articleRatio: number; // height / width
+  articleHeight: number;
 }
 
 const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
@@ -62,11 +64,13 @@ const RichTextWrapper: FC<PropsWithChildren<RTWrapperProps>> = ({ isRichText, ch
 
 const noop = () => null;
 
-export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleRatio }) => {
+export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight }) => {
+  const itemWrapperRef = useRef<HTMLDivElement | null>(null);
+  const rectObserver = useContext(ArticleRectContext);
   const id = useId();
   const { layouts } = useCntrlContext();
   const layout = useLayoutContext();
-  const exemplary = layouts.find(l => l.id === layout)?.exemplary ?? 1;
+  const exemplary = useExemplary();
   const [wrapperHeight, setWrapperHeight] = useState<undefined | number>(undefined);
   const [itemHeight, setItemHeight] = useState<undefined | number>(undefined);
   const { scale, scaleAnchor } = useItemScale(item, sectionId);
@@ -87,15 +91,17 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleRatio }) =>
     : undefined;
   const sizingAxis = parseSizing(sizing);
   const ItemComponent = itemsMap[item.type] || noop;
+  const sectionTop = rectObserver ? rectObserver.getSectionTop(sectionId) : 0;
 
   const handleItemResize = (height: number) => {
+    const itemSectionTop = itemWrapperRef.current?.offsetTop ?? 0;
     if (!layout) return;
     const sticky = item.sticky[layout];
     if (!sticky) {
       setWrapperHeight(undefined);
       return;
     }
-    const wrapperHeight = getStickyItemWrapperHeight(sticky, height, articleRatio);
+    const wrapperHeight = getStickyItemWrapperHeight(sticky, height, articleHeight, (sectionTop + itemSectionTop) / window.innerWidth);
     setItemHeight(height);
     setWrapperHeight(wrapperHeight);
   };
@@ -114,7 +120,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleRatio }) =>
   return (
     <div
       className={`item-wrapper-${item.id}`}
-      style={isInitialRef.current ? {} : { top, left, ...(wrapperHeight ? { height: `${wrapperHeight * 100}vw` } : {}) }}
+      ref={itemWrapperRef}
+      style={isInitialRef.current ? {} : { top, left, ...(wrapperHeight !== undefined ? { height: `${wrapperHeight * 100}vw` } : {}) }}
     >
       <div
         suppressHydrationWarning={true}
@@ -167,7 +174,6 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleRatio }) =>
               pointer-events: none;
               top: ${getItemTopStyle(area.top, area.anchorSide)};
               left: ${area.left * 100}vw;
-              height: ${sticky ? `${getStickyItemWrapperHeight(sticky, area.height, articleRatio) * 100}vw` : 'unset'};
               transition: ${getTransitions(['left', 'top'], hoverParams)};
             }
             .item-${item.id}-inner:hover {
@@ -183,8 +189,13 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleRatio }) =>
   );
 };
 
-function getStickyItemWrapperHeight(sticky: TStickyParams, itemHeight: number, articleHeight: number): number {
-  const end = sticky.to ?? articleHeight;
+function getStickyItemWrapperHeight(
+  sticky: TStickyParams,
+  itemHeight: number,
+  articleHeight: number,
+  itemArticleOffset: number,
+) {
+  const end = sticky.to ?? articleHeight - itemArticleOffset - itemHeight;
   return end - sticky.from + itemHeight;
 }
 

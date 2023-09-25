@@ -16,12 +16,12 @@ export const Article: FC<Props> = ({ article, sectionData }) => {
   const articleRef = useRef<HTMLDivElement | null>(null);
   const articleRectObserver = useArticleRectObserver(articleRef.current);
   const id = useId();
-  const [articleRatio, setArticleRatio] = useState(1);
+  const [articleHeight, setArticleHeight] = useState(1);
 
   useEffect(() => {
     if (!articleRectObserver) return;
     return articleRectObserver.on('resize', (rect) => {
-      setArticleRatio(rect.height / rect.width);
+      setArticleHeight(rect.height / rect.width);
     });
   }, [articleRectObserver]);
 
@@ -42,7 +42,7 @@ export const Article: FC<Props> = ({ article, sectionData }) => {
                     item={item}
                     key={item.id}
                     sectionId={section.id}
-                    articleRatio={articleRatio}
+                    articleHeight={articleHeight}
                   />
                 ))}
               </Section>
@@ -53,7 +53,7 @@ export const Article: FC<Props> = ({ article, sectionData }) => {
       <JSXStyle id={id}>{`
        .article {
             position: relative;
-            overflow: hidden;
+            overflow: clip;
           }
       `}</JSXStyle>
     </ArticleRectContext.Provider>
