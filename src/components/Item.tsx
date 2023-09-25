@@ -101,7 +101,12 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight }) =
       setWrapperHeight(undefined);
       return;
     }
-    const wrapperHeight = getStickyItemWrapperHeight(sticky, height, articleHeight, (sectionTop + itemSectionTop) / window.innerWidth);
+    const itemArticleOffset = (sectionTop + itemSectionTop) / window.innerWidth;
+    const maxStickyTo = articleHeight - itemArticleOffset - height;
+    const end = sticky.to
+      ? Math.min(maxStickyTo, sticky.to)
+      : articleHeight - itemArticleOffset - height;
+    const wrapperHeight = end - sticky.from + height;
     setItemHeight(height);
     setWrapperHeight(wrapperHeight);
   };
@@ -188,16 +193,6 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight }) =
     </div>
   );
 };
-
-function getStickyItemWrapperHeight(
-  sticky: TStickyParams,
-  itemHeight: number,
-  articleHeight: number,
-  itemArticleOffset: number,
-) {
-  const end = sticky.to ?? articleHeight - itemArticleOffset - itemHeight;
-  return end - sticky.from + itemHeight;
-}
 
 function parseSizing(sizing: string = 'manual'): Axis {
   const axisSizing = sizing.split(' ');
