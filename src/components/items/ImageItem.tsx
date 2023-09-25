@@ -1,4 +1,4 @@
-import { FC, useId, useMemo } from 'react';
+import { FC, useId, useMemo, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { ArticleItemType, CntrlColor, getLayoutStyles, TImageItem } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
@@ -7,18 +7,22 @@ import { useFileItem } from './useFileItem';
 import { useItemAngle } from '../useItemAngle';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
+import { useRegisterResize } from "../../common/useRegisterResize";
 
-export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId }) => {
+export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
   const { radius, strokeWidth, opacity, strokeColor, blur } = useFileItem(item, sectionId);
   const angle = useItemAngle(item, sectionId);
   const borderColor = useMemo(() => CntrlColor.parse(strokeColor), [strokeColor]);
+  const [ref, setRef] = useState<HTMLDivElement | null>(null);
+  useRegisterResize(ref, onResize);
   return (
     <LinkWrapper url={item.link?.url}>
       <>
         <div
           className={`image-wrapper-${item.id}`}
+          ref={setRef}
           style={{
             borderRadius: `${radius * 100}vw`,
             borderWidth: `${strokeWidth * 100}vw`,

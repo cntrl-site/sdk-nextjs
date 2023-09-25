@@ -1,4 +1,4 @@
-import { FC, useEffect, useId, useState } from 'react';
+import { FC, useId, useState } from 'react';
 import { ArticleItemType, CntrlColor, getLayoutStyles, TRichTextItem } from '@cntrl-site/sdk';
 import JSXStyle from 'styled-jsx/style';
 import { ItemProps } from '../Item';
@@ -6,7 +6,7 @@ import { useRichTextItem } from './useRichTextItem';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
 import { useRichTextItemValues } from './useRichTextItemValues';
-import ResizeObserver from 'resize-observer-polyfill';
+import { useRegisterResize } from "../../common/useRegisterResize";
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize }) => {
   const [content, styles] = useRichTextItem(item);
@@ -14,18 +14,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const { layouts } = useCntrlContext();
   const { angle, blur } = useRichTextItemValues(item, sectionId);
-
-  useEffect(() => {
-    if (!ref || !onResize) return;
-    const observer = new ResizeObserver((entries) => {
-      const [entry] = entries;
-      onResize(entry.target.getBoundingClientRect().height / window.innerWidth);
-    });
-    observer.observe(ref);
-    return () => {
-      observer.unobserve(ref);
-    };
-  }, [ref, onResize]);
+  useRegisterResize(ref, onResize);
 
   return (
     <>

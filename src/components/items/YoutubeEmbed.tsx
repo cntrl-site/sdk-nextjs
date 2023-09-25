@@ -11,8 +11,9 @@ import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverSty
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useYouTubeIframeApi } from '../../utils/Youtube/useYouTubeIframeApi';
 import { YTPlayer } from '../../utils/Youtube/YoutubeIframeApi';
+import { useRegisterResize } from "../../common/useRegisterResize";
 
-export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, sectionId }) => {
+export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, sectionId, onResize }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
   const { play, controls, url } = item.commonParams;
@@ -21,12 +22,12 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   const YT = useYouTubeIframeApi();
   const [div, setDiv] = useState<HTMLDivElement | null>(null);
   const [player, setPlayer] = useState<YTPlayer | undefined>(undefined);
+  useRegisterResize(div, onResize);
 
   useEffect(() => {
     const newUrl = new URL(url);
     const videoId = getYoutubeId(newUrl);
     if (!YT || !videoId || !div) return;
-    const divRect = div.getBoundingClientRect();
     const placeholder = document.createElement('div');
     div.appendChild(placeholder);
     const player = new YT.Player(placeholder, {
@@ -53,15 +54,16 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
 
   return (
     <LinkWrapper url={item.link?.url}>
-      <div className={`embed-youtube-video-wrapper-${item.id}`}
-         onMouseEnter={() => {
-           if (!player || play !== 'on-hover') return;
-           player.playVideo();
-         }}
-         onMouseLeave={() => {
-           if (!player || play !== 'on-hover') return;
-           player.pauseVideo();
-         }}
+      <div
+        className={`embed-youtube-video-wrapper-${item.id}`}
+        onMouseEnter={() => {
+          if (!player || play !== 'on-hover') return;
+          player.playVideo();
+        }}
+        onMouseLeave={() => {
+          if (!player || play !== 'on-hover') return;
+          player.pauseVideo();
+        }}
          ref={setDiv}
          style={{
            borderRadius: `${radius * 100}vw`,

@@ -9,8 +9,9 @@ import { useItemAngle } from '../useItemAngle';
 import { ArticleItemType, getLayoutStyles } from '@cntrl-site/sdk';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
+import { useRegisterResize } from "../../common/useRegisterResize";
 
-export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId }) => {
+export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId, onResize }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
   const { radius, blur } = useEmbedVideoItem(item, sectionId);
@@ -18,6 +19,8 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
   const vimeoPlayer = useMemo(() => iframeRef ? new Player(iframeRef) : undefined, [iframeRef]);
   const angle = useItemAngle(item, sectionId);
   const { play, controls, loop, muted, pictureInPicture, url } = item.commonParams;
+  const [ref, setRef] = useState<HTMLDivElement | null>(null);
+  useRegisterResize(ref, onResize);
   const getValidVimeoUrl = (url: string): string => {
     const validURL = new URL(url);
     validURL.searchParams.append('controls', String(controls));
@@ -36,7 +39,9 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
 
   return (
     <LinkWrapper url={item.link?.url}>
-      <div className={`embed-video-wrapper-${item.id}`}
+      <div
+        className={`embed-video-wrapper-${item.id}`}
+        ref={setRef}
         style={{
           borderRadius: `${radius * 100}vw`,
           transform: `rotate(${angle}deg)`,

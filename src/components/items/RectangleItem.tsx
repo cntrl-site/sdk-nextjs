@@ -1,4 +1,4 @@
-import { FC, useId, useMemo } from 'react';
+import { FC, useId, useMemo, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { TRectangleItem, CntrlColor, getLayoutStyles, ArticleItemType } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
@@ -7,19 +7,25 @@ import { useRectangleItem } from './useRectangleItem';
 import { useItemAngle } from '../useItemAngle';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
+import { useRegisterResize } from "../../common/useRegisterResize";
 
-export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId }) => {
+export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, onResize }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
   const { fillColor, radius, strokeWidth, strokeColor, blur, backdropBlur } = useRectangleItem(item, sectionId);
   const angle = useItemAngle(item, sectionId);
   const backgroundColor = useMemo(() => CntrlColor.parse(fillColor), [fillColor]);
   const borderColor = useMemo(() => CntrlColor.parse(strokeColor), [strokeColor]);
+  const [ref, setRef] = useState<HTMLDivElement | null>(null);
+  useRegisterResize(ref, onResize);
+  const backdropFilterValue = backdropBlur !== 0 ? `blur(${backdropBlur * 100}vw)`: 'unset';
 
   return (
     <LinkWrapper url={item.link?.url}>
       <>
-        <div className={`rectangle-${item.id}`}
+        <div
+          className={`rectangle-${item.id}`}
+          ref={setRef}
           style={{
             backgroundColor: `${backgroundColor.toCss()}`,
             borderRadius: `${radius * 100}vw`,
@@ -27,9 +33,9 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId }
             borderColor: `${borderColor.toCss()}`,
             transform: `rotate(${angle}deg)`,
             filter: blur !== 0 ? `blur(${blur * 100}vw)` : 'unset',
-            backdropFilter: backdropBlur !== 0 ? `blur(${backdropBlur * 100}vw)`: 'unset',
+            backdropFilter: backdropFilterValue,
             // @ts-ignore
-            '-webkit-backdrop-filter': backdropBlur !== 0 ? `blur(${backdropBlur * 100}vw)`: 'unset',
+            '-webkit-backdrop-filter': backdropFilterValue,
           }}
         />
         <JSXStyle id={id}>{`
