@@ -74,7 +74,6 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
       <JSXStyle id={id}>{`
         .embed-youtube-video-wrapper-${item.id} {
           position: absolute;
-          overflow: hidden;
           width: 100%;
           height: 100%;
         }

@@ -67,7 +67,6 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
       <JSXStyle id={id}>{`
       .embed-video-wrapper-${item.id} {
         position: absolute;
-        overflow: hidden;
         width: 100%;
         height: 100%;
       }

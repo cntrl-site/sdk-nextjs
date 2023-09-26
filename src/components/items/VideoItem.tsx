@@ -43,7 +43,6 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
         }
         .video-wrapper-${item.id} {
           position: absolute;
-          overflow: hidden;
           width: 100%;
           height: 100%;
           border-style: solid;
