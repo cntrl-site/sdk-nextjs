@@ -43,7 +43,6 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
         className={`embed-video-wrapper-${item.id}`}
         ref={setRef}
         style={{
-          borderRadius: `${radius * 100}vw`,
           transform: `rotate(${angle}deg)`,
           filter: `blur(${blur * 100}vw)`
         }}
@@ -62,6 +61,9 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
           src={validUrl || ''}
           allow="autoplay; fullscreen; picture-in-picture;"
           allowFullScreen
+          style={{
+            borderRadius: `${radius * 100}vw`
+          }}
         />
       </div>
       <JSXStyle id={id}>{`
@@ -75,14 +77,21 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
         height: 100%;
         z-index: 1;
         border: none;
+        overflow: hidden;
       }
       ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
         return (`
           .embed-video-wrapper-${item.id} {
-            transition: ${getTransitions<ArticleItemType.VimeoEmbed>(['angle', 'radius', 'blur'], hoverParams)};
+            transition: ${getTransitions<ArticleItemType.VimeoEmbed>(['angle', 'blur'], hoverParams)};
           }
           .embed-video-wrapper-${item.id}:hover {
-            ${getHoverStyles<ArticleItemType.VimeoEmbed>(['angle', 'radius', 'blur'], hoverParams)}
+            ${getHoverStyles<ArticleItemType.VimeoEmbed>(['angle', 'blur'], hoverParams)}
+          }
+          .embed-video-wrapper-${item.id} .embedVideo {
+            transition: ${getTransitions<ArticleItemType.VimeoEmbed>(['radius'], hoverParams)};
+          }
+          .embed-video-wrapper-${item.id}:hover .embedVideo {
+            ${getHoverStyles<ArticleItemType.VimeoEmbed>(['radius'], hoverParams)}
           }
         `);
       })}
