@@ -23,21 +23,29 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
         className={`video-wrapper-${item.id}`}
         ref={setRef}
         style={{
-          borderRadius: `${radius * 100}vw`,
-          borderWidth: `${strokeWidth * 100}vw`,
           opacity: `${opacity}`,
-          borderColor: `${borderColor.toCss()}`,
           transform: `rotate(${angle}deg)`,
           filter: `blur(${blur * 100}vw)`
         }}
       >
-        <video autoPlay muted loop playsInline className="video">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className={`video video-${item.id}`}
+          style={{
+            borderRadius: `${radius * 100}vw`,
+            borderWidth: `${strokeWidth * 100}vw`,
+            borderColor: `${borderColor.toCss()}`
+          }}
+        >
           <source src={item.commonParams.url} />
         </video>
       </div>
       <JSXStyle id={id}>{`
         @supports not (color: oklch(42% 0.3 90 / 1)) {
-          .video-wrapper-${item.id} {
+          .video-${item.id} {
             border-color: ${borderColor.fmt('rgba')};
           }
         }
@@ -45,9 +53,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
           position: absolute;
           width: 100%;
           height: 100%;
-          border-style: solid;
           box-sizing: border-box;
-          border-color: ${strokeColor};
           opacity: ${opacity};
         }
         .video {
@@ -56,14 +62,25 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
           opacity: 1;
           object-fit: cover;
           pointer-events: none;
+          overflow: hidden;
+          border-style: solid;
+        }
+        .video-${item.id} {
+          border-color: ${strokeColor};
         }
         ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
           return (`
             .video-wrapper-${item.id} {
-              transition: ${getTransitions<ArticleItemType.Video>(['angle', 'strokeWidth', 'radius', 'strokeColor', 'opacity', 'blur'], hoverParams)};
+              transition: ${getTransitions<ArticleItemType.Video>(['angle', 'opacity', 'blur'], hoverParams)};
             }
             .video-wrapper-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.Video>(['angle', 'strokeWidth', 'radius', 'strokeColor', 'opacity', 'blur'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.Video>(['angle', 'opacity', 'blur'], hoverParams)}
+            }
+            .video-${item.id} {
+              transition: ${getTransitions<ArticleItemType.Video>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)};
+            }
+            .video-wrapper-${item.id}:hover .video {
+              ${getHoverStyles<ArticleItemType.Video>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)}
             }
           `);
         })}
