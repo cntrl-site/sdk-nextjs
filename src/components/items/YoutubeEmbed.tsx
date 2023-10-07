@@ -64,18 +64,26 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
           if (!player || play !== 'on-hover') return;
           player.pauseVideo();
         }}
-         ref={setDiv}
-         style={{
-           borderRadius: `${radius * 100}vw`,
-           transform: `rotate(${angle}deg)`,
-           filter: `blur(${blur * 100}vw)`
-         }}
-      ></div>
+        style={{
+          transform: `rotate(${angle}deg)`,
+          filter: `blur(${blur * 100}vw)`
+        }}
+      >
+        <div
+          className={`embed-${item.id}`}
+          ref={setDiv}
+          style={{ borderRadius: `${radius * 100}vw` }}
+        />
+      </div>
       <JSXStyle id={id}>{`
-        .embed-youtube-video-wrapper-${item.id} {
+        .embed-youtube-video-wrapper-${item.id},
+        .embed-${item.id} {
           position: absolute;
           width: 100%;
           height: 100%;
+        }
+        .embed-${item.id} {
+          overflow: hidden;
         }
         .embed-youtube-video-wrapper-${item.id} iframe {
           width: 100%;
@@ -86,10 +94,16 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
         ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
           return (`
             .embed-youtube-video-wrapper-${item.id} {
-              transition: ${getTransitions<ArticleItemType.YoutubeEmbed>(['angle', 'radius', 'blur'], hoverParams)};
+              transition: ${getTransitions<ArticleItemType.YoutubeEmbed>(['angle', 'blur'], hoverParams)};
+            }
+            .embed-youtube-video-wrapper-${item.id} .embed-${item.id} {
+              transition: ${getTransitions<ArticleItemType.YoutubeEmbed>(['radius'], hoverParams)};
             }
             .embed-youtube-video-wrapper-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.YoutubeEmbed>(['angle', 'radius', 'blur'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.YoutubeEmbed>(['angle', 'blur'], hoverParams)}
+            }
+            .embed-youtube-video-wrapper-${item.id}:hover .embed-${item.id} {
+              ${getHoverStyles<ArticleItemType.YoutubeEmbed>(['radius'], hoverParams)}
             }
           `);
       })}
