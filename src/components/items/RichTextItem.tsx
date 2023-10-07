@@ -55,6 +55,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
                 vertical-align: ${layoutParams.verticalAlign};
                 font-variant: ${layoutParams.fontVariant};
                 color: ${color.toCss()};
+                text-transform: ${layoutParams.textTransform};
             }
             @supports not (color: oklch(42% 0.3 90 / 1)) {
               .rich-text-wrapper-${item.id} {
