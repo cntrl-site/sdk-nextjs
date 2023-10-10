@@ -32,7 +32,7 @@ export const CNTRLHead: FC<Props> = ({ meta, project }) => {
       <title>{meta.title}</title>
       <meta name="description" content={meta.description} />
       <meta name="keywords" content={meta.keywords} />
-      <meta property="og:image" content={meta.opengraphThumbnail} />
+      <meta name="og:image" content={meta.opengraphThumbnail} />
       <link rel="icon" href={meta.favicon} />
       {customFonts.length > 0 && (
         <style
