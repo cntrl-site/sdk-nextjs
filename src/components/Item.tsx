@@ -5,7 +5,6 @@ import {
   ArticleItemType,
   getLayoutStyles,
   TArticleItem,
-  TStickyParams,
   TArticleItemAny,
 } from '@cntrl-site/sdk';
 import { RectangleItem } from './items/RectangleItem';
@@ -94,14 +93,13 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight }) =
   const sectionTop = rectObserver ? rectObserver.getSectionTop(sectionId) : 0;
 
   const handleItemResize = (height: number) => {
-    const itemSectionTop = itemWrapperRef.current?.offsetTop ?? 0;
     if (!layout) return;
     const sticky = item.sticky[layout];
     if (!sticky) {
       setWrapperHeight(undefined);
       return;
     }
-    const itemArticleOffset = (sectionTop + itemSectionTop) / window.innerWidth;
+    const itemArticleOffset = sectionTop / window.innerWidth + stickyTop;
     const maxStickyTo = articleHeight - itemArticleOffset - height;
     const end = sticky.to
       ? Math.min(maxStickyTo, sticky.to)
@@ -117,8 +115,10 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight }) =
 
   const isRichText = isItemType(item, ArticleItemType.RichText);
 
+  if (!layout) return null;
+
   const styles = {
-    top: stickyTop,
+    top: `${getAnchoredItemTop(stickyTop, sectionHeight[layout], item.area[layout].anchorSide)}`,
     height: isRichText && itemHeight ? `${itemHeight * 100}vw` : 'unset'
   };
 

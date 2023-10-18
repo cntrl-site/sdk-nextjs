@@ -1,6 +1,5 @@
-import { AnchorSide, TArticleItemAny } from '@cntrl-site/sdk';
+import { TArticleItemAny } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../../common/useKeyframeValue';
-import { getAnchoredItemTop } from '../../utils/getAnchoredItemTop';
 import { useLayoutContext } from '../useLayoutContext';
 
 export function useStickyItemTop(item: TArticleItemAny, sectionHeightMap: Record<string, string>, sectionId: string) {
@@ -16,7 +15,5 @@ export function useStickyItemTop(item: TArticleItemAny, sectionHeightMap: Record
     [layoutId]
   );
   const sticky = layoutId ? item.sticky[layoutId] : undefined;
-  const sectionHeight = layoutId ? sectionHeightMap[layoutId] : '0vh';
-  const anchorSide = layoutId ? item.area[layoutId].anchorSide : AnchorSide.Top;
-  return sticky ? `${getAnchoredItemTop(top - sticky.from, sectionHeight, anchorSide)}` : 0
+  return sticky ? top - sticky.from : 0
 }
