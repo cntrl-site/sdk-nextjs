@@ -16,7 +16,9 @@ export const layoutsMock: TLayout[] = [
     startsWith: 768,
     title: 'Tablet',
     icon: 'any',
-    grid: sampleGrid
+    grid: sampleGrid,
+    disabled: false,
+    locked: false
   },
   {
     id: 'desktop',
@@ -24,7 +26,9 @@ export const layoutsMock: TLayout[] = [
     startsWith: 1024,
     title: 'Desktop',
     icon: 'any',
-    grid: sampleGrid
+    grid: sampleGrid,
+    disabled: false,
+    locked: false
   },
   {
     id: 'mobile',
@@ -32,6 +36,8 @@ export const layoutsMock: TLayout[] = [
     startsWith: 0,
     title: 'Mobile',
     icon: 'any',
-    grid: sampleGrid
+    grid: sampleGrid,
+    disabled: false,
+    locked: false
   }
 ];
