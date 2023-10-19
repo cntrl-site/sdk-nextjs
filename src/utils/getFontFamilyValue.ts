@@ -1,3 +1,3 @@
-export function getFontFamilyValue(value: string) {
-  return value.includes('"') ? value : `"${value}"`;
+export function getFontFamilyValue(value: string | undefined) {
+  return value && value.includes('"') ? value : `"${value}"`;
 }
