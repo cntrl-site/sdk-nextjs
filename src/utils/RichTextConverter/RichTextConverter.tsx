@@ -10,6 +10,7 @@ import {
   TextAlign
 } from '@cntrl-site/sdk';
 import { LinkWrapper } from '../../components/LinkWrapper';
+import { getFontFamilyValue } from '../getFontFamilyValue';
 
 interface StyleGroup {
   start: number;
@@ -237,7 +238,7 @@ export class RichTextConverter {
     const { value, name } = draftStyle;
     const map: Record<string, Record<string, string | undefined>> = {
       'COLOR': { 'color': getResolvedValue(value, name) },
-      'TYPEFACE': { 'font-family': `"${value}"` },
+      'TYPEFACE': { 'font-family': `${getFontFamilyValue(value!)}` },
       'FONTSTYLE': value ? { ...FontStyles[value] } : {},
       'FONTWEIGHT': { 'font-weight': value },
       'FONTSIZE': { 'font-size': `${parseFloat(value!) * exemplary}px` },

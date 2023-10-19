@@ -7,6 +7,7 @@ import { useCntrlContext } from '../../provider/useCntrlContext';
 import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
 import { useRichTextItemValues } from './useRichTextItemValues';
 import { useRegisterResize } from "../../common/useRegisterResize";
+import { getFontFamilyValue } from '../../utils/getFontFamilyValue';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize }) => {
   const [content, styles] = useRichTextItem(item);
@@ -48,7 +49,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
                 line-height: ${layoutParams.lineHeight * exemplary}px;
                 letter-spacing: ${layoutParams.letterSpacing * exemplary}px;
                 word-spacing: ${layoutParams.wordSpacing * exemplary}px;
-                font-family: "${layoutParams.typeFace}";
+                font-family: ${getFontFamilyValue(layoutParams.typeFace)};
                 font-weight: ${layoutParams.fontWeight};
                 font-style: ${layoutParams.fontStyle ? layoutParams.fontStyle : 'normal'};
                 text-decoration: ${layoutParams.textDecoration};
