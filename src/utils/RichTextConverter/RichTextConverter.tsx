@@ -201,7 +201,27 @@ export class RichTextConverter {
 
   private groupEntities(entities: RichText.Entity[], styleGroups?: StyleGroup[]): EntitiesGroup[] | undefined {
     const entitiesGroups: EntitiesGroup[] = [];
-    if (!styleGroups || styleGroups.length === 0) return;
+    if (!entities.length && !styleGroups) return;
+    if (!styleGroups || styleGroups.length === 0) {
+      const dividersSet = entities.reduce((ds, s) => {
+        ds.add(s.start);
+        ds.add(s.end);
+        return ds;
+      }, new Set<number>([entities[0].start, entities[entities.length - 1].end]));
+      const dividers = Array.from(dividersSet).sort((a, b) => a - b);
+      for (let i = 0; i < dividers.length - 1; i += 1) {
+        const start = dividers[i];
+        const end = dividers[i + 1];
+        const entity = entities.find(e => e.start === start);
+        entitiesGroups.push({
+          stylesGroup: [],
+          start,
+          end,
+          ...(entity && { link: entity.data.url })
+        });
+      }
+      return entitiesGroups;
+    }
     if (entities.length === 0) {
       entitiesGroups.push({
         stylesGroup: styleGroups,
