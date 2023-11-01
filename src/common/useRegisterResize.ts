@@ -6,7 +6,7 @@ export const useRegisterResize = (ref: HTMLElement | null, onResize?: (height: n
     if (!ref || !onResize) return;
     const observer = new ResizeObserver((entries) => {
       const [entry] = entries;
-      onResize(entry.target.getBoundingClientRect().height / window.innerWidth);
+      onResize(entry.target.clientHeight / window.innerWidth);
     });
     observer.observe(ref);
     return () => {
