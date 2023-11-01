@@ -232,6 +232,75 @@ export class Animator {
     };
   }
 
+  getTextColor(
+    values: TKeyframeValueMap[KeyframeType.TextColor],
+    pos: number
+  ): TKeyframeValueMap[KeyframeType.TextColor] {
+    const keyframes = this.keyframesMap[KeyframeType.TextColor];
+    if (!keyframes || !keyframes.length) return values;
+    if (keyframes.length === 1) {
+      const [keyframe] = keyframes;
+      return {
+        color: keyframe.value.color
+      };
+    }
+    const { start, end } = this.getStartEnd<KeyframeType.TextColor>(pos, keyframes);
+    return {
+      color: this.getRangeColor(start, end, pos)
+    };
+  }
+
+  getLetterSpacing(
+    values: TKeyframeValueMap[KeyframeType.LetterSpacing],
+    pos: number
+  ): TKeyframeValueMap[KeyframeType.LetterSpacing] {
+    const keyframes = this.keyframesMap[KeyframeType.LetterSpacing];
+    if (!keyframes || !keyframes.length) return values;
+    if (keyframes.length === 1) {
+      const [keyframe] = keyframes;
+      return {
+        letterSpacing: keyframe.value.letterSpacing
+      };
+    }
+    const { start, end } = this.getStartEnd<KeyframeType.LetterSpacing>(pos, keyframes);
+    return {
+      letterSpacing: rangeMap(
+        pos,
+        start.position,
+        end.position,
+        start.value.letterSpacing,
+        end.value.letterSpacing,
+        true
+      )
+    };
+  }
+
+  getWordSpacing(
+    values: TKeyframeValueMap[KeyframeType.WordSpacing],
+    pos: number
+  ): TKeyframeValueMap[KeyframeType.WordSpacing] {
+    const keyframes = this.keyframesMap[KeyframeType.WordSpacing];
+    if (!keyframes || !keyframes.length) return values;
+    if (keyframes.length === 1) {
+      const [keyframe] = keyframes;
+      return {
+        wordSpacing: keyframe.value.wordSpacing
+      };
+    }
+    const { start, end } = this.getStartEnd<KeyframeType.WordSpacing>(pos, keyframes);
+    return {
+      wordSpacing: rangeMap(
+        pos,
+        start.position,
+        end.position,
+        start.value.wordSpacing,
+        end.value.wordSpacing,
+        true
+      )
+    };
+  }
+
+
   getStartEnd<T extends KeyframeType>(position: number, keyframes: AnimationData<T>[]): PositionKeyframes<T> {
     const index = binSearchInsertAt(keyframes, { position }, compare);
     const end = index === keyframes.length ? index - 1 : index;
@@ -247,8 +316,8 @@ export class Animator {
   }
 
   private getRangeColor(
-    start: AnimationData<KeyframeType.Color | KeyframeType.BorderColor>,
-    end: AnimationData<KeyframeType.Color | KeyframeType.BorderColor>,
+    start: AnimationData<KeyframeType.Color | KeyframeType.BorderColor | KeyframeType.TextColor>,
+    end: AnimationData<KeyframeType.Color | KeyframeType.BorderColor | KeyframeType.TextColor>,
     position: number
   ): string {
     const rangeAmount = rangeMap(position, start.position, end.position, 0, 1, true);
@@ -272,7 +341,10 @@ function createKeyframesMap(): KeyframesMap {
     [KeyframeType.Opacity]: [],
     [KeyframeType.Scale]: [],
     [KeyframeType.Blur]: [],
-    [KeyframeType.BackdropBlur]: []
+    [KeyframeType.BackdropBlur]: [],
+    [KeyframeType.LetterSpacing]: [],
+    [KeyframeType.WordSpacing]: [],
+    [KeyframeType.TextColor]: []
   };
 }
 

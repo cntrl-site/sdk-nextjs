@@ -1,4 +1,4 @@
-import { FC, useId, useState } from 'react';
+import { FC, useId, useMemo, useState } from 'react';
 import { ArticleItemType, CntrlColor, getLayoutStyles, TRichTextItem } from '@cntrl-site/sdk';
 import JSXStyle from 'styled-jsx/style';
 import { ItemProps } from '../Item';
@@ -7,13 +7,15 @@ import { useCntrlContext } from '../../provider/useCntrlContext';
 import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
 import { useRichTextItemValues } from './useRichTextItemValues';
 import { useRegisterResize } from "../../common/useRegisterResize";
+import { getFontFamilyValue } from '../../utils/getFontFamilyValue';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize }) => {
   const [content, styles] = useRichTextItem(item);
   const id = useId();
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const { layouts } = useCntrlContext();
-  const { angle, blur } = useRichTextItemValues(item, sectionId);
+  const { angle, blur, wordSpacing, letterSpacing, color } = useRichTextItemValues(item, sectionId);
+  const textColor = useMemo(() => CntrlColor.parse(color), [color]);
   useRegisterResize(ref, onResize);
 
   return (
@@ -23,7 +25,10 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
         className={`rich-text-wrapper-${item.id}`}
         style={{
           transform: `rotate(${angle}deg)`,
-          filter: `blur(${blur * 100}vw)`
+          filter: `blur(${blur * 100}vw)`,
+          letterSpacing: `${letterSpacing * 100}vw`,
+          wordSpacing: `${wordSpacing * 100}vw`,
+          color: `${textColor.toCss()}`
         }}
       >
         {content}
@@ -33,10 +38,10 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
         {`${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
           return (`
             .rich-text-wrapper-${item.id} {
-              transition: ${getTransitions<ArticleItemType.RichText>(['angle', 'blur'], hoverParams)};
+              transition: ${getTransitions<ArticleItemType.RichText>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color'], hoverParams)};
             }
             .rich-text-wrapper-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.RichText>(['angle', 'blur'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.RichText>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color'], hoverParams)}
             }
           `);
         })}`}
@@ -48,7 +53,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
                 line-height: ${layoutParams.lineHeight * exemplary}px;
                 letter-spacing: ${layoutParams.letterSpacing * exemplary}px;
                 word-spacing: ${layoutParams.wordSpacing * exemplary}px;
-                font-family: "${layoutParams.typeFace}";
+                font-family: ${getFontFamilyValue(layoutParams.typeFace)};
                 font-weight: ${layoutParams.fontWeight};
                 font-style: ${layoutParams.fontStyle ? layoutParams.fontStyle : 'normal'};
                 text-decoration: ${layoutParams.textDecoration};

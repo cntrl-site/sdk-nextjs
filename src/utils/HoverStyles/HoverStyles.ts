@@ -18,7 +18,10 @@ const hoverTransformationMap: Record<keyof ItemHoverParams, HoverParamsGetter> =
   'strokeColor': (strokeColor: string) => `border-color: ${CntrlColor.parse(strokeColor).toCss()} !important;`,
   'fillColor': (fillColor: string) => `background-color: ${CntrlColor.parse(fillColor).toCss()} !important;`,
   'blur': (blur: number) => `filter: blur(${blur * 100}vw) !important;`,
-  'backdropBlur': (backdropBlur: number) => `backdrop-filter: blur(${backdropBlur * 100}vw) !important;`
+  'backdropBlur': (backdropBlur: number) => `backdrop-filter: blur(${backdropBlur * 100}vw) !important;`,
+  'color': (color: string) => `color: ${CntrlColor.parse(color).toCss()} !important;`,
+  'letterSpacing': (letterSpacing: number) => `letter-spacing: ${letterSpacing * 100}vw !important;`,
+  'wordSpacing': (wordSpacing: number) => `word-spacing: ${wordSpacing * 100}vw !important;`
 };
 
 const CSSPropertyNameMap: Record<keyof ItemHoverParams, string> = {
@@ -34,7 +37,10 @@ const CSSPropertyNameMap: Record<keyof ItemHoverParams, string> = {
   'strokeColor': 'border-color',
   'fillColor': 'background-color',
   'blur': 'filter',
-  'backdropBlur': 'backdrop-filter'
+  'backdropBlur': 'backdrop-filter',
+  'letterSpacing': 'letter-spacing',
+  'wordSpacing': 'word-spacing',
+  'color': 'color'
 };
 
 export function getTransitions<T extends ArticleItemType>(
