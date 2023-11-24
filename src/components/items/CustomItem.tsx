@@ -1,4 +1,4 @@
-import { ArticleItemType, getLayoutStyles, TCustomItem } from '@cntrl-site/sdk';
+import { ArticleItemType, getLayoutStyles, CustomItem as TCustomItem } from '@cntrl-site/sdk';
 import { FC, useState } from 'react';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { ItemProps } from '../Item';

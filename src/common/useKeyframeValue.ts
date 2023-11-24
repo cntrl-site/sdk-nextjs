@@ -1,4 +1,4 @@
-import { KeyframeType, TArticleItemAny } from '@cntrl-site/sdk';
+import { KeyframeType, ItemAny } from '@cntrl-site/sdk';
 import isEqual from 'lodash.isequal';
 import { DependencyList, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ArticleRectContext } from '../provider/ArticleRectContext';
@@ -7,11 +7,11 @@ import { AnimationData, Animator } from '../utils/Animator/Animator';
 import { useLayoutContext } from '../components/useLayoutContext';
 
 export type AnimatorGetter<T> = (animator: Animator, scroll: number, value: T) => T;
-type ItemParamGetter<T> = (item: TArticleItemAny, layoutId: string | undefined) => T;
+type ItemParamGetter<T> = (item: ItemAny, layoutId: string | undefined) => T;
 const emptyDeps: DependencyList = [];
 
 export const useKeyframeValue = <T>(
-  item: TArticleItemAny,
+  item: ItemAny,
   itemParamsGetter: ItemParamGetter<T>,
   animatorGetter: AnimatorGetter<T>,
   sectionId: string,

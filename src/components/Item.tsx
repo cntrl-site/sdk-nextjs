@@ -1,11 +1,10 @@
 import { ComponentType, FC, PropsWithChildren, useContext, useEffect, useId, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import {
-  ArticleItemSizingType as SizingType,
   ArticleItemType,
   getLayoutStyles,
-  TArticleItem,
-  TArticleItemAny,
+  Item as TItem,
+  ItemAny,
 } from '@cntrl-site/sdk';
 import { RectangleItem } from './items/RectangleItem';
 import { ImageItem } from './items/ImageItem';
@@ -28,13 +27,13 @@ import { useLayoutContext } from './useLayoutContext';
 import { ArticleRectContext } from "../provider/ArticleRectContext";
 import { useExemplary } from "../common/useExemplary";
 
-export interface ItemProps<I extends TArticleItemAny> {
+export interface ItemProps<I extends ItemAny> {
   item: I;
   sectionId: string;
   onResize?: (height: number) => void;
 }
 
-export interface ItemWrapperProps extends ItemProps<TArticleItemAny> {
+export interface ItemWrapperProps extends ItemProps<ItemAny> {
   articleHeight: number;
 }
 
@@ -137,12 +136,12 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight }) =
           <div
             className={`item-${item.id}-inner`}
             style={{
-              width: `${sizingAxis.x === SizingType.Manual
+              width: `${sizingAxis.x === 'manual'
                 ? isRichText
                   ? `${width * exemplary}px`
                   : `${width * 100}vw`
                 : 'max-content'}`,
-              height: `${sizingAxis.y === SizingType.Manual ? `${height * 100}vw` : 'unset'}`,
+              height: `${sizingAxis.y === 'manual' ? `${height * 100}vw` : 'unset'}`,
               transform: `scale(${scale})`,
               transformOrigin: ScaleAnchorMap[scaleAnchor]
             }}
@@ -165,8 +164,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight }) =
             }
             .item-${item.id}-inner {
               transition: ${getTransitions(['width', 'height', 'scale'], hoverParams)};
-              width: ${sizingAxis.x === SizingType.Manual ? `${area.width * 100}vw` : 'max-content'};
-              height: ${sizingAxis.y === SizingType.Manual ? `${area.height * 100}vw` : 'unset'};
+              width: ${sizingAxis.x === 'manual' ? `${area.width * 100}vw` : 'max-content'};
+              height: ${sizingAxis.y === 'manual' ? `${area.height * 100}vw` : 'unset'};
               transform: scale(${scale});
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
               --webkit-backface-visibility: hidden;
@@ -203,10 +202,10 @@ function parseSizing(sizing: string = 'manual'): Axis {
 }
 
 interface Axis {
-  x: SizingType;
-  y: SizingType;
+  x: 'manual' | 'auto';
+  y: 'manual' | 'auto';
 }
 
-export function isItemType<T extends ArticleItemType>(item: TArticleItemAny, itemType: T): item is TArticleItem<T> {
+export function isItemType<T extends ArticleItemType>(item: ItemAny, itemType: T): item is TItem<T> {
   return item.type === itemType;
 }

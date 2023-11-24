@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { CntrlColor } from '@cntrl-site/sdk';
+import { CntrlColor } from '@cntrl-site/color';
 import { useLayoutContext } from './useLayoutContext';
 
 type LayoutIdentifier = string;

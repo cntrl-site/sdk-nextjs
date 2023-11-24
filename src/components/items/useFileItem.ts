@@ -1,10 +1,10 @@
-import { TImageItem, TVideoItem } from '@cntrl-site/sdk';
+import { ImageItem, VideoItem } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../../common/useKeyframeValue';
 import { useLayoutContext } from '../useLayoutContext';
 
 const defaultColor = 'rgba(0, 0, 0, 1)';
 
-export const useFileItem = (item: TImageItem | TVideoItem, sectionId: string) => {
+export const useFileItem = (item: ImageItem | VideoItem, sectionId: string) => {
   const layoutId = useLayoutContext();
   const radius = useKeyframeValue(
     item,

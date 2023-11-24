@@ -1,6 +1,7 @@
 import { FC, useId, useMemo, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
-import { TRectangleItem, CntrlColor, getLayoutStyles, ArticleItemType } from '@cntrl-site/sdk';
+import { CntrlColor } from '@cntrl-site/color';
+import { RectangleItem as TRectangleItem, getLayoutStyles, ArticleItemType } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useRectangleItem } from './useRectangleItem';

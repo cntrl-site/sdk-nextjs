@@ -1,9 +1,9 @@
-import { AnchorSide, TArticleItemAny } from '@cntrl-site/sdk';
+import { AnchorSide, ItemAny } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../common/useKeyframeValue';
 import { getItemTopStyle } from '../utils/getItemTopStyle';
 import { useLayoutContext } from './useLayoutContext';
 
-export const useItemPosition = (item: TArticleItemAny, sectionId: string) => {
+export const useItemPosition = (item: ItemAny, sectionId: string) => {
   const layoutId = useLayoutContext();
   const { top, left } = useKeyframeValue<{ top: number; left: number }>(
     item,

@@ -1,11 +1,11 @@
 import React, { FC } from 'react';
 import HTMLReactParser, { domToReact } from 'html-react-parser';
 import Head from 'next/head';
-import { FontFaceGenerator, TMeta, TProject } from '@cntrl-site/sdk';
+import { FontFaceGenerator, Meta, Project } from '@cntrl-site/sdk';
 
 interface Props {
-  project: TProject;
-  meta: TMeta;
+  project: Project;
+  meta: Meta;
 }
 
 export const CNTRLHead: FC<Props> = ({ meta, project }) => {
@@ -18,7 +18,7 @@ export const CNTRLHead: FC<Props> = ({ meta, project }) => {
   const customFonts = project.fonts.custom;
   const htmlHead = HTMLReactParser(project.html.head);
   const ffGenerator = new FontFaceGenerator(customFonts);
-  const links = Object.values(parsedFonts as ReturnType<typeof domToReact>).map((value, i) => {
+  const links = Object.values(parsedFonts as ReturnType<typeof domToReact>).map((value) => {
     if (!value) return;
     const rel = value?.rel || value.props?.rel;
     const href = value?.href || value.props?.href;

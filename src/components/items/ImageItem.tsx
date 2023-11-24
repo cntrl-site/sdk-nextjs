@@ -1,6 +1,7 @@
 import { FC, useId, useMemo, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
-import { ArticleItemType, CntrlColor, getLayoutStyles, TImageItem } from '@cntrl-site/sdk';
+import { CntrlColor } from '@cntrl-site/color';
+import { ArticleItemType, getLayoutStyles, ImageItem as TImageItem } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useFileItem } from './useFileItem';

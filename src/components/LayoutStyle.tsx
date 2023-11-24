@@ -1,12 +1,12 @@
 import React, { FC } from 'react';
-import { getLayoutMediaQuery, TLayout } from '@cntrl-site/sdk';
+import { getLayoutMediaQuery, Layout } from '@cntrl-site/sdk';
 import JSXStyle from 'styled-jsx/style';
 
 export interface LayoutStyleProps {
   id: string;
-  layouts: TLayout[];
+  layouts: Layout[];
   layoutId: string;
-  children?: (layout: TLayout) => string;
+  children?: (layout: Layout) => string;
 }
 
 export const LayoutStyle: FC<LayoutStyleProps> = ({ id, layouts, layoutId, children }) => {

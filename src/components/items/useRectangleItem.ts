@@ -1,10 +1,10 @@
-import { TRectangleItem } from '@cntrl-site/sdk';
+import { RectangleItem } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../../common/useKeyframeValue';
 import { useLayoutContext } from '../useLayoutContext';
 
 const defaultColor = 'rgba(0, 0, 0, 1)';
 
-export const useRectangleItem = (item: TRectangleItem, sectionId: string) => {
+export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
   const layoutId = useLayoutContext();
   const radius = useKeyframeValue(
     item,

@@ -1,23 +1,21 @@
 import { CustomItemRegistry } from './CustomItemRegistry';
-import { TArticle, TArticleSection, TLayout, TProject, TSectionHeight, TTypePresets } from '@cntrl-site/sdk';
+import { Article, Section, Layout, Project, SectionHeight } from '@cntrl-site/sdk';
 import { CustomSectionRegistry } from './CustomSectionRegistry';
 
 interface SdkContextInitProps {
-  typePresets: TTypePresets;
-  project: TProject;
-  article: TArticle;
+  project: Project;
+  article: Article;
 }
 
 export class CntrlSdkContext {
-  private _typePresets?: TTypePresets;
-  private _layouts: TLayout[] = [];
-  private sectionHeightMap: Map<string, Record<string, TSectionHeight>> = new Map();
+  private _layouts: Layout[] = [];
+  private sectionHeightMap: Map<string, Record<string, SectionHeight>> = new Map();
   constructor(
     public readonly customItems: CustomItemRegistry,
     public readonly customSections: CustomSectionRegistry
   ) {}
 
-  async resolveSectionData(sections: TArticleSection[]): Promise<Record<string, any>> {
+  async resolveSectionData(sections: Section[]): Promise<Record<string, any>> {
     const resolvers = sections.map(section => {
       const resolver = section.name ? this.customSections.getResolver(section.name) : undefined;
       if (!resolver) return;
@@ -31,21 +29,16 @@ export class CntrlSdkContext {
     );
   }
 
-  init({ project, typePresets, article }: SdkContextInitProps) {
-    this.setTypePresets(typePresets);
+  init({ project, article }: SdkContextInitProps) {
     this.setLayouts(project.layouts);
     this.setSectionsHeight(article.sections);
   }
 
-  setTypePresets(typePresets: TTypePresets) {
-    this._typePresets = typePresets;
-  }
-
-  setLayouts(layouts: TLayout[]) {
+  setLayouts(layouts: Layout[]) {
     this._layouts = layouts;
   }
 
-  setSectionsHeight(sections: TArticleSection[]) {
+  setSectionsHeight(sections: Section[]) {
     for (const section of sections) {
       this.sectionHeightMap.set(section.id, section.height)
     }
@@ -56,12 +49,8 @@ export class CntrlSdkContext {
     return sectionHeightData;
   }
 
-  get layouts(): TLayout[] {
+  get layouts(): Layout[] {
     return this._layouts;
-  }
-
-  get typePresets(): TTypePresets | undefined {
-    return this._typePresets;
   }
 }
 

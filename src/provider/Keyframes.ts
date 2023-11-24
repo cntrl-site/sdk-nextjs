@@ -1,8 +1,8 @@
-import { TKeyframeAny } from '@cntrl-site/sdk';
+import { KeyframeAny } from '@cntrl-site/sdk';
 
 export class Keyframes {
   constructor(
-    private keyframes: TKeyframeAny[] = []
+    private keyframes: KeyframeAny[] = []
   ) {}
 
   getItemKeyframes(itemId: string) {

@@ -1,9 +1,10 @@
-import { KeyframeType, TKeyframeValueMap, CntrlColor } from '@cntrl-site/sdk';
+import { KeyframeType, KeyframeValueMap } from '@cntrl-site/sdk';
+import { CntrlColor } from '@cntrl-site/color';
 import { binSearchInsertAt, createInsert } from '../binSearchInsertAt';
 
 export interface AnimationData<T extends KeyframeType> {
   position: number;
-  value: TKeyframeValueMap[T];
+  value: KeyframeValueMap[T];
   type: T;
 }
 
@@ -31,9 +32,9 @@ export class Animator {
   }
 
   getDimensions(
-    values: TKeyframeValueMap[KeyframeType.Dimensions],
+    values: KeyframeValueMap[KeyframeType.Dimensions],
     pos: number
-  ): TKeyframeValueMap[KeyframeType.Dimensions] {
+  ): KeyframeValueMap[KeyframeType.Dimensions] {
     const keyframes = this.keyframesMap[KeyframeType.Dimensions];
     if (!keyframes || !keyframes.length) return values;
     if (keyframes.length === 1) {
@@ -51,9 +52,9 @@ export class Animator {
   }
 
   getPositions(
-    values: TKeyframeValueMap[KeyframeType.Position],
+    values: KeyframeValueMap[KeyframeType.Position],
     pos: number
-  ): TKeyframeValueMap[KeyframeType.Position] {
+  ): KeyframeValueMap[KeyframeType.Position] {
     const keyframes = this.keyframesMap[KeyframeType.Position];
     if (!keyframes || !keyframes.length) return values;
     if (keyframes.length === 1) {
@@ -71,9 +72,9 @@ export class Animator {
   }
 
   getColor(
-    values: TKeyframeValueMap[KeyframeType.Color],
+    values: KeyframeValueMap[KeyframeType.Color],
     pos: number
-  ): TKeyframeValueMap[KeyframeType.Color] {
+  ): KeyframeValueMap[KeyframeType.Color] {
     const keyframes = this.keyframesMap[KeyframeType.Color];
     if (!keyframes || !keyframes.length) return values;
     if (keyframes.length === 1) {
@@ -89,9 +90,9 @@ export class Animator {
   }
 
   getBorderColor(
-    values: TKeyframeValueMap[KeyframeType.BorderColor],
+    values: KeyframeValueMap[KeyframeType.BorderColor],
     pos: number
-  ): TKeyframeValueMap[KeyframeType.BorderColor] {
+  ): KeyframeValueMap[KeyframeType.BorderColor] {
     const keyframes = this.keyframesMap[KeyframeType.BorderColor];
     if (!keyframes || !keyframes.length) return values;
     if (keyframes.length === 1) {
@@ -107,9 +108,9 @@ export class Animator {
   }
 
   getRadius(
-    values: TKeyframeValueMap[KeyframeType.BorderRadius],
+    values: KeyframeValueMap[KeyframeType.BorderRadius],
     pos: number
-  ): TKeyframeValueMap[KeyframeType.BorderRadius] {
+  ): KeyframeValueMap[KeyframeType.BorderRadius] {
     const keyframes = this.keyframesMap[KeyframeType.BorderRadius];
     if (!keyframes || !keyframes.length) return values;
     if (keyframes.length === 1) {
@@ -125,9 +126,9 @@ export class Animator {
   }
 
   getBorderWidth(
-    values: TKeyframeValueMap[KeyframeType.BorderWidth],
+    values: KeyframeValueMap[KeyframeType.BorderWidth],
     pos: number
-  ): TKeyframeValueMap[KeyframeType.BorderWidth] {
+  ): KeyframeValueMap[KeyframeType.BorderWidth] {
     const keyframes = this.keyframesMap[KeyframeType.BorderWidth];
     if (!keyframes || !keyframes.length) return values;
     if (keyframes.length === 1) {
@@ -143,9 +144,9 @@ export class Animator {
   }
 
   getRotation(
-    values: TKeyframeValueMap[KeyframeType.Rotation],
+    values: KeyframeValueMap[KeyframeType.Rotation],
     pos: number
-  ): TKeyframeValueMap[KeyframeType.Rotation] {
+  ): KeyframeValueMap[KeyframeType.Rotation] {
     const keyframes = this.keyframesMap[KeyframeType.Rotation];
     if (!keyframes || !keyframes.length) return values;
     if (keyframes.length === 1) {
@@ -161,9 +162,9 @@ export class Animator {
   }
 
   getOpacity(
-    values: TKeyframeValueMap[KeyframeType.Opacity],
+    values: KeyframeValueMap[KeyframeType.Opacity],
     pos: number
-  ): TKeyframeValueMap[KeyframeType.Opacity] {
+  ): KeyframeValueMap[KeyframeType.Opacity] {
     const keyframes = this.keyframesMap[KeyframeType.Opacity];
     if (!keyframes || !keyframes.length) return values;
     if (keyframes.length === 1) {
@@ -179,9 +180,9 @@ export class Animator {
   }
 
   getScale(
-    values: TKeyframeValueMap[KeyframeType.Scale],
+    values: KeyframeValueMap[KeyframeType.Scale],
     pos: number
-  ): TKeyframeValueMap[KeyframeType.Scale] {
+  ): KeyframeValueMap[KeyframeType.Scale] {
     const keyframes = this.keyframesMap[KeyframeType.Scale];
     if (!keyframes || !keyframes.length) return values;
     if (keyframes.length === 1) {
@@ -197,9 +198,9 @@ export class Animator {
   }
 
   getBlur(
-    values: TKeyframeValueMap[KeyframeType.Blur],
+    values: KeyframeValueMap[KeyframeType.Blur],
     pos: number
-  ): TKeyframeValueMap[KeyframeType.Blur] {
+  ): KeyframeValueMap[KeyframeType.Blur] {
     const keyframes = this.keyframesMap[KeyframeType.Blur];
     if (!keyframes || !keyframes.length) return values;
     if (keyframes.length === 1) {
@@ -215,9 +216,9 @@ export class Animator {
   }
 
   getBackdropBlur(
-    values: TKeyframeValueMap[KeyframeType.BackdropBlur],
+    values: KeyframeValueMap[KeyframeType.BackdropBlur],
     pos: number
-  ): TKeyframeValueMap[KeyframeType.BackdropBlur] {
+  ): KeyframeValueMap[KeyframeType.BackdropBlur] {
     const keyframes = this.keyframesMap[KeyframeType.BackdropBlur];
     if (!keyframes || !keyframes.length) return values;
     if (keyframes.length === 1) {
@@ -233,9 +234,9 @@ export class Animator {
   }
 
   getTextColor(
-    values: TKeyframeValueMap[KeyframeType.TextColor],
+    values: KeyframeValueMap[KeyframeType.TextColor],
     pos: number
-  ): TKeyframeValueMap[KeyframeType.TextColor] {
+  ): KeyframeValueMap[KeyframeType.TextColor] {
     const keyframes = this.keyframesMap[KeyframeType.TextColor];
     if (!keyframes || !keyframes.length) return values;
     if (keyframes.length === 1) {
@@ -251,9 +252,9 @@ export class Animator {
   }
 
   getLetterSpacing(
-    values: TKeyframeValueMap[KeyframeType.LetterSpacing],
+    values: KeyframeValueMap[KeyframeType.LetterSpacing],
     pos: number
-  ): TKeyframeValueMap[KeyframeType.LetterSpacing] {
+  ): KeyframeValueMap[KeyframeType.LetterSpacing] {
     const keyframes = this.keyframesMap[KeyframeType.LetterSpacing];
     if (!keyframes || !keyframes.length) return values;
     if (keyframes.length === 1) {
@@ -276,9 +277,9 @@ export class Animator {
   }
 
   getWordSpacing(
-    values: TKeyframeValueMap[KeyframeType.WordSpacing],
+    values: KeyframeValueMap[KeyframeType.WordSpacing],
     pos: number
-  ): TKeyframeValueMap[KeyframeType.WordSpacing] {
+  ): KeyframeValueMap[KeyframeType.WordSpacing] {
     const keyframes = this.keyframesMap[KeyframeType.WordSpacing];
     if (!keyframes || !keyframes.length) return values;
     if (keyframes.length === 1) {

@@ -1,13 +1,14 @@
 import { ReactElement, ReactNode } from 'react';
+import { CntrlColor } from '@cntrl-site/color';
 import {
-  CntrlColor,
   getLayoutMediaQuery,
-  RichText,
   TextTransform,
-  TLayout,
-  TRichTextItem,
+  Layout,
+  RichTextItem,
   VerticalAlign,
-  TextAlign
+  TextAlign,
+  RichTextStyle,
+  RichTextEntity
 } from '@cntrl-site/sdk';
 import { LinkWrapper } from '../../components/LinkWrapper';
 import { getFontFamilyValue } from '../getFontFamilyValue';
@@ -38,8 +39,8 @@ export const FontStyles: Record<string, Record<string, string>> = {
 
 export class RichTextConverter {
   toHtml(
-    richText: TRichTextItem,
-    layouts: TLayout[]
+    richText: RichTextItem,
+    layouts: Layout[]
   ): [ReactNode[], string] {
     const { text, blocks = [] } = richText.commonParams;
     const root: ReactElement[] = [];
@@ -175,7 +176,7 @@ export class RichTextConverter {
     return ranges.map(r => `${r.start},${r.end}`).join(' ');
   }
 
-  private normalizeStyles(styles: RichText.Style[], entities: RichText.Entity[]): StyleGroup[] | undefined {
+  private normalizeStyles(styles: RichTextStyle[], entities: RichTextEntity[]): StyleGroup[] | undefined {
     const styleGroups: StyleGroup[] = [];
     const dividers = [...styles, ...entities].reduce((ds, s) => {
       ds.add(s.start);
@@ -199,7 +200,7 @@ export class RichTextConverter {
     return styleGroups;
   }
 
-  private groupEntities(entities: RichText.Entity[], styleGroups?: StyleGroup[]): EntitiesGroup[] | undefined {
+  private groupEntities(entities: RichTextEntity[], styleGroups?: StyleGroup[]): EntitiesGroup[] | undefined {
     const entitiesGroups: EntitiesGroup[] = [];
     if (!entities.length && !styleGroups) return;
     if (!styleGroups || styleGroups.length === 0) {

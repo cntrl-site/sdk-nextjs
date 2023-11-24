@@ -1,8 +1,8 @@
-import { ScaleAnchor, TArticleItemAny } from '@cntrl-site/sdk';
+import { ScaleAnchor, ItemAny } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../common/useKeyframeValue';
 import { useLayoutContext } from './useLayoutContext';
 
-export const useItemScale = (item: TArticleItemAny, sectionId: string) => {
+export const useItemScale = (item: ItemAny, sectionId: string) => {
   const layoutId = useLayoutContext();
   const { scale } = useKeyframeValue(
     item,

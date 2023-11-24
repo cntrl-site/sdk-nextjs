@@ -3,8 +3,8 @@ import JSXStyle from 'styled-jsx/style';
 import {
   getLayoutMediaQuery,
   getLayoutStyles,
-  TArticleSection,
-  TSectionHeight,
+  Section as TSection,
+  SectionHeight,
   SectionHeightMode
 } from '@cntrl-site/sdk';
 import { useCntrlContext } from '../provider/useCntrlContext';
@@ -14,7 +14,7 @@ import { useSectionRegistry } from '../utils/ArticleRectManager/useSectionRegist
 type SectionChild = ReactElement<any, any>;
 
 interface Props {
-  section: TArticleSection;
+  section: TSection;
   children: SectionChild[];
   data?: any;
 }
@@ -75,7 +75,7 @@ export const Section: FC<Props> = ({ section, data, children }) => {
   );
 };
 
-export function getSectionHeight(heightData: TSectionHeight): string {
+export function getSectionHeight(heightData: SectionHeight): string {
   const { units, vhUnits, mode } = heightData;
   if (mode === SectionHeightMode.ViewportHeightUnits) return `${vhUnits}vh`;
   if (mode === SectionHeightMode.ControlUnits) return `${units * 100}vw`;

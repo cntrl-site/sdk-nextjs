@@ -1,10 +1,10 @@
 import { useKeyframeValue } from '../../common/useKeyframeValue';
-import { TRichTextItem } from '@cntrl-site/sdk';
+import { RichTextItem } from '@cntrl-site/sdk';
 import { useLayoutContext } from '../useLayoutContext';
 
 const DEFAULT_COLOR = 'rgba(0, 0, 0, 1)';
 
-export const useRichTextItemValues = (item: TRichTextItem, sectionId: string) => {
+export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => {
   const layoutId = useLayoutContext();
   const { angle } = useKeyframeValue(
     item,

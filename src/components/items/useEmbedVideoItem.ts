@@ -1,8 +1,8 @@
-import { TVimeoEmbedItem, TYoutubeEmbedItem } from '@cntrl-site/core';
+import { VimeoEmbedItem, YoutubeEmbedItem } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../../common/useKeyframeValue';
 import { useLayoutContext } from '../useLayoutContext';
 
-export const useEmbedVideoItem = (item: TVimeoEmbedItem | TYoutubeEmbedItem, sectionId: string) => {
+export const useEmbedVideoItem = (item: VimeoEmbedItem | YoutubeEmbedItem, sectionId: string) => {
   const layoutId = useLayoutContext();
   const radius = useKeyframeValue(
     item,

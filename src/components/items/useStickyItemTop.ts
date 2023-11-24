@@ -1,8 +1,8 @@
-import { TArticleItemAny } from '@cntrl-site/sdk';
+import { ItemAny } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../../common/useKeyframeValue';
 import { useLayoutContext } from '../useLayoutContext';
 
-export function useStickyItemTop(item: TArticleItemAny, sectionHeightMap: Record<string, string>, sectionId: string) {
+export function useStickyItemTop(item: ItemAny, sectionHeightMap: Record<string, string>, sectionId: string) {
   const layoutId = useLayoutContext();
   const { top } = useKeyframeValue<{ top: number; left: number }>(
     item,

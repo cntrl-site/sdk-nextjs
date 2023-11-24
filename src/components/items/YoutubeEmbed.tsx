@@ -1,12 +1,11 @@
 import { FC, useEffect, useId, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
-import { TYoutubeEmbedItem } from '@cntrl-site/core';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { getYoutubeId } from '../../utils/getValidYoutubeUrl';
 import { useEmbedVideoItem } from './useEmbedVideoItem';
 import { useItemAngle } from '../useItemAngle';
-import { ArticleItemType, getLayoutStyles } from '@cntrl-site/sdk';
+import { ArticleItemType, getLayoutStyles, YoutubeEmbedItem as TYoutubeEmbedItem } from '@cntrl-site/sdk';
 import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useYouTubeIframeApi } from '../../utils/Youtube/useYouTubeIframeApi';

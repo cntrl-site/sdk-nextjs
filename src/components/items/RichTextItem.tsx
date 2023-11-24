@@ -1,5 +1,6 @@
 import { FC, useId, useMemo, useState } from 'react';
-import { ArticleItemType, CntrlColor, getLayoutStyles, TRichTextItem } from '@cntrl-site/sdk';
+import { CntrlColor } from '@cntrl-site/color';
+import { ArticleItemType, getLayoutStyles, RichTextItem as TRichTextItem } from '@cntrl-site/sdk';
 import JSXStyle from 'styled-jsx/style';
 import { ItemProps } from '../Item';
 import { useRichTextItem } from './useRichTextItem';

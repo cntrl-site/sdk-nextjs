@@ -1,12 +1,11 @@
 import { FC, useId, useMemo, useState } from 'react';
 import Player from '@vimeo/player';
 import JSXStyle from 'styled-jsx/style';
-import { TVimeoEmbedItem } from '@cntrl-site/core';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useEmbedVideoItem } from './useEmbedVideoItem';
 import { useItemAngle } from '../useItemAngle';
-import { ArticleItemType, getLayoutStyles } from '@cntrl-site/sdk';
+import { ArticleItemType, getLayoutStyles, VimeoEmbedItem as TVimeoEmbedItem } from '@cntrl-site/sdk';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
 import { useRegisterResize } from "../../common/useRegisterResize";

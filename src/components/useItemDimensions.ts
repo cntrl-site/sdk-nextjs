@@ -1,4 +1,4 @@
-import { TArticleItemAny } from '@cntrl-site/sdk';
+import { ItemAny } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../common/useKeyframeValue';
 import { useLayoutContext } from './useLayoutContext';
 
@@ -11,7 +11,7 @@ const defaultArea = {
   zIndex: 0
 };
 
-export const useItemDimensions = (item: TArticleItemAny, sectionId: string) => {
+export const useItemDimensions = (item: ItemAny, sectionId: string) => {
   const layoutId = useLayoutContext();
   const { width, height } = useKeyframeValue<{ width: number; height: number }>(
     item,
