@@ -5,6 +5,7 @@ import {
   getLayoutStyles,
   Item as TItem,
   ItemAny,
+  PositionType
 } from '@cntrl-site/sdk';
 import { RectangleItem } from './items/RectangleItem';
 import { ImageItem } from './items/ImageItem';
@@ -115,9 +116,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight }) =
   const isRichText = isItemType(item, ArticleItemType.RichText);
 
   if (!layout) return null;
-
   const styles = {
-    top: `${getAnchoredItemTop(stickyTop, sectionHeight[layout], item.area[layout].anchorSide)}`,
+    top: stickyTop,
     height: isRichText && itemHeight ? `${itemHeight * 100}vw` : 'unset'
   };
 
@@ -171,7 +171,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight }) =
               --webkit-backface-visibility: hidden;
             }
             .item-wrapper-${item.id} {
-              position: absolute;
+              position: ${area.positionType === PositionType.ScreenBased ? 'fixed': 'absolute'};
               z-index: ${area.zIndex};
               -webkit-transform: translate3d(0, 0, 0);
               transform: translate3d(0, 0, 0);
