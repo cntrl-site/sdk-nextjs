@@ -21,9 +21,14 @@ export const CustomItem: FC<ItemProps<TCustomItem>> = ({ item, onResize }) => {
           return (`
             .custom-component-${item.id} {
               transition: ${getTransitions<ArticleItemType.Custom>(['angle'], hoverParams)};
+              height: 100%;
+              width: 100%;
+              position: absolute;
+              left: 0;
+              top: 0;
             }
             .custom-component-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.Custom>(['angle'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.Custom>(['angle'], hoverParams)};
             }
           `);
         })}`}
