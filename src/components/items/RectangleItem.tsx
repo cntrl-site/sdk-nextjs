@@ -35,8 +35,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
             transform: `rotate(${angle}deg)`,
             filter: blur !== 0 ? `blur(${blur * 100}vw)` : 'unset',
             backdropFilter: backdropFilterValue,
-            // @ts-ignore
-            '-webkit-backdrop-filter': backdropFilterValue,
+            WebkitBackdropFilter: backdropFilterValue,
           }}
         />
         <JSXStyle id={id}>{`

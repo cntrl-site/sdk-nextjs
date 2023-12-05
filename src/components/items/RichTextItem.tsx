@@ -9,6 +9,7 @@ import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverSty
 import { useRichTextItemValues } from './useRichTextItemValues';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { getFontFamilyValue } from '../../utils/getFontFamilyValue';
+import { useExemplary } from '../../common/useExemplary';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize }) => {
   const [content, styles] = useRichTextItem(item);
@@ -17,6 +18,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   const { layouts } = useCntrlContext();
   const { angle, blur, wordSpacing, letterSpacing, color } = useRichTextItemValues(item, sectionId);
   const textColor = useMemo(() => CntrlColor.parse(color), [color]);
+  const exemplary = useExemplary();
   useRegisterResize(ref, onResize);
 
   return (
@@ -26,9 +28,9 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
         className={`rich-text-wrapper-${item.id}`}
         style={{
           transform: `rotate(${angle}deg)`,
-          filter: `blur(${blur * 100}vw)`,
-          letterSpacing: `${letterSpacing * 100}vw`,
-          wordSpacing: `${wordSpacing * 100}vw`,
+          filter: `blur(${blur * exemplary}px)`,
+          letterSpacing: `${letterSpacing * exemplary}px`,
+          wordSpacing: `${wordSpacing * exemplary}px`,
           color: `${textColor.toCss()}`
         }}
       >
