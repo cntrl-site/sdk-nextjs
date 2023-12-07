@@ -117,7 +117,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight }) =
 
   if (!layout) return null;
   const styles = {
-    top: stickyTop,
+    top: `${stickyTop * 100}vw`,
     height: isRichText && itemHeight ? `${itemHeight * 100}vw` : 'unset'
   };
 
