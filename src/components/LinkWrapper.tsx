@@ -3,14 +3,15 @@ import React, { ReactElement, ReactNode } from 'react';
 interface Props {
   url?: string;
   children: ReactElement | ReactNode[];
+  target?: string;
 }
 
-export const LinkWrapper: React.FC<Props> = ({ url, children }) => {
+export const LinkWrapper: React.FC<Props> = ({ url, children, target }) => {
   const validUrl = url && buildValidUrl(url);
   return url ? (
     <a
       href={validUrl}
-      target={url.startsWith('/') || url.startsWith('#') ? '_self' : '_blank'}
+      target={target}
       rel="noreferrer"
     >
       {children}

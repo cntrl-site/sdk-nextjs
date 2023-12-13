@@ -19,7 +19,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
   return (
-    <LinkWrapper url={item.link?.url}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
         className={`video-wrapper-${item.id}`}
         ref={setRef}

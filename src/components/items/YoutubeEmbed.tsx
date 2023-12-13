@@ -52,7 +52,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   }, [YT, div]);
 
   return (
-    <LinkWrapper url={item.link?.url}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
         className={`embed-youtube-video-wrapper-${item.id}`}
         onMouseEnter={() => {

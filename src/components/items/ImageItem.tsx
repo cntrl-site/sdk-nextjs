@@ -19,7 +19,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
   return (
-    <LinkWrapper url={item.link?.url}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <>
         <div
           className={`image-wrapper-${item.id}`}

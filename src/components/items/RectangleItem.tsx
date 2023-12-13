@@ -22,7 +22,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
   const backdropFilterValue = backdropBlur !== 0 ? `blur(${backdropBlur * 100}vw)`: 'unset';
 
   return (
-    <LinkWrapper url={item.link?.url}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <>
         <div
           className={`rectangle-${item.id}`}
