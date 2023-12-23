@@ -1,4 +1,4 @@
-import { FC, useId, useMemo, useState } from 'react';
+import { FC, useId, useMemo, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { CntrlColor } from '@cntrl-site/color';
 import { ArticleItemType, getLayoutStyles, ImageItem as TImageItem } from '@cntrl-site/sdk';
@@ -9,6 +9,8 @@ import { useItemAngle } from '../useItemAngle';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
 import { useRegisterResize } from "../../common/useRegisterResize";
+import { useImageFx } from '../../utils/effects/useImageFx';
+import { useElementRect } from '../../utils/useElementRect';
 
 export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize }) => {
   const id = useId();
@@ -18,6 +20,20 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const borderColor = useMemo(() => CntrlColor.parse(strokeColor), [strokeColor]);
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
+  const { url, hasGLEffect, fragmentShader } = item.commonParams;
+  const fxCanvas = useRef<HTMLCanvasElement | null>(null);
+  useImageFx(fxCanvas.current, hasGLEffect ?? false, {
+    imageUrl: url,
+    fragmentShader
+  });
+  const rect = useElementRect(ref);
+  const rectWidth = Math.floor(rect?.width ?? 0);
+  const rectHeight = Math.floor(rect?.height ?? 0);
+  const inlineStyles = {
+    borderRadius: `${radius * 100}vw`,
+    borderWidth: `${strokeWidth * 100}vw`,
+    borderColor: `${borderColor.toCss()}`
+  };
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <>
@@ -30,15 +46,23 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
             filter: `blur(${blur * 100}vw)`
           }}
         >
-          <img
-            className={`image image-${item.id}`}
-            style={{
-              borderRadius: `${radius * 100}vw`,
-              borderWidth: `${strokeWidth * 100}vw`,
-              borderColor: `${borderColor.toCss()}`
-            }}
-            src={item.commonParams.url}
-          />
+          {item.commonParams.hasGLEffect ? (
+            <canvas
+              style={inlineStyles}
+              ref={fxCanvas}
+              className="img-canvas"
+              width={rectWidth}
+              height={rectHeight}
+            />
+          ) : (
+            <img
+              alt=""
+              className={`image image-${item.id}`}
+              style={inlineStyles}
+              src={item.commonParams.url}
+            />
+          )}
+
         </div>
         <JSXStyle id={id}>{`
         @supports not (color: oklch(42% 0.3 90 / 1)) {
@@ -61,6 +85,15 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
           pointer-events: none;
           border-style: solid;
           overflow: hidden;
+          box-sizing: border-box;
+        }
+        .img-canvas {
+          border: solid;
+          width: 100%;
+          height: 100%;
+          pointer-events: none;
+          border-width: 0;
+          box-sizing: border-box;
         }
         ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
           return (`
