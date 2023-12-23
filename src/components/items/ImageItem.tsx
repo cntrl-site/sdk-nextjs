@@ -85,6 +85,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
           pointer-events: none;
           border-style: solid;
           overflow: hidden;
+          box-sizing: border-box;
         }
         .img-canvas {
           border: solid;
@@ -92,6 +93,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
           height: 100%;
           pointer-events: none;
           border-width: 0;
+          box-sizing: border-box;
         }
         ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
           return (`
