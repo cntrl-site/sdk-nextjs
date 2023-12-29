@@ -7,6 +7,9 @@ interface FxParams {
   fragmentShader?: string;
 }
 
+const PATTERN_URL = 'https://cdn.cntrl.site/client-app-files/texture2.png';
+const PATTERN_2_URL = 'https://cdn.cntrl.site/client-app-files/bayer16.png';
+
 export function useImageFx(
   canvas: HTMLCanvasElement | null | undefined,
   enabled: boolean,
@@ -18,7 +21,12 @@ export function useImageFx(
   const cursor = useRef<[number, number]>([0, 0]);
   const imageFx = useMemo<ImageEffect | undefined>(() => {
     if (!imageUrl) return undefined;
-    return new ImageEffect(imageUrl, fragmentShader!, { time: 0, cursor: cursor.current });
+    return new ImageEffect(
+      imageUrl,
+      PATTERN_URL,
+      PATTERN_2_URL,
+      fragmentShader!,
+      { time: 0, cursor: cursor.current });
   }, [imageUrl, fragmentShader]);
 
   useEffect(() => {
