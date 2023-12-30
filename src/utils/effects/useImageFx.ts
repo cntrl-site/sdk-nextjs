@@ -2,9 +2,16 @@ import { useEffect, useMemo, useRef } from 'react';
 import { ImageEffect } from '@cntrl-site/effects';
 import { rangeMap } from '../rangeMap';
 
+export interface FXCursor {
+  type: 'mouse' | 'manual';
+  x: number;
+  y: number;
+}
+
 interface FxParams {
   imageUrl?: string;
   fragmentShader?: string;
+  cursor?: FXCursor;
 }
 
 const PATTERN_URL = 'https://cdn.cntrl.site/client-app-files/texture2.png';
@@ -15,22 +22,27 @@ export function useImageFx(
   enabled: boolean,
   {
     imageUrl,
-    fragmentShader
+    fragmentShader,
+    cursor
   }: FxParams
 ): void {
-  const cursor = useRef<[number, number]>([0, 0]);
+  const mousePos = useRef<[number, number]>([0.0, 0.0]);
   const imageFx = useMemo<ImageEffect | undefined>(() => {
-    if (!imageUrl) return undefined;
+    if (!imageUrl || !cursor) return undefined;
+    const { type, x, y } = cursor;
     return new ImageEffect(
       imageUrl,
       PATTERN_URL,
       PATTERN_2_URL,
       fragmentShader!,
-      { time: 0, cursor: cursor.current });
+      {
+        time: 0,
+        cursor: type === 'mouse' ? mousePos.current : [x, y]
+      });
   }, [imageUrl, fragmentShader]);
 
   useEffect(() => {
-    if (!canvas || !imageFx) return;
+    if (!cursor || cursor.type !== 'mouse' || !canvas || !imageFx) return;
     const handleMouseMove = (evt: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       const x = rangeMap(evt.clientX, rect.left, rect.left + rect.width, 0, 1);
@@ -41,7 +53,7 @@ export function useImageFx(
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [canvas, imageFx]);
+  }, [canvas, imageFx, cursor?.type]);
 
   useEffect(() => {
     const gl = canvas?.getContext('webgl2');
