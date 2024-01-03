@@ -45,8 +45,8 @@ export function useImageFx(
     if (!cursor || cursor.type !== 'mouse' || !canvas || !imageFx) return;
     const handleMouseMove = (evt: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
-      const x = rangeMap(evt.clientX, rect.left, rect.left + rect.width, 0, 1);
-      const y = rangeMap(evt.clientY, rect.top, rect.top + rect.height, 0, 1);
+      const x = rangeMap(evt.clientX, rect.left, rect.left + rect.width, 0, 1, true);
+      const y = rangeMap(evt.clientY, rect.top, rect.top + rect.height, 0, 1, true);
       imageFx.setParam('cursor', [x, y]);
     };
     window.addEventListener('mousemove', handleMouseMove, { capture: true, passive: true });
