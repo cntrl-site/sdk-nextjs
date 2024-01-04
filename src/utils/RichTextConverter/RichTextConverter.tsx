@@ -201,8 +201,10 @@ export class RichTextConverter {
     return styleGroups;
   }
 
-  private groupEntities(entities: RichTextEntity[], styleGroups?: StyleGroup[]): EntitiesGroup[] | undefined {
+  private groupEntities(entitiesList: RichTextEntity[], styleGroups?: StyleGroup[]): EntitiesGroup[] | undefined {
     const entitiesGroups: EntitiesGroup[] = [];
+    // some entities may have no data, need to filter them out (case with deleting a section/page that was linked to)
+    const entities = entitiesList.filter(e => e.hasOwnProperty('data'));
     if (!entities.length && !styleGroups) return;
     if (!styleGroups || styleGroups.length === 0) {
       const dividersSet = entities.reduce((ds, s) => {
