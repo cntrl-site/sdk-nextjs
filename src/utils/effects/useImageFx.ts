@@ -58,6 +58,8 @@ export function useImageFx(
   useEffect(() => {
     const gl = canvas?.getContext('webgl2');
     if (!enabled || !canvas || !gl || !imageFx) return;
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     let running = false;
     let time = 0;
     let frame: number;
