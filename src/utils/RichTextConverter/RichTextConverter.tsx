@@ -6,7 +6,6 @@ import {
   Layout,
   RichTextItem,
   VerticalAlign,
-  TextAlign,
   RichTextStyle,
   RichTextEntity
 } from '@cntrl-site/sdk';
@@ -88,12 +87,11 @@ export class RichTextConverter {
         const kids: ReactNode[] = [];
         layouts.forEach(l => {
           const ta = richText.layoutParams[l.id].textAlign;
-          const whiteSpace = ta === TextAlign.Right ? 'normal' : 'pre-wrap';
           styleRules[l.id].push(`
             .${blockClass} {
               display: ${group.some(g => g.layout === l.id) ? 'block' : 'none'};
               text-align: ${ta};
-              white-space: ${whiteSpace};
+              white-space: pre-wrap;
               overflow-wrap: break-word;
             }
           `);
