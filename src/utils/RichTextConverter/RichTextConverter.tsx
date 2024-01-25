@@ -219,7 +219,7 @@ export class RichTextConverter {
           stylesGroup: [],
           start,
           end,
-          ...(entity && { link: entity.data.url, target: entity.data.target })
+          ...(entity && { link: entity.data?.url ?? '', target: entity.data?.target ?? '_self' })
         });
       }
       return entitiesGroups;
