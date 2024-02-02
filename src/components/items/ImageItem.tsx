@@ -24,7 +24,8 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const fxCanvas = useRef<HTMLCanvasElement | null>(null);
   useImageFx(fxCanvas.current, hasGLEffect ?? false, {
     imageUrl: url,
-    fragmentShader
+    fragmentShader,
+    cursor: item.commonParams.FXCursor
   });
   const rect = useElementRect(ref);
   const rectWidth = Math.floor(rect?.width ?? 0);

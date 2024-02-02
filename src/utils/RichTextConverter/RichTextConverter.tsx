@@ -6,7 +6,6 @@ import {
   Layout,
   RichTextItem,
   VerticalAlign,
-  TextAlign,
   RichTextStyle,
   RichTextEntity
 } from '@cntrl-site/sdk';
@@ -88,12 +87,11 @@ export class RichTextConverter {
         const kids: ReactNode[] = [];
         layouts.forEach(l => {
           const ta = richText.layoutParams[l.id].textAlign;
-          const whiteSpace = ta === TextAlign.Right ? 'normal' : 'pre-wrap';
           styleRules[l.id].push(`
             .${blockClass} {
               display: ${group.some(g => g.layout === l.id) ? 'block' : 'none'};
               text-align: ${ta};
-              white-space: ${whiteSpace};
+              white-space: pre-wrap;
               overflow-wrap: break-word;
             }
           `);
@@ -201,8 +199,10 @@ export class RichTextConverter {
     return styleGroups;
   }
 
-  private groupEntities(entities: RichTextEntity[], styleGroups?: StyleGroup[]): EntitiesGroup[] | undefined {
+  private groupEntities(entitiesList: RichTextEntity[], styleGroups?: StyleGroup[]): EntitiesGroup[] | undefined {
     const entitiesGroups: EntitiesGroup[] = [];
+    // some entities may have no data, need to filter them out (case with deleting a section/page that was linked to)
+    const entities = entitiesList.filter(e => e.hasOwnProperty('data'));
     if (!entities.length && !styleGroups) return;
     if (!styleGroups || styleGroups.length === 0) {
       const dividersSet = entities.reduce((ds, s) => {
@@ -219,7 +219,7 @@ export class RichTextConverter {
           stylesGroup: [],
           start,
           end,
-          ...(entity && { link: entity.data.url, target: entity.data.target })
+          ...(entity && { link: entity.data?.url ?? '', target: entity.data?.target ?? '_self' })
         });
       }
       return entitiesGroups;
