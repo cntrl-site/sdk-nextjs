@@ -45,7 +45,8 @@ const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
   [ArticleItemType.RichText]: RichTextItem,
   [ArticleItemType.YoutubeEmbed]: YoutubeEmbedItem,
   [ArticleItemType.VimeoEmbed]: VimeoEmbedItem,
-  [ArticleItemType.Custom]: CustomItem
+  [ArticleItemType.Custom]: CustomItem,
+  [ArticleItemType.Group]: () => null
 };
 
 interface RTWrapperProps {
