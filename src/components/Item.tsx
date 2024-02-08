@@ -27,11 +27,13 @@ import { getAnchoredItemTop } from '../utils/getAnchoredItemTop';
 import { useLayoutContext } from './useLayoutContext';
 import { ArticleRectContext } from "../provider/ArticleRectContext";
 import { useExemplary } from "../common/useExemplary";
+import { GroupItem } from './items/GroupItem';
 
 export interface ItemProps<I extends ItemAny> {
   item: I;
   sectionId: string;
   onResize?: (height: number) => void;
+  articleHeight: number;
 }
 
 export interface ItemWrapperProps extends ItemProps<ItemAny> {
@@ -46,7 +48,7 @@ const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
   [ArticleItemType.YoutubeEmbed]: YoutubeEmbedItem,
   [ArticleItemType.VimeoEmbed]: VimeoEmbedItem,
   [ArticleItemType.Custom]: CustomItem,
-  [ArticleItemType.Group]: () => null
+  [ArticleItemType.Group]: GroupItem
 };
 
 interface RTWrapperProps {
@@ -147,7 +149,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight }) =
               transformOrigin: ScaleAnchorMap[scaleAnchor]
             }}
           >
-            <ItemComponent item={item} sectionId={sectionId} onResize={handleItemResize} />
+            <ItemComponent item={item} sectionId={sectionId} onResize={handleItemResize} articleHeight={articleHeight} />
           </div>
         </RichTextWrapper>
       </div>
