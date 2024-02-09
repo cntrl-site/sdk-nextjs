@@ -12,6 +12,8 @@ interface FxParams {
   imageUrl?: string;
   fragmentShader?: string;
   cursor?: FXCursor;
+  // TODO use types from SDk
+  controls?: Record<string, number | [number, number]>;
 }
 
 const PATTERN_URL = 'https://cdn.cntrl.site/client-app-files/texture2.png';
@@ -23,7 +25,8 @@ export function useImageFx(
   {
     imageUrl,
     fragmentShader,
-    cursor
+    cursor,
+    controls
   }: FxParams
 ): void {
   const mousePos = useRef<[number, number]>([0.0, 0.0]);
@@ -37,7 +40,8 @@ export function useImageFx(
       fragmentShader!,
       {
         time: 0,
-        cursor: type === 'mouse' ? mousePos.current : [x, y]
+        cursor: type === 'mouse' ? mousePos.current : [x, y],
+        ...controls
       });
   }, [imageUrl, fragmentShader]);
 

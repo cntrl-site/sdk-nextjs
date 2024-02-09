@@ -12,6 +12,15 @@ import { useRegisterResize } from "../../common/useRegisterResize";
 import { useImageFx } from '../../utils/effects/useImageFx';
 import { useElementRect } from '../../utils/useElementRect';
 
+const baseVariables = `precision mediump float;
+uniform sampler2D u_image;
+uniform sampler2D u_pattern;
+uniform vec2 u_imgDimensions;
+uniform vec2 u_patternDimensions;
+uniform float u_time;
+uniform vec2 u_cursor;
+varying vec2 v_texCoord;`;
+
 export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
@@ -22,10 +31,21 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   useRegisterResize(ref, onResize);
   const { url, hasGLEffect, fragmentShader } = item.commonParams;
   const fxCanvas = useRef<HTMLCanvasElement | null>(null);
+  const controls = item.commonParams.FXControls ?? [];
+  const controlsVariables = controls.map((c) => `uniform ${c.type} ${c.shaderParam};`)
+      .join('\n');
+  const controlValues = controls.reduce<Record<string, ControlValue>>((acc, control) => {
+    acc[control.shaderParam] = control.value;
+    return acc;
+  }, {});
+  const fullShaderCode = `${baseVariables}\n${controlsVariables}\n${fragmentShader}`;
+  console.log('fullShaderCode', fullShaderCode);
+  console.log('controlValues', controlValues);
   useImageFx(fxCanvas.current, hasGLEffect ?? false, {
     imageUrl: url,
-    fragmentShader,
-    cursor: item.commonParams.FXCursor
+    fragmentShader: fullShaderCode,
+    cursor: item.commonParams.FXCursor,
+    controls: controlValues
   });
   const rect = useElementRect(ref);
   const rectWidth = Math.floor(rect?.width ?? 0);
@@ -117,3 +137,5 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
     </LinkWrapper>
   );
 };
+
+type ControlValue = number | [number, number];
