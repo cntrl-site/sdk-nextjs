@@ -39,8 +39,6 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
     return acc;
   }, {});
   const fullShaderCode = `${baseVariables}\n${controlsVariables}\n${fragmentShader}`;
-  console.log('fullShaderCode', fullShaderCode);
-  console.log('controlValues', controlValues);
   useImageFx(fxCanvas.current, hasGLEffect ?? false, {
     imageUrl: url,
     fragmentShader: fullShaderCode,
