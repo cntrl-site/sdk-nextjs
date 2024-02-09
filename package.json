@@ -1,6 +1,6 @@
 {
   "name": "@cntrl-site/sdk-nextjs",
-  "version": "0.22.0",
+  "version": "0.23.0",
   "description": "SDK for Next.js",
   "main": "lib/index.js",
   "types": "src/index.ts",
@@ -23,7 +23,7 @@
   "dependencies": {
     "@cntrl-site/color": "^1.0.0",
     "@cntrl-site/effects": "^1.0.5-1",
-    "@cntrl-site/sdk": "^1.5.5",
+    "@cntrl-site/sdk": "^1.6.0",
     "@types/vimeo__player": "^2.18.0",
     "@vimeo/player": "^2.20.1",
     "html-react-parser": "^3.0.1",
