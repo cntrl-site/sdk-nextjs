@@ -59,7 +59,6 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
                 font-family: ${getFontFamilyValue(layoutParams.typeFace)};
                 font-weight: ${layoutParams.fontWeight};
                 font-style: ${layoutParams.fontStyle ? layoutParams.fontStyle : 'normal'};
-                text-decoration: ${layoutParams.textDecoration};
                 vertical-align: ${layoutParams.verticalAlign};
                 font-variant: ${layoutParams.fontVariant};
                 color: ${color.toCss()};
