@@ -1,6 +1,7 @@
 import { ComponentType, FC, PropsWithChildren, useContext, useEffect, useId, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import {
+  AnchorSide,
   ArticleItemType,
   getLayoutStyles,
   Item as TItem,
@@ -76,7 +77,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight }) =
   const [wrapperHeight, setWrapperHeight] = useState<undefined | number>(undefined);
   const [itemHeight, setItemHeight] = useState<undefined | number>(undefined);
   const { scale, scaleAnchor } = useItemScale(item, sectionId);
-  const { top, left } = useItemPosition(item, sectionId);
+  const { top, left, bottom } = useItemPosition(item, sectionId);
   const sectionHeight = useSectionHeightData(sectionId);
   const stickyTop = useStickyItemTop(item, sectionHeight, sectionId);
   const { width, height } = useItemDimensions(item, sectionId);
@@ -128,7 +129,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight }) =
     <div
       className={`item-wrapper-${item.id}`}
       ref={itemWrapperRef}
-      style={isInitialRef.current ? {} : { top, left, ...(wrapperHeight !== undefined ? { height: `${wrapperHeight * 100}vw` } : {}) }}
+      style={isInitialRef.current ? {} : { top, left, bottom, ...(wrapperHeight !== undefined ? { height: `${wrapperHeight * 100}vw` } : {}) }}
     >
       <div
         suppressHydrationWarning={true}
@@ -156,6 +157,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight }) =
       <JSXStyle id={id}>{`
         ${getLayoutStyles(layouts, layoutValues, ([area, hidden, hoverParams, sticky, sectionHeight, layoutParams]) => {
           const sizingAxis = parseSizing(layoutParams.sizing);
+        const isScreenBasedBottom = area.positionType === PositionType.ScreenBased && area.anchorSide === AnchorSide.Bottom;
           return (`
             .item-${item.id} {
               position: ${sticky ? 'sticky' : 'absolute'};
@@ -179,7 +181,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight }) =
               -webkit-transform: translate3d(0, 0, 0);
               transform: translate3d(0, 0, 0);
               pointer-events: none;
-              top: ${getItemTopStyle(area.top, area.anchorSide)};
+              bottom: ${isScreenBasedBottom ? `${-area.top * 100}vw` : 'unset'};
+              top: ${isScreenBasedBottom ? 'unset' : getItemTopStyle(area.top, area.anchorSide)};
               left: ${area.left * 100}vw;
               transition: ${getTransitions(['left', 'top'], hoverParams)};
             }
