@@ -1,12 +1,14 @@
 import React, { FC, useContext, useEffect, useMemo, useState } from 'react';
-import { PlaybackVideoConverter } from '../utils/PlaybackVideoConverter/PlaybackVideoConverter';
+import { ScrollPlaybackVideoManager } from '../utils/PlaybackVideoConverter/ScrollPlaybackVideoManager';
 import { rangeMap } from '../utils/rangeMap';
 import { ArticleRectContext } from '../provider/ArticleRectContext';
+
+type PlaybackParams = { from: number, to: number };
 
 interface Props {
   sectionId: string;
   src: string;
-  playbackParams: { from: number, to: number } | null;
+  playbackParams: PlaybackParams | null;
   style?: React.CSSProperties;
   className: string;
 }
@@ -29,9 +31,9 @@ export const ScrollPlaybackVideo: FC<Props> = ({ sectionId, src, playbackParams,
     };
   }, [playbackParams?.from, playbackParams?.to]);
 
-  const scrollVideoManager = useMemo<PlaybackVideoConverter | null>(() => {
+  const scrollVideoManager = useMemo<ScrollPlaybackVideoManager | null>(() => {
     if (!containerElement) return null;
-    const manager = new PlaybackVideoConverter({
+    const manager = new ScrollPlaybackVideoManager({
       src,
       videoContainer: containerElement
     });
@@ -45,9 +47,8 @@ export const ScrollPlaybackVideo: FC<Props> = ({ sectionId, src, playbackParams,
   }, [scrollVideoManager]);
 
   useEffect(() => {
-    const percentage = time;
-    if (scrollVideoManager && percentage >= 0 && percentage <= 1) {
-      scrollVideoManager.setTargetTimePercent(percentage);
+    if (scrollVideoManager && time >= 0 && time <= 1) {
+      scrollVideoManager.setTargetTimePercent(time);
     }
   }, [time, scrollVideoManager]);
 

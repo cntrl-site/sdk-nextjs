@@ -38,23 +38,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
           overflow: hasScrollPlayback ? 'hidden' : 'auto'
         }}
       >
-        {!hasScrollPlayback ? (
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            loop
-            playsInline
-            className={`video video-${item.id}`}
-            style={{
-              borderRadius: `${radius * 100}vw`,
-              borderWidth: `${strokeWidth * 100}vw`,
-              borderColor: `${borderColor.toCss()}`
-            }}
-          >
-            <source src={item.commonParams.url} />
-          </video>
-        ) : (
+        {hasScrollPlayback ? (
           <ScrollPlaybackVideo
             sectionId={sectionId}
             src={item.commonParams.url}
@@ -63,11 +47,26 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
               borderRadius: `${radius * 100}vw`,
               borderWidth: `${strokeWidth * 100}vw`,
               borderColor: `${borderColor.toCss()}`,
-              position: 'absolute',
               display: 'flex'
             }}
             className={`video video-${item.id}`}
           />
+        ) : (
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className={`video video-${item.id}`}
+            style={{
+            borderRadius: `${radius * 100}vw`,
+            borderWidth: `${strokeWidth * 100}vw`,
+            borderColor: `${borderColor.toCss()}`
+        }}
+      >
+        <source src={item.commonParams.url} />
+      </video>
         )}
       </div>
       <JSXStyle id={id}>{`
@@ -115,7 +114,3 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
     </LinkWrapper>
   );
 };
-
-function toFixed(num: number) {
-  return Number(num.toFixed(5));
-}

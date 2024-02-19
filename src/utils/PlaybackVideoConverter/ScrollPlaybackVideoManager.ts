@@ -6,7 +6,7 @@ interface ScrollVideoOptions {
   videoContainer: HTMLElement | string;
 }
 
-export class PlaybackVideoConverter {
+export class ScrollPlaybackVideoManager {
   private container?: HTMLElement;
   private video?: HTMLVideoElement;
   private isSafari?: boolean;
