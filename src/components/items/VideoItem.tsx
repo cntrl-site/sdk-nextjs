@@ -46,10 +46,9 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
             style={{
               borderRadius: `${radius * 100}vw`,
               borderWidth: `${strokeWidth * 100}vw`,
-              borderColor: `${borderColor.toCss()}`,
-              display: 'flex'
+              borderColor: `${borderColor.toCss()}`
             }}
-            className={`video video-${item.id}`}
+            className={`video video-playback-wrapper video-${item.id}`}
           />
         ) : (
           <video
@@ -93,6 +92,10 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
         }
         .video-${item.id} {
           border-color: ${strokeColor};
+        }
+        .video-playback-wrapper {
+          display: flex;
+          justify-content: center;
         }
         ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
           return (`

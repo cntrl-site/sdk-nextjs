@@ -20,16 +20,12 @@ export const ScrollPlaybackVideo: FC<Props> = ({ sectionId, src, playbackParams,
 
   useEffect(() => {
     if (!playbackParams || !articleRectObserver) return;
-    const onScroll = () => {
+    return articleRectObserver.on('scroll', () => {
       const scrollPos = articleRectObserver.getSectionScroll(sectionId);
       const time = rangeMap(scrollPos, playbackParams.from, playbackParams.to, 0, 1, true);
       setTime(toFixed(time));
-    };
-    window.addEventListener('scroll', onScroll);
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-    };
-  }, [playbackParams?.from, playbackParams?.to]);
+    })
+  }, [playbackParams?.from, playbackParams?.to, time]);
 
   const scrollVideoManager = useMemo<ScrollPlaybackVideoManager | null>(() => {
     if (!containerElement) return null;

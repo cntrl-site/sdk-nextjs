@@ -15,11 +15,10 @@ export class ScrollPlaybackVideoManager {
   private canvas: HTMLCanvasElement | null = null;
   private context: CanvasRenderingContext2D | null = null;
   private frames: ImageBitmap[] = [];
-  private frameRate = 0.05;
+  private frameRate = 0;
   private transitioning = false;
-  private trackScroll: boolean = true;
   private debug: boolean = false;
-  private frameThreshold: number = 0.05;
+  private frameThreshold: number = 0;
   private transitionSpeed: number = 10;
   private useWebCodecs: boolean = true;
   private resizeObserver: ResizeObserver;
@@ -59,13 +58,7 @@ export class ScrollPlaybackVideoManager {
     const browserEngine = new UAParser().getEngine();
     this.isSafari = browserEngine.name === 'WebKit';
     if (this.debug && this.isSafari) console.info('Safari browser detected');
-
-    if (this.trackScroll) {
-      window.addEventListener('scroll', () => this.updateScrollPercentage);
-      this.video.addEventListener('loadedmetadata', () => this.updateScrollPercentage(true), { once: true });
-    } else {
-      this.video.addEventListener('loadedmetadata', () => this.setTargetTimePercent(0, true), { once: true });
-    }
+    this.video.addEventListener('loadedmetadata', () => this.setTargetTimePercent(0, true), { once: true });
     this.video.addEventListener('progress', this.resize);
     this.decodeVideo();
   }
@@ -87,14 +80,6 @@ export class ScrollPlaybackVideoManager {
         el.style.width = 'auto';
       }
     }
-  }
-
-  private updateScrollPercentage(jump: boolean) {
-    if (!this.container) return;
-    const containerBoundingClientRect = (this.container.parentNode as Element).getBoundingClientRect();
-    const scrollPercent = -containerBoundingClientRect.top / (containerBoundingClientRect.height - window.innerHeight);
-    if (this.debug) console.info('ScrollVideo scrolled to', scrollPercent);
-    this.setTargetTimePercent(scrollPercent, jump);
   }
 
   private resize = () => {
@@ -125,7 +110,6 @@ export class ScrollPlaybackVideoManager {
         this.canvas = document.createElement('canvas');
         this.context = this.canvas.getContext('2d')!;
         this.video.style.display = 'none';
-        console.log(this.canvas);
         this.container.appendChild(this.canvas);
         this.paintCanvasFrame(Math.floor(this.currentTime * this.frameRate));
       }).catch(() => {
@@ -159,8 +143,8 @@ export class ScrollPlaybackVideoManager {
       this.transitioning = false;
       return;
     }
-      // Make sure we don't go out of time bounds
-      if (this.targetTime > this.video.duration) {
+    // Make sure we don't go out of time bounds
+    if (this.targetTime > this.video.duration) {
       this.targetTime = this.video.duration;
     }
     if (this.targetTime < 0) {
@@ -172,7 +156,7 @@ export class ScrollPlaybackVideoManager {
       // Update currentTime and paint the closest frame
       this.currentTime += transitionForward / (256 / this.transitionSpeed);
       // If jump, we go directly to the frame
-      if (jump) { this.currentTime = this.targetTime;}
+      if (jump) { this.currentTime = this.targetTime }
       this.paintCanvasFrame(Math.floor(this.currentTime * this.frameRate));
     } else if (jump || this.isSafari || this.targetTime - this.currentTime < 0) {
       this.video.pause();
@@ -207,21 +191,21 @@ export class ScrollPlaybackVideoManager {
     }
   }
 
-    setTargetTimePercent(setPercentage: number, jump: boolean = true): void {
-      if (!this.video) return;
-      this.targetTime = Math.max(Math.min(setPercentage, 1), 0)
-        * (this.frames.length && this.frameRate ? this.frames.length / this.frameRate : this.video.duration);
-      if (!jump && Math.abs(this.currentTime - this.targetTime) < this.frameThreshold) return;
-      if (!jump && this.transitioning) return;
-      if (!this.canvas && !this.video.paused) this.video.play();
-      this.transitioning = true;
-      this.transitionToTargetTime(jump);
+  setTargetTimePercent(setPercentage: number, jump: boolean = true): void {
+    if (!this.video) return;
+    this.targetTime = Math.max(Math.min(setPercentage, 1), 0)
+      * (this.frames.length && this.frameRate ? this.frames.length / this.frameRate : this.video.duration);
+    if (!jump && Math.abs(this.currentTime - this.targetTime) < this.frameThreshold) return;
+    if (!jump && this.transitioning) return;
+    if (!this.canvas && !this.video.paused) this.video.play();
+    this.transitioning = true;
+    this.transitionToTargetTime(jump);
   }
 
-    destroy(): void {
-      this.resizeObserver.unobserve(this.container!)
-      if (this.debug) console.info('Destroying ScrollVideo');
-      if (this.trackScroll) window.removeEventListener('scroll', () => this.updateScrollPercentage);
-      if (this.container) this.container.innerHTML = '';
+  destroy(): void {
+    this.resizeObserver.unobserve(this.container!);
+    this.video?.removeEventListener('progress', this.resize);
+    if (this.debug) console.info('Destroying ScrollVideo');
+    if (this.container) this.container.innerHTML = '';
   }
 }
