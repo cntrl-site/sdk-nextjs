@@ -163,7 +163,6 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight }) =
               position: ${sticky ? 'sticky' : 'absolute'};
               top: ${sticky ? `${getAnchoredItemTop(area.top - sticky.from, sectionHeight, area.anchorSide)}` : 0};
               pointer-events: auto;
-              cursor: ${hoverParams ? 'pointer' : 'default'};
               display: ${hidden ? 'none' : 'block'};
               height: fit-content;
             }
