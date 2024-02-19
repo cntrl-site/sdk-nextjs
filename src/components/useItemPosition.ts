@@ -17,6 +17,7 @@ export const useItemPosition = (item: ItemAny, sectionId: string) => {
   );
   const anchorSide = layoutId ? item.area[layoutId].anchorSide : AnchorSide.Top;
   const positionType = layoutId ? item.area[layoutId].positionType : PositionType.ScreenBased;
+  // tp prevent fixed item (with anchor point bottom) to jump when scroll in safari on mobile
   const isScreenBasedBottom = positionType === PositionType.ScreenBased && anchorSide === AnchorSide.Bottom;
   return {
     bottom: isScreenBasedBottom ? `${-top * 100}vw` : 'unset',
