@@ -199,15 +199,16 @@ export class RichTextConverter {
     return styleGroups;
   }
 
-  private groupEntities(entitiesList: RichTextEntity[], styleGroups?: StyleGroup[]): EntitiesGroup[] | undefined {
+  private groupEntities(entities: RichTextEntity[], styleGroups?: StyleGroup[]): EntitiesGroup[] | undefined {
     const entitiesGroups: EntitiesGroup[] = [];
-    // some entities may have no data, need to filter them out (case with deleting a section/page that was linked to)
-    const entities = entitiesList.filter(e => e.hasOwnProperty('data'));
     if (!entities.length && !styleGroups) return;
     if (!styleGroups || styleGroups.length === 0) {
-      const dividersSet = entities.reduce((ds, s) => {
-        ds.add(s.start);
-        ds.add(s.end);
+      const dividersSet = entities.reduce((ds, e) => {
+        // some entities may have no data, need to filter them out
+        // (case with deleting a section/page that was linked to)
+        if (!e.hasOwnProperty('data')) return ds;
+        ds.add(e.start);
+        ds.add(e.end);
         return ds;
       }, new Set<number>([entities[0].start, entities[entities.length - 1].end]));
       const dividers = Array.from(dividersSet).sort((a, b) => a - b);
@@ -234,9 +235,10 @@ export class RichTextConverter {
     }
     const start = entities[0].start < styleGroups[0].start ? entities[0].start : styleGroups[0].start;
     const end = entities[entities.length - 1].end > styleGroups[styleGroups.length - 1].end ? entities[entities.length - 1].end : styleGroups[styleGroups.length - 1].end;
-    const entitiesDividers = entities.reduce((ds, s) => {
-      ds.add(s.start);
-      ds.add(s.end);
+    const entitiesDividers = entities.reduce((ds, e) => {
+      if (!e.hasOwnProperty('data')) return ds;
+      ds.add(e.start);
+      ds.add(e.end);
       return ds;
     }, new Set<number>([start, end]));
     const entityDividers = Array.from(entitiesDividers).sort((a, b) => a - b);
@@ -249,7 +251,7 @@ export class RichTextConverter {
         stylesGroup: styleGroups.filter(s => s.start >= start && s.end <= end),
         start,
         end,
-        ...(entity && { link: entity.data.url, target: entity.data.target })
+        ...(entity && { link: entity.data?.url ?? '', target: entity.data?.target ?? '_self' })
       });
     }
 
