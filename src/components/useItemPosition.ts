@@ -1,4 +1,4 @@
-import { AnchorSide, ItemAny } from '@cntrl-site/sdk';
+import { AnchorSide, ItemAny, PositionType } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../common/useKeyframeValue';
 import { getItemTopStyle } from '../utils/getItemTopStyle';
 import { useLayoutContext } from './useLayoutContext';
@@ -16,8 +16,12 @@ export const useItemPosition = (item: ItemAny, sectionId: string) => {
     [layoutId]
   );
   const anchorSide = layoutId ? item.area[layoutId].anchorSide : AnchorSide.Top;
+  const positionType = layoutId ? item.area[layoutId].positionType : PositionType.ScreenBased;
+  // tp prevent fixed item (with anchor point bottom) to jump when scroll in safari on mobile
+  const isScreenBasedBottom = positionType === PositionType.ScreenBased && anchorSide === AnchorSide.Bottom;
   return {
-    top:  getItemTopStyle(top, anchorSide),
+    bottom: isScreenBasedBottom ? `${-top * 100}vw` : 'unset',
+    top:  isScreenBasedBottom ? 'unset' : getItemTopStyle(top, anchorSide),
     left: `${left * 100}vw`
   };
 };
