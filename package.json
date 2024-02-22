@@ -23,15 +23,13 @@
   "dependencies": {
     "@cntrl-site/color": "^1.0.0",
     "@cntrl-site/effects": "^1.0.5",
-    "@cntrl-site/sdk": "^1.8.0",
+    "@cntrl-site/sdk": "^1.9.0",
     "@types/ua-parser-js": "^0.7.39",
     "@types/vimeo__player": "^2.18.0",
     "@vimeo/player": "^2.20.1",
     "html-react-parser": "^3.0.1",
-    "mp4box": "^0.5.2",
     "resize-observer-polyfill": "^1.5.1",
-    "styled-jsx": "^5.0.2",
-    "ua-parser-js": "^1.0.37"
+    "styled-jsx": "^5.0.2"
   },
   "peerDependencies": {
     "@types/lodash.isequal": "^4.5.6",
