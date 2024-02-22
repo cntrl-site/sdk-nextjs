@@ -1,7 +1,7 @@
 import React, { FC, useContext, useEffect, useMemo, useState } from 'react';
-import { ScrollPlaybackVideoManager } from '../utils/PlaybackVideoConverter/ScrollPlaybackVideoManager';
 import { rangeMap } from '../utils/rangeMap';
 import { ArticleRectContext } from '../provider/ArticleRectContext';
+import { ScrollPlaybackVideoManager } from '@cntrl-site/sdk';
 
 type PlaybackParams = { from: number, to: number };
 
