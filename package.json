@@ -22,7 +22,7 @@
   "homepage": "https://github.com/cntrl-site/sdk-nextjs#readme",
   "dependencies": {
     "@cntrl-site/color": "^1.0.0",
-    "@cntrl-site/effects": "^1.1.0",
+    "@cntrl-site/effects": "^1.2.0",
     "@cntrl-site/sdk": "^1.9.1",
     "@types/vimeo__player": "^2.18.0",
     "@vimeo/player": "^2.20.1",
