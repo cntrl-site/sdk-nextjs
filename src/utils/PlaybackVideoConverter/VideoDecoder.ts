@@ -90,7 +90,6 @@ const decodeVideo = (
       let codec;
       const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
-          console.log(frame);
           createImageBitmap(frame, { resizeQuality: 'low' }).then((bitmap) => {
             emitFrame(bitmap);
             frame.close();

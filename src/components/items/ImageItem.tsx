@@ -11,6 +11,7 @@ import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverSty
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { useImageFx } from '../../utils/effects/useImageFx';
 import { useElementRect } from '../../utils/useElementRect';
+import { useLayoutContext } from '../useLayoutContext';
 
 const baseVariables = `precision mediump float;
 uniform sampler2D u_image;
@@ -24,6 +25,7 @@ varying vec2 v_texCoord;`;
 export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
+  const layoutId = useLayoutContext();
   const { radius, strokeWidth, opacity, strokeColor, blur } = useFileItem(item, sectionId);
   const angle = useItemAngle(item, sectionId);
   const borderColor = useMemo(() => CntrlColor.parse(strokeColor), [strokeColor]);
@@ -39,12 +41,22 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
     return acc;
   }, {});
   const fullShaderCode = `${baseVariables}\n${controlsVariables}\n${fragmentShader}`;
-  useImageFx(fxCanvas.current, hasGLEffect ?? false, {
-    imageUrl: url,
-    fragmentShader: fullShaderCode,
-    cursor: item.commonParams.FXCursor,
-    controls: controlValues
-  });
+  const area = layoutId ? item.area[layoutId] : null;
+  const exemplary = layouts?.find(l => l.id === layoutId)?.exemplary;
+  const width = area && exemplary ? area.width * exemplary : 0;
+  const height = area && exemplary ? area.height * exemplary : 0;
+  useImageFx(
+    fxCanvas.current,
+    hasGLEffect ?? false,
+    {
+      imageUrl: url,
+      fragmentShader: fullShaderCode,
+      cursor: item.commonParams.FXCursor,
+      controls: controlValues
+    },
+    width,
+    height
+  );
   const rect = useElementRect(ref);
   const rectWidth = Math.floor(rect?.width ?? 0);
   const rectHeight = Math.floor(rect?.height ?? 0);
@@ -81,7 +93,6 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
               src={item.commonParams.url}
             />
           )}
-
         </div>
         <JSXStyle id={id}>{`
         @supports not (color: oklch(42% 0.3 90 / 1)) {
