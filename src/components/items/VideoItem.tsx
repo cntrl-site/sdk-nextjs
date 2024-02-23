@@ -28,17 +28,17 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
 
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
-      <div
-        className={`video-wrapper-${item.id}`}
-        ref={setRef}
-        style={{
-          opacity: `${opacity}`,
-          transform: `rotate(${angle}deg)`,
-          filter: `blur(${blur * 100}vw)`,
-          overflow: hasScrollPlayback ? 'hidden' : 'auto'
-        }}
-      >
-        {hasScrollPlayback ? (
+      {hasScrollPlayback ? (
+        <div
+          className={`video-wrapper-${item.id}`}
+          ref={setRef}
+          style={{
+            opacity: `${opacity}`,
+            transform: `rotate(${angle}deg)`,
+            filter: `blur(${blur * 100}vw)`,
+            overflow: 'hidden'
+          }}
+        >
           <ScrollPlaybackVideo
             sectionId={sectionId}
             src={item.commonParams.url}
@@ -50,7 +50,17 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
             }}
             className={`video video-playback-wrapper video-${item.id}`}
           />
-        ) : (
+        </div>
+      ) : (
+        <div
+          className={`video-wrapper-${item.id}`}
+          ref={setRef}
+          style={{
+            opacity: `${opacity}`,
+            transform: `rotate(${angle}deg)`,
+            filter: `blur(${blur * 100}vw)`
+          }}
+        >
           <video
             ref={videoRef}
             autoPlay
@@ -59,15 +69,15 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
             playsInline
             className={`video video-${item.id}`}
             style={{
-            borderRadius: `${radius * 100}vw`,
-            borderWidth: `${strokeWidth * 100}vw`,
-            borderColor: `${borderColor.toCss()}`
-        }}
-      >
-        <source src={item.commonParams.url} />
-      </video>
-        )}
-      </div>
+              borderRadius: `${radius * 100}vw`,
+              borderWidth: `${strokeWidth * 100}vw`,
+              borderColor: `${borderColor.toCss()}`
+            }}
+          >
+            <source src={item.commonParams.url} />
+          </video>
+        </div>
+      )}
       <JSXStyle id={id}>{`
         @supports not (color: oklch(42% 0.3 90 / 1)) {
           .video-${item.id} {
