@@ -59,7 +59,8 @@ export class RichTextConverter {
       const content = text.slice(block.start, block.end);
       const entities = block.entities!.sort((a, b) => a.start - b.start) ?? [];
       if (content.length === 0) {
-        root.push(<div className={`rt_${richText.id}_br_${blockIndex}`}><br /></div>);
+        const id = `rt_${richText.id}_br_${blockIndex}`;
+        root.push(<div key={id} className={id}><br /></div>);
         layouts.forEach(l => {
           const lhForLayout = currentLineHeight[l.id];
           if (lhForLayout === undefined) return;
