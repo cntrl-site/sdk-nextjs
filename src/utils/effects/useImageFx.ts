@@ -10,8 +10,8 @@ export interface FXCursor {
 
 interface FxParams {
   imageUrl?: string;
-  fragmentShader?: string;
-  cursor?: FXCursor;
+  fragmentShader: string | null;
+  cursor: FXCursor | null;
   // TODO use types from SDk
   controls?: Record<string, number | [number, number]>;
 }
