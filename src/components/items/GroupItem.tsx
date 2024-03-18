@@ -35,6 +35,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
               key={item.id}
               sectionId={sectionId}
               articleHeight={articleHeight}
+              isInGroup
             />
           ))}
         </div>
