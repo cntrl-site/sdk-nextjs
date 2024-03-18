@@ -39,6 +39,7 @@ export interface ItemProps<I extends ItemAny> {
 
 export interface ItemWrapperProps extends ItemProps<ItemAny> {
   articleHeight: number;
+  isInGroup?: boolean;
 }
 
 const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
@@ -56,6 +57,11 @@ interface RTWrapperProps {
   isRichText: boolean;
 }
 
+const stickyFix = `
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+`;
+
 const RichTextWrapper: FC<PropsWithChildren<RTWrapperProps>> = ({ isRichText, children }) => {
   if (!isRichText) return <>{children}</>;
   return (
@@ -67,7 +73,7 @@ const RichTextWrapper: FC<PropsWithChildren<RTWrapperProps>> = ({ isRichText, ch
 
 const noop = () => null;
 
-export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight }) => {
+export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isInGroup = false }) => {
   const itemWrapperRef = useRef<HTMLDivElement | null>(null);
   const rectObserver = useContext(ArticleRectContext);
   const id = useId();
@@ -177,8 +183,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight }) =
             .item-wrapper-${item.id} {
               position: ${area.positionType === PositionType.ScreenBased ? 'fixed': 'absolute'};
               z-index: ${area.zIndex};
-              -webkit-transform: translate3d(0, 0, 0);
-              transform: translate3d(0, 0, 0);
+              ${!isInGroup && stickyFix}
               pointer-events: none;
               bottom: ${isScreenBasedBottom ? `${-area.top * 100}vw` : 'unset'};
               top: ${isScreenBasedBottom ? 'unset' : getItemTopStyle(area.top, area.anchorSide)};
