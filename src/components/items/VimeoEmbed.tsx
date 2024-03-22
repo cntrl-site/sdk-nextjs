@@ -13,7 +13,7 @@ import { useRegisterResize } from "../../common/useRegisterResize";
 export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId, onResize }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
-  const { radius, blur } = useEmbedVideoItem(item, sectionId);
+  const { radius, blur, opacity } = useEmbedVideoItem(item, sectionId);
   const [iframeRef, setIframeRef] = useState<HTMLIFrameElement | null>(null);
   const vimeoPlayer = useMemo(() => iframeRef ? new Player(iframeRef) : undefined, [iframeRef]);
   const angle = useItemAngle(item, sectionId);
@@ -42,6 +42,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
         className={`embed-video-wrapper-${item.id}`}
         ref={setRef}
         style={{
+          opacity: `${opacity}`,
           transform: `rotate(${angle}deg)`,
           filter: `blur(${blur * 100}vw)`
         }}
@@ -81,10 +82,10 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
       ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
         return (`
           .embed-video-wrapper-${item.id} {
-            transition: ${getTransitions<ArticleItemType.VimeoEmbed>(['angle', 'blur'], hoverParams)};
+            transition: ${getTransitions<ArticleItemType.VimeoEmbed>(['angle', 'blur', 'opacity'], hoverParams)};
           }
           .embed-video-wrapper-${item.id}:hover {
-            ${getHoverStyles<ArticleItemType.VimeoEmbed>(['angle', 'blur'], hoverParams)}
+            ${getHoverStyles<ArticleItemType.VimeoEmbed>(['angle', 'blur', 'opacity'], hoverParams)}
           }
           .embed-video-wrapper-${item.id} .embedVideo {
             transition: ${getTransitions<ArticleItemType.VimeoEmbed>(['radius'], hoverParams)};
