@@ -27,5 +27,17 @@ export const useEmbedVideoItem = (item: VimeoEmbedItem | YoutubeEmbedItem, secti
     [layoutId]
   );
 
-  return { radius, blur };
+  const opacity = useKeyframeValue(
+    item,
+    (item, layoutId) => {
+      if (!layoutId) return 1;
+      const layoutParams = item.layoutParams[layoutId];
+      return 'opacity' in layoutParams ? layoutParams.opacity : 1;
+    },
+    (animator, scroll, value) => animator.getOpacity({ opacity: value }, scroll).opacity,
+    sectionId,
+    [layoutId]
+  );
+
+  return { radius, blur, opacity };
 };
