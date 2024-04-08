@@ -61,7 +61,7 @@ export const Section: FC<Props> = ({ section, data, children }) => {
          .section-${section.id} {
             height: ${getSectionHeight(height)};
             position: relative;
-            --webkit-backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
          }`
         ))
       }
