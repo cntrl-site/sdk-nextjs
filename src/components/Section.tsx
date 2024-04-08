@@ -49,7 +49,7 @@ export const Section: FC<Props> = ({ section, data, children }) => {
         className={`section-${section.id}`}
         id={section.name}
         style={{
-          backgroundColor: backgroundColor.toCss()
+          backgroundColor: backgroundColor.fmt('rgba')
         }}
         ref={sectionRef}
       >
@@ -61,16 +61,10 @@ export const Section: FC<Props> = ({ section, data, children }) => {
          .section-${section.id} {
             height: ${getSectionHeight(height)};
             position: relative;
-            -webkit-backface-visibility: hidden;
          }`
         ))
       }
       ${getSectionVisibilityStyles()}
-      @supports not (color: oklch(42% 0.3 90 / 1)) {
-        .section-${section.id} {
-          background-color: ${backgroundColor.fmt('rgba')};
-        }
-      }
     `}</JSXStyle>
     </>
   );
