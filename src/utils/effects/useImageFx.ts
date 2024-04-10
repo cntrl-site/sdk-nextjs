@@ -33,7 +33,7 @@ export function useImageFx(
 ): void {
   const mousePos = useRef<[number, number]>([0.0, 0.0]);
   const imageFx = useMemo<ImageEffect | undefined>(() => {
-    if (!imageUrl || !cursor) return undefined;
+    if (!imageUrl || !cursor || !enabled) return undefined;
     const { type, x, y } = cursor;
     return new ImageEffect(
       imageUrl,
@@ -48,7 +48,7 @@ export function useImageFx(
       width,
       height
     );
-  }, [imageUrl, fragmentShader, width, height]);
+  }, [imageUrl, fragmentShader, width, height, enabled]);
 
   useEffect(() => {
     if (!cursor || cursor.type !== 'mouse' || !canvas || !imageFx) return;

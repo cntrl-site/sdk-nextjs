@@ -1,4 +1,4 @@
-import { FC, useId, useMemo, useRef, useState } from 'react';
+import { FC, useEffect, useId, useMemo, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { CntrlColor } from '@cntrl-site/color';
 import { ArticleItemType, getLayoutStyles, ImageItem as TImageItem } from '@cntrl-site/sdk';
@@ -33,6 +33,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   useRegisterResize(ref, onResize);
   const { url, hasGLEffect, fragmentShader } = item.commonParams;
   const fxCanvas = useRef<HTMLCanvasElement | null>(null);
+  const isInitialRef = useRef(true);
   const controls = item.commonParams.FXControls ?? [];
   const controlsVariables = controls.map((c) => `uniform ${c.type} ${c.shaderParam};`)
       .join('\n');
@@ -46,9 +47,12 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const exemplary = layouts?.find(l => l.id === layoutId)?.exemplary;
   const width = area && exemplary ? area.width * exemplary : 0;
   const height = area && exemplary ? area.height * exemplary : 0;
+  useEffect(() => {
+    isInitialRef.current = false;
+  }, []);
   useImageFx(
     fxCanvas.current,
-    hasGLEffect ?? false,
+    !!(hasGLEffect && !isInitialRef.current),
     {
       imageUrl: url,
       fragmentShader: fullShaderCode,

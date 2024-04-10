@@ -1,4 +1,4 @@
-import { ComponentType, FC, PropsWithChildren, useContext, useEffect, useId, useRef, useState } from 'react';
+import { ComponentType, FC, PropsWithChildren, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import {
   AnchorSide,
@@ -30,6 +30,7 @@ import { ArticleRectContext } from "../provider/ArticleRectContext";
 import { useExemplary } from "../common/useExemplary";
 import { GroupItem } from './items/GroupItem';
 import { ScaleAnchor } from '@cntrl-site/sdk/src/types/article/ItemArea';
+import { KeyframesContext } from '../provider/KeyframesContext';
 
 export interface ItemProps<I extends ItemAny> {
   item: I;
@@ -77,7 +78,9 @@ const noop = () => null;
 export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isInGroup = false }) => {
   const itemWrapperRef = useRef<HTMLDivElement | null>(null);
   const rectObserver = useContext(ArticleRectContext);
+  const keyframesRepo = useContext(KeyframesContext);
   const id = useId();
+  const keyframes = useMemo(() => keyframesRepo.getItemKeyframes(item.id), [keyframesRepo, item.id]);
   const { layouts } = useCntrlContext();
   const layout = useLayoutContext();
   const exemplary = useExemplary();
@@ -125,13 +128,11 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
   }, []);
 
   const isRichText = isItemType(item, ArticleItemType.RichText);
-  if (!layout) return null;
   return (
     <div
       className={`item-wrapper-${item.id}`}
       ref={itemWrapperRef}
       style={{
-        opacity: isInitialRef.current || !layout ? 0 : 1,
         ...(position ? { top: position.top } : {}),
         ...(position ? { left: position.left } : {}),
         ...(position ? { bottom: position.bottom } : {}),
@@ -142,6 +143,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
         suppressHydrationWarning={true}
         className={`item-${item.id}`}
         style={{
+          opacity: (keyframes.length !== 0 && !layout) ? 0 : 1,
           top: `${stickyTop * 100}vw`,
           height: isRichText && itemHeight ? `${itemHeight * 100}vw` : 'unset'
         }}
@@ -174,6 +176,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
               position: ${sticky ? 'sticky' : 'absolute'};
               top: ${sticky ? `${getAnchoredItemTop(area.top - sticky.from, sectionHeight, area.anchorSide)}` : 0};
               pointer-events: auto;
+              transition: opacity 0.1s linear;
               display: ${hidden ? 'none' : 'block'};
               height: fit-content;
             }
@@ -197,7 +200,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
               bottom: ${isScreenBasedBottom ? `${-area.top * 100}vw` : 'unset'};
               top: ${isScreenBasedBottom ? 'unset' : getItemTopStyle(area.top, area.anchorSide)};
               left: ${area.left * 100}vw;
-              transition: ${getTransitions(['left', 'top'], hoverParams)}, opacity 0.2s linear;
+              transition: ${getTransitions(['left', 'top'], hoverParams)}
             }
             .item-${item.id}-inner:hover {
               ${getHoverStyles(['width', 'height', 'scale'], hoverParams)}
