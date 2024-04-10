@@ -21,6 +21,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   const YT = useYouTubeIframeApi();
   const [div, setDiv] = useState<HTMLDivElement | null>(null);
   const [player, setPlayer] = useState<YTPlayer | undefined>(undefined);
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
   useRegisterResize(div, onResize);
 
   useEffect(() => {
@@ -64,15 +65,17 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
           player.pauseVideo();
         }}
         style={{
-          opacity: `${opacity}`,
-          transform: `rotate(${angle}deg)`,
-          filter: `blur(${blur * 100}vw)`
+          ...(opacity ? { opacity: `${opacity}` } : {}),
+          ...(angle ? { transform: `rotate(${angle}deg)` } : {}),
+          ...(blur ? { filter: `blur(${blur * 100}vw)` } : {})
         }}
       >
         <div
           className={`embed-${item.id}`}
           ref={setDiv}
-          style={{ borderRadius: `${radius * 100}vw` }}
+          style={{
+            ...(radius ? { borderRadius: `${radius * 100}vw` } : {})
+          }}
         />
       </div>
       <JSXStyle id={id}>{`
@@ -91,12 +94,16 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
           z-index: 1;
           border: none;
         }
-        ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams]) => {
           return (`
             .embed-youtube-video-wrapper-${item.id} {
+              opacity: ${layoutParams.opacity};
+              transform: rotate(${area.angle}deg);
+              filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
               transition: ${getTransitions<ArticleItemType.YoutubeEmbed>(['angle', 'blur', 'opacity'], hoverParams)};
             }
             .embed-youtube-video-wrapper-${item.id} .embed-${item.id} {
+              border-radius: ${layoutParams.radius * 100}vw;
               transition: ${getTransitions<ArticleItemType.YoutubeEmbed>(['radius'], hoverParams)};
             }
             .embed-youtube-video-wrapper-${item.id}:hover {

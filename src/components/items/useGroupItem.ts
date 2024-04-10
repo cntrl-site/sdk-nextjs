@@ -1,11 +1,12 @@
 import { useKeyframeValue } from '../../common/useKeyframeValue';
-import { GroupItem } from '@cntrl-site/sdk';
+import { GroupItem, KeyframeType } from '@cntrl-site/sdk';
 import { useLayoutContext } from '../useLayoutContext';
 
 export function useGroupItem(item: GroupItem, sectionId: string) {
   const layoutId = useLayoutContext();
   const opacity = useKeyframeValue(
     item,
+    KeyframeType.Opacity,
     (item, layoutId) => {
       if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];

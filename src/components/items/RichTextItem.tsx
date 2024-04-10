@@ -17,7 +17,8 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const { layouts } = useCntrlContext();
   const { angle, blur, wordSpacing, letterSpacing, color } = useRichTextItemValues(item, sectionId);
-  const textColor = useMemo(() => CntrlColor.parse(color), [color]);
+  const textColor = useMemo(() => color ? CntrlColor.parse(color) : undefined, [color]);
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
   const exemplary = useExemplary();
   useRegisterResize(ref, onResize);
 
@@ -27,49 +28,45 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
         ref={setRef}
         className={`rich-text-wrapper-${item.id}`}
         style={{
-          transform: `rotate(${angle}deg)`,
-          filter: `blur(${blur * exemplary}px)`,
-          letterSpacing: `${letterSpacing * exemplary}px`,
-          wordSpacing: `${wordSpacing * exemplary}px`,
-          color: `${textColor.toCss()}`
+          ...(angle ? { transform: `rotate(${angle}deg)` } : {}),
+          ...(blur ? { filter: `blur(${blur * exemplary}px)` } : {}),
+          ...(letterSpacing ? { letterSpacing: `${letterSpacing * exemplary}px` } : {}),
+          ...(wordSpacing ? { wordSpacing: `${wordSpacing * exemplary}px` }: {}),
+          ...(textColor ? { color: `${textColor.toCss()}` } : {})
         }}
       >
         {content}
       </div>
       <JSXStyle id={id}>
         {styles}
-        {`${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
+        {`${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams], exemplary) => {
+          const color = CntrlColor.parse(layoutParams.color);
           return (`
             .rich-text-wrapper-${item.id} {
+              font-size: ${Math.round(layoutParams.fontSize * exemplary)}px;
+              line-height: ${layoutParams.lineHeight * exemplary}px;
+              letter-spacing: ${layoutParams.letterSpacing * exemplary}px;
+              word-spacing: ${layoutParams.wordSpacing * exemplary}px;
+              font-family: ${getFontFamilyValue(layoutParams.typeFace)};
+              font-weight: ${layoutParams.fontWeight};
+              font-style: ${layoutParams.fontStyle ? layoutParams.fontStyle : 'normal'};
+              vertical-align: ${layoutParams.verticalAlign};
+              font-variant: ${layoutParams.fontVariant};
+              color: ${color.fmt('rgba')};
+              transform: rotate(${area.angle}deg);
+              filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * exemplary}px)` : 'unset'};
+              text-transform: ${layoutParams.textTransform};
               transition: ${getTransitions<ArticleItemType.RichText>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color'], hoverParams)};
             }
             .rich-text-wrapper-${item.id}:hover {
               ${getHoverStyles<ArticleItemType.RichText>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color'], hoverParams)}
-            }
-          `);
-        })}`}
-        {`${getLayoutStyles(layouts, [item.layoutParams], ([layoutParams], exemplary) => {
-          const color = CntrlColor.parse(layoutParams.color);
-          return (`
-            .rich-text-wrapper-${item.id} {
-                font-size: ${Math.round(layoutParams.fontSize * exemplary)}px;
-                line-height: ${layoutParams.lineHeight * exemplary}px;
-                letter-spacing: ${layoutParams.letterSpacing * exemplary}px;
-                word-spacing: ${layoutParams.wordSpacing * exemplary}px;
-                font-family: ${getFontFamilyValue(layoutParams.typeFace)};
-                font-weight: ${layoutParams.fontWeight};
-                font-style: ${layoutParams.fontStyle ? layoutParams.fontStyle : 'normal'};
-                vertical-align: ${layoutParams.verticalAlign};
-                font-variant: ${layoutParams.fontVariant};
-                color: ${color.toCss()};
-                text-transform: ${layoutParams.textTransform};
             }
             @supports not (color: oklch(42% 0.3 90 / 1)) {
               .rich-text-wrapper-${item.id} {
                 color: ${color.fmt('rgba')};
               }
             }
-            `);
+          `);
         })}`}
       </JSXStyle>
     </>

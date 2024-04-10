@@ -28,7 +28,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const layoutId = useLayoutContext();
   const { radius, strokeWidth, opacity, strokeColor, blur } = useFileItem(item, sectionId);
   const angle = useItemAngle(item, sectionId);
-  const borderColor = useMemo(() => CntrlColor.parse(strokeColor), [strokeColor]);
+  const borderColor = useMemo(() => strokeColor ? CntrlColor.parse(strokeColor) : undefined, [strokeColor]);
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
   const { url, hasGLEffect, fragmentShader } = item.commonParams;
@@ -40,6 +40,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
     acc[control.shaderParam] = control.value;
     return acc;
   }, {});
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
   const fullShaderCode = `${baseVariables}\n${controlsVariables}\n${fragmentShader}`;
   const area = layoutId ? item.area[layoutId] : null;
   const exemplary = layouts?.find(l => l.id === layoutId)?.exemplary;
@@ -61,9 +62,9 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const rectWidth = Math.floor(rect?.width ?? 0);
   const rectHeight = Math.floor(rect?.height ?? 0);
   const inlineStyles = {
-    borderRadius: `${radius * 100}vw`,
-    borderWidth: `${strokeWidth * 100}vw`,
-    borderColor: `${borderColor.toCss()}`
+    ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),
+    ...(strokeWidth !== undefined ? {borderWidth: `${strokeWidth * 100}vw`} : {}),
+    ...(borderColor ? { borderColor: `${borderColor.toCss()}`} : {})
   };
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
@@ -72,16 +73,16 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
           className={`image-wrapper-${item.id}`}
           ref={setRef}
           style={{
-            opacity: `${opacity}`,
-            transform: `rotate(${angle}deg)`,
-            filter: `blur(${blur * 100}vw)`
+            ...(opacity !== undefined ? { opacity: `${opacity}` } : {}),
+            ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
+            ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` }: {})
           }}
         >
           {item.commonParams.hasGLEffect ? (
             <canvas
               style={inlineStyles}
               ref={fxCanvas}
-              className="img-canvas"
+              className={`img-canvas image-${item.id}`}
               width={rectWidth}
               height={rectHeight}
             />
@@ -95,11 +96,6 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
           )}
         </div>
         <JSXStyle id={id}>{`
-        @supports not (color: oklch(42% 0.3 90 / 1)) {
-          .image-${item.id} {
-            border-color: ${borderColor.fmt('rgba')};
-          }
-        }
         .image-wrapper-${item.id} {
           position: absolute;
           width: 100%;
@@ -125,18 +121,24 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
           border-width: 0;
           box-sizing: border-box;
         }
-        ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams]) => {
           return (`
             .image-wrapper-${item.id} {
+              opacity: ${layoutParams.opacity};
+              transform: rotate(${area.angle}deg);
+              filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
               transition: ${getTransitions<ArticleItemType.Image>(['angle', 'opacity', 'blur'], hoverParams)};
             }
             .image-wrapper-${item.id}:hover {
               ${getHoverStyles<ArticleItemType.Image>(['angle', 'opacity', 'blur'], hoverParams)}
             }
             .image-${item.id} {
+              border-color: ${CntrlColor.parse(layoutParams.strokeColor).fmt('rgba')};
+              border-radius: ${layoutParams.radius * 100}vw;
+              border-width: ${layoutParams.strokeWidth * 100}vw;
               transition: ${getTransitions<ArticleItemType.Image>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)};
             }
-            .image-wrapper-${item.id}:hover .image {
+            .image-wrapper-${item.id}:hover .image, .image-wrapper-${item.id}:hover .img-canvas {
               ${getHoverStyles<ArticleItemType.Image>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)}
             }
           `);

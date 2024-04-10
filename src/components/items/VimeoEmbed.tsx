@@ -19,6 +19,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
   const angle = useItemAngle(item, sectionId);
   const { play, controls, loop, muted, pictureInPicture, url } = item.commonParams;
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
   useRegisterResize(ref, onResize);
   const getValidVimeoUrl = (url: string): string => {
     const validURL = new URL(url);
@@ -42,9 +43,9 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
         className={`embed-video-wrapper-${item.id}`}
         ref={setRef}
         style={{
-          opacity: `${opacity}`,
-          transform: `rotate(${angle}deg)`,
-          filter: `blur(${blur * 100}vw)`
+          ...(opacity ? { opacity: `${opacity}` } : {}),
+          ...(angle ? { transform: `rotate(${angle}deg)` } : {}),
+          ...(blur ? { filter: `blur(${blur * 100}vw)` } : {})
         }}
         onMouseEnter={() => {
           if (!vimeoPlayer || play !== 'on-hover') return;
@@ -62,7 +63,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
           allow="autoplay; fullscreen; picture-in-picture;"
           allowFullScreen
           style={{
-            borderRadius: `${radius * 100}vw`
+            ...(radius ? { borderRadius: `${radius * 100}vw` } : {})
           }}
         />
       </div>
@@ -79,15 +80,19 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
         border: none;
         overflow: hidden;
       }
-      ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
+      ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams]) => {
         return (`
           .embed-video-wrapper-${item.id} {
+            opacity: ${layoutParams.opacity};
+            transform: rotate(${area.angle}deg);
+            filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
             transition: ${getTransitions<ArticleItemType.VimeoEmbed>(['angle', 'blur', 'opacity'], hoverParams)};
           }
           .embed-video-wrapper-${item.id}:hover {
             ${getHoverStyles<ArticleItemType.VimeoEmbed>(['angle', 'blur', 'opacity'], hoverParams)}
           }
           .embed-video-wrapper-${item.id} .embedVideo {
+            border-radius: ${layoutParams.radius * 100}vw;
             transition: ${getTransitions<ArticleItemType.VimeoEmbed>(['radius'], hoverParams)};
           }
           .embed-video-wrapper-${item.id}:hover .embedVideo {

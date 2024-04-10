@@ -8,10 +8,11 @@ import {
   SectionHeightMode
 } from '@cntrl-site/sdk';
 import { useCntrlContext } from '../provider/useCntrlContext';
-import { useSectionColor } from './useSectionColor';
 import { useSectionRegistry } from '../utils/ArticleRectManager/useSectionRegistry';
+import { CntrlColor } from '@cntrl-site/color';
 
 type SectionChild = ReactElement<any, any>;
+const DEFAULT_COLOR = 'rgba(0, 0, 0, 0)';
 
 interface Props {
   section: TSection;
@@ -23,7 +24,7 @@ export const Section: FC<Props> = ({ section, data, children }) => {
   const id = useId();
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const { layouts, customSections } = useCntrlContext();
-  const backgroundColor = useSectionColor(section.color);
+  const layoutValues: Record<string, any>[] = [section.height, section.color];
   const SectionComponent = section.name ? customSections.getComponent(section.name) : undefined;
   useSectionRegistry(section.id, sectionRef.current);
   const getSectionVisibilityStyles = () => {
@@ -48,19 +49,17 @@ export const Section: FC<Props> = ({ section, data, children }) => {
       <div
         className={`section-${section.id}`}
         id={section.name}
-        style={{
-          backgroundColor: backgroundColor.fmt('rgba')
-        }}
         ref={sectionRef}
       >
         {children}
       </div>
       <JSXStyle id={id}>{`
       ${
-        getLayoutStyles(layouts, [section.height], ([height]) => (`
+        getLayoutStyles(layouts, layoutValues, ([height, color]) => (`
          .section-${section.id} {
             height: ${getSectionHeight(height)};
             position: relative;
+            background-color: ${CntrlColor.parse(color ?? DEFAULT_COLOR).fmt('rgba')};
          }`
         ))
       }

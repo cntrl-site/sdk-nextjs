@@ -12,11 +12,12 @@ const emptyDeps: DependencyList = [];
 
 export const useKeyframeValue = <T>(
   item: ItemAny,
+  type: KeyframeType,
   itemParamsGetter: ItemParamGetter<T>,
   animatorGetter: AnimatorGetter<T>,
   sectionId: string,
   deps: DependencyList = emptyDeps
-) => {
+): T | undefined => {
   const animatorGetterRef = useRef(animatorGetter);
   const itemParamsGetterRef = useRef(itemParamsGetter);
 
@@ -26,7 +27,7 @@ export const useKeyframeValue = <T>(
   const articleRectObserver = useContext(ArticleRectContext);
   const layoutId = useLayoutContext();
   const keyframesRepo = useContext(KeyframesContext);
-  const keyframes = useMemo(() => keyframesRepo.getItemKeyframes(item.id), [item.id, keyframesRepo]);
+  const keyframes = useMemo(() => keyframesRepo.getItemKeyframes(item.id).filter(kf => kf.type === type), [item.id, keyframesRepo, type]);
   const paramValue = useMemo<T>(() => {
     return itemParamsGetterRef.current(item, layoutId);
   }, [item, layoutId, ...deps]);
@@ -80,6 +81,6 @@ export const useKeyframeValue = <T>(
       handleKeyframeValue(scroll);
     });
   }, [handleKeyframeValue, articleRectObserver, animator]);
-  return adjustedValue;
+  return keyframes.length? adjustedValue : undefined;
 };
 

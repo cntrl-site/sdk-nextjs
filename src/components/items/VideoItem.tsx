@@ -17,50 +17,40 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
   const { layouts } = useCntrlContext();
   const { radius, strokeWidth, strokeColor, opacity, blur } = useFileItem(item, sectionId);
   const angle = useItemAngle(item, sectionId);
-  const borderColor = useMemo(() => CntrlColor.parse(strokeColor), [strokeColor]);
+  const borderColor = useMemo(() => strokeColor ? CntrlColor.parse(strokeColor) : undefined, [strokeColor]);
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const layoutId = useLayoutContext();
   const scrollPlayback = item.layoutParams[layoutId!].scrollPlayback;
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
   const hasScrollPlayback = scrollPlayback !== null;
-
   useRegisterResize(ref, onResize);
+  const inlineStyles = {
+    ...(radius ? { borderRadius: `${radius * 100}vw` } : {}),
+    ...(strokeWidth ? { borderWidth: `${strokeWidth * 100}vw` } : {}),
+    ...(borderColor ? { borderColor: `${borderColor.toCss()}` } : {})
+  };
 
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
-      {hasScrollPlayback ? (
-        <div
-          className={`video-wrapper-${item.id}`}
-          ref={setRef}
-          style={{
-            opacity: `${opacity}`,
-            transform: `rotate(${angle}deg)`,
-            filter: `blur(${blur * 100}vw)`,
-            overflow: 'hidden'
-          }}
-        >
+      <div
+        className={`video-wrapper-${item.id}`}
+        ref={setRef}
+        style={{
+          ...(opacity ? { opacity: `${opacity}` } : {}),
+          ...(angle ? { transform: `rotate(${angle}deg)` } : {}),
+          ...(blur ? { filter: `blur(${blur * 100}vw)` } : {}),
+        }}
+      >
+        {hasScrollPlayback ? (
           <ScrollPlaybackVideo
             sectionId={sectionId}
             src={item.commonParams.url}
             playbackParams={scrollPlayback}
-            style={{
-              borderRadius: `${radius * 100}vw`,
-              borderWidth: `${strokeWidth * 100}vw`,
-              borderColor: `${borderColor.toCss()}`
-            }}
+            style={inlineStyles}
             className={`video video-playback-wrapper video-${item.id}`}
           />
-        </div>
-      ) : (
-        <div
-          className={`video-wrapper-${item.id}`}
-          ref={setRef}
-          style={{
-            opacity: `${opacity}`,
-            transform: `rotate(${angle}deg)`,
-            filter: `blur(${blur * 100}vw)`
-          }}
-        >
+          ) : (
           <video
             ref={videoRef}
             autoPlay
@@ -68,24 +58,16 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
             loop
             playsInline
             className={`video video-${item.id}`}
-            style={{
-              borderRadius: `${radius * 100}vw`,
-              borderWidth: `${strokeWidth * 100}vw`,
-              borderColor: `${borderColor.toCss()}`
-            }}
+            style={inlineStyles}
           >
             <source src={item.commonParams.url} />
           </video>
-        </div>
-      )}
+        )}
+      </div>
       <JSXStyle id={id}>{`
-        @supports not (color: oklch(42% 0.3 90 / 1)) {
-          .video-${item.id} {
-            border-color: ${borderColor.fmt('rgba')};
-          }
-        }
         .video-wrapper-${item.id} {
           position: absolute;
+          overflow: hidden;
           width: 100%;
           height: 100%;
           box-sizing: border-box;
@@ -107,15 +89,21 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
           display: flex;
           justify-content: center;
         }
-        ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams]) => {
           return (`
             .video-wrapper-${item.id} {
+              opacity: ${layoutParams.opacity};
+              transform: rotate(${area.angle}deg);
+              filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
               transition: ${getTransitions<ArticleItemType.Video>(['angle', 'opacity', 'blur'], hoverParams)};
             }
             .video-wrapper-${item.id}:hover {
               ${getHoverStyles<ArticleItemType.Video>(['angle', 'opacity', 'blur'], hoverParams)}
             }
             .video-${item.id} {
+              border-color: ${CntrlColor.parse(layoutParams.strokeColor).fmt('rgba')};
+              border-radius: ${layoutParams.radius * 100}vw;
+              border-width: ${layoutParams.strokeWidth * 100}vw;
               transition: ${getTransitions<ArticleItemType.Video>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)};
             }
             .video-wrapper-${item.id}:hover .video {

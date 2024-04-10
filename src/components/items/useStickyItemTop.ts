@@ -1,19 +1,21 @@
-import { ItemAny } from '@cntrl-site/sdk';
+import { ItemAny, KeyframeType } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../../common/useKeyframeValue';
 import { useLayoutContext } from '../useLayoutContext';
 
 export function useStickyItemTop(item: ItemAny, sectionHeightMap: Record<string, string>, sectionId: string) {
   const layoutId = useLayoutContext();
-  const { top } = useKeyframeValue<{ top: number; left: number }>(
+  const data = useKeyframeValue<{ top: number; left: number } | undefined>(
     item,
+    KeyframeType.Position,
     (item, layoutId) => {
-      if (!layoutId) return { top: 0, left: 0 }
+      if (!layoutId) return;
       return item.area[layoutId];
     },
-    (animator, scroll, value) => animator.getPositions(value, scroll),
+    (animator, scroll, value) => value ? animator.getPositions(value, scroll) : undefined,
     sectionId,
     [layoutId]
   );
+  const top = data ? data.top : layoutId ? item.area[layoutId].top : 0;
   const sticky = layoutId ? item.sticky[layoutId] : undefined;
-  return sticky ? top - sticky.from : 0
+  return sticky ? top - sticky.from : 0;
 }
