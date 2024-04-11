@@ -4,14 +4,14 @@ import { useLayoutContext } from './useLayoutContext';
 
 export const useItemScale = (item: ItemAny, sectionId: string) => {
   const layoutId = useLayoutContext();
-  const data = useKeyframeValue(
+  const scale = useKeyframeValue(
     item,
     KeyframeType.Scale,
-    (item, layoutId) => (layoutId ? { scale: item.area[layoutId].scale } : undefined),
-    (animator, scroll, value) => value ? animator.getScale(value, scroll) : undefined,
+    (item, layoutId) => (layoutId ? item.area[layoutId].scale : undefined),
+    (animator, scroll, value) => value ? animator.getScale({ scale: value }, scroll).scale : undefined,
     sectionId,
     [layoutId]
   );
 
-  return data ? data.scale : undefined;
+  return scale;
 };

@@ -4,7 +4,7 @@ import { useLayoutContext } from './useLayoutContext';
 
 export const useItemDimensions = (item: ItemAny, sectionId: string) => {
   const layoutId = useLayoutContext();
-  const data = useKeyframeValue<{ width: number; height: number } | undefined>(
+  const dimensions = useKeyframeValue<{ width: number; height: number } | undefined>(
     item,
     KeyframeType.Dimensions,
     (item, layoutId) => layoutId ? item.area[layoutId] : undefined,
@@ -12,5 +12,5 @@ export const useItemDimensions = (item: ItemAny, sectionId: string) => {
     sectionId,
     [layoutId]
   );
-  return data;
+  return dimensions;
 };

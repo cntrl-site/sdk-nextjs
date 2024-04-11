@@ -5,7 +5,7 @@ import { useLayoutContext } from './useLayoutContext';
 
 export const useItemPosition = (item: ItemAny, sectionId: string) => {
   const layoutId = useLayoutContext();
-  const data = useKeyframeValue<{ top: number; left: number } | undefined>(
+  const position = useKeyframeValue<{ top: number; left: number } | undefined>(
     item,
     KeyframeType.Position,
     (item, layoutId) => {
@@ -20,10 +20,10 @@ export const useItemPosition = (item: ItemAny, sectionId: string) => {
   const positionType = layoutId ? item.area[layoutId].positionType : PositionType.ScreenBased;
   // tp prevent fixed item (with anchor point bottom) to jump when scroll in safari on mobile
   const isScreenBasedBottom = positionType === PositionType.ScreenBased && anchorSide === AnchorSide.Bottom;
-  return data ? {
-    bottom: isScreenBasedBottom ? `${-data.top * 100}vw` : 'unset',
-    top:  isScreenBasedBottom ? 'unset' : getItemTopStyle(data.top, anchorSide),
-    left: `${data.left * 100}vw`
+  return position ? {
+    bottom: isScreenBasedBottom ? `${-position.top * 100}vw` : 'unset',
+    top:  isScreenBasedBottom ? 'unset' : getItemTopStyle(position.top, anchorSide),
+    left: `${position.left * 100}vw`
   } : undefined;
 };
 

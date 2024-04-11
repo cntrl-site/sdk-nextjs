@@ -200,13 +200,13 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
               bottom: ${isScreenBasedBottom ? `${-area.top * 100}vw` : 'unset'};
               top: ${isScreenBasedBottom ? 'unset' : getItemTopStyle(area.top, area.anchorSide)};
               left: ${area.left * 100}vw;
-              transition: ${getTransitions(['left', 'top'], hoverParams)}
+              transition: ${getTransitions(['left', 'top'], hoverParams)};
             }
             .item-${item.id}-inner:hover {
-              ${getHoverStyles(['width', 'height', 'scale'], hoverParams)}
+              ${getHoverStyles(['width', 'height', 'scale'], hoverParams)};
             }
             .item-wrapper-${item.id}:hover {
-              ${getHoverStyles(['left', 'top'], hoverParams, area.anchorSide)}
+              ${getHoverStyles(['left', 'top'], hoverParams, area.anchorSide)};
             }
           `);
       })}
