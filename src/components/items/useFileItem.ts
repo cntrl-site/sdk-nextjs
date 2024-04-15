@@ -2,18 +2,18 @@ import { ImageItem, KeyframeType, VideoItem } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../../common/useKeyframeValue';
 import { useLayoutContext } from '../useLayoutContext';
 
-
+const DEFAULT_COLOR = 'rgba(0, 0, 0, 1)';
 export const useFileItem = (item: ImageItem | VideoItem, sectionId: string) => {
   const layoutId = useLayoutContext();
   const radius = useKeyframeValue(
     item,
     KeyframeType.BorderRadius,
     (item, layoutId) => {
-      if (!layoutId) return;
+      if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];
-      return  'radius' in layoutParams ? layoutParams.radius : undefined;
+      return  'radius' in layoutParams ? layoutParams.radius : 0;
     },
-    (animator, scroll, value) => value !== undefined ? animator.getRadius({ radius: value }, scroll).radius : undefined,
+    (animator, scroll, value) => animator.getRadius({ radius: value }, scroll).radius,
     sectionId,
     [layoutId]
   );
@@ -21,11 +21,11 @@ export const useFileItem = (item: ImageItem | VideoItem, sectionId: string) => {
     item,
     KeyframeType.BorderWidth,
     (item, layoutId) => {
-      if (!layoutId) return;
+      if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];
-      return 'strokeWidth' in layoutParams ? layoutParams.strokeWidth : undefined;
+      return 'strokeWidth' in layoutParams ? layoutParams.strokeWidth : 0;
     },
-    (animator, scroll, value) => value !== undefined ? animator.getBorderWidth({ borderWidth: value }, scroll).borderWidth : undefined,
+    (animator, scroll, value) => animator.getBorderWidth({ borderWidth: value }, scroll).borderWidth,
     sectionId,
     [layoutId]
   );
@@ -34,11 +34,11 @@ export const useFileItem = (item: ImageItem | VideoItem, sectionId: string) => {
     item,
     KeyframeType.Opacity,
     (item, layoutId) => {
-      if (!layoutId) return;
+      if (!layoutId) return 1;
       const layoutParams = item.layoutParams[layoutId];
-      return 'opacity' in layoutParams ? layoutParams.opacity : 0;
+      return 'opacity' in layoutParams ? layoutParams.opacity : 1;
     },
-    (animator, scroll, value) => value !== undefined ? animator.getOpacity({ opacity: value }, scroll).opacity : undefined,
+    (animator, scroll, value) => animator.getOpacity({ opacity: value }, scroll).opacity,
     sectionId,
     [layoutId]
   );
@@ -47,11 +47,11 @@ export const useFileItem = (item: ImageItem | VideoItem, sectionId: string) => {
     item,
     KeyframeType.BorderColor,
     (item, layoutId) => {
-      if (!layoutId) return;
+      if (!layoutId) return DEFAULT_COLOR;
       const layoutParams = item.layoutParams[layoutId];
-      return 'strokeColor' in layoutParams ? layoutParams.strokeColor : undefined;
+      return 'strokeColor' in layoutParams ? layoutParams.strokeColor : DEFAULT_COLOR;
     },
-    (animator, scroll, value) => value ? animator.getBorderColor({ color: value }, scroll).color : undefined,
+    (animator, scroll, value) => animator.getBorderColor({ color: value }, scroll).color,
     sectionId
   );
 
@@ -59,11 +59,11 @@ export const useFileItem = (item: ImageItem | VideoItem, sectionId: string) => {
     item,
     KeyframeType.Blur,
     (item, layoutId) => {
-      if (!layoutId) return;
+      if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];
       return 'blur' in layoutParams ? layoutParams.blur : 0;
     },
-    (animator, scroll, value) => value !== undefined ? animator.getBlur({ blur: value }, scroll).blur : undefined,
+    (animator, scroll, value) => animator.getBlur({ blur: value }, scroll).blur,
     sectionId
   );
 

@@ -65,9 +65,9 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
           player.pauseVideo();
         }}
         style={{
-          ...(opacity !== undefined  ? { opacity: `${opacity}` } : {}),
-          ...(angle !== undefined  ? { transform: `rotate(${angle}deg)` } : {}),
-          ...(blur !== undefined  ? { filter: `blur(${blur * 100}vw)` } : {})
+          opacity: `${opacity}`,
+          transform: `rotate(${angle}deg)`,
+          filter: `blur(${blur * 100}vw)`
         }}
       >
         <div

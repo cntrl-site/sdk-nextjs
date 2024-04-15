@@ -17,7 +17,7 @@ export const useKeyframeValue = <T>(
   animatorGetter: AnimatorGetter<T>,
   sectionId: string,
   deps: DependencyList = emptyDeps
-): T | undefined => {
+): T => {
   const animatorGetterRef = useRef(animatorGetter);
   const itemParamsGetterRef = useRef(itemParamsGetter);
 
@@ -81,6 +81,6 @@ export const useKeyframeValue = <T>(
       handleKeyframeValue(scroll);
     });
   }, [handleKeyframeValue, articleRectObserver, animator]);
-  return keyframes.length ? adjustedValue : undefined;
+  return adjustedValue;
 };
 

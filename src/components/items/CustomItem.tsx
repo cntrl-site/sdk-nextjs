@@ -22,7 +22,7 @@ export const CustomItem: FC<ItemProps<TCustomItem>> = ({ item, onResize, section
         className={`custom-component-${item.id}`}
         ref={setRef}
         style={{
-          ...(angle !== undefined  ? {transform: `rotate(${angle}deg)`} : {}),
+          transform: `rotate(${angle}deg)`,
         }}
       >
         {component({})}

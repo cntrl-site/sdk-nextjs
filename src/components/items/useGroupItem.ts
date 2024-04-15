@@ -8,11 +8,11 @@ export function useGroupItem(item: GroupItem, sectionId: string) {
     item,
     KeyframeType.Opacity,
     (item, layoutId) => {
-      if (!layoutId) return;
+      if (!layoutId) return 1;
       const layoutParams = item.layoutParams[layoutId];
-      return 'opacity' in layoutParams ? layoutParams.opacity : 0;
+      return 'opacity' in layoutParams ? layoutParams.opacity : 1;
     },
-    (animator, scroll, value) => value !== undefined ? animator.getOpacity({ opacity: value }, scroll).opacity : undefined,
+    (animator, scroll, value) => animator.getOpacity({ opacity: value }, scroll).opacity,
     sectionId,
     [layoutId]
   );

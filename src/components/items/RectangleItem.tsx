@@ -16,8 +16,8 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
   const { layouts } = useCntrlContext();
   const { fillColor, radius, strokeWidth, strokeColor, blur, backdropBlur } = useRectangleItem(item, sectionId);
   const angle = useItemAngle(item, sectionId);
-  const backgroundColor = useMemo(() => fillColor ? CntrlColor.parse(fillColor) : undefined, [fillColor]);
-  const borderColor = useMemo(() => strokeColor ? CntrlColor.parse(strokeColor) : undefined, [strokeColor]);
+  const backgroundColor = useMemo(() => CntrlColor.parse(fillColor), [fillColor]);
+  const borderColor = useMemo(() => CntrlColor.parse(strokeColor), [strokeColor]);
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
@@ -30,13 +30,14 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
           className={`rectangle-${item.id}`}
           ref={setRef}
           style={{
-            ...(backgroundColor ? { backgroundColor: `${backgroundColor.toCss()}` } : {}),
-            ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),
-            ...(strokeWidth !== undefined ? { borderWidth: `${strokeWidth * 100}vw` } : {}),
-            ...(borderColor ? { borderColor: `${borderColor.toCss()}` } : {}),
-            ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
-            ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
-            ...(backdropBlur !== undefined ? { backdropFilter: backdropFilterValue, WebkitBackdropFilter: backdropFilterValue } : {})
+            backgroundColor: `${backgroundColor.fmt('rgba')}`,
+            borderRadius: `${radius * 100}vw`,
+            borderWidth: `${strokeWidth * 100}vw`,
+            borderColor: `${borderColor.toCss()}`,
+            transform: `rotate(${angle}deg)`,
+            filter: `blur(${blur * 100}vw)`,
+            backdropFilter: backdropFilterValue,
+            WebkitBackdropFilter: backdropFilterValue
           }}
         />
         <JSXStyle id={id}>{`

@@ -10,11 +10,11 @@ export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => 
     item,
     KeyframeType.Blur,
     (item, layoutId) => {
-      if (!layoutId) return;
+      if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];
       return 'blur' in layoutParams ? layoutParams.blur : 0;
     },
-    (animator, scroll, value) => value !== undefined ? animator.getBlur({ blur: value }, scroll).blur : undefined,
+    (animator, scroll, value) => animator.getBlur({ blur: value }, scroll).blur,
     sectionId,
     [layoutId]
   );
@@ -23,11 +23,11 @@ export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => 
     item,
     KeyframeType.LetterSpacing,
     (item, layoutId) => {
-      if (!layoutId) return;
+      if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];
       return 'letterSpacing' in layoutParams ? layoutParams.letterSpacing : 0;
     },
-    (animator, scroll, value) => value !== undefined ? animator.getLetterSpacing({ letterSpacing: value }, scroll).letterSpacing : undefined,
+    (animator, scroll, value) => animator.getLetterSpacing({ letterSpacing: value }, scroll).letterSpacing,
     sectionId,
     [layoutId]
   );
@@ -36,11 +36,11 @@ export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => 
     item,
     KeyframeType.WordSpacing,
     (item, layoutId) => {
-      if (!layoutId) return;
+      if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];
       return 'wordSpacing' in layoutParams ? layoutParams.wordSpacing : 0;
     },
-    (animator, scroll, value) => value !== undefined ? animator.getWordSpacing({ wordSpacing: value }, scroll).wordSpacing : undefined,
+    (animator, scroll, value) => animator.getWordSpacing({ wordSpacing: value }, scroll).wordSpacing,
     sectionId,
     [layoutId]
   );
@@ -49,11 +49,11 @@ export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => 
     item,
     KeyframeType.TextColor,
     (item, layoutId) => {
-      if (!layoutId) return;
+      if (!layoutId) return DEFAULT_COLOR;
       const layoutParams = item.layoutParams[layoutId];
       return 'color' in layoutParams ? layoutParams.color : DEFAULT_COLOR;
     },
-    (animator, scroll, value) => value ? animator.getTextColor({ color: value }, scroll).color : undefined,
+    (animator, scroll, value) => animator.getTextColor({ color: value }, scroll).color,
     sectionId,
     [layoutId]
   );

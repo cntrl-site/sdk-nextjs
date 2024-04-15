@@ -26,8 +26,8 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
           className={`group-${item.id}`}
           ref={setRef}
           style={{
-            ...(opacity !== undefined  ? { opacity } : {}),
-            ...(angle !== undefined  ? {transform: `rotate(${angle}deg)`} : {}),
+            opacity,
+            transform: `rotate(${angle}deg)`,
           }}
         >
           {items && items.map(item => (
