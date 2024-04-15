@@ -65,16 +65,16 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
           player.pauseVideo();
         }}
         style={{
-          ...(opacity ? { opacity: `${opacity}` } : {}),
-          ...(angle ? { transform: `rotate(${angle}deg)` } : {}),
-          ...(blur ? { filter: `blur(${blur * 100}vw)` } : {})
+          ...(opacity !== undefined  ? { opacity: `${opacity}` } : {}),
+          ...(angle !== undefined  ? { transform: `rotate(${angle}deg)` } : {}),
+          ...(blur !== undefined  ? { filter: `blur(${blur * 100}vw)` } : {})
         }}
       >
         <div
           className={`embed-${item.id}`}
           ref={setDiv}
           style={{
-            ...(radius ? { borderRadius: `${radius * 100}vw` } : {})
+            ...(radius !== undefined  ? { borderRadius: `${radius * 100}vw` } : {})
           }}
         />
       </div>
@@ -107,10 +107,10 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
               transition: ${getTransitions<ArticleItemType.YoutubeEmbed>(['radius'], hoverParams)};
             }
             .embed-youtube-video-wrapper-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.YoutubeEmbed>(['angle', 'blur', 'opacity'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.YoutubeEmbed>(['angle', 'blur', 'opacity'], hoverParams)};
             }
             .embed-youtube-video-wrapper-${item.id}:hover .embed-${item.id} {
-              ${getHoverStyles<ArticleItemType.YoutubeEmbed>(['radius'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.YoutubeEmbed>(['radius'], hoverParams)};
             }
           `);
       })}

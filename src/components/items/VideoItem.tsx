@@ -21,13 +21,13 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const layoutId = useLayoutContext();
-  const scrollPlayback = item.layoutParams[layoutId!].scrollPlayback;
+  const scrollPlayback = layoutId ? item.layoutParams[layoutId].scrollPlayback : null;
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
   const hasScrollPlayback = scrollPlayback !== null;
   useRegisterResize(ref, onResize);
   const inlineStyles = {
-    ...(radius ? { borderRadius: `${radius * 100}vw` } : {}),
-    ...(strokeWidth ? { borderWidth: `${strokeWidth * 100}vw` } : {}),
+    ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),
+    ...(strokeWidth !== undefined  ? { borderWidth: `${strokeWidth * 100}vw` } : {}),
     ...(borderColor ? { borderColor: `${borderColor.toCss()}` } : {})
   };
 
@@ -37,9 +37,9 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
         className={`video-wrapper-${item.id}`}
         ref={setRef}
         style={{
-          ...(opacity ? { opacity: `${opacity}` } : {}),
-          ...(angle ? { transform: `rotate(${angle}deg)` } : {}),
-          ...(blur ? { filter: `blur(${blur * 100}vw)` } : {}),
+          ...(opacity !== undefined ? { opacity: `${opacity}` } : {}),
+          ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
+          ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
         }}
       >
         {hasScrollPlayback ? (
@@ -98,7 +98,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
               transition: ${getTransitions<ArticleItemType.Video>(['angle', 'opacity', 'blur'], hoverParams)};
             }
             .video-wrapper-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.Video>(['angle', 'opacity', 'blur'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.Video>(['angle', 'opacity', 'blur'], hoverParams)};
             }
             .video-${item.id} {
               border-color: ${CntrlColor.parse(layoutParams.strokeColor).fmt('rgba')};
@@ -107,7 +107,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
               transition: ${getTransitions<ArticleItemType.Video>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)};
             }
             .video-wrapper-${item.id}:hover .video {
-              ${getHoverStyles<ArticleItemType.Video>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.Video>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)};
             }
           `);
         })}

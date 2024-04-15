@@ -10,13 +10,15 @@ import { useRichTextItemValues } from './useRichTextItemValues';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { getFontFamilyValue } from '../../utils/getFontFamilyValue';
 import { useExemplary } from '../../common/useExemplary';
+import { useItemAngle } from '../useItemAngle';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize }) => {
   const [content, styles] = useRichTextItem(item);
   const id = useId();
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const { layouts } = useCntrlContext();
-  const { angle, blur, wordSpacing, letterSpacing, color } = useRichTextItemValues(item, sectionId);
+  const angle = useItemAngle(item, sectionId);
+  const { blur, wordSpacing, letterSpacing, color } = useRichTextItemValues(item, sectionId);
   const textColor = useMemo(() => color ? CntrlColor.parse(color) : undefined, [color]);
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
   const exemplary = useExemplary();
@@ -28,10 +30,10 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
         ref={setRef}
         className={`rich-text-wrapper-${item.id}`}
         style={{
-          ...(angle ? { transform: `rotate(${angle}deg)` } : {}),
-          ...(blur ? { filter: `blur(${blur * exemplary}px)` } : {}),
-          ...(letterSpacing ? { letterSpacing: `${letterSpacing * exemplary}px` } : {}),
-          ...(wordSpacing ? { wordSpacing: `${wordSpacing * exemplary}px` }: {}),
+          ...(angle !== undefined  ? { transform: `rotate(${angle}deg)` } : {}),
+          ...(blur !== undefined  ? { filter: `blur(${blur * exemplary}px)` } : {}),
+          ...(letterSpacing !== undefined  ? { letterSpacing: `${letterSpacing * exemplary}px` } : {}),
+          ...(wordSpacing !== undefined  ? { wordSpacing: `${wordSpacing * exemplary}px` }: {}),
           ...(textColor ? { color: `${textColor.toCss()}` } : {})
         }}
       >
@@ -59,7 +61,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
               transition: ${getTransitions<ArticleItemType.RichText>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color'], hoverParams)};
             }
             .rich-text-wrapper-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.RichText>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.RichText>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color'], hoverParams)};
             }
             @supports not (color: oklch(42% 0.3 90 / 1)) {
               .rich-text-wrapper-${item.id} {

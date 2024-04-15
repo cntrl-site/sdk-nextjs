@@ -26,8 +26,8 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
           className={`group-${item.id}`}
           ref={setRef}
           style={{
-            ...(opacity ? { opacity } : {}),
-            ...(angle ? {transform: `rotate(${angle}deg)`} : {}),
+            ...(opacity !== undefined  ? { opacity } : {}),
+            ...(angle !== undefined  ? {transform: `rotate(${angle}deg)`} : {}),
           }}
         >
           {items && items.map(item => (
@@ -55,7 +55,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
               transition: ${getTransitions<ArticleItemType.Group>(['opacity', 'angle'], hoverParams)};
             }
             .group-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.Group>(['opacity', 'angle'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.Group>(['opacity', 'angle'], hoverParams)};
             }
           `);
         })}

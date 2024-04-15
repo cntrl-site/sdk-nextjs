@@ -43,9 +43,9 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
         className={`embed-video-wrapper-${item.id}`}
         ref={setRef}
         style={{
-          ...(opacity ? { opacity: `${opacity}` } : {}),
-          ...(angle ? { transform: `rotate(${angle}deg)` } : {}),
-          ...(blur ? { filter: `blur(${blur * 100}vw)` } : {})
+          ...(opacity !== undefined  ? { opacity: `${opacity}` } : {}),
+          ...(angle !== undefined  ? { transform: `rotate(${angle}deg)` } : {}),
+          ...(blur !== undefined  ? { filter: `blur(${blur * 100}vw)` } : {})
         }}
         onMouseEnter={() => {
           if (!vimeoPlayer || play !== 'on-hover') return;
@@ -63,7 +63,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
           allow="autoplay; fullscreen; picture-in-picture;"
           allowFullScreen
           style={{
-            ...(radius ? { borderRadius: `${radius * 100}vw` } : {})
+            ...(radius !== undefined  ? { borderRadius: `${radius * 100}vw` } : {})
           }}
         />
       </div>
@@ -96,7 +96,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
             transition: ${getTransitions<ArticleItemType.VimeoEmbed>(['radius'], hoverParams)};
           }
           .embed-video-wrapper-${item.id}:hover .embedVideo {
-            ${getHoverStyles<ArticleItemType.VimeoEmbed>(['radius'], hoverParams)}
+            ${getHoverStyles<ArticleItemType.VimeoEmbed>(['radius'], hoverParams)};
           }
         `);
       })}

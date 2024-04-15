@@ -31,12 +31,12 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
           ref={setRef}
           style={{
             ...(backgroundColor ? { backgroundColor: `${backgroundColor.toCss()}` } : {}),
-            ...(radius ? { borderRadius: `${radius * 100}vw` } : {}),
-            ...(strokeWidth ? { borderWidth: `${strokeWidth * 100}vw` } : {}),
+            ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),
+            ...(strokeWidth !== undefined ? { borderWidth: `${strokeWidth * 100}vw` } : {}),
             ...(borderColor ? { borderColor: `${borderColor.toCss()}` } : {}),
             ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
-            ...(blur ? { filter: `blur(${blur * 100}vw)` } : {}),
-            ...(backdropBlur ? { backdropFilter: backdropFilterValue, WebkitBackdropFilter: backdropFilterValue } : {})
+            ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
+            ...(backdropBlur !== undefined ? { backdropFilter: backdropFilterValue, WebkitBackdropFilter: backdropFilterValue } : {})
           }}
         />
         <JSXStyle id={id}>{`
@@ -56,12 +56,12 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
               border-width: ${layoutParams.strokeWidth * 100}vw;
               transform: rotate(${area.angle}deg);
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
-              backdrop-filter: ${layoutParams.backdropFilter !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'},
-              -webkit-backdrop-filter: ${layoutParams.backdropFilter !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'},
+              backdrop-filter: ${layoutParams.backdropFilter !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
+              -webkit-backdrop-filter: ${layoutParams.backdropFilter !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
               transition: ${getTransitions<ArticleItemType.Rectangle>(['angle', 'fillColor', 'strokeWidth', 'radius', 'strokeColor', 'blur', 'backdropBlur'], hoverParams)};
             }
             .rectangle-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.Rectangle>(['angle', 'fillColor', 'strokeWidth', 'radius', 'strokeColor', 'blur', 'backdropBlur'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.Rectangle>(['angle', 'fillColor', 'strokeWidth', 'radius', 'strokeColor', 'blur', 'backdropBlur'], hoverParams)};
             }
           `);
         })}

@@ -67,8 +67,8 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const rectHeight = Math.floor(rect?.height ?? 0);
   const inlineStyles = {
     ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),
-    ...(strokeWidth !== undefined ? {borderWidth: `${strokeWidth * 100}vw`} : {}),
-    ...(borderColor ? { borderColor: `${borderColor.toCss()}`} : {})
+    ...(strokeWidth !== undefined ? { borderWidth: `${strokeWidth * 100}vw` } : {}),
+    ...(borderColor ? { borderColor: `${borderColor.toCss()}` } : {})
   };
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
@@ -134,7 +134,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
               transition: ${getTransitions<ArticleItemType.Image>(['angle', 'opacity', 'blur'], hoverParams)};
             }
             .image-wrapper-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.Image>(['angle', 'opacity', 'blur'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.Image>(['angle', 'opacity', 'blur'], hoverParams)};
             }
             .image-${item.id} {
               border-color: ${CntrlColor.parse(layoutParams.strokeColor).fmt('rgba')};
@@ -143,7 +143,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
               transition: ${getTransitions<ArticleItemType.Image>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)};
             }
             .image-wrapper-${item.id}:hover .image, .image-wrapper-${item.id}:hover .img-canvas {
-              ${getHoverStyles<ArticleItemType.Image>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.Image>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)};
             }
           `);
         })}

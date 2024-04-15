@@ -159,7 +159,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
                     : `${dimensions.width * 100}vw`
                   : 'max-content'}`,
                 height: `${sizingAxis.y === 'manual' ? `${dimensions.height * 100}vw` : 'unset'}` } : {}),
-              ...(scale ? { transform: `scale(${scale})` } : {}),
+              ...(scale !== undefined ? { transform: `scale(${scale})` } : {}),
             }}
           >
             <ItemComponent item={item} sectionId={sectionId} onResize={handleItemResize} articleHeight={articleHeight} />
@@ -183,10 +183,10 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
             .item-${item.id}-inner {
               transition: ${getTransitions(['width', 'height', 'scale'], hoverParams)};
               width: ${sizingAxis.x === 'manual'
-            ? isRichText
-              ? `${area.width * exemplary}px`
-              : `${area.width * 100}vw`
-            : 'max-content'};
+                ? isRichText
+                  ? `${area.width * exemplary}px`
+                  : `${area.width * 100}vw`
+                : 'max-content'};
               height: ${sizingAxis.y === 'manual' ? `${area.height * 100}vw` : 'unset'};
               transform: scale(${area.scale});
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};

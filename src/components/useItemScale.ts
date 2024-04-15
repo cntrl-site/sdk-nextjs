@@ -8,7 +8,7 @@ export const useItemScale = (item: ItemAny, sectionId: string) => {
     item,
     KeyframeType.Scale,
     (item, layoutId) => (layoutId ? item.area[layoutId].scale : undefined),
-    (animator, scroll, value) => value ? animator.getScale({ scale: value }, scroll).scale : undefined,
+    (animator, scroll, value) => value !== undefined ? animator.getScale({ scale: value }, scroll).scale : undefined,
     sectionId,
     [layoutId]
   );
