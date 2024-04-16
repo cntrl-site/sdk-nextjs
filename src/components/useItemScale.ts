@@ -1,17 +1,17 @@
-import { ScaleAnchor, ItemAny } from '@cntrl-site/sdk';
+import { ScaleAnchor, ItemAny, KeyframeType } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../common/useKeyframeValue';
 import { useLayoutContext } from './useLayoutContext';
 
 export const useItemScale = (item: ItemAny, sectionId: string) => {
   const layoutId = useLayoutContext();
-  const { scale } = useKeyframeValue(
+  const scale = useKeyframeValue(
     item,
-    (item, layoutId) => ({ scale: layoutId ? item.area[layoutId].scale : 1 }),
-    (animator, scroll, value) => animator.getScale(value, scroll),
+    KeyframeType.Scale,
+    (item, layoutId) => (layoutId ? item.area[layoutId].scale : undefined),
+    (animator, scroll, value) => value !== undefined ? animator.getScale({ scale: value }, scroll).scale : undefined,
     sectionId,
     [layoutId]
   );
-  const scaleAnchor = layoutId ? item.area[layoutId].scaleAnchor : ScaleAnchor.MiddleCenter;
 
-  return { scale, scaleAnchor };
+  return scale;
 };

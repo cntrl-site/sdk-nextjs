@@ -15,6 +15,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
   const angle = useItemAngle(item, sectionId);
   const { layouts } = useCntrlContext();
   const { opacity } = useGroupItem(item, sectionId);
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
 
@@ -46,13 +47,15 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
           height: 100%;
           box-sizing: border-box;
         }
-        ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams]) => {
           return (`
             .group-${item.id} {
-              transition: ${getTransitions<ArticleItemType.Group>(['opacity'], hoverParams)};
+              opacity: ${layoutParams.opacity};
+              transform: rotate(${area.angle}deg);
+              transition: ${getTransitions<ArticleItemType.Group>(['opacity', 'angle'], hoverParams)};
             }
             .group-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.Group>(['opacity'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.Group>(['opacity', 'angle'], hoverParams)};
             }
           `);
         })}

@@ -1,4 +1,4 @@
-import { RectangleItem } from '@cntrl-site/sdk';
+import { KeyframeType, RectangleItem } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../../common/useKeyframeValue';
 import { useLayoutContext } from '../useLayoutContext';
 
@@ -8,6 +8,7 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
   const layoutId = useLayoutContext();
   const radius = useKeyframeValue(
     item,
+    KeyframeType.BorderRadius,
     (item, layoutId) => {
       if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];
@@ -19,6 +20,7 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
   );
   const strokeWidth = useKeyframeValue(
     item,
+    KeyframeType.BorderWidth,
     (item, layoutId) => {
       if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];
@@ -30,6 +32,7 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
   );
   const fillColor = useKeyframeValue(
     item,
+    KeyframeType.Color,
     (item, layoutId) => {
       if (!layoutId) return defaultColor;
       const layoutParams = item.layoutParams[layoutId];
@@ -41,6 +44,7 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
   );
   const strokeColor = useKeyframeValue(
     item,
+    KeyframeType.BorderColor,
     (item, layoutId) => {
       if (!layoutId) return defaultColor;
       const layoutParams = item.layoutParams[layoutId];
@@ -52,6 +56,7 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
   );
   const blur = useKeyframeValue(
     item,
+    KeyframeType.Blur,
     (item, layoutId) => {
       if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];
@@ -63,6 +68,7 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
   );
   const backdropBlur = useKeyframeValue(
     item,
+    KeyframeType.BackdropBlur,
     (item, layoutId) => {
       if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];

@@ -1,4 +1,4 @@
-import { ComponentType, FC, PropsWithChildren, useContext, useEffect, useId, useRef, useState } from 'react';
+import { ComponentType, FC, PropsWithChildren, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import {
   AnchorSide,
@@ -29,6 +29,8 @@ import { useLayoutContext } from './useLayoutContext';
 import { ArticleRectContext } from "../provider/ArticleRectContext";
 import { useExemplary } from "../common/useExemplary";
 import { GroupItem } from './items/GroupItem';
+import { ScaleAnchor } from '@cntrl-site/sdk/src/types/article/ItemArea';
+import { KeyframesContext } from '../provider/KeyframesContext';
 
 export interface ItemProps<I extends ItemAny> {
   item: I;
@@ -76,17 +78,19 @@ const noop = () => null;
 export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isInGroup = false }) => {
   const itemWrapperRef = useRef<HTMLDivElement | null>(null);
   const rectObserver = useContext(ArticleRectContext);
+  const keyframesRepo = useContext(KeyframesContext);
   const id = useId();
+  const keyframes = useMemo(() => keyframesRepo.getItemKeyframes(item.id), [keyframesRepo, item.id]);
   const { layouts } = useCntrlContext();
   const layout = useLayoutContext();
   const exemplary = useExemplary();
   const [wrapperHeight, setWrapperHeight] = useState<undefined | number>(undefined);
   const [itemHeight, setItemHeight] = useState<undefined | number>(undefined);
-  const { scale, scaleAnchor } = useItemScale(item, sectionId);
-  const { top, left, bottom } = useItemPosition(item, sectionId);
+  const scale = useItemScale(item, sectionId);
+  const position = useItemPosition(item, sectionId);
   const sectionHeight = useSectionHeightData(sectionId);
   const stickyTop = useStickyItemTop(item, sectionHeight, sectionId);
-  const { width, height } = useItemDimensions(item, sectionId);
+  const dimensions = useItemDimensions(item, sectionId);
   const layoutValues: Record<string, any>[] = [item.area, item.hidden, item.state.hover];
   const isInitialRef = useRef(true);
   layoutValues.push(item.sticky);
@@ -105,7 +109,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
   const handleItemResize = (height: number) => {
     if (!layout) return;
     const sticky = item.sticky[layout];
-    if (!sticky) {
+    if (!sticky || stickyTop === undefined) {
       setWrapperHeight(undefined);
       return;
     }
@@ -124,36 +128,38 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
   }, []);
 
   const isRichText = isItemType(item, ArticleItemType.RichText);
-
-  if (!layout) return null;
-  const styles = {
-    top: `${stickyTop * 100}vw`,
-    height: isRichText && itemHeight ? `${itemHeight * 100}vw` : 'unset'
-  };
-
   return (
     <div
       className={`item-wrapper-${item.id}`}
       ref={itemWrapperRef}
-      style={isInitialRef.current ? {} : { top, left, bottom, ...(wrapperHeight !== undefined ? { height: `${wrapperHeight * 100}vw` } : {}) }}
+      style={{
+        ...(position ? { top: position.top } : {}),
+        ...(position ? { left: position.left } : {}),
+        ...(position ? { bottom: position.bottom } : {}),
+        ...(wrapperHeight !== undefined ? { height: `${wrapperHeight * 100}vw` } : {})
+      }}
     >
       <div
         suppressHydrationWarning={true}
         className={`item-${item.id}`}
-        style={isInitialRef.current ? {} : styles }
+        style={{
+          opacity: (keyframes.length !== 0 && !layout) ? 0 : 1,
+          top: `${stickyTop * 100}vw`,
+          height: isRichText && itemHeight ? `${itemHeight * 100}vw` : 'unset'
+        }}
       >
         <RichTextWrapper isRichText={isRichText}>
           <div
             className={`item-${item.id}-inner`}
             style={{
-              width: `${sizingAxis.x === 'manual'
-                ? isRichText
-                  ? `${width * exemplary}px`
-                  : `${width * 100}vw`
-                : 'max-content'}`,
-              height: `${sizingAxis.y === 'manual' ? `${height * 100}vw` : 'unset'}`,
-              transform: `scale(${scale})`,
-              transformOrigin: ScaleAnchorMap[scaleAnchor]
+              ...(dimensions ? {
+                width: `${sizingAxis.x === 'manual'
+                  ? isRichText
+                    ? `${dimensions.width * exemplary}px`
+                    : `${dimensions.width * 100}vw`
+                  : 'max-content'}`,
+                height: `${sizingAxis.y === 'manual' ? `${dimensions.height * 100}vw` : 'unset'}` } : {}),
+              ...(scale !== undefined ? { transform: `scale(${scale})` } : {}),
             }}
           >
             <ItemComponent item={item} sectionId={sectionId} onResize={handleItemResize} articleHeight={articleHeight} />
@@ -161,22 +167,28 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
         </RichTextWrapper>
       </div>
       <JSXStyle id={id}>{`
-        ${getLayoutStyles(layouts, layoutValues, ([area, hidden, hoverParams, sticky, sectionHeight, layoutParams]) => {
+        ${getLayoutStyles(layouts, layoutValues, ([area, hidden, hoverParams, sticky, sectionHeight, layoutParams], exemplary) => {
           const sizingAxis = parseSizing(layoutParams.sizing);
-        const isScreenBasedBottom = area.positionType === PositionType.ScreenBased && area.anchorSide === AnchorSide.Bottom;
+          const isScreenBasedBottom = area.positionType === PositionType.ScreenBased && area.anchorSide === AnchorSide.Bottom;
+          const scaleAnchor = area.scaleAnchor as ScaleAnchor;
           return (`
             .item-${item.id} {
               position: ${sticky ? 'sticky' : 'absolute'};
               top: ${sticky ? `${getAnchoredItemTop(area.top - sticky.from, sectionHeight, area.anchorSide)}` : 0};
               pointer-events: auto;
+              transition: opacity 0.1s linear;
               display: ${hidden ? 'none' : 'block'};
               height: fit-content;
             }
             .item-${item.id}-inner {
               transition: ${getTransitions(['width', 'height', 'scale'], hoverParams)};
-              width: ${sizingAxis.x === 'manual' ? `${area.width * 100}vw` : 'max-content'};
+              width: ${sizingAxis.x === 'manual'
+                ? isRichText
+                  ? `${area.width * exemplary}px`
+                  : `${area.width * 100}vw`
+                : 'max-content'};
               height: ${sizingAxis.y === 'manual' ? `${area.height * 100}vw` : 'unset'};
-              transform: scale(${scale});
+              transform: scale(${area.scale});
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
               --webkit-backface-visibility: hidden;
             }
@@ -191,10 +203,10 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
               transition: ${getTransitions(['left', 'top'], hoverParams)};
             }
             .item-${item.id}-inner:hover {
-              ${getHoverStyles(['width', 'height', 'scale'], hoverParams)}
+              ${getHoverStyles(['width', 'height', 'scale'], hoverParams)};
             }
             .item-wrapper-${item.id}:hover {
-              ${getHoverStyles(['left', 'top'], hoverParams, area.anchorSide)}
+              ${getHoverStyles(['left', 'top'], hoverParams, area.anchorSide)};
             }
           `);
       })}
