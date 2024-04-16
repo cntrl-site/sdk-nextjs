@@ -1,4 +1,4 @@
-import { CodeEmbedItem, AreaAnchor } from '@cntrl-site/sdk';
+import { CodeEmbedItem, AreaAnchor, KeyframeType } from '@cntrl-site/sdk';
 import { useLayoutContext } from '../useLayoutContext';
 import { useKeyframeValue } from '../../common/useKeyframeValue';
 
@@ -7,6 +7,7 @@ export const useCodeEmbedItem = (item: CodeEmbedItem, sectionId: string) => {
 
   const blur = useKeyframeValue(
     item,
+    KeyframeType.Blur,
     (item, layoutId) => {
       if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];
@@ -19,6 +20,7 @@ export const useCodeEmbedItem = (item: CodeEmbedItem, sectionId: string) => {
 
   const opacity = useKeyframeValue(
     item,
+    KeyframeType.Opacity,
     (item, layoutId) => {
       if (!layoutId) return 1;
       const layoutParams = item.layoutParams[layoutId];
@@ -29,6 +31,6 @@ export const useCodeEmbedItem = (item: CodeEmbedItem, sectionId: string) => {
     [layoutId]
   );
 
-  const anchor = 'areaAnchor' in item.layoutParams && layoutId ? item.layoutParams[layoutId].areaAnchor : AreaAnchor.TopLeft;
+  const anchor = layoutId && 'areaAnchor' in item.layoutParams[layoutId] ? item.layoutParams[layoutId].areaAnchor : AreaAnchor.TopLeft;
   return { anchor, blur, opacity };
 };

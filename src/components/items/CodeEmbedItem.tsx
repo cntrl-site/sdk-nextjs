@@ -30,6 +30,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
   const pos = stylesMap[anchor];
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
 
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
@@ -41,7 +42,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
         <div className="embed" dangerouslySetInnerHTML={{ __html: html }}></div>
       </div>
       <JSXStyle id={id}>{`
-      .embed-wrapper-${item.id} {
+      .embed -wrapper-${item.id} {
         position: absolute;
         width: 100%;
         height: 100%;
@@ -53,9 +54,12 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
         border: none;
         overflow: hidden;
       }
-      ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
+      ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams]) => {
         return (`
           .embed-wrapper-${item.id} {
+            opacity: ${layoutParams.opacity};
+            transform: rotate(${area.angle}deg);
+            filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
             transition: ${getTransitions<ArticleItemType.CodeEmbed>(['angle', 'blur', 'opacity'], hoverParams)};
           }
           .embed-wrapper-${item.id}:hover {

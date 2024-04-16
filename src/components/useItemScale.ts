@@ -1,4 +1,4 @@
-import { AreaAnchor, ItemAny, KeyframeType } from '@cntrl-site/sdk';
+import { ItemAny, KeyframeType } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../common/useKeyframeValue';
 import { useLayoutContext } from './useLayoutContext';
 
