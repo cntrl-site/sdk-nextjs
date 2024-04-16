@@ -1,6 +1,6 @@
 {
   "name": "@cntrl-site/sdk-nextjs",
-  "version": "0.29.7",
+  "version": "0.29.9",
   "description": "SDK for Next.js",
   "main": "lib/index.js",
   "types": "src/index.ts",

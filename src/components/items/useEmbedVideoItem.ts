@@ -1,4 +1,4 @@
-import { VimeoEmbedItem, YoutubeEmbedItem } from '@cntrl-site/sdk';
+import { KeyframeType, VimeoEmbedItem, YoutubeEmbedItem } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../../common/useKeyframeValue';
 import { useLayoutContext } from '../useLayoutContext';
 
@@ -6,6 +6,7 @@ export const useEmbedVideoItem = (item: VimeoEmbedItem | YoutubeEmbedItem, secti
   const layoutId = useLayoutContext();
   const radius = useKeyframeValue(
     item,
+    KeyframeType.BorderRadius,
     (item, layoutId) => {
       if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];
@@ -17,6 +18,7 @@ export const useEmbedVideoItem = (item: VimeoEmbedItem | YoutubeEmbedItem, secti
   );
   const blur = useKeyframeValue(
     item,
+    KeyframeType.Blur,
     (item, layoutId) => {
       if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];
@@ -29,6 +31,7 @@ export const useEmbedVideoItem = (item: VimeoEmbedItem | YoutubeEmbedItem, secti
 
   const opacity = useKeyframeValue(
     item,
+    KeyframeType.Opacity,
     (item, layoutId) => {
       if (!layoutId) return 1;
       const layoutParams = item.layoutParams[layoutId];

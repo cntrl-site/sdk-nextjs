@@ -1,20 +1,14 @@
 import { useKeyframeValue } from '../../common/useKeyframeValue';
-import { RichTextItem } from '@cntrl-site/sdk';
+import { KeyframeType, RichTextItem } from '@cntrl-site/sdk';
 import { useLayoutContext } from '../useLayoutContext';
 
 const DEFAULT_COLOR = 'rgba(0, 0, 0, 1)';
 
 export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => {
   const layoutId = useLayoutContext();
-  const { angle } = useKeyframeValue(
-    item,
-    (item, layoutId) => ({ angle: layoutId ? item.area[layoutId].angle : 0 }),
-    (animator, scroll, value) => animator.getRotation(value, scroll),
-    sectionId
-  );
-
   const blur = useKeyframeValue(
     item,
+    KeyframeType.Blur,
     (item, layoutId) => {
       if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];
@@ -27,6 +21,7 @@ export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => 
 
   const letterSpacing = useKeyframeValue(
     item,
+    KeyframeType.LetterSpacing,
     (item, layoutId) => {
       if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];
@@ -39,6 +34,7 @@ export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => 
 
   const wordSpacing = useKeyframeValue(
     item,
+    KeyframeType.WordSpacing,
     (item, layoutId) => {
       if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];
@@ -51,6 +47,7 @@ export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => 
 
   const color = useKeyframeValue(
     item,
+    KeyframeType.TextColor,
     (item, layoutId) => {
       if (!layoutId) return DEFAULT_COLOR;
       const layoutParams = item.layoutParams[layoutId];
@@ -61,5 +58,5 @@ export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => 
     [layoutId]
   );
 
-  return { angle, blur, letterSpacing, wordSpacing, color };
+  return { blur, letterSpacing, wordSpacing, color };
 };

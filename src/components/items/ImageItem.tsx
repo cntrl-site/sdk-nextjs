@@ -1,4 +1,4 @@
-import { FC, useId, useMemo, useRef, useState } from 'react';
+import { FC, useEffect, useId, useMemo, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { CntrlColor } from '@cntrl-site/color';
 import { ArticleItemType, getLayoutStyles, ImageItem as TImageItem } from '@cntrl-site/sdk';
@@ -33,6 +33,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   useRegisterResize(ref, onResize);
   const { url, hasGLEffect, fragmentShader } = item.commonParams;
   const fxCanvas = useRef<HTMLCanvasElement | null>(null);
+  const isInitialRef = useRef(true);
   const controls = item.commonParams.FXControls ?? [];
   const controlsVariables = controls.map((c) => `uniform ${c.type} ${c.shaderParam};`)
       .join('\n');
@@ -40,14 +41,18 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
     acc[control.shaderParam] = control.value;
     return acc;
   }, {});
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
   const fullShaderCode = `${baseVariables}\n${controlsVariables}\n${fragmentShader}`;
   const area = layoutId ? item.area[layoutId] : null;
   const exemplary = layouts?.find(l => l.id === layoutId)?.exemplary;
   const width = area && exemplary ? area.width * exemplary : 0;
   const height = area && exemplary ? area.height * exemplary : 0;
+  useEffect(() => {
+    isInitialRef.current = false;
+  }, []);
   useImageFx(
     fxCanvas.current,
-    hasGLEffect ?? false,
+    !!(hasGLEffect && !isInitialRef.current),
     {
       imageUrl: url,
       fragmentShader: fullShaderCode,
@@ -63,7 +68,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const inlineStyles = {
     borderRadius: `${radius * 100}vw`,
     borderWidth: `${strokeWidth * 100}vw`,
-    borderColor: `${borderColor.toCss()}`
+    borderColor: `${borderColor.fmt('rgba')}`
   };
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
@@ -81,7 +86,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
             <canvas
               style={inlineStyles}
               ref={fxCanvas}
-              className="img-canvas"
+              className={`img-canvas image-${item.id}`}
               width={rectWidth}
               height={rectHeight}
             />
@@ -95,11 +100,6 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
           )}
         </div>
         <JSXStyle id={id}>{`
-        @supports not (color: oklch(42% 0.3 90 / 1)) {
-          .image-${item.id} {
-            border-color: ${borderColor.fmt('rgba')};
-          }
-        }
         .image-wrapper-${item.id} {
           position: absolute;
           width: 100%;
@@ -125,19 +125,25 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
           border-width: 0;
           box-sizing: border-box;
         }
-        ${getLayoutStyles(layouts, [item.state.hover], ([hoverParams]) => {
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams]) => {
           return (`
             .image-wrapper-${item.id} {
+              opacity: ${layoutParams.opacity};
+              transform: rotate(${area.angle}deg);
+              filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
               transition: ${getTransitions<ArticleItemType.Image>(['angle', 'opacity', 'blur'], hoverParams)};
             }
             .image-wrapper-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.Image>(['angle', 'opacity', 'blur'], hoverParams)}
+              ${getHoverStyles<ArticleItemType.Image>(['angle', 'opacity', 'blur'], hoverParams)};
             }
             .image-${item.id} {
+              border-color: ${CntrlColor.parse(layoutParams.strokeColor).fmt('rgba')};
+              border-radius: ${layoutParams.radius * 100}vw;
+              border-width: ${layoutParams.strokeWidth * 100}vw;
               transition: ${getTransitions<ArticleItemType.Image>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)};
             }
-            .image-wrapper-${item.id}:hover .image {
-              ${getHoverStyles<ArticleItemType.Image>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)}
+            .image-wrapper-${item.id}:hover .image, .image-wrapper-${item.id}:hover .img-canvas {
+              ${getHoverStyles<ArticleItemType.Image>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)};
             }
           `);
         })}

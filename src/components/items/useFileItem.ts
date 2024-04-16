@@ -1,13 +1,13 @@
-import { ImageItem, VideoItem } from '@cntrl-site/sdk';
+import { ImageItem, KeyframeType, VideoItem } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../../common/useKeyframeValue';
 import { useLayoutContext } from '../useLayoutContext';
 
-const defaultColor = 'rgba(0, 0, 0, 1)';
-
+const DEFAULT_COLOR = 'rgba(0, 0, 0, 1)';
 export const useFileItem = (item: ImageItem | VideoItem, sectionId: string) => {
   const layoutId = useLayoutContext();
   const radius = useKeyframeValue(
     item,
+    KeyframeType.BorderRadius,
     (item, layoutId) => {
       if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];
@@ -19,6 +19,7 @@ export const useFileItem = (item: ImageItem | VideoItem, sectionId: string) => {
   );
   const strokeWidth = useKeyframeValue(
     item,
+    KeyframeType.BorderWidth,
     (item, layoutId) => {
       if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];
@@ -31,10 +32,11 @@ export const useFileItem = (item: ImageItem | VideoItem, sectionId: string) => {
 
   const opacity = useKeyframeValue(
     item,
+    KeyframeType.Opacity,
     (item, layoutId) => {
-      if (!layoutId) return 0;
+      if (!layoutId) return 1;
       const layoutParams = item.layoutParams[layoutId];
-      return 'opacity' in layoutParams ? layoutParams.opacity : 0;
+      return 'opacity' in layoutParams ? layoutParams.opacity : 1;
     },
     (animator, scroll, value) => animator.getOpacity({ opacity: value }, scroll).opacity,
     sectionId,
@@ -43,10 +45,11 @@ export const useFileItem = (item: ImageItem | VideoItem, sectionId: string) => {
 
   const strokeColor = useKeyframeValue(
     item,
+    KeyframeType.BorderColor,
     (item, layoutId) => {
-      if (!layoutId) return defaultColor;
+      if (!layoutId) return DEFAULT_COLOR;
       const layoutParams = item.layoutParams[layoutId];
-      return 'strokeColor' in layoutParams ? layoutParams.strokeColor : defaultColor;
+      return 'strokeColor' in layoutParams ? layoutParams.strokeColor : DEFAULT_COLOR;
     },
     (animator, scroll, value) => animator.getBorderColor({ color: value }, scroll).color,
     sectionId
@@ -54,6 +57,7 @@ export const useFileItem = (item: ImageItem | VideoItem, sectionId: string) => {
 
   const blur = useKeyframeValue(
     item,
+    KeyframeType.Blur,
     (item, layoutId) => {
       if (!layoutId) return 0;
       const layoutParams = item.layoutParams[layoutId];
