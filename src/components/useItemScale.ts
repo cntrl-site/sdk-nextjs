@@ -1,4 +1,4 @@
-import { ScaleAnchor, ItemAny } from '@cntrl-site/sdk';
+import { AreaAnchor, ItemAny } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../common/useKeyframeValue';
 import { useLayoutContext } from './useLayoutContext';
 
@@ -11,7 +11,7 @@ export const useItemScale = (item: ItemAny, sectionId: string) => {
     sectionId,
     [layoutId]
   );
-  const scaleAnchor = layoutId ? item.area[layoutId].scaleAnchor : ScaleAnchor.MiddleCenter;
+  const scaleAnchor = layoutId ? item.area[layoutId].scaleAnchor : AreaAnchor.MiddleCenter;
 
   return { scale, scaleAnchor };
 };

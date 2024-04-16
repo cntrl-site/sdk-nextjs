@@ -1,4 +1,4 @@
-import { ScaleAnchor } from '@cntrl-site/sdk';
+import { AreaAnchor as ScaleAnchor } from '@cntrl-site/sdk';
 
 export const ScaleAnchorMap = {
   [ScaleAnchor.TopLeft]: 'top left',

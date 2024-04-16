@@ -29,6 +29,7 @@ import { useLayoutContext } from './useLayoutContext';
 import { ArticleRectContext } from "../provider/ArticleRectContext";
 import { useExemplary } from "../common/useExemplary";
 import { GroupItem } from './items/GroupItem';
+import { CodeEmbedItem } from './items/CodeEmbedItem';
 
 export interface ItemProps<I extends ItemAny> {
   item: I;
@@ -50,7 +51,8 @@ const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
   [ArticleItemType.YoutubeEmbed]: YoutubeEmbedItem,
   [ArticleItemType.VimeoEmbed]: VimeoEmbedItem,
   [ArticleItemType.Custom]: CustomItem,
-  [ArticleItemType.Group]: GroupItem
+  [ArticleItemType.Group]: GroupItem,
+  [ArticleItemType.CodeEmbed]: CodeEmbedItem
 };
 
 interface RTWrapperProps {
