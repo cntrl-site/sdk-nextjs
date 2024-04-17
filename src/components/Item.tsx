@@ -178,11 +178,9 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
               position: ${sticky ? 'sticky' : 'absolute'};
               top: ${sticky ? `${getAnchoredItemTop(area.top - sticky.from, sectionHeight, area.anchorSide)}` : 0};
               pointer-events: auto;
-              backface-visibility: hidden;
               transition: opacity 0.1s linear;
               display: ${hidden ? 'none' : 'block'};
               height: fit-content;
-              -webkit-backface-visibility: hidden;
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
               transform: scale(${area.scale});
             }
