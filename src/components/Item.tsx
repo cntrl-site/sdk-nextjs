@@ -147,7 +147,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
         style={{
           opacity: (keyframes.length !== 0 && !layout) ? 0 : 1,
           top: `${stickyTop * 100}vw`,
-          height: isRichText && itemHeight ? `${itemHeight * 100}vw` : 'unset'
+          height: isRichText && itemHeight ? `${itemHeight * 100}vw` : 'unset',
+          ...(scale !== undefined ? { transform: `scale(${scale}) translateZ(0)`, '-webkit-transform': `scale(${scale}) translateZ(0)` } : {}),
         }}
       >
         <RichTextWrapper isRichText={isRichText}>
@@ -160,8 +161,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
                     ? `${dimensions.width * exemplary}px`
                     : `${dimensions.width * 100}vw`
                   : 'max-content'}`,
-                height: `${sizingAxis.y === 'manual' ? `${dimensions.height * 100}vw` : 'unset'}` } : {}),
-              ...(scale !== undefined ? { transform: `scale(${scale})` } : {}),
+                height: `${sizingAxis.y === 'manual' ? `${dimensions.height * 100}vw` : 'unset'}` } : {})
             }}
           >
             <ItemComponent item={item} sectionId={sectionId} onResize={handleItemResize} articleHeight={articleHeight} />
@@ -181,6 +181,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
               transition: opacity 0.1s linear;
               display: ${hidden ? 'none' : 'block'};
               height: fit-content;
+              transform-origin: ${ScaleAnchorMap[scaleAnchor]};
+              transform: scale(${area.scale});
             }
             .item-${item.id}-inner {
               transition: ${getTransitions(['width', 'height', 'scale'], hoverParams)};
@@ -190,9 +192,6 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
                   : `${area.width * 100}vw`
                 : 'max-content'};
               height: ${sizingAxis.y === 'manual' ? `${area.height * 100}vw` : 'unset'};
-              transform: scale(${area.scale});
-              transform-origin: ${ScaleAnchorMap[scaleAnchor]};
-              --webkit-backface-visibility: hidden;
             }
             .item-wrapper-${item.id} {
               position: ${area.positionType === PositionType.ScreenBased ? 'fixed': 'absolute'};
