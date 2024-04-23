@@ -1,5 +1,5 @@
 import { ArticleItemType, getLayoutStyles, CodeEmbedItem as TCodeEmbedItem, AreaAnchor } from '@cntrl-site/sdk';
-import { FC, useId, useState } from 'react';
+import { FC, useEffect, useId, useState } from 'react';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { ItemProps } from '../Item';
 import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
@@ -32,35 +32,56 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
   const pos = stylesMap[anchor];
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
 
+  useEffect(() => {
+    if (!ref) return;
+    const scripts = ref.querySelectorAll('script');
+    for (const script of scripts) {
+      const newScript = document.createElement('script');
+      for (const attr of script.getAttributeNames()) {
+        newScript.setAttribute(attr, script.getAttribute(attr)!);
+      }
+      newScript.textContent = script.textContent;
+      script.parentNode!.removeChild(script);
+      ref.appendChild(newScript);
+    }
+  }, [item.commonParams.html]);
+
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
         className={`embed-wrapper-${item.id}`}
-        style={{ opacity: `${opacity}`, transform: `rotate(${angle}deg)`, filter: `blur(${blur * 100}vw)`, ...pos}}
+        style={{ opacity: `${opacity}`, transform: `rotate(${angle}deg)`, filter: `blur(${blur * 100}vw)` }}
         ref={setRef}
       >
-        <div className="embed" dangerouslySetInnerHTML={{ __html: html }}></div>
+        <div
+          className={`embed-${item.id}`}
+          style={{ ...pos }}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
       </div>
       <JSXStyle id={id}>{`
-      .embed -wrapper-${item.id} {
+      .embed-wrapper-${item.id} {
         position: absolute;
         width: 100%;
         height: 100%;
       }
-      .embed {
-        width: 100%;
-        height: 100%;
+      .embed-${item.id} {
+        transform: ${item.commonParams.scale ? 'scale(var(--layout-deviation))' : 'none'};
+        transform-origin: top left;
         z-index: 1;
         border: none;
-        overflow: hidden;
       }
-      ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams]) => {
+      ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams], exemplary) => {
         return (`
           .embed-wrapper-${item.id} {
             opacity: ${layoutParams.opacity};
             transform: rotate(${area.angle}deg);
             filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
             transition: ${getTransitions<ArticleItemType.CodeEmbed>(['angle', 'blur', 'opacity'], hoverParams)};
+          }
+          .embed-${item.id} {
+            width: ${item.commonParams.scale ? `${area.width * exemplary}px` : '100%'};
+            height: ${item.commonParams.scale ? `${area.height * exemplary}px` : '100%'};
           }
           .embed-wrapper-${item.id}:hover {
             ${getHoverStyles<ArticleItemType.CodeEmbed>(['angle', 'blur', 'opacity'], hoverParams)}
