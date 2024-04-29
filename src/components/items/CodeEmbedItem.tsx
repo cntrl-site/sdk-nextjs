@@ -44,7 +44,14 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
       script.parentNode!.removeChild(script);
       ref.appendChild(newScript);
     }
-  }, [item.commonParams.html]);
+  }, [item.commonParams.html])
+
+  useEffect(() => {
+    if (!ref) return;
+    const iframe: HTMLIFrameElement | null = ref.querySelector(`[data-embed="${item.id}"]`);
+    if (!iframe) return;
+    iframe.srcdoc = item.commonParams.html;
+  }, [item.commonParams.html, item.commonParams.iframe, ref]);
 
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
@@ -53,11 +60,22 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
         style={{ opacity: `${opacity}`, transform: `rotate(${angle}deg)`, filter: `blur(${blur * 100}vw)` }}
         ref={setRef}
       >
-        <div
-          className={`embed-${item.id}`}
-          style={{ ...pos }}
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
+        {item.commonParams.iframe ? (
+          <iframe
+            data-embed={item.id}
+            className={`embed-${item.id}`}
+            style={{
+              ...pos,
+              border: 'unset'
+            }}
+          />
+        ) : (
+          <div
+            className={`embed-${item.id}`}
+            style={{ ...pos }}
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+        )}
       </div>
       <JSXStyle id={id}>{`
       .embed-wrapper-${item.id} {
