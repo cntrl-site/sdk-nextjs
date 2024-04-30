@@ -26,7 +26,6 @@
     "@cntrl-site/sdk": "^1.12.2",
     "@types/vimeo__player": "^2.18.0",
     "@vimeo/player": "^2.20.1",
-    "eslint-config-next": "^14.2.3",
     "html-react-parser": "^3.0.1",
     "resize-observer-polyfill": "^1.5.1",
     "styled-jsx": "^5.0.2"
