@@ -76,6 +76,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
         .video {
           width: 100%;
           height: 100%;
+          box-sizing: border-box;
           opacity: 1;
           object-fit: cover;
           pointer-events: none;
