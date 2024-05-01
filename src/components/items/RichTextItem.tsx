@@ -18,7 +18,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const { layouts } = useCntrlContext();
   const angle = useItemAngle(item, sectionId);
-  const { blur, wordSpacing, letterSpacing, color } = useRichTextItemValues(item, sectionId);
+  const { blur, wordSpacing, letterSpacing, color, fontSize, lineHeight } = useRichTextItemValues(item, sectionId);
   const textColor = useMemo(() => CntrlColor.parse(color), [color]);
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
   const exemplary = useExemplary();
@@ -32,9 +32,11 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
         style={{
           transform: `rotate(${angle}deg)`,
           filter: `blur(${blur * exemplary}px)`,
-          letterSpacing: `${letterSpacing * exemplary}px`,
-          wordSpacing: `${wordSpacing * exemplary}px`,
-          color: `${textColor.fmt('rgba')}`
+          color: `${textColor.fmt('rgba')}`,
+          ...(letterSpacing !== undefined ? { letterSpacing: `${letterSpacing * exemplary}px` } : {}),
+          ...(wordSpacing !== undefined ? { wordSpacing: `${wordSpacing * exemplary}px` } : {}),
+          ...(fontSize !== undefined ? { fontSize: `${Math.round(fontSize * exemplary)}px` } : {}),
+          ...(lineHeight !== undefined ? { lineHeight: `${lineHeight * exemplary}px` } : {}),
         }}
       >
         {content}
@@ -45,10 +47,10 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
           const color = CntrlColor.parse(layoutParams.color);
           return (`
             .rich-text-wrapper-${item.id} {
-              font-size: ${Math.round(layoutParams.fontSize * exemplary)}px;
-              line-height: ${layoutParams.lineHeight * exemplary}px;
-              letter-spacing: ${layoutParams.letterSpacing * exemplary}px;
-              word-spacing: ${layoutParams.wordSpacing * exemplary}px;
+              font-size: ${layoutParams.fontSize * 100}vw;
+              line-height: ${layoutParams.lineHeight * 100}vw;
+              letter-spacing: ${layoutParams.letterSpacing * 100}vw;
+              word-spacing: ${layoutParams.wordSpacing * 100}vw;
               font-family: ${getFontFamilyValue(layoutParams.typeFace)};
               font-weight: ${layoutParams.fontWeight};
               font-style: ${layoutParams.fontStyle ? layoutParams.fontStyle : 'normal'};
@@ -56,7 +58,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
               font-variant: ${layoutParams.fontVariant};
               color: ${color.fmt('rgba')};
               transform: rotate(${area.angle}deg);
-              filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * exemplary}px)` : 'unset'};
+              filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
               text-transform: ${layoutParams.textTransform};
               transition: ${getTransitions<ArticleItemType.RichText>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color'], hoverParams)};
             }

@@ -81,6 +81,6 @@ export const useKeyframeValue = <T>(
       handleKeyframeValue(scroll);
     });
   }, [handleKeyframeValue, articleRectObserver, animator]);
-  return adjustedValue;
+  return keyframes.length ? adjustedValue : paramValue;
 };
 
