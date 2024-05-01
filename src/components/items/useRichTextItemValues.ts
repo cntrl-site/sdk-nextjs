@@ -23,11 +23,11 @@ export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => 
     item,
     KeyframeType.LetterSpacing,
     (item, layoutId) => {
-      if (!layoutId) return 0;
+      if (!layoutId) return;
       const layoutParams = item.layoutParams[layoutId];
       return 'letterSpacing' in layoutParams ? layoutParams.letterSpacing : 0;
     },
-    (animator, scroll, value) => animator.getLetterSpacing({ letterSpacing: value }, scroll).letterSpacing,
+    (animator, scroll, value) => value !== undefined ? animator.getLetterSpacing({ letterSpacing: value }, scroll).letterSpacing : undefined,
     sectionId,
     [layoutId]
   );
@@ -36,11 +36,11 @@ export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => 
     item,
     KeyframeType.WordSpacing,
     (item, layoutId) => {
-      if (!layoutId) return 0;
+      if (!layoutId) return;
       const layoutParams = item.layoutParams[layoutId];
       return 'wordSpacing' in layoutParams ? layoutParams.wordSpacing : 0;
     },
-    (animator, scroll, value) => animator.getWordSpacing({ wordSpacing: value }, scroll).wordSpacing,
+    (animator, scroll, value) => value !== undefined ? animator.getWordSpacing({ wordSpacing: value }, scroll).wordSpacing : undefined,
     sectionId,
     [layoutId]
   );
@@ -58,5 +58,8 @@ export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => 
     [layoutId]
   );
 
-  return { blur, letterSpacing, wordSpacing, color };
+  const fontSize = layoutId ? item.layoutParams[layoutId].fontSize : undefined;
+  const lineHeight = layoutId ? item.layoutParams[layoutId].lineHeight : undefined;
+
+  return { blur, letterSpacing, wordSpacing, color, fontSize, lineHeight };
 };
