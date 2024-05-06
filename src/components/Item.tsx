@@ -148,7 +148,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
           opacity: (keyframes.length !== 0 && !layout) ? 0 : 1,
           top: `${stickyTop * 100}vw`,
           height: isRichText && itemHeight ? `${itemHeight * 100}vw` : 'unset',
-          ...(scale !== undefined ? { transform: `scale(${scale}) translateZ(0)`, '-webkit-transform': `scale(${scale}) translateZ(0)` } : {}),
+          ...(scale !== undefined ? { transform: `scale(${scale}) translateZ(0)`, 'WebkitTransform': `scale(${scale}) translateZ(0)` } : {}),
         }}
       >
         <RichTextWrapper isRichText={isRichText}>

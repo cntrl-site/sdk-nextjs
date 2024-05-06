@@ -37,9 +37,9 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
         className={`video-wrapper-${item.id}`}
         ref={setRef}
         style={{
-          opacity,
-          transform: `rotate(${angle}deg)`,
-          filter: `blur(${blur * 100}vw)`,
+          ...(opacity !== undefined ? { opacity } : {}),
+          ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
+          ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
         }}
       >
         {hasScrollPlayback ? (

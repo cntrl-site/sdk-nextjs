@@ -28,7 +28,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const layoutId = useLayoutContext();
   const { radius, strokeWidth, opacity, strokeColor, blur } = useFileItem(item, sectionId);
   const angle = useItemAngle(item, sectionId);
-  const borderColor = useMemo(() => CntrlColor.parse(strokeColor), [strokeColor]);
+  const borderColor = useMemo(() => strokeColor ? CntrlColor.parse(strokeColor) : undefined, [strokeColor]);
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
   const { url, hasGLEffect, fragmentShader } = item.commonParams;
@@ -66,9 +66,9 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const rectWidth = Math.floor(rect?.width ?? 0);
   const rectHeight = Math.floor(rect?.height ?? 0);
   const inlineStyles = {
-    borderRadius: `${radius * 100}vw`,
-    borderWidth: `${strokeWidth * 100}vw`,
-    borderColor: `${borderColor.fmt('rgba')}`
+    ...(borderColor ? { borderColor: `${borderColor.fmt('rgba')}` } : {}),
+    ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),
+    ...(strokeWidth !== undefined ? { borderWidth: `${strokeWidth * 100}vw` } : {}),
   };
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
@@ -77,9 +77,9 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
           className={`image-wrapper-${item.id}`}
           ref={setRef}
           style={{
-            opacity: `${opacity}`,
-            transform: `rotate(${angle}deg)`,
-            filter: `blur(${blur * 100}vw)`
+            ...(opacity !== undefined ? { opacity } : {}),
+            ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
+            ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
           }}
         >
           {item.commonParams.hasGLEffect ? (

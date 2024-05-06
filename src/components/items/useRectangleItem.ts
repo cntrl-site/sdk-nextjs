@@ -10,11 +10,11 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
     item,
     KeyframeType.BorderRadius,
     (item, layoutId) => {
-      if (!layoutId) return 0;
+      if (!layoutId) return;
       const layoutParams = item.layoutParams[layoutId];
       return  'radius' in layoutParams ? layoutParams.radius : 0;
     },
-    (animator, scroll, value) => animator.getRadius({ radius: value }, scroll).radius,
+    (animator, scroll, value) => value ? animator.getRadius({ radius: value }, scroll).radius : undefined,
     sectionId,
     [layoutId]
   );
@@ -22,11 +22,11 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
     item,
     KeyframeType.BorderWidth,
     (item, layoutId) => {
-      if (!layoutId) return 0;
+      if (!layoutId) return;
       const layoutParams = item.layoutParams[layoutId];
       return 'strokeWidth' in layoutParams ? layoutParams.strokeWidth : 0;
     },
-    (animator, scroll, value) => animator.getBorderWidth({ borderWidth: value }, scroll).borderWidth,
+    (animator, scroll, value) => value ? animator.getBorderWidth({ borderWidth: value }, scroll).borderWidth : undefined,
     sectionId,
     [layoutId]
   );
@@ -34,11 +34,11 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
     item,
     KeyframeType.Color,
     (item, layoutId) => {
-      if (!layoutId) return defaultColor;
+      if (!layoutId) return;
       const layoutParams = item.layoutParams[layoutId];
       return 'fillColor' in layoutParams ? layoutParams.fillColor : defaultColor;
     },
-    (animator, scroll, value) => animator.getColor({ color: value }, scroll).color,
+    (animator, scroll, value) => value ? animator.getColor({ color: value }, scroll).color : undefined,
     sectionId,
     [layoutId]
   );
@@ -46,11 +46,11 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
     item,
     KeyframeType.BorderColor,
     (item, layoutId) => {
-      if (!layoutId) return defaultColor;
+      if (!layoutId) return;
       const layoutParams = item.layoutParams[layoutId];
       return 'strokeColor' in layoutParams ? layoutParams.strokeColor : defaultColor;
     },
-    (animator, scroll, value) => animator.getBorderColor({ color: value }, scroll).color,
+    (animator, scroll, value) => value ? animator.getBorderColor({ color: value }, scroll).color : undefined,
     sectionId,
     [layoutId]
   );
@@ -58,11 +58,11 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
     item,
     KeyframeType.Blur,
     (item, layoutId) => {
-      if (!layoutId) return 0;
+      if (!layoutId) return;
       const layoutParams = item.layoutParams[layoutId];
       return 'blur' in layoutParams ? layoutParams.blur : 0;
     },
-    (animator, scroll, value) => animator.getBlur({ blur: value }, scroll).blur,
+    (animator, scroll, value) => value ? animator.getBlur({ blur: value }, scroll).blur : undefined,
     sectionId,
     [layoutId]
   );
@@ -70,11 +70,11 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
     item,
     KeyframeType.BackdropBlur,
     (item, layoutId) => {
-      if (!layoutId) return 0;
+      if (!layoutId) return;
       const layoutParams = item.layoutParams[layoutId];
       return 'backdropBlur' in layoutParams ? layoutParams.backdropBlur : 0;
     },
-    (animator, scroll, value) => animator.getBackdropBlur({ backdropBlur: value }, scroll).backdropBlur,
+    (animator, scroll, value) => value ? animator.getBackdropBlur({ backdropBlur: value }, scroll).backdropBlur : undefined,
     sectionId,
     [layoutId]
   );
