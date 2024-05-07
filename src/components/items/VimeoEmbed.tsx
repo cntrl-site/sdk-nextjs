@@ -43,9 +43,9 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
         className={`embed-video-wrapper-${item.id}`}
         ref={setRef}
         style={{
-          opacity: `${opacity}`,
-          transform: `rotate(${angle}deg)`,
-          filter: `blur(${blur * 100}vw)`
+          ...(opacity !== undefined ? { opacity } : {}),
+          ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
+          ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
         }}
         onMouseEnter={() => {
           if (!vimeoPlayer || play !== 'on-hover') return;
@@ -63,7 +63,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
           allow="autoplay; fullscreen; picture-in-picture;"
           allowFullScreen
           style={{
-            borderRadius: `${radius * 100}vw`
+            ...(radius !== undefined  ? { borderRadius: `${radius * 100}vw` } : {})
           }}
         />
       </div>

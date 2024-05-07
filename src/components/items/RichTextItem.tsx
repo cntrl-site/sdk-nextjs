@@ -19,7 +19,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   const { layouts } = useCntrlContext();
   const angle = useItemAngle(item, sectionId);
   const { blur, wordSpacing, letterSpacing, color, fontSize, lineHeight } = useRichTextItemValues(item, sectionId);
-  const textColor = useMemo(() => CntrlColor.parse(color), [color]);
+  const textColor = useMemo(() => color ? CntrlColor.parse(color) : undefined, [color]);
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
   const exemplary = useExemplary();
   useRegisterResize(ref, onResize);
@@ -30,9 +30,9 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
         ref={setRef}
         className={`rich-text-wrapper-${item.id}`}
         style={{
-          transform: `rotate(${angle}deg)`,
-          filter: `blur(${blur * exemplary}px)`,
-          color: `${textColor.fmt('rgba')}`,
+          ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
+          ...(textColor ? { color: `${textColor.fmt('rgba')}` } : {}),
+          ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
           ...(letterSpacing !== undefined ? { letterSpacing: `${letterSpacing * exemplary}px` } : {}),
           ...(wordSpacing !== undefined ? { wordSpacing: `${wordSpacing * exemplary}px` } : {}),
           ...(fontSize !== undefined ? { fontSize: `${Math.round(fontSize * exemplary)}px` } : {}),

@@ -10,11 +10,11 @@ export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => 
     item,
     KeyframeType.Blur,
     (item, layoutId) => {
-      if (!layoutId) return 0;
+      if (!layoutId) return;
       const layoutParams = item.layoutParams[layoutId];
       return 'blur' in layoutParams ? layoutParams.blur : 0;
     },
-    (animator, scroll, value) => animator.getBlur({ blur: value }, scroll).blur,
+    (animator, scroll, value) => value ? animator.getBlur({ blur: value }, scroll).blur : undefined,
     sectionId,
     [layoutId]
   );
@@ -49,11 +49,11 @@ export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => 
     item,
     KeyframeType.TextColor,
     (item, layoutId) => {
-      if (!layoutId) return DEFAULT_COLOR;
+      if (!layoutId) return;
       const layoutParams = item.layoutParams[layoutId];
       return 'color' in layoutParams ? layoutParams.color : DEFAULT_COLOR;
     },
-    (animator, scroll, value) => animator.getTextColor({ color: value }, scroll).color,
+    (animator, scroll, value) => value ? animator.getTextColor({ color: value }, scroll).color : undefined,
     sectionId,
     [layoutId]
   );

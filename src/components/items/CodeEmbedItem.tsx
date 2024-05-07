@@ -57,7 +57,11 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
         className={`embed-wrapper-${item.id}`}
-        style={{ opacity: `${opacity}`, transform: `rotate(${angle}deg)`, filter: `blur(${blur * 100}vw)` }}
+        style={{
+          ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
+          ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
+          ...(opacity !== undefined ? { opacity } : {}),
+      }}
         ref={setRef}
       >
         {item.commonParams.iframe ? (
