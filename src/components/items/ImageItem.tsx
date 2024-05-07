@@ -62,7 +62,6 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
     width,
     height
   );
-  console.log('isFXAllowed: ', isFXAllowed);
   const rect = useElementRect(ref);
   const rectWidth = Math.floor(rect?.width ?? 0);
   const rectHeight = Math.floor(rect?.height ?? 0);
