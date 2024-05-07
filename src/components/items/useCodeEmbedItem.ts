@@ -13,7 +13,7 @@ export const useCodeEmbedItem = (item: CodeEmbedItem, sectionId: string) => {
       const layoutParams = item.layoutParams[layoutId];
       return 'blur' in layoutParams ? layoutParams.blur : 0;
     },
-    (animator, scroll, value) => value ? animator.getBlur({ blur: value }, scroll).blur : undefined,
+    (animator, scroll, value) => value !== undefined ? animator.getBlur({ blur: value }, scroll).blur : undefined,
     sectionId,
     [layoutId]
   );
@@ -26,7 +26,7 @@ export const useCodeEmbedItem = (item: CodeEmbedItem, sectionId: string) => {
       const layoutParams = item.layoutParams[layoutId];
       return 'opacity' in layoutParams ? layoutParams.opacity : 1;
     },
-    (animator, scroll, value) => value ? animator.getOpacity({ opacity: value }, scroll).opacity : undefined,
+    (animator, scroll, value) => value !== undefined ? animator.getOpacity({ opacity: value }, scroll).opacity : undefined,
     sectionId,
     [layoutId]
   );

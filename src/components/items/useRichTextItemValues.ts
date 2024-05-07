@@ -14,7 +14,7 @@ export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => 
       const layoutParams = item.layoutParams[layoutId];
       return 'blur' in layoutParams ? layoutParams.blur : 0;
     },
-    (animator, scroll, value) => value ? animator.getBlur({ blur: value }, scroll).blur : undefined,
+    (animator, scroll, value) => value !== undefined ? animator.getBlur({ blur: value }, scroll).blur : undefined,
     sectionId,
     [layoutId]
   );

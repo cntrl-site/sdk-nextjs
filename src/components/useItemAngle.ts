@@ -6,9 +6,8 @@ export const useItemAngle = (item: ItemAny, sectionId: string) => {
     item,
     KeyframeType.Rotation,
     (item, layoutId) => layoutId ? item.area[layoutId].angle : undefined,
-    (animator, scroll, value) => value ? animator.getRotation({ angle: value }, scroll).angle : undefined,
+    (animator, scroll, value) => value !== undefined ? animator.getRotation({ angle: value }, scroll).angle : undefined,
     sectionId
   );
   return angle;
 };
-

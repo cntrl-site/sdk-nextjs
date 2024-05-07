@@ -14,7 +14,7 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
       const layoutParams = item.layoutParams[layoutId];
       return  'radius' in layoutParams ? layoutParams.radius : 0;
     },
-    (animator, scroll, value) => value ? animator.getRadius({ radius: value }, scroll).radius : undefined,
+    (animator, scroll, value) => value !== undefined ? animator.getRadius({ radius: value }, scroll).radius : undefined,
     sectionId,
     [layoutId]
   );
@@ -26,7 +26,7 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
       const layoutParams = item.layoutParams[layoutId];
       return 'strokeWidth' in layoutParams ? layoutParams.strokeWidth : 0;
     },
-    (animator, scroll, value) => value ? animator.getBorderWidth({ borderWidth: value }, scroll).borderWidth : undefined,
+    (animator, scroll, value) => value !== undefined ? animator.getBorderWidth({ borderWidth: value }, scroll).borderWidth : undefined,
     sectionId,
     [layoutId]
   );
@@ -62,7 +62,7 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
       const layoutParams = item.layoutParams[layoutId];
       return 'blur' in layoutParams ? layoutParams.blur : 0;
     },
-    (animator, scroll, value) => value ? animator.getBlur({ blur: value }, scroll).blur : undefined,
+    (animator, scroll, value) => value !== undefined ? animator.getBlur({ blur: value }, scroll).blur : undefined,
     sectionId,
     [layoutId]
   );
@@ -74,7 +74,7 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
       const layoutParams = item.layoutParams[layoutId];
       return 'backdropBlur' in layoutParams ? layoutParams.backdropBlur : 0;
     },
-    (animator, scroll, value) => value ? animator.getBackdropBlur({ backdropBlur: value }, scroll).backdropBlur : undefined,
+    (animator, scroll, value) => value !== undefined ? animator.getBackdropBlur({ backdropBlur: value }, scroll).backdropBlur : undefined,
     sectionId,
     [layoutId]
   );
