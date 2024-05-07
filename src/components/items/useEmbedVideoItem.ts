@@ -12,7 +12,7 @@ export const useEmbedVideoItem = (item: VimeoEmbedItem | YoutubeEmbedItem, secti
       const layoutParams = item.layoutParams[layoutId];
       return  'radius' in layoutParams ? layoutParams.radius : 0;
     },
-    (animator, scroll, value) => value ? animator.getRadius({ radius: value }, scroll).radius : undefined,
+    (animator, scroll, value) => value !== undefined ? animator.getRadius({ radius: value }, scroll).radius : undefined,
     sectionId,
     [layoutId]
   );
@@ -24,7 +24,7 @@ export const useEmbedVideoItem = (item: VimeoEmbedItem | YoutubeEmbedItem, secti
       const layoutParams = item.layoutParams[layoutId];
       return 'blur' in layoutParams ? layoutParams.blur : 0;
     },
-    (animator, scroll, value) => value ? animator.getBlur({ blur: value }, scroll).blur : undefined,
+    (animator, scroll, value) => value !== undefined ? animator.getBlur({ blur: value }, scroll).blur : undefined,
     sectionId,
     [layoutId]
   );
@@ -37,7 +37,7 @@ export const useEmbedVideoItem = (item: VimeoEmbedItem | YoutubeEmbedItem, secti
       const layoutParams = item.layoutParams[layoutId];
       return 'opacity' in layoutParams ? layoutParams.opacity : 1;
     },
-    (animator, scroll, value) => value ? animator.getOpacity({ opacity: value }, scroll).opacity : undefined,
+    (animator, scroll, value) => value !== undefined ? animator.getOpacity({ opacity: value }, scroll).opacity : undefined,
     sectionId,
     [layoutId]
   );

@@ -12,7 +12,7 @@ export function useGroupItem(item: GroupItem, sectionId: string) {
       const layoutParams = item.layoutParams[layoutId];
       return 'opacity' in layoutParams ? layoutParams.opacity : 1;
     },
-    (animator, scroll, value) => value ? animator.getOpacity({ opacity: value }, scroll).opacity : undefined,
+    (animator, scroll, value) => value !== undefined ? animator.getOpacity({ opacity: value }, scroll).opacity : undefined,
     sectionId,
     [layoutId]
   );
