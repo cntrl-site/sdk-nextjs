@@ -31,10 +31,10 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const borderColor = useMemo(() => strokeColor ? CntrlColor.parse(strokeColor) : undefined, [strokeColor]);
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
-  const { url, hasGLEffect, fragmentShader } = item.commonParams;
+  const { url, hasGLEffect, fragmentShader, FXControls, FXCursor } = item.commonParams;
   const fxCanvas = useRef<HTMLCanvasElement | null>(null);
   const isInitialRef = useRef(true);
-  const controls = item.commonParams.FXControls ?? [];
+  const controls = FXControls ?? [];
   const controlsVariables = controls.map((c) => `uniform ${c.type} ${c.shaderParam};`)
       .join('\n');
   const controlValues = controls.reduce<Record<string, ControlValue>>((acc, control) => {
@@ -50,18 +50,19 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   useEffect(() => {
     isInitialRef.current = false;
   }, []);
-  useImageFx(
+  const isFXAllowed = useImageFx(
     fxCanvas.current,
     !!(hasGLEffect && !isInitialRef.current),
     {
       imageUrl: url,
       fragmentShader: fullShaderCode,
-      cursor: item.commonParams.FXCursor,
+      cursor: FXCursor,
       controls: controlValues
     },
     width,
     height
   );
+  console.log('isFXAllowed: ', isFXAllowed);
   const rect = useElementRect(ref);
   const rectWidth = Math.floor(rect?.width ?? 0);
   const rectHeight = Math.floor(rect?.height ?? 0);
@@ -82,7 +83,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
             ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
           }}
         >
-          {item.commonParams.hasGLEffect ? (
+          {hasGLEffect && isFXAllowed ? (
             <canvas
               style={inlineStyles}
               ref={fxCanvas}

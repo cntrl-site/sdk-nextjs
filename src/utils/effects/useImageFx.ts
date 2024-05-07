@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ImageEffect } from '@cntrl-site/effects';
 import { rangeMap } from '../rangeMap';
 
@@ -30,7 +30,8 @@ export function useImageFx(
   }: FxParams,
   width: number,
   height: number
-): void {
+): boolean {
+  const [isFXAllowed, setIsFXAllowed] = useState(true);
   const mousePos = useRef<[number, number]>([0.0, 0.0]);
   const imageFx = useMemo<ImageEffect | undefined>(() => {
     if (!imageUrl || !cursor || !enabled) return undefined;
@@ -77,7 +78,11 @@ export function useImageFx(
       time += 0.1;
       imageFx.setViewport(Math.floor(canvas.width), Math.floor(canvas.height));
       imageFx.setParam('time', time);
-      imageFx.render(gl);
+      try {
+        imageFx.render(gl);
+      } catch (e) {
+        setIsFXAllowed(false);
+      }
       frame = requestAnimationFrame(renderFrame);
     };
 
@@ -93,11 +98,16 @@ export function useImageFx(
       }
     });
     observer.observe(canvas);
-    imageFx.prepare(gl);
+    try {
+      imageFx.prepare(gl);
+    } catch (e) {
+      setIsFXAllowed(false);
+    }
 
     return () => {
       window.cancelAnimationFrame(frame);
       observer.disconnect();
     };
   }, [canvas, imageFx, enabled]);
+  return isFXAllowed;
 }
