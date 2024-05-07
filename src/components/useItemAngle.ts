@@ -11,5 +11,3 @@ export const useItemAngle = (item: ItemAny, sectionId: string) => {
   );
   return angle;
 };
-
-
