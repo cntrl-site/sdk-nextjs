@@ -187,9 +187,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
             .item-${item.id}-inner {
               transition: ${getTransitions(['width', 'height', 'scale'], hoverParams)};
               width: ${sizingAxis.x === 'manual'
-                ? isRichText
-                  ? `${area.width * exemplary}px`
-                  : `${area.width * 100}vw`
+                ? `${area.width * 100}vw`
                 : 'max-content'};
               height: ${sizingAxis.y === 'manual' ? `${area.height * 100}vw` : 'unset'};
             }
