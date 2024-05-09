@@ -43,7 +43,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
       </div>
       <JSXStyle id={id}>
         {styles}
-        {`${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams], exemplary) => {
+        {`${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams]) => {
           const color = CntrlColor.parse(layoutParams.color);
           return (`
             .rich-text-wrapper-${item.id} {
