@@ -39,7 +39,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
         style={{
           ...(opacity !== undefined ? { opacity } : {}),
           ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
-          ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
+          ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {})
         }}
       >
         {hasScrollPlayback ? (
@@ -82,6 +82,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
           pointer-events: none;
           overflow: hidden;
           border-style: solid;
+          pointer-events: auto;
         }
         .video-${item.id} {
           border-color: ${strokeColor};
