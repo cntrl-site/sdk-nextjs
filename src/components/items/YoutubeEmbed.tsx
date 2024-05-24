@@ -87,23 +87,25 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
         }}
       >
-        <img
-          ref={setImgRef}
-          onClick={() => onCoverClick()}
-          src={item.commonParams.coverUrl ?? ''}
-          style={{
-            display: isCoverVisible ? 'block' : 'none',
-            cursor: 'pointer',
-            position: 'absolute',
-            objectFit: 'cover',
-            height: '100%',
-            width: '100%',
-            top: '0',
-            left: '0',
-            zIndex: 1
-          }}
-          alt="Cover img"
-        />
+        {item.commonParams.coverUrl && (
+          <img
+            ref={setImgRef}
+            onClick={() => onCoverClick()}
+            src={item.commonParams.coverUrl ?? ''}
+            style={{
+              display: isCoverVisible ? 'block' : 'none',
+              cursor: 'pointer',
+              position: 'absolute',
+              objectFit: 'cover',
+              height: '100%',
+              width: '100%',
+              top: '0',
+              left: '0',
+              zIndex: 1
+            }}
+            alt="Cover img"
+          />
+        )}
         <div
           className={`embed-${item.id}`}
           ref={setDiv}

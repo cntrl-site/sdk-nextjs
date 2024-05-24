@@ -73,22 +73,24 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
           vimeoPlayer.pause();
         }}
       >
-        <img
-          ref={setImgRef}
-          onClick={() => onCoverClick()}
-          src={item.commonParams.coverUrl ?? ''}
-          style={{
-            display: isCoverVisible ? 'block' : 'none',
-            cursor: 'pointer',
-            position: 'absolute',
-            objectFit: 'cover',
-            height: '100%',
-            width: '100%',
-            top: '0',
-            left: '0'
-          }}
-          alt="Cover img"
-        />
+        {item.commonParams.coverUrl && (
+          <img
+            ref={setImgRef}
+            onClick={() => onCoverClick()}
+            src={item.commonParams.coverUrl ?? ''}
+            style={{
+              display: isCoverVisible ? 'block' : 'none',
+              cursor: 'pointer',
+              position: 'absolute',
+              objectFit: 'cover',
+              height: '100%',
+              width: '100%',
+              top: '0',
+              left: '0'
+            }}
+            alt="Cover img"
+          />
+        )}
         <iframe
           ref={setIframeRef}
           className="embedVideo"
