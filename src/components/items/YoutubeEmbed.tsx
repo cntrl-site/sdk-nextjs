@@ -21,6 +21,8 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   const YT = useYouTubeIframeApi();
   const [div, setDiv] = useState<HTMLDivElement | null>(null);
   const [player, setPlayer] = useState<YTPlayer | undefined>(undefined);
+  const [isCoverVisible, setIsCoverVisible] = useState(false);
+  const [imgRef, setImgRef] = useState<HTMLImageElement | null>(null);
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
   useRegisterResize(div, onResize);
 
@@ -37,6 +39,15 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
         controls: controls ? '1' : '0'
       },
       events: {
+        onStateChange: (event) => {
+          if (play !== 'auto') return;
+          if (event.data === 1) {
+            setIsCoverVisible(false);
+          }
+          if (event.data === 2 || event.data === -1 ) {
+            setIsCoverVisible(true);
+          }
+        },
         onReady: (event) => {
           setPlayer(event.target);
           if (play !== 'on-click') {
@@ -51,6 +62,12 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
       placeholder.parentElement?.removeChild(placeholder);
     };
   }, [YT, div]);
+
+  const onCoverClick = () => {
+    if (!player || !imgRef) return;
+    player.playVideo();
+    setIsCoverVisible(false);
+  };
 
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
@@ -70,11 +87,29 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
         }}
       >
+        <img
+          ref={setImgRef}
+          onClick={() => onCoverClick()}
+          src={item.commonParams.coverUrl ?? ''}
+          style={{
+            display: isCoverVisible ? 'block' : 'none',
+            cursor: 'pointer',
+            position: 'absolute',
+            objectFit: 'cover',
+            height: '100%',
+            width: '100%',
+            top: '0',
+            left: '0',
+            zIndex: 1
+          }}
+          alt="Cover img"
+        />
         <div
           className={`embed-${item.id}`}
           ref={setDiv}
           style={{
-            ...(radius !== undefined  ? { borderRadius: `${radius * 100}vw` } : {})
+            ...(radius !== undefined  ? { borderRadius: `${radius * 100}vw` } : {}),
+
           }}
         />
       </div>

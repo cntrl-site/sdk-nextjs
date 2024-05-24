@@ -1,4 +1,4 @@
-import { FC, useId, useMemo, useState } from 'react';
+import { FC, useEffect, useId, useMemo, useState } from 'react';
 import Player from '@vimeo/player';
 import JSXStyle from 'styled-jsx/style';
 import { ItemProps } from '../Item';
@@ -19,6 +19,8 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
   const angle = useItemAngle(item, sectionId);
   const { play, controls, loop, muted, pictureInPicture, url } = item.commonParams;
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
+  const [imgRef, setImgRef] = useState<HTMLImageElement | null>(null);
+  const [isCoverVisible, setIsCoverVisible] = useState(false);
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
   useRegisterResize(ref, onResize);
   const getValidVimeoUrl = (url: string): string => {
@@ -36,6 +38,21 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
     return validURL.href;
   }
   const validUrl = getValidVimeoUrl(url);
+
+  useEffect(() => {
+    if (!vimeoPlayer || !imgRef) return;
+    vimeoPlayer.on('pause', (e) => {
+      if (e.seconds === 0) {
+        setIsCoverVisible(true);
+      }
+    });
+  }, [vimeoPlayer, imgRef]);
+
+  const onCoverClick = () => {
+    if (!vimeoPlayer || !imgRef) return;
+    vimeoPlayer!.play();
+    setIsCoverVisible(false);
+  };
 
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
@@ -56,6 +73,22 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
           vimeoPlayer.pause();
         }}
       >
+        <img
+          ref={setImgRef}
+          onClick={() => onCoverClick()}
+          src={item.commonParams.coverUrl ?? ''}
+          style={{
+            display: isCoverVisible ? 'block' : 'none',
+            cursor: 'pointer',
+            position: 'absolute',
+            objectFit: 'cover',
+            height: '100%',
+            width: '100%',
+            top: '0',
+            left: '0'
+          }}
+          alt="Cover img"
+        />
         <iframe
           ref={setIframeRef}
           className="embedVideo"

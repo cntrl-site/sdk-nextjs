@@ -23,7 +23,7 @@
   "dependencies": {
     "@cntrl-site/color": "^1.0.0",
     "@cntrl-site/effects": "^1.2.0",
-    "@cntrl-site/sdk": "^1.12.2",
+    "@cntrl-site/sdk": "^1.12.3",
     "@types/vimeo__player": "^2.18.0",
     "@vimeo/player": "^2.20.1",
     "html-react-parser": "^3.0.1",

@@ -52,6 +52,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
           />
           ) : (
           <video
+            poster={item.commonParams.coverUrl ?? ''}
             ref={videoRef}
             autoPlay
             muted
