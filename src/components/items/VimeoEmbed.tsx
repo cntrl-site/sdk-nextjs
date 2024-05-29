@@ -41,6 +41,9 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
 
   useEffect(() => {
     if (!vimeoPlayer || !imgRef) return;
+    if (play === 'on-click' && !controls) {
+      setIsCoverVisible(true);
+    }
     vimeoPlayer.on('pause', (e) => {
       if (e.seconds === 0) {
         setIsCoverVisible(true);

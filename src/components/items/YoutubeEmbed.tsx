@@ -69,6 +69,12 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
     setIsCoverVisible(false);
   };
 
+  useEffect(() => {
+    if (play === 'on-click' && !controls) {
+      setIsCoverVisible(true);
+    }
+  }, []);
+
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
