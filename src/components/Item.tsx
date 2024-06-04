@@ -181,7 +181,6 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
               transition: opacity 0.2s linear 0.1s;
               display: ${hidden ? 'none' : 'block'};
               height: fit-content;
-     
             }
             .item-${item.id}-inner {
               transition: ${getTransitions(['width', 'height', 'scale'], hoverParams)};
