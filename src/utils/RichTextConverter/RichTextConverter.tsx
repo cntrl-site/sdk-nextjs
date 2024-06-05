@@ -127,7 +127,6 @@ export class RichTextConverter {
           }
           kids.push(...entityKids);
         }
-        // sliceSymbols(content, style.start, style.end).forEach(c => console.log(c.charCodeAt(0)))
         if (offset < getSymbolsCount(content)) {
           kids.push(sliceSymbols(content, offset));
         }
