@@ -202,7 +202,7 @@ export class RichTextConverter {
 
   private groupEntities(entities: RichTextEntity[], styleGroups?: StyleGroup[]): EntitiesGroup[] | undefined {
     const entitiesGroups: EntitiesGroup[] = [];
-    if (!entities.length && !styleGroups) return;
+    if (!entities.length && (!styleGroups || !styleGroups.length)) return;
     if (!styleGroups || styleGroups.length === 0) {
       const dividersSet = entities.reduce((ds, e) => {
         // some entities may have no data, need to filter them out
