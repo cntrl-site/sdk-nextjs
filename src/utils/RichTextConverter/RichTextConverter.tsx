@@ -58,7 +58,7 @@ export class RichTextConverter {
       const block = blocks[blockIndex];
       const content = text.slice(block.start, block.end + 1);
       const entities = block.entities!.sort((a, b) => a.start - b.start) ?? [];
-      if (content.length === 0) {
+      if (content.length === 1) {
         const id = `rt_${richText.id}_br_${blockIndex}`;
         root.push(<div key={id} className={id}><br /></div>);
         layouts.forEach(l => {
@@ -202,7 +202,7 @@ export class RichTextConverter {
 
   private groupEntities(entities: RichTextEntity[], styleGroups?: StyleGroup[]): EntitiesGroup[] | undefined {
     const entitiesGroups: EntitiesGroup[] = [];
-    if (!entities.length && (!styleGroups || !styleGroups.length)) return;
+    if (!entities.length && !styleGroups) return;
     if (!styleGroups || styleGroups.length === 0) {
       const dividersSet = entities.reduce((ds, e) => {
         // some entities may have no data, need to filter them out
