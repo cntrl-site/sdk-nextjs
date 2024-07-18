@@ -31,6 +31,8 @@ export const CNTRLHead: FC<Props> = ({ meta, project }) => {
     <Head>
       <title>{meta.title}</title>
       <meta name="description" content={meta.description} />
+      <meta name="og:description" content={meta.description} />
+      <meta name="twitter:description" content={meta.description} />
       <meta name="keywords" content={meta.keywords} />
       <meta name="og:image" content={meta.opengraphThumbnail} />
       <meta name="generator" content="https://cntrl.site" />
