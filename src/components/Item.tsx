@@ -177,13 +177,14 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
             .item-${item.id} {
               position: ${sticky ? 'sticky' : 'absolute'};
               top: ${sticky ? `${getAnchoredItemTop(area.top - sticky.from, sectionHeight, area.anchorSide)}` : 0};
-              pointer-events: auto;
               transition: opacity 0.2s linear 0.1s;
+              pointer-events: none;
               display: ${hidden ? 'none' : 'block'};
               height: fit-content;
             }
             .item-${item.id}-inner {
               transition: ${getTransitions(['width', 'height', 'scale'], hoverParams)};
+              pointer-events: auto;
               width: ${sizingAxis.x === 'manual'
                 ? `${area.width * 100}vw`
                 : 'max-content'};
