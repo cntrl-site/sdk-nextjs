@@ -6,6 +6,7 @@ import { Item } from './Item';
 import { useArticleRectObserver } from '../utils/ArticleRectManager/useArticleRectObserver';
 import { ArticleRectContext } from '../provider/ArticleRectContext';
 import { ArticleWrapper } from './ArticleWrapper';
+import { InteractionsProvider } from '../provider/InteractionsContext';
 
 interface Props {
   article: TArticle;
@@ -27,35 +28,37 @@ export const Article: FC<Props> = ({ article, sectionData }) => {
 
   return (
     <ArticleRectContext.Provider value={articleRectObserver}>
-      <ArticleWrapper>
-        <div className="article" ref={articleRef}>
-          {article.sections.map((section, i) => {
-            const data = section.name ? sectionData[section.name] : {};
-            return (
-              <Section
-                section={section}
-                key={section.id}
-                data={data}
-              >
-                {article.sections[i].items.map(item => (
-                  <Item
-                    item={item}
-                    key={item.id}
-                    sectionId={section.id}
-                    articleHeight={articleHeight}
-                  />
-                ))}
-              </Section>
-            );
-          })}
-        </div>
-      </ArticleWrapper>
-      <JSXStyle id={id}>{`
+      <InteractionsProvider interactions={article.interactions}>
+        <ArticleWrapper>
+          <div className="article" ref={articleRef}>
+            {article.sections.map((section, i) => {
+              const data = section.name ? sectionData[section.name] : {};
+              return (
+                <Section
+                  section={section}
+                  key={section.id}
+                  data={data}
+                >
+                  {article.sections[i].items.map(item => (
+                    <Item
+                      item={item}
+                      key={item.id}
+                      sectionId={section.id}
+                      articleHeight={articleHeight}
+                    />
+                  ))}
+                </Section>
+              );
+            })}
+          </div>
+        </ArticleWrapper>
+        <JSXStyle id={id}>{`
        .article {
-            position: relative;
-            overflow: clip;
-          }
+         position: relative;
+         overflow: clip;
+       }
       `}</JSXStyle>
+      </InteractionsProvider>
     </ArticleRectContext.Provider>
   );
 };
