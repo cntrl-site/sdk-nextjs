@@ -161,7 +161,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
                     : `${dimensions.width * 100}vw`
                   : 'max-content'}`,
                 height: `${sizingAxis.y === 'manual' ? `${dimensions.height * 100}vw` : 'unset'}` } : {}),
-              ...(scale !== undefined ? { transform: `scale(${scale}) translateZ(0)`, 'WebkitTransform': `scale(${scale}) translateZ(0)` } : {}),
+              ...(scale !== undefined ? { transform: `scale(${scale})`, 'WebkitTransform': `scale(${scale})` } : {}),
             }}
           >
             <ItemComponent item={item} sectionId={sectionId} onResize={handleItemResize} articleHeight={articleHeight} />
