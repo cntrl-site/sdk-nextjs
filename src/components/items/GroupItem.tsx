@@ -2,7 +2,7 @@ import React, { FC, useId, useState } from 'react';
 import { Item, ItemProps } from '../Item';
 import JSXStyle from 'styled-jsx/style';
 import { ArticleItemType, getLayoutStyles, GroupItem as TGroupItem } from '@cntrl-site/sdk';
-import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
+import { getStateStyles, getTransitions } from '../../utils/StateStyles/StateStyles';
 import { LinkWrapper } from '../LinkWrapper';
 import { useRegisterResize } from '../../common/useRegisterResize';
 import { useCntrlContext } from '../../provider/useCntrlContext';
@@ -55,7 +55,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
               transition: ${getTransitions<ArticleItemType.Group>(['opacity', 'angle'], hoverParams)};
             }
             .group-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.Group>(['opacity', 'angle'], hoverParams)};
+              ${getStateStyles<ArticleItemType.Group>(['opacity', 'angle'], hoverParams)};
             }
           `);
         })}

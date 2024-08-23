@@ -5,7 +5,7 @@ import JSXStyle from 'styled-jsx/style';
 import { ItemProps } from '../Item';
 import { useRichTextItem } from './useRichTextItem';
 import { useCntrlContext } from '../../provider/useCntrlContext';
-import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
+import { getStateStyles, getTransitions } from '../../utils/StateStyles/StateStyles';
 import { useRichTextItemValues } from './useRichTextItemValues';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { getFontFamilyValue } from '../../utils/getFontFamilyValue';
@@ -63,7 +63,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
               transition: ${getTransitions<ArticleItemType.RichText>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color'], hoverParams)};
             }
             .rich-text-wrapper-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.RichText>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color'], hoverParams)};
+              ${getStateStyles<ArticleItemType.RichText>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color'], hoverParams)};
             }
             @supports not (color: oklch(42% 0.3 90 / 1)) {
               .rich-text-wrapper-${item.id} {

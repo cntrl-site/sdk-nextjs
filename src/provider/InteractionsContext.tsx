@@ -1,14 +1,18 @@
-import { createContext, FC, PropsWithChildren, useMemo, useState } from 'react';
-import { Interaction } from '@cntrl-site/sdk';
+import { createContext, FC, PropsWithChildren, useState } from 'react';
+import { Interaction, InteractionTrigger } from '@cntrl-site/sdk';
 
 const defaultState = {
   interactionsStatesMap: {},
-  transitionTo: () => {}
+  interactions: [],
+  transitionTo: () => {},
+  getItemTrigger: () => null
 };
 
 export const InteractionsContext = createContext<{
   interactionsStatesMap: StatesMap,
-  transitionTo: (interactionId: string, stateId: string) => void
+  interactions: Interaction[],
+  transitionTo: (interactionId: string, stateId: string) => void,
+  getItemTrigger: (itemId: string, triggerType: TriggerType) => Trigger | null
 }>(defaultState);
 
 interface Props {
@@ -24,13 +28,38 @@ export const InteractionsProvider: FC<PropsWithChildren<Props>> = ({ interaction
   const transitionTo = (interactionId: string, stateId: string) => {
     setInteractionsStatesMap((map) => ({ ...map, [interactionId]: stateId }));
   };
+  const getItemTrigger = (itemId: string, triggerType: TriggerType): Trigger | null => {
+    for (const interaction of interactions) {
+      const activeStateId = interactionsStatesMap[interaction.id];
+      const matchingTrigger = interaction.triggers.find((trigger) =>
+        trigger.itemId === itemId &&
+        trigger.from === activeStateId &&
+        trigger.type === triggerType
+      );
+      if (matchingTrigger) {
+        return {
+          id: interaction.id,
+          from: matchingTrigger.from,
+          to: matchingTrigger.to,
+        };
+      }
+    }
+    return null;
+  };
   return (
-    <InteractionsContext.Provider value={{ interactionsStatesMap, transitionTo }}>
+    <InteractionsContext.Provider value={{
+      transitionTo,
+      interactionsStatesMap,
+      interactions,
+      getItemTrigger
+    }}>
       {children}
     </InteractionsContext.Provider>
   );
 };
 
 type StatesMap = Record<InteractionId, StateId>;
+type Trigger = { id: InteractionId, from: StateId, to: StateId };
+type TriggerType = InteractionTrigger['type'];
 type InteractionId = string;
 type StateId = string;

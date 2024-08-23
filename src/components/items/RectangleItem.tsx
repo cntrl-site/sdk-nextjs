@@ -7,7 +7,7 @@ import { LinkWrapper } from '../LinkWrapper';
 import { useRectangleItem } from './useRectangleItem';
 import { useItemAngle } from '../useItemAngle';
 import { useCntrlContext } from '../../provider/useCntrlContext';
-import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
+import { getStateStyles, getTransitions } from '../../utils/StateStyles/StateStyles';
 import { useRegisterResize } from "../../common/useRegisterResize";
 
 export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, onResize }) => {
@@ -63,7 +63,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
               transition: ${getTransitions<ArticleItemType.Rectangle>(['angle', 'fillColor', 'strokeWidth', 'radius', 'strokeColor', 'blur', 'backdropBlur'], hoverParams)};
             }
             .rectangle-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.Rectangle>(['angle', 'fillColor', 'strokeWidth', 'radius', 'strokeColor', 'blur', 'backdropBlur'], hoverParams)};
+              ${getStateStyles<ArticleItemType.Rectangle>(['angle', 'fillColor', 'strokeWidth', 'radius', 'strokeColor', 'blur', 'backdropBlur'], hoverParams)};
             }
           `);
         })}

@@ -2,7 +2,7 @@ import { ArticleItemType, getLayoutStyles, CodeEmbedItem as TCodeEmbedItem, Area
 import { FC, useEffect, useId, useState } from 'react';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { ItemProps } from '../Item';
-import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
+import { getStateStyles, getTransitions } from '../../utils/StateStyles/StateStyles';
 import JSXStyle from 'styled-jsx/style';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { useItemAngle } from '../useItemAngle';
@@ -106,7 +106,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
             height: ${item.commonParams.scale ? `${area.height * exemplary}px` : '100%'};
           }
           .embed-wrapper-${item.id}:hover {
-            ${getHoverStyles<ArticleItemType.CodeEmbed>(['angle', 'blur', 'opacity'], hoverParams)}
+            ${getStateStyles<ArticleItemType.CodeEmbed>(['angle', 'blur', 'opacity'], hoverParams)}
           }
         `);
       })}

@@ -7,7 +7,7 @@ import { LinkWrapper } from '../LinkWrapper';
 import { useFileItem } from './useFileItem';
 import { useItemAngle } from '../useItemAngle';
 import { useCntrlContext } from '../../provider/useCntrlContext';
-import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
+import { getStateStyles, getTransitions } from '../../utils/StateStyles/StateStyles';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { useLayoutContext } from '../useLayoutContext';
 import { ScrollPlaybackVideo } from '../ScrollPlaybackVideo';
@@ -101,7 +101,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
               transition: ${getTransitions<ArticleItemType.Video>(['angle', 'opacity', 'blur'], hoverParams)};
             }
             .video-wrapper-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.Video>(['angle', 'opacity', 'blur'], hoverParams)};
+              ${getStateStyles<ArticleItemType.Video>(['angle', 'opacity', 'blur'], hoverParams)};
             }
             .video-${item.id} {
               border-color: ${CntrlColor.parse(layoutParams.strokeColor).fmt('rgba')};
@@ -110,7 +110,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
               transition: ${getTransitions<ArticleItemType.Video>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)};
             }
             .video-wrapper-${item.id}:hover .video {
-              ${getHoverStyles<ArticleItemType.Video>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)};
+              ${getStateStyles<ArticleItemType.Video>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)};
             }
           `);
         })}

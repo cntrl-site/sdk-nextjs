@@ -7,7 +7,7 @@ import { useEmbedVideoItem } from './useEmbedVideoItem';
 import { useItemAngle } from '../useItemAngle';
 import { ArticleItemType, getLayoutStyles, VimeoEmbedItem as TVimeoEmbedItem } from '@cntrl-site/sdk';
 import { useCntrlContext } from '../../provider/useCntrlContext';
-import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
+import { getStateStyles, getTransitions } from '../../utils/StateStyles/StateStyles';
 import { useRegisterResize } from "../../common/useRegisterResize";
 
 export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId, onResize }) => {
@@ -127,14 +127,14 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
             transition: ${getTransitions<ArticleItemType.VimeoEmbed>(['angle', 'blur', 'opacity'], hoverParams)};
           }
           .embed-video-wrapper-${item.id}:hover {
-            ${getHoverStyles<ArticleItemType.VimeoEmbed>(['angle', 'blur', 'opacity'], hoverParams)}
+            ${getStateStyles<ArticleItemType.VimeoEmbed>(['angle', 'blur', 'opacity'], hoverParams)}
           }
           .embed-video-wrapper-${item.id} .embedVideo {
             border-radius: ${layoutParams.radius * 100}vw;
             transition: ${getTransitions<ArticleItemType.VimeoEmbed>(['radius'], hoverParams)};
           }
           .embed-video-wrapper-${item.id}:hover .embedVideo {
-            ${getHoverStyles<ArticleItemType.VimeoEmbed>(['radius'], hoverParams)};
+            ${getStateStyles<ArticleItemType.VimeoEmbed>(['radius'], hoverParams)};
           }
         `);
       })}

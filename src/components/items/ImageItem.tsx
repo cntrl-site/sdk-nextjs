@@ -7,7 +7,7 @@ import { LinkWrapper } from '../LinkWrapper';
 import { useFileItem } from './useFileItem';
 import { useItemAngle } from '../useItemAngle';
 import { useCntrlContext } from '../../provider/useCntrlContext';
-import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
+import { getStateStyles, getTransitions } from '../../utils/StateStyles/StateStyles';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { useImageFx } from '../../utils/effects/useImageFx';
 import { useElementRect } from '../../utils/useElementRect';
@@ -134,7 +134,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
               transition: ${getTransitions<ArticleItemType.Image>(['angle', 'opacity', 'blur'], hoverParams)};
             }
             .image-wrapper-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.Image>(['angle', 'opacity', 'blur'], hoverParams)};
+              ${getStateStyles<ArticleItemType.Image>(['angle', 'opacity', 'blur'], hoverParams)};
             }
             .image-${item.id} {
               border-color: ${CntrlColor.parse(layoutParams.strokeColor).fmt('rgba')};
@@ -143,7 +143,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
               transition: ${getTransitions<ArticleItemType.Image>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)};
             }
             .image-wrapper-${item.id}:hover .image, .image-wrapper-${item.id}:hover .img-canvas {
-              ${getHoverStyles<ArticleItemType.Image>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)};
+              ${getStateStyles<ArticleItemType.Image>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)};
             }
           `);
         })}

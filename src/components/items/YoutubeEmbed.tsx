@@ -6,7 +6,7 @@ import { getYoutubeId } from '../../utils/getValidYoutubeUrl';
 import { useEmbedVideoItem } from './useEmbedVideoItem';
 import { useItemAngle } from '../useItemAngle';
 import { ArticleItemType, getLayoutStyles, YoutubeEmbedItem as TYoutubeEmbedItem } from '@cntrl-site/sdk';
-import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
+import { getStateStyles, getTransitions } from '../../utils/StateStyles/StateStyles';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useYouTubeIframeApi } from '../../utils/Youtube/useYouTubeIframeApi';
 import { YTPlayer } from '../../utils/Youtube/YoutubeIframeApi';
@@ -150,10 +150,10 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
               transition: ${getTransitions<ArticleItemType.YoutubeEmbed>(['radius'], hoverParams)};
             }
             .embed-youtube-video-wrapper-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.YoutubeEmbed>(['angle', 'blur', 'opacity'], hoverParams)};
+              ${getStateStyles<ArticleItemType.YoutubeEmbed>(['angle', 'blur', 'opacity'], hoverParams)};
             }
             .embed-youtube-video-wrapper-${item.id}:hover .embed-${item.id} {
-              ${getHoverStyles<ArticleItemType.YoutubeEmbed>(['radius'], hoverParams)};
+              ${getStateStyles<ArticleItemType.YoutubeEmbed>(['radius'], hoverParams)};
             }
           `);
       })}

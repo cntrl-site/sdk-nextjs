@@ -2,7 +2,7 @@ import { ArticleItemType, getLayoutStyles, CustomItem as TCustomItem } from '@cn
 import { FC, useState } from 'react';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { ItemProps } from '../Item';
-import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
+import { getStateStyles, getTransitions } from '../../utils/StateStyles/StateStyles';
 import JSXStyle from 'styled-jsx/style';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { useItemAngle } from '../useItemAngle';
@@ -40,7 +40,7 @@ export const CustomItem: FC<ItemProps<TCustomItem>> = ({ item, onResize, section
               top: 0;
             }
             .custom-component-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.Custom>(['angle'], hoverParams)};
+              ${getStateStyles<ArticleItemType.Custom>(['angle'], hoverParams)};
             }
           `);
         })}`}
