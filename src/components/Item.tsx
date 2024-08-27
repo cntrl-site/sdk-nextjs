@@ -204,7 +204,6 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
               height: fit-content;
             }
             .item-${item.id}-inner {
-              transition: ${getTransitions(['width', 'height', 'scale'], hoverParams)};
               pointer-events: auto;
               width: ${sizingAxis.x === 'manual'
                 ? `${area.width * 100}vw`
