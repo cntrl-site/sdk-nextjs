@@ -180,7 +180,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
                     : `${dimensions.width * 100}vw`
                   : 'max-content'}`,
                 height: `${sizingAxis.y === 'manual' ? `${dimensions.height * 100}vw` : 'unset'}` } : {}),
-              ...(scale !== undefined ? { transform: `scale(${scale}) translateZ(0)`, 'WebkitTransform': `scale(${scale}) translateZ(0)` } : {}),
+              ...(scale !== undefined ? { transform: `scale(${scale})`, 'WebkitTransform': `scale(${scale})` } : {}),
             }}
           >
             <ItemComponent item={item} sectionId={sectionId} onResize={handleItemResize} articleHeight={articleHeight} />
@@ -198,12 +198,14 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
             .item-${item.id} {
               position: ${sticky ? 'sticky' : 'absolute'};
               top: ${sticky ? `${getAnchoredItemTop(area.top - sticky.from, sectionHeight, area.anchorSide)}` : 0};
-              pointer-events: auto;
               transition: opacity 0.2s linear 0.1s;
+              pointer-events: none;
               display: ${hidden ? 'none' : 'block'};
               height: fit-content;
             }
             .item-${item.id}-inner {
+              transition: ${getTransitions(['width', 'height', 'scale'], hoverParams)};
+              pointer-events: auto;
               width: ${sizingAxis.x === 'manual'
                 ? `${area.width * 100}vw`
                 : 'max-content'};
