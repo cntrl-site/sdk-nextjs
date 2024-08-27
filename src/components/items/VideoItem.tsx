@@ -1,16 +1,17 @@
 import { FC, useId, useMemo, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { CntrlColor } from '@cntrl-site/color';
-import { ArticleItemType, getLayoutStyles, VideoItem as TVideoItem } from '@cntrl-site/sdk';
+import { getLayoutStyles, VideoItem as TVideoItem } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useFileItem } from './useFileItem';
 import { useItemAngle } from '../useItemAngle';
 import { useCntrlContext } from '../../provider/useCntrlContext';
-import { getStateStyles, getTransitions } from '../../utils/StateStyles/StateStyles';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { useLayoutContext } from '../useLayoutContext';
 import { ScrollPlaybackVideo } from '../ScrollPlaybackVideo';
+import { useStatesClassNames } from '../useStatesClassNames';
+import { getStatesCSS } from '../../utils/getStatesCSS';
 
 export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize }) => {
   const id = useId();
@@ -22,7 +23,9 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const layoutId = useLayoutContext();
   const scrollPlayback = layoutId ? item.layoutParams[layoutId].scrollPlayback : null;
-  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state];
+  const statesWrapperClassNames = useStatesClassNames(item.id, item.state, 'video-wrapper');
+  const statesVideoClassNames = useStatesClassNames(item.id, item.state, 'video');
   const hasScrollPlayback = scrollPlayback !== null;
   useRegisterResize(ref, onResize);
   const inlineStyles = {
@@ -34,7 +37,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
-        className={`video-wrapper-${item.id}`}
+        className={`video-wrapper-${item.id} ${statesWrapperClassNames}`}
         ref={setRef}
         style={{
           ...(opacity !== undefined ? { opacity } : {}),
@@ -48,7 +51,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
             src={item.commonParams.url}
             playbackParams={scrollPlayback}
             style={inlineStyles}
-            className={`video video-playback-wrapper video-${item.id}`}
+            className={`video video-playback-wrapper video-${item.id} ${statesWrapperClassNames}`}
           />
           ) : (
           <video
@@ -58,7 +61,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
             muted
             loop
             playsInline
-            className={`video video-${item.id}`}
+            className={`video video-${item.id} ${statesVideoClassNames}`}
             style={inlineStyles}
           >
             <source src={item.commonParams.url} />
@@ -92,26 +95,24 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
           display: flex;
           justify-content: center;
         }
-        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams]) => {
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, stateParams]) => {
+          const wrapperStatesCSS = getStatesCSS(item.id, 'video-wrapper', ['angle', 'opacity', 'blur'], stateParams);
+          const videoStatesCSS = getStatesCSS(item.id, 'video', ['strokeWidth', 'radius', 'strokeColor'], stateParams);
           return (`
             .video-wrapper-${item.id} {
               opacity: ${layoutParams.opacity};
               transform: rotate(${area.angle}deg);
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
-              transition: ${getTransitions<ArticleItemType.Video>(['angle', 'opacity', 'blur'], hoverParams)};
-            }
-            .video-wrapper-${item.id}:hover {
-              ${getStateStyles<ArticleItemType.Video>(['angle', 'opacity', 'blur'], hoverParams)};
+              transition: all 0.2s ease;
             }
             .video-${item.id} {
               border-color: ${CntrlColor.parse(layoutParams.strokeColor).fmt('rgba')};
               border-radius: ${layoutParams.radius * 100}vw;
               border-width: ${layoutParams.strokeWidth * 100}vw;
-              transition: ${getTransitions<ArticleItemType.Video>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)};
+              transition: all 0.2s ease;
             }
-            .video-wrapper-${item.id}:hover .video {
-              ${getStateStyles<ArticleItemType.Video>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)};
-            }
+            ${wrapperStatesCSS}
+            ${videoStatesCSS}
           `);
         })}
     `}</JSXStyle>

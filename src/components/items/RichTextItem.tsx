@@ -1,16 +1,17 @@
 import { FC, useId, useMemo, useState } from 'react';
 import { CntrlColor } from '@cntrl-site/color';
-import { ArticleItemType, getLayoutStyles, RichTextItem as TRichTextItem } from '@cntrl-site/sdk';
+import { getLayoutStyles, RichTextItem as TRichTextItem } from '@cntrl-site/sdk';
 import JSXStyle from 'styled-jsx/style';
 import { ItemProps } from '../Item';
 import { useRichTextItem } from './useRichTextItem';
 import { useCntrlContext } from '../../provider/useCntrlContext';
-import { getStateStyles, getTransitions } from '../../utils/StateStyles/StateStyles';
 import { useRichTextItemValues } from './useRichTextItemValues';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { getFontFamilyValue } from '../../utils/getFontFamilyValue';
 import { useExemplary } from '../../common/useExemplary';
 import { useItemAngle } from '../useItemAngle';
+import { useStatesClassNames } from '../useStatesClassNames';
+import { getStatesCSS } from '../../utils/getStatesCSS';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize }) => {
   const [content, styles] = useRichTextItem(item);
@@ -20,15 +21,16 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   const angle = useItemAngle(item, sectionId);
   const { blur, wordSpacing, letterSpacing, color, fontSize, lineHeight } = useRichTextItemValues(item, sectionId);
   const textColor = useMemo(() => color ? CntrlColor.parse(color) : undefined, [color]);
-  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state];
   const exemplary = useExemplary();
+  const stateClassNames = useStatesClassNames(item.id, item.state, 'rich-text-wrapper');
   useRegisterResize(ref, onResize);
 
   return (
     <>
       <div
         ref={setRef}
-        className={`rich-text-wrapper-${item.id}`}
+        className={`rich-text-wrapper-${item.id} ${stateClassNames}`}
         style={{
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
           ...(textColor ? { color: `${textColor.fmt('rgba')}` } : {}),
@@ -43,8 +45,14 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
       </div>
       <JSXStyle id={id}>
         {styles}
-        {`${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams]) => {
+        {`${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, states]) => {
           const color = CntrlColor.parse(layoutParams.color);
+          const statesCSS = getStatesCSS(
+            item.id,
+            'rich-text-wrapper',
+            ['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color'],
+            states
+          );
           return (`
             .rich-text-wrapper-${item.id} {
               font-size: ${layoutParams.fontSize * 100}vw;
@@ -60,16 +68,14 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
               transform: rotate(${area.angle}deg);
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
               text-transform: ${layoutParams.textTransform};
-              transition: ${getTransitions<ArticleItemType.RichText>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color'], hoverParams)};
-            }
-            .rich-text-wrapper-${item.id}:hover {
-              ${getStateStyles<ArticleItemType.RichText>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color'], hoverParams)};
+              transition: all 0.2s ease;
             }
             @supports not (color: oklch(42% 0.3 90 / 1)) {
               .rich-text-wrapper-${item.id} {
                 color: ${color.fmt('rgba')};
               }
             }
+            ${statesCSS}
           `);
         })}`}
       </JSXStyle>

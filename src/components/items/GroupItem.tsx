@@ -1,13 +1,14 @@
 import React, { FC, useId, useState } from 'react';
 import { Item, ItemProps } from '../Item';
 import JSXStyle from 'styled-jsx/style';
-import { ArticleItemType, getLayoutStyles, GroupItem as TGroupItem } from '@cntrl-site/sdk';
-import { getStateStyles, getTransitions } from '../../utils/StateStyles/StateStyles';
+import { getLayoutStyles, GroupItem as TGroupItem } from '@cntrl-site/sdk';
 import { LinkWrapper } from '../LinkWrapper';
 import { useRegisterResize } from '../../common/useRegisterResize';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useItemAngle } from '../useItemAngle';
 import { useGroupItem } from './useGroupItem';
+import { useStatesClassNames } from '../useStatesClassNames';
+import { getStatesCSS } from '../../utils/getStatesCSS';
 
 export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize, articleHeight }) => {
   const id = useId();
@@ -15,7 +16,8 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
   const angle = useItemAngle(item, sectionId);
   const { layouts } = useCntrlContext();
   const { opacity } = useGroupItem(item, sectionId);
-  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state];
+  const statesClassNames = useStatesClassNames(item.id, item.state, 'group');
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
 
@@ -23,7 +25,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <>
         <div
-          className={`group-${item.id}`}
+          className={`group-${item.id} ${statesClassNames}`}
           ref={setRef}
           style={{
             ...(opacity !== undefined ? { opacity } : {}),
@@ -47,16 +49,15 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
           height: 100%;
           box-sizing: border-box;
         }
-        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams]) => {
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, stateParams]) => {
+          const statesCSS = getStatesCSS(item.id, 'group', ['opacity', 'angle'], stateParams);
           return (`
             .group-${item.id} {
               opacity: ${layoutParams.opacity};
               transform: rotate(${area.angle}deg);
-              transition: ${getTransitions<ArticleItemType.Group>(['opacity', 'angle'], hoverParams)};
+              transition: all 0.2s ease;
             }
-            .group-${item.id}:hover {
-              ${getStateStyles<ArticleItemType.Group>(['opacity', 'angle'], hoverParams)};
-            }
+            ${statesCSS}
           `);
         })}
       `}</JSXStyle>

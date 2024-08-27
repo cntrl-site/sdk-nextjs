@@ -21,7 +21,6 @@ import { useItemDimensions } from './useItemDimensions';
 import { useItemScale } from './useItemScale';
 import { ScaleAnchorMap } from '../utils/ScaleAnchorMap';
 import { useSectionHeightData } from './useSectionHeightMap';
-import { getHoverStyles, getTransitions } from '../utils/HoverStyles/HoverStyles';
 import { getItemTopStyle } from '../utils/getItemTopStyle';
 import { useStickyItemTop } from './items/useStickyItemTop';
 import { getAnchoredItemTop } from '../utils/getAnchoredItemTop';
@@ -32,6 +31,9 @@ import { GroupItem } from './items/GroupItem';
 import { CodeEmbedItem } from './items/CodeEmbedItem';
 import { AreaAnchor } from '@cntrl-site/sdk/src/types/article/ItemArea';
 import { KeyframesContext } from '../provider/KeyframesContext';
+import { InteractionsContext } from '../provider/InteractionsContext';
+import { getStatesCSS } from '../utils/getStatesCSS';
+import { useStatesClassNames } from './useStatesClassNames';
 
 export interface ItemProps<I extends ItemAny> {
   item: I;
@@ -93,14 +95,14 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
   const sectionHeight = useSectionHeightData(sectionId);
   const stickyTop = useStickyItemTop(item, sectionHeight, sectionId);
   const dimensions = useItemDimensions(item, sectionId);
-  const layoutValues: Record<string, any>[] = [item.area, item.hidden, item.state.hover];
+  const layoutValues: Record<string, any>[] = [item.area, item.hidden, item.state];
   const isInitialRef = useRef(true);
+  const { transitionTo, getItemTrigger } = useContext(InteractionsContext);
   layoutValues.push(item.sticky);
   layoutValues.push(sectionHeight);
   if (item.layoutParams) {
     layoutValues.push(item.layoutParams);
   }
-
   const sizing = layout && isItemType(item, ArticleItemType.RichText)
     ? item.layoutParams[layout].sizing
     : undefined;
@@ -130,9 +132,11 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
   }, []);
 
   const isRichText = isItemType(item, ArticleItemType.RichText);
+  const innerStatesClassNames = useStatesClassNames(item.id, item.state, 'item-inner');
+  const wrapperStatesClassNames = useStatesClassNames(item.id, item.state, 'item-wrapper');
   return (
     <div
-      className={`item-wrapper-${item.id}`}
+      className={`item-wrapper-${item.id} ${wrapperStatesClassNames}`}
       ref={itemWrapperRef}
       style={{
         ...(position ? { top: position.top } : {}),
@@ -152,7 +156,22 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
       >
         <RichTextWrapper isRichText={isRichText}>
           <div
-            className={`item-${item.id}-inner`}
+            className={`item-${item.id}-inner ${innerStatesClassNames}`}
+            onClick={() => {
+              const trigger = getItemTrigger(item.id, 'click');
+              if (!trigger) return;
+              transitionTo(trigger.id, trigger.to);
+            }}
+            onMouseEnter={() => {
+              const trigger = getItemTrigger(item.id, 'hover-in');
+              if (!trigger) return;
+              transitionTo(trigger.id, trigger.to);
+            }}
+            onMouseLeave={() => {
+              const trigger = getItemTrigger(item.id, 'hover-out');
+              if (!trigger) return;
+              transitionTo(trigger.id, trigger.to);
+            }}
             style={{
               ...(dimensions ? {
                 width: `${sizingAxis.x === 'manual'
@@ -169,10 +188,12 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
         </RichTextWrapper>
       </div>
       <JSXStyle id={id}>{`
-        ${getLayoutStyles(layouts, layoutValues, ([area, hidden, hoverParams, sticky, sectionHeight, layoutParams], exemplary) => {
+        ${getLayoutStyles(layouts, layoutValues, ([area, hidden, states, sticky, sectionHeight, layoutParams], exemplary) => {
           const sizingAxis = parseSizing(layoutParams.sizing);
           const isScreenBasedBottom = area.positionType === PositionType.ScreenBased && area.anchorSide === AnchorSide.Bottom;
           const scaleAnchor = area.scaleAnchor as AreaAnchor;
+          const statesInnerCSS = getStatesCSS(item.id, 'item-inner', ['width', 'height', 'scale'], states);
+          const statesWrapperCSS = getStatesCSS(item.id, 'item-wrapper', ['top', 'left'], states, area.anchorSide);
           return (`
             .item-${item.id} {
               position: ${sticky ? 'sticky' : 'absolute'};
@@ -183,13 +204,13 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
               height: fit-content;
             }
             .item-${item.id}-inner {
-              transition: ${getTransitions(['width', 'height', 'scale'], hoverParams)};
               width: ${sizingAxis.x === 'manual'
                 ? `${area.width * 100}vw`
                 : 'max-content'};
               height: ${sizingAxis.y === 'manual' ? `${area.height * 100}vw` : 'unset'};
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
               transform: scale(${area.scale});
+              transition: all 0.2s ease;
             }
             .item-wrapper-${item.id} {
               position: ${area.positionType === PositionType.ScreenBased ? 'fixed': 'absolute'};
@@ -199,14 +220,10 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
               bottom: ${isScreenBasedBottom ? `${-area.top * 100}vw` : 'unset'};
               top: ${isScreenBasedBottom ? 'unset' : getItemTopStyle(area.top, area.anchorSide)};
               left: ${area.left * 100}vw;
-              transition: ${getTransitions(['left', 'top'], hoverParams)};
+              transition: all 0.2s ease;
             }
-            .item-${item.id}-inner:hover {
-              ${getHoverStyles(['width', 'height', 'scale'], hoverParams)};
-            }
-            .item-wrapper-${item.id}:hover {
-              ${getHoverStyles(['left', 'top'], hoverParams, area.anchorSide)};
-            }
+            ${statesWrapperCSS}
+            ${statesInnerCSS}
           `);
       })}
       `}</JSXStyle>
@@ -222,11 +239,11 @@ function parseSizing(sizing: string = 'manual'): Axis {
   } as Axis;
 }
 
+export function isItemType<T extends ArticleItemType>(item: ItemAny, itemType: T): item is TItem<T> {
+  return item.type === itemType;
+}
+
 interface Axis {
   x: 'manual' | 'auto';
   y: 'manual' | 'auto';
-}
-
-export function isItemType<T extends ArticleItemType>(item: ItemAny, itemType: T): item is TItem<T> {
-  return item.type === itemType;
 }

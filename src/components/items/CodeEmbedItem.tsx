@@ -1,13 +1,14 @@
-import { ArticleItemType, getLayoutStyles, CodeEmbedItem as TCodeEmbedItem, AreaAnchor } from '@cntrl-site/sdk';
+import { getLayoutStyles, CodeEmbedItem as TCodeEmbedItem, AreaAnchor } from '@cntrl-site/sdk';
 import { FC, useEffect, useId, useState } from 'react';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { ItemProps } from '../Item';
-import { getStateStyles, getTransitions } from '../../utils/StateStyles/StateStyles';
 import JSXStyle from 'styled-jsx/style';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { useItemAngle } from '../useItemAngle';
 import { LinkWrapper } from '../LinkWrapper';
 import { useCodeEmbedItem } from './useCodeEmbedItem';
+import { getStatesCSS } from '../../utils/getStatesCSS';
+import { useStatesClassNames } from '../useStatesClassNames';
 
 const stylesMap = {
   [AreaAnchor.TopLeft]: {},
@@ -30,7 +31,8 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
   const pos = stylesMap[anchor];
-  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state];
+  const statesClassNames = useStatesClassNames(item.id, item.state, 'embed-wrapper');
 
   useEffect(() => {
     if (!ref) return;
@@ -56,7 +58,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
-        className={`embed-wrapper-${item.id}`}
+        className={`embed-wrapper-${item.id} ${statesClassNames}`}
         style={{
           ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
@@ -93,21 +95,20 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
         z-index: 1;
         border: none;
       }
-      ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams], exemplary) => {
+      ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, stateParams], exemplary) => {
+        const statesCSS = getStatesCSS(item.id, 'embed-wrapper', ['angle', 'blur', 'opacity'], stateParams);
         return (`
           .embed-wrapper-${item.id} {
             opacity: ${layoutParams.opacity};
             transform: rotate(${area.angle}deg);
             filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
-            transition: ${getTransitions<ArticleItemType.CodeEmbed>(['angle', 'blur', 'opacity'], hoverParams)};
+            transition: all 0.2s ease;
           }
           .embed-${item.id} {
             width: ${item.commonParams.scale ? `${area.width * exemplary}px` : '100%'};
             height: ${item.commonParams.scale ? `${area.height * exemplary}px` : '100%'};
           }
-          .embed-wrapper-${item.id}:hover {
-            ${getStateStyles<ArticleItemType.CodeEmbed>(['angle', 'blur', 'opacity'], hoverParams)}
-          }
+          ${statesCSS}
         `);
       })}
     `}</JSXStyle>

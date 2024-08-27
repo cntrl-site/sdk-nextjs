@@ -5,12 +5,13 @@ import { LinkWrapper } from '../LinkWrapper';
 import { getYoutubeId } from '../../utils/getValidYoutubeUrl';
 import { useEmbedVideoItem } from './useEmbedVideoItem';
 import { useItemAngle } from '../useItemAngle';
-import { ArticleItemType, getLayoutStyles, YoutubeEmbedItem as TYoutubeEmbedItem } from '@cntrl-site/sdk';
-import { getStateStyles, getTransitions } from '../../utils/StateStyles/StateStyles';
+import { getLayoutStyles, YoutubeEmbedItem as TYoutubeEmbedItem } from '@cntrl-site/sdk';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useYouTubeIframeApi } from '../../utils/Youtube/useYouTubeIframeApi';
 import { YTPlayer } from '../../utils/Youtube/YoutubeIframeApi';
 import { useRegisterResize } from "../../common/useRegisterResize";
+import { useStatesClassNames } from '../useStatesClassNames';
+import { getStatesCSS } from '../../utils/getStatesCSS';
 
 export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, sectionId, onResize }) => {
   const id = useId();
@@ -23,7 +24,9 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   const [player, setPlayer] = useState<YTPlayer | undefined>(undefined);
   const [isCoverVisible, setIsCoverVisible] = useState(false);
   const [imgRef, setImgRef] = useState<HTMLImageElement | null>(null);
-  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state];
+  const wrapperClassNames = useStatesClassNames(item.id, item.state, 'embed-youtube-video-wrapper');
+  const embedClassNames = useStatesClassNames(item.id, item.state, 'embed');
   useRegisterResize(div, onResize);
 
   useEffect(() => {
@@ -78,7 +81,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
-        className={`embed-youtube-video-wrapper-${item.id}`}
+        className={`embed-youtube-video-wrapper-${item.id} ${wrapperClassNames}`}
         onMouseEnter={() => {
           if (!player || play !== 'on-hover') return;
           player.playVideo();
@@ -113,11 +116,10 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
           />
         )}
         <div
-          className={`embed-${item.id}`}
+          className={`embed-${item.id} ${embedClassNames}`}
           ref={setDiv}
           style={{
             ...(radius !== undefined  ? { borderRadius: `${radius * 100}vw` } : {}),
-
           }}
         />
       </div>
@@ -137,24 +139,22 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
           z-index: 1;
           border: none;
         }
-        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams]) => {
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, stateParams]) => {
+          const wrapperStatesCSS = getStatesCSS(item.id, 'embed-youtube-video-wrapper', ['angle', 'blur', 'opacity'], stateParams);
+          const embedStatesCSS = getStatesCSS(item.id, 'embed', ['radius'], stateParams);
           return (`
             .embed-youtube-video-wrapper-${item.id} {
               opacity: ${layoutParams.opacity};
               transform: rotate(${area.angle}deg);
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
-              transition: ${getTransitions<ArticleItemType.YoutubeEmbed>(['angle', 'blur', 'opacity'], hoverParams)};
+              transition: all 0.2s ease;
             }
             .embed-youtube-video-wrapper-${item.id} .embed-${item.id} {
               border-radius: ${layoutParams.radius * 100}vw;
-              transition: ${getTransitions<ArticleItemType.YoutubeEmbed>(['radius'], hoverParams)};
+              transition: all 0.2s ease;
             }
-            .embed-youtube-video-wrapper-${item.id}:hover {
-              ${getStateStyles<ArticleItemType.YoutubeEmbed>(['angle', 'blur', 'opacity'], hoverParams)};
-            }
-            .embed-youtube-video-wrapper-${item.id}:hover .embed-${item.id} {
-              ${getStateStyles<ArticleItemType.YoutubeEmbed>(['radius'], hoverParams)};
-            }
+            ${wrapperStatesCSS}
+            ${embedStatesCSS}
           `);
       })}
       `}</JSXStyle>
