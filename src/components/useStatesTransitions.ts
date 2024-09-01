@@ -14,8 +14,8 @@ export function useStatesTransitions(
   const { interactionsStatesMap } = useContext(InteractionsContext);
   const { layoutId } = useCurrentLayout();
   const activeStates = Object.values(interactionsStatesMap);
-  const statesForLayout = useMemo(() => layoutId ? state[layoutId] : {}, [layoutId]);
-  const itemStatesIds = Object.keys(statesForLayout);
+  const statesForLayout = useMemo(() => layoutId ? state[layoutId] : {}, [state, layoutId]);
+  const itemStatesIds = statesForLayout ? Object.keys(statesForLayout) : [];
   const itemActiveStateId = activeStates.find((stateId) => itemStatesIds.includes(stateId));
   useEffect(() => {
     if (!itemActiveStateId || !el) return;
