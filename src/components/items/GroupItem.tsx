@@ -21,7 +21,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
   const statesClassNames = useStatesClassNames(item.id, item.state, 'group');
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
-  useStatesTransitions(ref!, item.state, ['opacity', 'angle'])
+  useStatesTransitions(ref!, item.state, ['opacity', 'angle']);
 
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
