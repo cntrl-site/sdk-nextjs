@@ -12,6 +12,7 @@ import { YTPlayer } from '../../utils/Youtube/YoutubeIframeApi';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { useStatesClassNames } from '../useStatesClassNames';
 import { getStatesCSS } from '../../utils/getStatesCSS';
+import { useStatesTransitions } from '../useStatesTransitions';
 
 export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, sectionId, onResize }) => {
   const id = useId();
@@ -21,6 +22,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   const angle = useItemAngle(item, sectionId);
   const YT = useYouTubeIframeApi();
   const [div, setDiv] = useState<HTMLDivElement | null>(null);
+  const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
   const [player, setPlayer] = useState<YTPlayer | undefined>(undefined);
   const [isCoverVisible, setIsCoverVisible] = useState(false);
   const [imgRef, setImgRef] = useState<HTMLImageElement | null>(null);
@@ -28,7 +30,8 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   const wrapperClassNames = useStatesClassNames(item.id, item.state, 'embed-youtube-video-wrapper');
   const embedClassNames = useStatesClassNames(item.id, item.state, 'embed');
   useRegisterResize(div, onResize);
-
+  useStatesTransitions(wrapperRef, item.state, ['angle', 'blur', 'opacity']);
+  useStatesTransitions(div, item.state, ['radius']);
   useEffect(() => {
     const newUrl = new URL(url);
     const videoId = getYoutubeId(newUrl);
@@ -81,6 +84,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
+        ref={setWrapperRef}
         className={`embed-youtube-video-wrapper-${item.id} ${wrapperClassNames}`}
         onMouseEnter={() => {
           if (!player || play !== 'on-hover') return;

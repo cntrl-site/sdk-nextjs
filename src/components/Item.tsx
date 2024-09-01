@@ -34,6 +34,7 @@ import { KeyframesContext } from '../provider/KeyframesContext';
 import { InteractionsContext } from '../provider/InteractionsContext';
 import { getStatesCSS } from '../utils/getStatesCSS';
 import { useStatesClassNames } from './useStatesClassNames';
+import { useStatesTransitions } from './useStatesTransitions';
 
 export interface ItemProps<I extends ItemAny> {
   item: I;
@@ -81,6 +82,7 @@ const noop = () => null;
 
 export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isInGroup = false }) => {
   const itemWrapperRef = useRef<HTMLDivElement | null>(null);
+  const itemInnerRef = useRef<HTMLDivElement | null>(null);
   const rectObserver = useContext(ArticleRectContext);
   const keyframesRepo = useContext(KeyframesContext);
   const id = useId();
@@ -134,6 +136,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
   const isRichText = isItemType(item, ArticleItemType.RichText);
   const innerStatesClassNames = useStatesClassNames(item.id, item.state, 'item-inner');
   const wrapperStatesClassNames = useStatesClassNames(item.id, item.state, 'item-wrapper');
+  useStatesTransitions(itemWrapperRef.current, item.state, ['top', 'left']);
+  useStatesTransitions(itemInnerRef.current, item.state, ['width', 'height', 'scale']);
   return (
     <div
       className={`item-wrapper-${item.id} ${wrapperStatesClassNames}`}
@@ -157,6 +161,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
         <RichTextWrapper isRichText={isRichText}>
           <div
             className={`item-${item.id}-inner ${innerStatesClassNames}`}
+            ref={itemInnerRef}
             onClick={() => {
               const trigger = getItemTrigger(item.id, 'click');
               if (!trigger) return;
@@ -211,7 +216,6 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
               height: ${sizingAxis.y === 'manual' ? `${area.height * 100}vw` : 'unset'};
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
               transform: scale(${area.scale});
-              transition: all 0.2s ease;
             }
             .item-wrapper-${item.id} {
               position: ${area.positionType === PositionType.ScreenBased ? 'fixed': 'absolute'};
@@ -221,7 +225,6 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
               bottom: ${isScreenBasedBottom ? `${-area.top * 100}vw` : 'unset'};
               top: ${isScreenBasedBottom ? 'unset' : getItemTopStyle(area.top, area.anchorSide)};
               left: ${area.left * 100}vw;
-              transition: all 0.2s ease;
             }
             ${statesWrapperCSS}
             ${statesInnerCSS}

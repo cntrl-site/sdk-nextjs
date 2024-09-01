@@ -1,11 +1,14 @@
-import { AnchorSide, ArticleItemType, ItemState } from '@cntrl-site/sdk';
+import { AnchorSide, ArticleItemType, ItemStatesMap } from '@cntrl-site/sdk';
 import { getStateStyles } from './StateStyles/StateStyles';
 
-export function getStatesCSS(
+type AllKeys<T> = T extends any ? keyof T : never;
+type StatePropertyKey = AllKeys<ItemStatesMap[keyof ItemStatesMap]>;
+
+export function getStatesCSS<T extends ArticleItemType>(
   itemId: string,
   classNamePrefix: string,
-  keys: Array<keyof ItemState<ArticleItemType>>,
-  states: Record<string, ItemState<ArticleItemType>> | undefined,
+  keys: Array<StatePropertyKey>,
+  states: Record<string, ItemStatesMap[T]> | undefined,
   anchorSide?: AnchorSide
 ) {
   return states

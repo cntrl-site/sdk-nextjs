@@ -1,11 +1,12 @@
-import { StateParams, ArticleItemType, AnchorSide, ItemState } from '@cntrl-site/sdk';
+import { StateParams, ArticleItemType, AnchorSide, ItemState, ItemStatesMap } from '@cntrl-site/sdk';
 import { CntrlColor } from '@cntrl-site/color';
 import { getItemTopStyle } from '../getItemTopStyle';
 
-type UnionToIntersection<U> = (U extends any ? (arg: U) => void : never) extends (arg: infer I) => void ? I : never;
 type StateParamsGetter = (value: any, anchorSide?: AnchorSide) => string;
+type AllKeys<T> = T extends any ? keyof T : never;
+type StatePropertyKey = AllKeys<ItemStatesMap[keyof ItemStatesMap]>;
 
-const stateTransformationMap: Record<keyof ItemState<ArticleItemType>, StateParamsGetter> = {
+const stateTransformationMap: Record<StatePropertyKey, StateParamsGetter> = {
   'width': (width: number) => `width: ${width * 100}vw !important;`,
   'height': (height: number) => `height: ${height * 100}vw !important;`,
   'top': (top: number, anchorSide?: AnchorSide) => `top: ${getItemTopStyle(top, anchorSide)} !important;`,
@@ -43,17 +44,47 @@ const CSSPropertyNameMap: Record<keyof ItemState<ArticleItemType>, string> = {
   'color': 'color'
 };
 
+export function getStateStyles<T extends ArticleItemType>(
+  values: Array<StatePropertyKey>,
+  state?: ItemStatesMap[T],
+  anchorSide?: AnchorSide
+): string {
+  if (!state) return '';
+
+  const stateValues = values.reduce<string[]>((acc, valueName) => {
+    // @ts-ignore
+    if (valueName in state && state[valueName] !== undefined) {
+      // @ts-ignore
+      const stateProperties = state[valueName] as StateParams<string | number>;
+      const getter = stateTransformationMap[valueName] as StateParamsGetter;
+      return [
+        ...acc,
+        getter(stateProperties.value, anchorSide)
+      ];
+    }
+    return acc;
+  }, []);
+
+  if (!stateValues.length) return '';
+  // @ts-ignore
+  const transitionStr = getTransitions(values, state);
+  stateValues.push(`transition: ${transitionStr};`);
+  return stateValues.join('\n');
+}
+
 export function getTransitions<T extends ArticleItemType>(
-  values: Array<keyof ItemState<ArticleItemType>>,
-  state?: ItemState<ArticleItemType>
+  values: Array<StatePropertyKey>,
+  state?: ItemStatesMap[T]
 ): string {
   if (!state) return 'unset';
   const transitionValues = values.reduce<string[]>((acc, valueName) => {
+    // @ts-ignore TODO
     if (valueName in state && state[valueName] !== undefined) {
       // @ts-ignore TODO
       const stateProperties = state[valueName] as StateParams<string | number>;
       return [
         ...acc,
+        // @ts-ignore
         `${CSSPropertyNameMap[valueName]} ${stateProperties!.duration}ms ${stateProperties!.timing} ${stateProperties!.delay}ms`
       ];
     }
@@ -63,24 +94,6 @@ export function getTransitions<T extends ArticleItemType>(
   return transitionValues.join(', ');
 }
 
-export function getStateStyles<T extends ArticleItemType>(
-  values: Array<keyof ItemState<ArticleItemType>>,
-  state?: ItemState<ArticleItemType>,
-  anchorSide?: AnchorSide
-): string {
-  if (!state) return '';
-  const stateValues = values.reduce<string[]>((acc, valueName) => {
-    if (valueName in state && state[valueName] !== undefined) {
-      // @ts-ignore TODO
-      const stateProperties = state[valueName] as StateParams<string | number>;
-      return [
-        ...acc,
-        stateTransformationMap[valueName](stateProperties.value, anchorSide)
-      ];
-    }
-    return acc;
-  }, []);
-  if (!stateValues.length) return '';
-  return stateValues.join('\n');
-}
-
+// export function getStateTransitions<T extends ArticleItemType>(
+//
+// )

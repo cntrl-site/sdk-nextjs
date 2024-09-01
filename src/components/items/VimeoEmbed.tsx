@@ -10,6 +10,7 @@ import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { useStatesClassNames } from '../useStatesClassNames';
 import { getStatesCSS } from '../../utils/getStatesCSS';
+import { useStatesTransitions } from '../useStatesTransitions';
 
 export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId, onResize }) => {
   const id = useId();
@@ -26,6 +27,8 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
   const wrapperClassNames = useStatesClassNames(item.id, item.state, 'embed-video-wrapper');
   const videoClassNames = useStatesClassNames(item.id, item.state, 'embed-video');
   useRegisterResize(ref, onResize);
+  useStatesTransitions(ref, item.state, ['angle', 'blur', 'opacity']);
+  useStatesTransitions(iframeRef, item.state, ['radius']);
   const getValidVimeoUrl = (url: string): string => {
     const validURL = new URL(url);
     validURL.searchParams.append('controls', String(controls));

@@ -12,6 +12,7 @@ import { useExemplary } from '../../common/useExemplary';
 import { useItemAngle } from '../useItemAngle';
 import { useStatesClassNames } from '../useStatesClassNames';
 import { getStatesCSS } from '../../utils/getStatesCSS';
+import { useStatesTransitions } from '../useStatesTransitions';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize }) => {
   const [content, styles] = useRichTextItem(item);
@@ -25,6 +26,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   const exemplary = useExemplary();
   const stateClassNames = useStatesClassNames(item.id, item.state, 'rich-text-wrapper');
   useRegisterResize(ref, onResize);
+  useStatesTransitions(ref, item.state, ['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color']);
 
   return (
     <>

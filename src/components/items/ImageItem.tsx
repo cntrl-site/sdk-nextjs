@@ -13,6 +13,7 @@ import { useElementRect } from '../../utils/useElementRect';
 import { useLayoutContext } from '../useLayoutContext';
 import { useStatesClassNames } from '../useStatesClassNames';
 import { getStatesCSS } from '../../utils/getStatesCSS';
+import { useStatesTransitions } from '../useStatesTransitions';
 
 const baseVariables = `precision mediump float;
 uniform sampler2D u_image;
@@ -30,8 +31,9 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const { radius, strokeWidth, opacity, strokeColor, blur } = useFileItem(item, sectionId);
   const angle = useItemAngle(item, sectionId);
   const borderColor = useMemo(() => strokeColor ? CntrlColor.parse(strokeColor) : undefined, [strokeColor]);
-  const [ref, setRef] = useState<HTMLDivElement | null>(null);
-  useRegisterResize(ref, onResize);
+  const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
+  const [imgRef, setImgRef] = useState<HTMLImageElement | HTMLCanvasElement | null>(null);
+  useRegisterResize(wrapperRef, onResize);
   const { url, hasGLEffect, fragmentShader, FXControls, FXCursor } = item.commonParams;
   const fxCanvas = useRef<HTMLCanvasElement | null>(null);
   const isInitialRef = useRef(true);
@@ -50,6 +52,9 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const height = area && exemplary ? area.height * exemplary : 0;
   const statesWrapperClassNames = useStatesClassNames(item.id, item.state, 'image-wrapper');
   const statesImgClassNames = useStatesClassNames(item.id, item.state, 'image');
+  useStatesTransitions(wrapperRef, item.state, ['angle', 'opacity', 'blur']);
+  useStatesTransitions(imgRef, item.state, ['strokeWidth', 'radius', 'strokeColor']);
+  useStatesTransitions(fxCanvas.current, item.state, ['strokeWidth', 'radius', 'strokeColor']);
   useEffect(() => {
     isInitialRef.current = false;
   }, []);
@@ -65,7 +70,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
     width,
     height
   );
-  const rect = useElementRect(ref);
+  const rect = useElementRect(wrapperRef);
   const rectWidth = Math.floor(rect?.width ?? 0);
   const rectHeight = Math.floor(rect?.height ?? 0);
   const inlineStyles = {
@@ -78,7 +83,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
       <>
         <div
           className={`image-wrapper-${item.id} ${statesWrapperClassNames}`}
-          ref={setRef}
+          ref={setWrapperRef}
           style={{
             ...(opacity !== undefined ? { opacity } : {}),
             ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
@@ -98,6 +103,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
               alt=""
               className={`image image-${item.id} ${statesImgClassNames}`}
               style={inlineStyles}
+              ref={setImgRef}
               src={item.commonParams.url}
             />
           )}

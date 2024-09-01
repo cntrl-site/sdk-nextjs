@@ -9,6 +9,7 @@ import { useItemAngle } from '../useItemAngle';
 import { useGroupItem } from './useGroupItem';
 import { useStatesClassNames } from '../useStatesClassNames';
 import { getStatesCSS } from '../../utils/getStatesCSS';
+import { useStatesTransitions } from '../useStatesTransitions';
 
 export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize, articleHeight }) => {
   const id = useId();
@@ -20,6 +21,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
   const statesClassNames = useStatesClassNames(item.id, item.state, 'group');
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
+  useStatesTransitions(ref!, item.state, ['opacity', 'angle'])
 
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>

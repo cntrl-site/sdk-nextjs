@@ -10,6 +10,7 @@ import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { getStatesCSS } from '../../utils/getStatesCSS';
 import { useStatesClassNames } from '../useStatesClassNames';
+import { useStatesTransitions } from '../useStatesTransitions';
 
 export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, onResize }) => {
   const id = useId();
@@ -23,6 +24,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
   const statesClassNames = useStatesClassNames(item.id, item.state, 'rectangle');
   useRegisterResize(ref, onResize);
   const backdropFilterValue = backdropBlur ? `blur(${backdropBlur * 100}vw)`: undefined;
+  useStatesTransitions(ref, item.state, ['angle', 'fillColor', 'strokeWidth', 'radius', 'strokeColor', 'blur', 'backdropBlur']);
 
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
