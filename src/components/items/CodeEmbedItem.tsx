@@ -104,7 +104,6 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
             opacity: ${layoutParams.opacity};
             transform: rotate(${area.angle}deg);
             filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
-            transition: all 0.2s ease;
           }
           .embed-${item.id} {
             width: ${item.commonParams.scale ? `${area.width * exemplary}px` : '100%'};

@@ -70,7 +70,6 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
               transform: rotate(${area.angle}deg);
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
               text-transform: ${layoutParams.textTransform};
-              transition: all 0.2s ease;
             }
             @supports not (color: oklch(42% 0.3 90 / 1)) {
               .rich-text-wrapper-${item.id} {

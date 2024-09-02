@@ -132,11 +132,9 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
             opacity: ${layoutParams.opacity};
             transform: rotate(${area.angle}deg);
             filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
-            transition: all 0.2s ease;
           }
           .embed-video-wrapper-${item.id} .embed-video {
             border-radius: ${layoutParams.radius * 100}vw;
-            transition: all 0.2s ease;
           }
           ${wrapperStatesCSS}
           ${videoStatesCSS}

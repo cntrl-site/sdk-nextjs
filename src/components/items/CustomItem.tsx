@@ -37,7 +37,6 @@ export const CustomItem: FC<ItemProps<TCustomItem>> = ({ item, onResize, section
           return (`
             .custom-component-${item.id} {
               transform: rotate(${area.angle}deg);
-              transition: all 0.2s ease;
               height: 100%;
               width: 100%;
               position: absolute;

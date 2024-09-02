@@ -142,13 +142,11 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
               opacity: ${layoutParams.opacity};
               transform: rotate(${area.angle}deg);
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
-              transition: all 0.2s ease;
             }
             .image-${item.id} {
               border-color: ${CntrlColor.parse(layoutParams.strokeColor).fmt('rgba')};
               border-radius: ${layoutParams.radius * 100}vw;
               border-width: ${layoutParams.strokeWidth * 100}vw;
-              transition: all 0.2s ease;
             }
             ${wrapperStatesCSS}
             ${imgStatesCSS}

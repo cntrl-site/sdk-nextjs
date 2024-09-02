@@ -151,11 +151,9 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
               opacity: ${layoutParams.opacity};
               transform: rotate(${area.angle}deg);
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
-              transition: all 0.2s ease;
             }
             .embed-youtube-video-wrapper-${item.id} .embed-${item.id} {
               border-radius: ${layoutParams.radius * 100}vw;
-              transition: all 0.2s ease;
             }
             ${wrapperStatesCSS}
             ${embedStatesCSS}

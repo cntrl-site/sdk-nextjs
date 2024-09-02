@@ -57,7 +57,6 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
             .group-${item.id} {
               opacity: ${layoutParams.opacity};
               transform: rotate(${area.angle}deg);
-              transition: all 0.2s ease;
             }
             ${statesCSS}
           `);
