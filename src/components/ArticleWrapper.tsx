@@ -1,5 +1,4 @@
-import React, { CSSProperties, FC, PropsWithChildren, useEffect, useId, useState } from 'react';
-import JSXStyle from 'styled-jsx/style';
+import React, { CSSProperties, FC, PropsWithChildren } from 'react';
 import { useCurrentLayout } from '../common/useCurrentLayout';
 import { LayoutContext } from '../provider/LayoutContext';
 

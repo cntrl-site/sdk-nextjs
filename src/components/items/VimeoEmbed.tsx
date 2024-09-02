@@ -5,10 +5,12 @@ import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useEmbedVideoItem } from './useEmbedVideoItem';
 import { useItemAngle } from '../useItemAngle';
-import { ArticleItemType, getLayoutStyles, VimeoEmbedItem as TVimeoEmbedItem } from '@cntrl-site/sdk';
+import { getLayoutStyles, VimeoEmbedItem as TVimeoEmbedItem } from '@cntrl-site/sdk';
 import { useCntrlContext } from '../../provider/useCntrlContext';
-import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
 import { useRegisterResize } from "../../common/useRegisterResize";
+import { useStatesClassNames } from '../useStatesClassNames';
+import { getStatesCSS } from '../../utils/getStatesCSS';
+import { useStatesTransitions } from '../useStatesTransitions';
 
 export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId, onResize }) => {
   const id = useId();
@@ -21,8 +23,12 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const [imgRef, setImgRef] = useState<HTMLImageElement | null>(null);
   const [isCoverVisible, setIsCoverVisible] = useState(false);
-  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state];
+  const wrapperClassNames = useStatesClassNames(item.id, item.state, 'embed-video-wrapper');
+  const videoClassNames = useStatesClassNames(item.id, item.state, 'embed-video');
   useRegisterResize(ref, onResize);
+  useStatesTransitions(ref, item.state, ['angle', 'blur', 'opacity']);
+  useStatesTransitions(iframeRef, item.state, ['radius']);
   const getValidVimeoUrl = (url: string): string => {
     const validURL = new URL(url);
     validURL.searchParams.append('controls', String(controls));
@@ -60,7 +66,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
-        className={`embed-video-wrapper-${item.id}`}
+        className={`embed-video-wrapper-${item.id} ${wrapperClassNames}`}
         ref={setRef}
         style={{
           ...(opacity !== undefined ? { opacity } : {}),
@@ -96,7 +102,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
         )}
         <iframe
           ref={setIframeRef}
-          className="embedVideo"
+          className={`embed-video ${videoClassNames}`}
           src={validUrl || ''}
           allow="autoplay; fullscreen; picture-in-picture;"
           allowFullScreen
@@ -111,31 +117,27 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
         width: 100%;
         height: 100%;
       }
-      .embedVideo {
+      .embed-video {
         width: 100%;
         height: 100%;
         z-index: 1;
         border: none;
         overflow: hidden;
       }
-      ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams]) => {
+      ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, stateParams]) => {
+        const wrapperStatesCSS = getStatesCSS(item.id, 'embed-video-wrapper', ['angle', 'blur', 'opacity'], stateParams);
+        const videoStatesCSS = getStatesCSS(item.id, 'embed-video', ['radius'], stateParams);
         return (`
           .embed-video-wrapper-${item.id} {
             opacity: ${layoutParams.opacity};
             transform: rotate(${area.angle}deg);
             filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
-            transition: ${getTransitions<ArticleItemType.VimeoEmbed>(['angle', 'blur', 'opacity'], hoverParams)};
           }
-          .embed-video-wrapper-${item.id}:hover {
-            ${getHoverStyles<ArticleItemType.VimeoEmbed>(['angle', 'blur', 'opacity'], hoverParams)}
-          }
-          .embed-video-wrapper-${item.id} .embedVideo {
+          .embed-video-wrapper-${item.id} .embed-video {
             border-radius: ${layoutParams.radius * 100}vw;
-            transition: ${getTransitions<ArticleItemType.VimeoEmbed>(['radius'], hoverParams)};
           }
-          .embed-video-wrapper-${item.id}:hover .embedVideo {
-            ${getHoverStyles<ArticleItemType.VimeoEmbed>(['radius'], hoverParams)};
-          }
+          ${wrapperStatesCSS}
+          ${videoStatesCSS}
         `);
       })}
     `}</JSXStyle>

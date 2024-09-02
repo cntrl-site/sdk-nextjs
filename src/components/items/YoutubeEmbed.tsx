@@ -5,12 +5,14 @@ import { LinkWrapper } from '../LinkWrapper';
 import { getYoutubeId } from '../../utils/getValidYoutubeUrl';
 import { useEmbedVideoItem } from './useEmbedVideoItem';
 import { useItemAngle } from '../useItemAngle';
-import { ArticleItemType, getLayoutStyles, YoutubeEmbedItem as TYoutubeEmbedItem } from '@cntrl-site/sdk';
-import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
+import { getLayoutStyles, YoutubeEmbedItem as TYoutubeEmbedItem } from '@cntrl-site/sdk';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useYouTubeIframeApi } from '../../utils/Youtube/useYouTubeIframeApi';
 import { YTPlayer } from '../../utils/Youtube/YoutubeIframeApi';
 import { useRegisterResize } from "../../common/useRegisterResize";
+import { useStatesClassNames } from '../useStatesClassNames';
+import { getStatesCSS } from '../../utils/getStatesCSS';
+import { useStatesTransitions } from '../useStatesTransitions';
 
 export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, sectionId, onResize }) => {
   const id = useId();
@@ -20,12 +22,16 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   const angle = useItemAngle(item, sectionId);
   const YT = useYouTubeIframeApi();
   const [div, setDiv] = useState<HTMLDivElement | null>(null);
+  const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
   const [player, setPlayer] = useState<YTPlayer | undefined>(undefined);
   const [isCoverVisible, setIsCoverVisible] = useState(false);
   const [imgRef, setImgRef] = useState<HTMLImageElement | null>(null);
-  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state];
+  const wrapperClassNames = useStatesClassNames(item.id, item.state, 'embed-youtube-video-wrapper');
+  const embedClassNames = useStatesClassNames(item.id, item.state, 'embed');
   useRegisterResize(div, onResize);
-
+  useStatesTransitions(wrapperRef, item.state, ['angle', 'blur', 'opacity']);
+  useStatesTransitions(div, item.state, ['radius']);
   useEffect(() => {
     const newUrl = new URL(url);
     const videoId = getYoutubeId(newUrl);
@@ -78,7 +84,8 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
-        className={`embed-youtube-video-wrapper-${item.id}`}
+        ref={setWrapperRef}
+        className={`embed-youtube-video-wrapper-${item.id} ${wrapperClassNames}`}
         onMouseEnter={() => {
           if (!player || play !== 'on-hover') return;
           player.playVideo();
@@ -113,11 +120,10 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
           />
         )}
         <div
-          className={`embed-${item.id}`}
+          className={`embed-${item.id} ${embedClassNames}`}
           ref={setDiv}
           style={{
             ...(radius !== undefined  ? { borderRadius: `${radius * 100}vw` } : {}),
-
           }}
         />
       </div>
@@ -137,24 +143,20 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
           z-index: 1;
           border: none;
         }
-        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams]) => {
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, stateParams]) => {
+          const wrapperStatesCSS = getStatesCSS(item.id, 'embed-youtube-video-wrapper', ['angle', 'blur', 'opacity'], stateParams);
+          const embedStatesCSS = getStatesCSS(item.id, 'embed', ['radius'], stateParams);
           return (`
             .embed-youtube-video-wrapper-${item.id} {
               opacity: ${layoutParams.opacity};
               transform: rotate(${area.angle}deg);
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
-              transition: ${getTransitions<ArticleItemType.YoutubeEmbed>(['angle', 'blur', 'opacity'], hoverParams)};
             }
             .embed-youtube-video-wrapper-${item.id} .embed-${item.id} {
               border-radius: ${layoutParams.radius * 100}vw;
-              transition: ${getTransitions<ArticleItemType.YoutubeEmbed>(['radius'], hoverParams)};
             }
-            .embed-youtube-video-wrapper-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.YoutubeEmbed>(['angle', 'blur', 'opacity'], hoverParams)};
-            }
-            .embed-youtube-video-wrapper-${item.id}:hover .embed-${item.id} {
-              ${getHoverStyles<ArticleItemType.YoutubeEmbed>(['radius'], hoverParams)};
-            }
+            ${wrapperStatesCSS}
+            ${embedStatesCSS}
           `);
       })}
       `}</JSXStyle>
