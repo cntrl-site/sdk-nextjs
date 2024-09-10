@@ -11,6 +11,7 @@ import { useRegisterResize } from "../../common/useRegisterResize";
 import { useStatesClassNames } from '../useStatesClassNames';
 import { getStatesCSS } from '../../utils/getStatesCSS';
 import { useStatesTransitions } from '../useStatesTransitions';
+import { IframeEventsCapturer } from '../IframeEventsCapturer';
 
 export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId, onResize }) => {
   const id = useId();
@@ -58,9 +59,13 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
   }, [vimeoPlayer, imgRef]);
 
   const onCoverClick = () => {
-    if (!vimeoPlayer || !imgRef) return;
-    vimeoPlayer!.play();
     setIsCoverVisible(false);
+  };
+
+  const handleEmbedClick = () => {
+    console.log('onClick');
+    if (!vimeoPlayer || play !== 'on-click') return;
+    vimeoPlayer.play();
   };
 
   return (
@@ -74,13 +79,16 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
         }}
         onMouseEnter={() => {
+          console.log('onMouseEnter');
           if (!vimeoPlayer || play !== 'on-hover') return;
           vimeoPlayer.play();
         }}
-        onMouseLeave={() =>{
+        onMouseLeave={() => {
+          console.log('onMouseLeave');
           if (!vimeoPlayer || play !== 'on-hover') return;
           vimeoPlayer.pause();
         }}
+        onClick={handleEmbedClick}
       >
         {item.commonParams.coverUrl && (
           <img
@@ -100,6 +108,12 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
             alt="Cover img"
           />
         )}
+        <div>
+
+        </div>
+        <IframeEventsCapturer>
+          <div>hello</div>
+        </IframeEventsCapturer>
         <iframe
           ref={setIframeRef}
           className={`embed-video ${videoClassNames}`}

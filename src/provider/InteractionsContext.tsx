@@ -28,6 +28,10 @@ export const InteractionsProvider: FC<PropsWithChildren<Props>> = ({ interaction
   const transitionTo = (interactionId: string, stateId: string) => {
     setInteractionsStatesMap((map) => ({ ...map, [interactionId]: stateId }));
   };
+  // TODO need to handle trigger OUT from many states, example:
+  //  1. two interactions with the same state
+  //  2. one "click" trigger to quit all
+  //  3. need to send many transitions instead of one
   const getItemTrigger = (itemId: string, triggerType: TriggerType): Trigger | null => {
     for (const interaction of interactions) {
       const activeStateId = interactionsStatesMap[interaction.id];
