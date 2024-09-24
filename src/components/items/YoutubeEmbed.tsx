@@ -30,8 +30,8 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   const wrapperClassNames = useStatesClassNames(item.id, item.state, 'embed-youtube-video-wrapper');
   const embedClassNames = useStatesClassNames(item.id, item.state, 'embed');
   useRegisterResize(div, onResize);
-  useStatesTransitions(wrapperRef, item.state, ['angle', 'blur', 'opacity']);
-  useStatesTransitions(div, item.state, ['radius']);
+  // useStatesTransitions(wrapperRef, item.state, ['angle', 'blur', 'opacity']);
+  // useStatesTransitions(div, item.state, ['radius']);
   useEffect(() => {
     const newUrl = new URL(url);
     const videoId = getYoutubeId(newUrl);

@@ -18,7 +18,7 @@ export const CustomItem: FC<ItemProps<TCustomItem>> = ({ item, onResize, section
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
   const statesClassNames = useStatesClassNames(item.id, item.state, 'custom-component');
-  useStatesTransitions(ref, item.state, ['angle'])
+  // useStatesTransitions(ref, item.state, ['angle'])
   if (!component) return null;
   return (
     <>

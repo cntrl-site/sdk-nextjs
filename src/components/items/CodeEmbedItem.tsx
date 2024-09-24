@@ -34,7 +34,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
   const pos = stylesMap[anchor];
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state];
   const statesClassNames = useStatesClassNames(item.id, item.state, 'embed-wrapper');
-  useStatesTransitions(ref!, item.state, ['angle', 'blur', 'opacity']);
+  // useStatesTransitions(ref!, item.state, ['angle', 'blur', 'opacity']);
 
   useEffect(() => {
     if (!ref) return;

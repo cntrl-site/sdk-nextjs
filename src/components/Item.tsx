@@ -35,6 +35,7 @@ import { InteractionsContext } from '../provider/InteractionsContext';
 import { getStatesCSS } from '../utils/getStatesCSS';
 import { useStatesClassNames } from './useStatesClassNames';
 import { useStatesTransitions } from './useStatesTransitions';
+import { useItemInteractionCtrl } from './useItemInteractionCtrl';
 
 export interface ItemProps<I extends ItemAny> {
   item: I;
@@ -93,7 +94,27 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
   const [wrapperHeight, setWrapperHeight] = useState<undefined | number>(undefined);
   const [itemHeight, setItemHeight] = useState<undefined | number>(undefined);
   const scale = useItemScale(item, sectionId);
-  const position = useItemPosition(item, sectionId);
+  const wrapperValues = useMemo(() => ['top' as const, 'left' as const], []);
+  const interactionCtrl: {
+    getStateProps: (keys: string[]) => any,
+    triggers: {
+      onClick: () => void;
+      onMouseEnter: () => void;
+      onMouseLeave: () => void;
+    };
+  } = useItemInteractionCtrl(item.id, item.state);
+  const wrapperInteraction: {
+    styles: {
+      top?: number;
+      left?: number;
+    };
+    transition?: string;
+    handleTransitionEnd?: () => void;
+  } = interactionCtrl.getStateProps(['top', 'left']);
+
+  const wrapperTransitions = useStatesTransitions(itemWrapperRef.current, item.state, wrapperValues);
+  // const stateInnerStyles = useStatesTransitions(itemInnerRef.current, item.state, ['width', 'height', 'scale']);
+  const position = useItemPosition(item, sectionId, wrapperTransitions.values);
   const sectionHeight = useSectionHeightData(sectionId);
   const stickyTop = useStickyItemTop(item, sectionHeight, sectionId);
   const dimensions = useItemDimensions(item, sectionId);
@@ -134,19 +155,19 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
   }, []);
 
   const isRichText = isItemType(item, ArticleItemType.RichText);
-  const innerStatesClassNames = useStatesClassNames(item.id, item.state, 'item-inner');
-  const wrapperStatesClassNames = useStatesClassNames(item.id, item.state, 'item-wrapper');
-  useStatesTransitions(itemWrapperRef.current, item.state, ['top', 'left']);
-  useStatesTransitions(itemInnerRef.current, item.state, ['width', 'height', 'scale']);
   return (
     <div
-      className={`item-wrapper-${item.id} ${wrapperStatesClassNames}`}
+      className={`item-wrapper-${item.id}`}
       ref={itemWrapperRef}
+      onTransitionEnd={(e) => {
+        e.stopPropagation();
+      }}
       style={{
         ...(position ? { top: position.top } : {}),
         ...(position ? { left: position.left } : {}),
         ...(position ? { bottom: position.bottom } : {}),
-        ...(wrapperHeight !== undefined ? { height: `${wrapperHeight * 100}vw` } : {})
+        ...(wrapperHeight !== undefined ? { height: `${wrapperHeight * 100}vw` } : {}),
+        transition: wrapperTransitions.transition
       }}
     >
       <div
@@ -160,7 +181,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
       >
         <RichTextWrapper isRichText={isRichText}>
           <div
-            className={`item-${item.id}-inner ${innerStatesClassNames}`}
+            className={`item-${item.id}-inner`}
             ref={itemInnerRef}
             onClick={() => {
               const trigger = getItemTrigger(item.id, 'click');

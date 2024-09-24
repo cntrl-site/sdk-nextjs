@@ -1,46 +1,56 @@
-import { ArticleItemType, ItemState, ItemStateParams, ItemStatesMap } from '@cntrl-site/sdk';
+import { ArticleItemType, ItemState, ItemStateParams, StateParams, ItemStatesMap } from '@cntrl-site/sdk';
 import { useContext, useEffect, useMemo } from 'react';
 import { InteractionsContext } from '../provider/InteractionsContext';
 import { useCurrentLayout } from '../common/useCurrentLayout';
 
 type AllKeys<T> = T extends any ? keyof T : never;
 type StatePropertyKey = AllKeys<ItemStatesMap[keyof ItemStatesMap]>;
+type StateValue<K extends StatePropertyKey> = {
+  [T in ArticleItemType]: K extends keyof ItemStatesMap[T]
+    ? ItemStatesMap[T][K] extends StateParams<infer V> | undefined
+      ? V
+      : never
+    : never;
+}[ArticleItemType];
+type TransitionData<K extends StatePropertyKey> = {
+  values: Partial<Record<K, StateValue<K>>>;
+  transition?: string;
+};
 
-export function useStatesTransitions(
+export function useStatesTransitions<K extends StatePropertyKey>(
   el: HTMLElement | null,
   state: ItemState<ArticleItemType>,
-  values: StatePropertyKey[]
-) {
+  styleKeys: K[]
+): TransitionData<K> {
+  const emptyData = styleKeys.reduce<TransitionData<K>>((map, key) => {
+    // @ts-ignore
+    map[key] = undefined;
+    return map;
+  }, {} as TransitionData<K>);
+  const outData: TransitionData<K> = useMemo(() => ({
+    values: {},
+    transition: ''
+  }), [state, styleKeys]);
   const { interactionsStatesMap } = useContext(InteractionsContext);
   const { layoutId } = useCurrentLayout();
   const activeStates = Object.values(interactionsStatesMap);
   const statesForLayout = useMemo(() => layoutId ? state[layoutId] : {}, [state, layoutId]);
   const itemStatesIds = statesForLayout ? Object.keys(statesForLayout) : [];
   const itemActiveStateId = activeStates.find((stateId) => itemStatesIds.includes(stateId));
-  useEffect(() => {
-    if (!itemActiveStateId || !el) return;
-    const state = statesForLayout[itemActiveStateId];
-    const transitionStr = getTransition(state, 'in', values);
-    const slowestProp = getSlowestProperty(state, 'in', values);
-    if (!transitionStr) return;
-    el.style.transition = transitionStr;
-    el.ontransitionend = (e) => {
-      e.stopPropagation();
-      if (e.target !== el || e.propertyName !== slowestProp) return;
-      el.style.transition = 'none';
-    };
-    return () => {
-      const transitionStr = getTransition(state, 'out', values);
-      const slowestProp = getSlowestProperty(state, 'out', values);
-      if (!transitionStr) return;
-      el.style.transition = transitionStr;
-      el.ontransitionend = (e) => {
-        e.stopPropagation();
-        if (e.target !== el || e.propertyName !== slowestProp) return;
-        el.style.transition = 'none';
-      };
-    };
-  }, [itemActiveStateId, statesForLayout, el]);
+  const itemState = itemActiveStateId ? statesForLayout[itemActiveStateId] : undefined;
+  if (!itemState) return emptyData;
+  const inTransitionStr = getTransition(itemState, 'in', styleKeys);
+
+  return {
+    values: styleKeys.reduce((map, styleKey) => {
+      // @ts-ignore
+      const prop = itemState[styleKey];
+      if (!prop) return map;
+      map[styleKey] = prop?.value;
+      return map;
+    }, {} as TransitionData<K>['values']),
+    transition: inTransitionStr
+  };
 }
 
 const CSSPropertyNameMap: Record<keyof ItemState<ArticleItemType>, string> = {

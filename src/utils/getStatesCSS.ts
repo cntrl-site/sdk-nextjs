@@ -21,4 +21,3 @@ export function getStatesCSS<T extends ArticleItemType>(
     }).join('\n')
     : '';
 }
-

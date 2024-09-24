@@ -1,4 +1,4 @@
-import { StateParams, ArticleItemType, AnchorSide, ItemState, ItemStatesMap } from '@cntrl-site/sdk';
+import { StateParams, ArticleItemType, AnchorSide, ItemState, ItemStatesMap, ItemStateParams } from '@cntrl-site/sdk';
 import { CntrlColor } from '@cntrl-site/color';
 import { getItemTopStyle } from '../getItemTopStyle';
 
@@ -67,8 +67,8 @@ export function getStateStyles<T extends ArticleItemType>(
 
   if (!stateValues.length) return '';
   // @ts-ignore
-  const transitionStr = getTransitions(values, state);
-  stateValues.push(`transition: ${transitionStr};`);
+  // const transitionStr = getTransition(state, 'in', values);
+  // stateValues.push(`transition: ${transitionStr};`);
   return stateValues.join('\n');
 }
 
@@ -94,6 +94,19 @@ export function getTransitions<T extends ArticleItemType>(
   return transitionValues.join(', ');
 }
 
-// export function getStateTransitions<T extends ArticleItemType>(
-//
-// )
+function getTransition(
+  state: ItemStateParams,
+  direction: 'in' | 'out',
+  values: string[]
+) {
+  return Object.entries(state)
+    .filter(([key]) => values.includes(key))
+    .map(([key, params]) => {
+      const cssKey = CSSPropertyNameMap[key];
+      if (!cssKey) {
+        throw new Error(`Cannot translate "${key}" to a CSS property.`);
+      }
+      return `${cssKey} ${params[direction].duration}ms ${params[direction].timing} ${params[direction].delay}ms`;
+    }, [])
+    .join(', ');
+}

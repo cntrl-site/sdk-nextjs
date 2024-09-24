@@ -52,8 +52,8 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const height = area && exemplary ? area.height * exemplary : 0;
   const statesWrapperClassNames = useStatesClassNames(item.id, item.state, 'image-wrapper');
   const statesImgClassNames = useStatesClassNames(item.id, item.state, 'image');
-  useStatesTransitions(wrapperRef, item.state, ['angle', 'opacity', 'blur']);
-  useStatesTransitions(imgRef, item.state, ['strokeWidth', 'radius', 'strokeColor']);
+  // useStatesTransitions(wrapperRef, item.state, ['angle', 'opacity', 'blur']);
+  // useStatesTransitions(imgRef, item.state, ['strokeWidth', 'radius', 'strokeColor']);
   useStatesTransitions(fxCanvas.current, item.state, ['strokeWidth', 'radius', 'strokeColor']);
   useEffect(() => {
     isInitialRef.current = false;

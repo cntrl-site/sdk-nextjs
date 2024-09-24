@@ -28,8 +28,8 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
   const statesWrapperClassNames = useStatesClassNames(item.id, item.state, 'video-wrapper');
   const statesVideoClassNames = useStatesClassNames(item.id, item.state, 'video');
   const hasScrollPlayback = scrollPlayback !== null;
-  useStatesTransitions(ref, item.state, ['angle', 'opacity', 'blur']);
-  useStatesTransitions(videoRef.current, item.state, ['strokeWidth', 'radius', 'strokeColor']);
+  // useStatesTransitions(ref, item.state, ['angle', 'opacity', 'blur']);
+  // useStatesTransitions(videoRef.current, item.state, ['strokeWidth', 'radius', 'strokeColor']);
   useRegisterResize(ref, onResize);
   const inlineStyles = {
     ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),

@@ -26,7 +26,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   const exemplary = useExemplary();
   const stateClassNames = useStatesClassNames(item.id, item.state, 'rich-text-wrapper');
   useRegisterResize(ref, onResize);
-  useStatesTransitions(ref, item.state, ['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color']);
+  // useStatesTransitions(ref, item.state, ['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color']);
 
   return (
     <>
