@@ -10,42 +10,54 @@ import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { useLayoutContext } from '../useLayoutContext';
 import { ScrollPlaybackVideo } from '../ScrollPlaybackVideo';
-import { useStatesClassNames } from '../useStatesClassNames';
-import { getStatesCSS } from '../../utils/getStatesCSS';
-import { useStatesTransitions } from '../useStatesTransitions';
+import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
 
-export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize }) => {
+export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
-  const { radius, strokeWidth, strokeColor, opacity, blur } = useFileItem(item, sectionId);
-  const angle = useItemAngle(item, sectionId);
-  const borderColor = useMemo(() => strokeColor ? CntrlColor.parse(strokeColor) : undefined, [strokeColor]);
+  const {
+    radius: itemRadius,
+    strokeWidth: itemStrokeWidth,
+    strokeColor: itemStrokeColor,
+    opacity: itemOpacity,
+    blur: itemBlur
+  } = useFileItem(item, sectionId);
+  const itemAngle = useItemAngle(item, sectionId);
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const layoutId = useLayoutContext();
   const scrollPlayback = layoutId ? item.layoutParams[layoutId].scrollPlayback : null;
-  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state];
-  const statesWrapperClassNames = useStatesClassNames(item.id, item.state, 'video-wrapper');
-  const statesVideoClassNames = useStatesClassNames(item.id, item.state, 'video');
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const hasScrollPlayback = scrollPlayback !== null;
-  // useStatesTransitions(ref, item.state, ['angle', 'opacity', 'blur']);
-  // useStatesTransitions(videoRef.current, item.state, ['strokeWidth', 'radius', 'strokeColor']);
+  const wrapperStateParams = interactionCtrl?.getState(['angle', 'opacity', 'blur']);
+  const videoStateParams = interactionCtrl?.getState(['strokeWidth', 'radius', 'strokeColor']);
+  const borderColor = useMemo(() => {
+    const strokeColor = getStyleFromItemStateAndParams(videoStateParams?.styles?.color, itemStrokeColor);
+    return strokeColor ? CntrlColor.parse(strokeColor) : undefined;
+  }, [videoStateParams?.styles?.color, itemStrokeColor]);
+  const angle = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.angle, itemAngle);
+  const opacity = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.opacity, itemOpacity);
+  const blur = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.blur, itemBlur);
+  const strokeWidth = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.strokeWidth, itemStrokeWidth);
+  const radius = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.radius, itemRadius);
   useRegisterResize(ref, onResize);
   const inlineStyles = {
     ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),
     ...(strokeWidth !== undefined  ? { borderWidth: `${strokeWidth * 100}vw` } : {}),
-    ...(borderColor ? { borderColor: `${borderColor.toCss()}` } : {})
+    ...(borderColor ? { borderColor: `${borderColor.toCss()}` } : {}),
+    transition: videoStateParams?.transition ?? 'none'
   };
 
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
-        className={`video-wrapper-${item.id} ${statesWrapperClassNames}`}
+        className={`video-wrapper-${item.id}`}
         ref={setRef}
         style={{
           ...(opacity !== undefined ? { opacity } : {}),
           ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
-          ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {})
+          ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
+          transition: wrapperStateParams?.transition ?? 'none'
         }}
       >
         {hasScrollPlayback ? (
@@ -54,7 +66,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
             src={item.commonParams.url}
             playbackParams={scrollPlayback}
             style={inlineStyles}
-            className={`video video-playback-wrapper video-${item.id} ${statesWrapperClassNames}`}
+            className={`video video-playback-wrapper video-${item.id}`}
           />
           ) : (
           <video
@@ -64,7 +76,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
             muted
             loop
             playsInline
-            className={`video video-${item.id} ${statesVideoClassNames}`}
+            className={`video video-${item.id}`}
             style={inlineStyles}
           >
             <source src={item.commonParams.url} />
@@ -92,15 +104,13 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
           pointer-events: auto;
         }
         .video-${item.id} {
-          border-color: ${strokeColor};
+          border-color: ${itemStrokeColor};
         }
         .video-playback-wrapper {
           display: flex;
           justify-content: center;
         }
-        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, stateParams]) => {
-          const wrapperStatesCSS = getStatesCSS(item.id, 'video-wrapper', ['angle', 'opacity', 'blur'], stateParams);
-          const videoStatesCSS = getStatesCSS(item.id, 'video', ['strokeWidth', 'radius', 'strokeColor'], stateParams);
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
           return (`
             .video-wrapper-${item.id} {
               opacity: ${layoutParams.opacity};
@@ -112,8 +122,6 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
               border-radius: ${layoutParams.radius * 100}vw;
               border-width: ${layoutParams.strokeWidth * 100}vw;
             }
-            ${wrapperStatesCSS}
-            ${videoStatesCSS}
           `);
         })}
     `}</JSXStyle>

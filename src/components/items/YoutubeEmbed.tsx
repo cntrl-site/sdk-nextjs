@@ -10,28 +10,27 @@ import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useYouTubeIframeApi } from '../../utils/Youtube/useYouTubeIframeApi';
 import { YTPlayer } from '../../utils/Youtube/YoutubeIframeApi';
 import { useRegisterResize } from "../../common/useRegisterResize";
-import { useStatesClassNames } from '../useStatesClassNames';
-import { getStatesCSS } from '../../utils/getStatesCSS';
-import { useStatesTransitions } from '../useStatesTransitions';
+import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
 
-export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, sectionId, onResize }) => {
+export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
   const { play, controls, url } = item.commonParams;
-  const { radius, blur, opacity } = useEmbedVideoItem(item, sectionId);
-  const angle = useItemAngle(item, sectionId);
+  const { radius: itemRadius, blur: itemBlur, opacity: itemOpacity } = useEmbedVideoItem(item, sectionId);
+  const itemAngle = useItemAngle(item, sectionId);
   const YT = useYouTubeIframeApi();
   const [div, setDiv] = useState<HTMLDivElement | null>(null);
-  const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
   const [player, setPlayer] = useState<YTPlayer | undefined>(undefined);
   const [isCoverVisible, setIsCoverVisible] = useState(false);
   const [imgRef, setImgRef] = useState<HTMLImageElement | null>(null);
-  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state];
-  const wrapperClassNames = useStatesClassNames(item.id, item.state, 'embed-youtube-video-wrapper');
-  const embedClassNames = useStatesClassNames(item.id, item.state, 'embed');
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
+  const wrapperStateParams = interactionCtrl?.getState(['angle', 'blur', 'opacity']);
+  const frameStateParams = interactionCtrl?.getState(['radius']);
+  const angle = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.angle, itemAngle);
+  const blur = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.blur, itemBlur);
+  const opacity = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.opacity, itemOpacity);
+  const radius = getStyleFromItemStateAndParams(frameStateParams?.styles?.radius, itemRadius);
   useRegisterResize(div, onResize);
-  // useStatesTransitions(wrapperRef, item.state, ['angle', 'blur', 'opacity']);
-  // useStatesTransitions(div, item.state, ['radius']);
   useEffect(() => {
     const newUrl = new URL(url);
     const videoId = getYoutubeId(newUrl);
@@ -84,8 +83,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
-        ref={setWrapperRef}
-        className={`embed-youtube-video-wrapper-${item.id} ${wrapperClassNames}`}
+        className={`embed-youtube-video-wrapper-${item.id}`}
         onMouseEnter={() => {
           if (!player || play !== 'on-hover') return;
           player.playVideo();
@@ -98,6 +96,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
           ...(opacity !== undefined ? { opacity } : {}),
           ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
+          transition: wrapperStateParams?.transition ?? 'none'
         }}
       >
         {item.commonParams.coverUrl && (
@@ -120,10 +119,11 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
           />
         )}
         <div
-          className={`embed-${item.id} ${embedClassNames}`}
+          className={`embed-${item.id}`}
           ref={setDiv}
           style={{
-            ...(radius !== undefined  ? { borderRadius: `${radius * 100}vw` } : {}),
+            ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),
+            transition: frameStateParams?.transition ?? 'none'
           }}
         />
       </div>
@@ -143,9 +143,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
           z-index: 1;
           border: none;
         }
-        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, stateParams]) => {
-          const wrapperStatesCSS = getStatesCSS(item.id, 'embed-youtube-video-wrapper', ['angle', 'blur', 'opacity'], stateParams);
-          const embedStatesCSS = getStatesCSS(item.id, 'embed', ['radius'], stateParams);
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
           return (`
             .embed-youtube-video-wrapper-${item.id} {
               opacity: ${layoutParams.opacity};
@@ -155,8 +153,6 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
             .embed-youtube-video-wrapper-${item.id} .embed-${item.id} {
               border-radius: ${layoutParams.radius * 100}vw;
             }
-            ${wrapperStatesCSS}
-            ${embedStatesCSS}
           `);
       })}
       `}</JSXStyle>
