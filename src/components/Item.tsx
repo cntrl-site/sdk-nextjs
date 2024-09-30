@@ -92,8 +92,6 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
   const [itemHeight, setItemHeight] = useState<undefined | number>(undefined);
   const itemScale = useItemScale(item, sectionId);
   const interactionCtrl = useItemInteractionCtrl(item.id);
-  // @ts-ignore
-  console.log(interactionCtrl?.transitionsInProgress);
   const wrapperStateProps = interactionCtrl?.getState(['top', 'left']);
   const innerStateProps = interactionCtrl?.getState(['width', 'height', 'scale']);
   const position = useItemPosition(item, sectionId, {
