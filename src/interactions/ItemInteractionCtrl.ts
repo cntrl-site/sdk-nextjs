@@ -39,6 +39,12 @@ export class ItemInteractionController implements ItemInteractionCtrl {
   };
 
   handleTransitionEnd = (cssPropKey: string) => {
+    if (cssPropKey.startsWith('border-') && cssPropKey.endsWith('-radius')) {
+      cssPropKey = 'border-radius';
+    }
+    if (cssPropKey.startsWith('border-') && cssPropKey.endsWith('-width')) {
+      cssPropKey = 'border-width';
+    }
     const styleKeys = getStyleKeysFromCSSProperty(cssPropKey);
     for (const key of styleKeys) {
       const found = this.transitionsInProgress.has(key);

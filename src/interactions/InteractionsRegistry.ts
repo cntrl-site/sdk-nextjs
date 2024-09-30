@@ -5,9 +5,8 @@ import {
   Interaction,
   InteractionTrigger,
   ItemAny,
-  ItemState,
-  StateParams
 } from '@cntrl-site/sdk';
+import { isItemType } from '../components/Item';
 
 export class InteractionsRegistry implements InteractionsRegistryPort {
   private ctrls: Map<ItemId, ItemInteractionCtrl> = new Map();
@@ -15,11 +14,12 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
   private interactions: Interaction[];
   private stateItemsIdsMap: StateItemsIdsMap;
   private interactionStateMap: InteractionStateMap;
-  private itemStageMap: ItemStageMap;
+  private itemsStages: ItemStages;
+  private activeStateIdInteractionIdMap: Record<StateId, InteractionId>;
 
   constructor(article: Article, private layoutId: string) {
     const { interactions } = article;
-    const items = article.sections.flatMap((section) => section.items);
+    this.items = this.unpackItems(article);
     const activeStatesIds = interactions.reduce<StateId[]>((map, inter) => {
       const activeStateId = inter.states.find((state) => state.id !== inter.startStateId)?.id!;
       map.push(activeStateId);
@@ -29,12 +29,16 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
       map[id] = startStateId;
       return map;
     }, {});
-    const itemStageMap = items.reduce<ItemStageMap>((map, item) => {
-      map[item.id] = { type: 'active', isStartState: true };
+    this.activeStateIdInteractionIdMap = interactions.reduce<Record<StateId, InteractionId>>((map, interaction) => {
+      const activeState = interaction.states.find((state) => state.id !== interaction.startStateId);
+      if (activeState) {
+        map[activeState.id] = interaction.id;
+      }
       return map;
     }, {});
+    const itemStages = this.getDefaultItemStages();
     const stateItemsIdsMap = activeStatesIds.reduce<StateItemsIdsMap>((map, stateId) => {
-      map[stateId] = items
+      map[stateId] = this.items
         .filter((item) => {
           const layoutStates = item.state[layoutId] ?? {};
           const state = layoutStates?.[stateId] ?? {};
@@ -44,9 +48,8 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
         .map((item) => item.id);
       return map;
     }, {});
-    this.items = items;
     this.interactions = interactions;
-    this.itemStageMap = itemStageMap;
+    this.itemsStages = itemStages;
     this.stateItemsIdsMap = stateItemsIdsMap;
     this.interactionStateMap = interactionStateMap;
   }
@@ -58,40 +61,39 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
   getStatePropsForItem(itemId: string) {
     const { items, layoutId } = this;
     const item = items.find((item) => item.id === itemId)!;
-    const stage = this.itemStageMap[itemId];
-    if (!stage) return {};
-    // handle "active" stage
-    if (stage.type === 'active') {
-      if (stage.isStartState) return {};
-      const params = item.state[layoutId]?.[stage.stateId!];
-      const stateProps = Object.entries(params).reduce<StateProps>((map, [key, stateDetails]) => {
-        const style = key as keyof ItemState<ArticleItemType>;
-        map[style] = {
-          value: stateDetails.value
-        };
-        return map;
-      }, {});
-      return stateProps;
-    }
-    // handle "transitioning" stage
-    const activeStateId = stage.direction === 'in' ? stage.to : stage.from;
-    const params = item.state[layoutId]?.[activeStateId];
-    return Object.entries(params).reduce<StateProps>((map, [key, stateDetails]) => {
-      const style = key as keyof ItemState<ArticleItemType>;
-      const details = stateDetails as StateParams<string | number>;
-      map[style] = {
-        value: stage.direction === 'in' ? details.value : undefined,
-        transition: {
-          timing: details[stage.direction].timing,
-          duration: details[stage.direction].duration,
-          delay: details[stage.direction].delay
+    const itemStages = this.itemsStages.filter((stage) => stage.itemId === itemId);
+    itemStages.sort((a, b) => a.updated - b.updated);
+    const itemStyles: StateProps = {};
+    for (const stage of itemStages) {
+      if (stage.type === 'active') {
+        if (stage.isStartState) continue;
+        const params = item.state[layoutId]?.[stage.stateId!] ?? {};
+        for (const [key, stateDetails] of Object.entries(params)) {
+          itemStyles[key] = {
+            value: stateDetails.value
+          };
         }
-      };
-      return map;
-    }, {});
+      }
+      if (stage.type === 'transitioning') {
+        const activeStateId = stage.direction === 'in' ? stage.to : stage.from;
+        const params = item.state[layoutId]?.[activeStateId] ?? {};
+        for (const [key, stateDetails] of Object.entries(params)) {
+          itemStyles[key] = {
+            value: stage.direction === 'in' ? stateDetails.value : itemStyles[key]?.value,
+            transition: {
+              timing: stateDetails[stage.direction].timing,
+              duration: stateDetails[stage.direction].duration,
+              delay: stateDetails[stage.direction].delay
+            }
+          };
+        }
+      }
+    }
+    return itemStyles;
   }
 
   notifyTrigger(itemId: string, triggerType: TriggerType): void {
+    const timestamp = Date.now();
     for (const interaction of this.interactions) {
       const currentStateId = this.getCurrentStateByInteractionId(interaction.id);
       const matchingTrigger = interaction.triggers.find((trigger) =>
@@ -104,15 +106,18 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
       const isNewStateActive = matchingTrigger.to === activeStateId;
       this.setCurrentStateForInteraction(interaction.id, matchingTrigger.to);
       const transitioningItems = this.stateItemsIdsMap[activeStateId] ?? [];
-      for (const [itemId, stage] of Object.entries(this.itemStageMap)) {
-        if (!transitioningItems.includes(itemId)) continue;
-        this.itemStageMap[itemId] = {
+      this.itemsStages = this.itemsStages.map((stage) => {
+        if (stage.interactionId !== interaction.id) return stage;
+        return {
+          itemId: stage.itemId,
+          interactionId: stage.interactionId,
           type: 'transitioning',
           from: stage.type === 'transitioning' ? stage.to : stage.stateId!,
           to: matchingTrigger.to,
-          direction: isNewStateActive ? 'in' : 'out'
+          direction: isNewStateActive ? 'in' : 'out',
+          updated: timestamp
         };
-      }
+      });
       this.notifyItemCtrlsChange(transitioningItems);
       this.notifyTransitionStartForItems(transitioningItems, activeStateId);
     }
@@ -128,13 +133,18 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
   }
 
   notifyTransitionEnd(itemId: string): void {
-    const prevState = this.itemStageMap[itemId];
-    if (prevState.type !== 'transitioning') return; // throw?
-    this.itemStageMap[itemId] = {
-      type: 'active',
-      stateId: prevState.to,
-      isStartState: prevState.direction === 'out'
-    };
+    const timestamp = Date.now();
+    this.itemsStages = this.itemsStages.map((stage) => {
+      if (stage.itemId !== itemId || stage.type !== 'transitioning') return stage;
+      return {
+        itemId: itemId,
+        interactionId: stage.interactionId,
+        type: 'active',
+        stateId: stage.to,
+        isStartState: stage.direction === 'out',
+        updated: timestamp
+      };
+    });
     this.ctrls.get(itemId)?.receiveChange();
   }
 
@@ -167,16 +177,57 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
       this.ctrls.get(itemId)?.receiveChange();
     }
   }
+
+  private unpackItems(article: Article): ItemAny[] {
+    const itemsArr = [];
+    for (const section of article.sections) {
+      for (const item of section.items) {
+        const { items, ...itemWithoutChildren } = item;
+        itemsArr.push(itemWithoutChildren);
+        if (!isItemType(item, ArticleItemType.Group)) continue;
+        const groupChildren = item?.items ?? [];
+        for (const child of groupChildren) {
+          itemsArr.push(child);
+        }
+      }
+    }
+    return itemsArr;
+  }
+
+  private getDefaultItemStages(): ItemStages {
+    const timestamp = Date.now();
+    const { items, layoutId } = this;
+    const stages: ItemStages = [];
+    for (const item of items) {
+      const itemStatesMap = item.state[layoutId];
+      if (!itemStatesMap) continue;
+      for (const stateId of Object.keys(itemStatesMap)) {
+        const interactionId = this.activeStateIdInteractionIdMap[stateId];
+        if (!interactionId) continue;
+        stages.push({
+          itemId: item.id,
+          interactionId,
+          type: 'active',
+          isStartState: true,
+          updated: timestamp
+        });
+      }
+    }
+    return stages;
+  }
 }
 
-type ItemStageMap = Record<ItemId, TransitioningStage | ActiveStage>;
+type ItemStages = (TransitioningStage | ActiveStage)[];
 type TransitioningStage = {
+  itemId: string;
+  interactionId: string;
   type: 'transitioning';
   from: StateId;
   to: StateId;
   direction: 'in' | 'out';
+  updated: number;
 };
-type ActiveStage = { type: 'active'; stateId?: string; isStartState: boolean; };
+type ActiveStage = { type: 'active'; itemId: string; interactionId: string; stateId?: string; isStartState: boolean; updated: number; };
 type InteractionStateMap = Record<InteractionId, StateId>;
 type StateItemsIdsMap = Record<StateId, ItemId[]>;
 type TriggerType = InteractionTrigger['type'];
