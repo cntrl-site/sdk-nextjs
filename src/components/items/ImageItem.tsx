@@ -11,9 +11,7 @@ import { useRegisterResize } from "../../common/useRegisterResize";
 import { useImageFx } from '../../utils/effects/useImageFx';
 import { useElementRect } from '../../utils/useElementRect';
 import { useLayoutContext } from '../useLayoutContext';
-import { useStatesClassNames } from '../useStatesClassNames';
-import { getStatesCSS } from '../../utils/getStatesCSS';
-import { useStatesTransitions } from '../useStatesTransitions';
+import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
 
 const baseVariables = `precision mediump float;
 uniform sampler2D u_image;
@@ -24,15 +22,19 @@ uniform float u_time;
 uniform vec2 u_cursor;
 varying vec2 v_texCoord;`;
 
-export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize }) => {
+export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
   const layoutId = useLayoutContext();
-  const { radius, strokeWidth, opacity, strokeColor, blur } = useFileItem(item, sectionId);
-  const angle = useItemAngle(item, sectionId);
-  const borderColor = useMemo(() => strokeColor ? CntrlColor.parse(strokeColor) : undefined, [strokeColor]);
+  const {
+    radius: itemRadius,
+    strokeWidth: itemStrokeWidth,
+    opacity: itemOpacity,
+    strokeColor: itemStrokeColor,
+    blur: itemBlur
+  } = useFileItem(item, sectionId);
+  const itemAngle = useItemAngle(item, sectionId);
   const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
-  const [imgRef, setImgRef] = useState<HTMLImageElement | HTMLCanvasElement | null>(null);
   useRegisterResize(wrapperRef, onResize);
   const { url, hasGLEffect, fragmentShader, FXControls, FXCursor } = item.commonParams;
   const fxCanvas = useRef<HTMLCanvasElement | null>(null);
@@ -44,17 +46,15 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
     acc[control.shaderParam] = control.value;
     return acc;
   }, {});
-  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state];
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const fullShaderCode = `${baseVariables}\n${controlsVariables}\n${fragmentShader}`;
   const area = layoutId ? item.area[layoutId] : null;
   const exemplary = layouts?.find(l => l.id === layoutId)?.exemplary;
   const width = area && exemplary ? area.width * exemplary : 0;
   const height = area && exemplary ? area.height * exemplary : 0;
-  const statesWrapperClassNames = useStatesClassNames(item.id, item.state, 'image-wrapper');
-  const statesImgClassNames = useStatesClassNames(item.id, item.state, 'image');
-  useStatesTransitions(wrapperRef, item.state, ['angle', 'opacity', 'blur']);
-  useStatesTransitions(imgRef, item.state, ['strokeWidth', 'radius', 'strokeColor']);
-  useStatesTransitions(fxCanvas.current, item.state, ['strokeWidth', 'radius', 'strokeColor']);
+  const wrapperStateParams = interactionCtrl?.getState(['angle', 'opacity', 'blur']);
+  const imgStateParams = interactionCtrl?.getState(['strokeWidth', 'radius', 'strokeColor']);
+
   useEffect(() => {
     isInitialRef.current = false;
   }, []);
@@ -73,37 +73,47 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const rect = useElementRect(wrapperRef);
   const rectWidth = Math.floor(rect?.width ?? 0);
   const rectHeight = Math.floor(rect?.height ?? 0);
+  const borderColor = useMemo(() => {
+    const borderColor = getStyleFromItemStateAndParams(imgStateParams?.styles?.strokeColor, itemStrokeColor)
+    return borderColor ? CntrlColor.parse(borderColor) : undefined;
+  }, [itemStrokeColor, imgStateParams?.styles?.strokeColor]);
+  const radius = getStyleFromItemStateAndParams(imgStateParams?.styles?.radius, itemRadius);
+  const strokeWidth = getStyleFromItemStateAndParams(imgStateParams?.styles?.strokeWidth, itemStrokeWidth);
+  const angle = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.angle, itemAngle);
+  const opacity = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.opacity, itemOpacity);
+  const blur = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.blur, itemBlur);
   const inlineStyles = {
     ...(borderColor ? { borderColor: `${borderColor.fmt('rgba')}` } : {}),
     ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),
     ...(strokeWidth !== undefined ? { borderWidth: `${strokeWidth * 100}vw` } : {}),
+    transition: imgStateParams?.transition ?? 'none'
   };
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <>
         <div
-          className={`image-wrapper-${item.id} ${statesWrapperClassNames}`}
+          className={`image-wrapper-${item.id}`}
           ref={setWrapperRef}
           style={{
             ...(opacity !== undefined ? { opacity } : {}),
             ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
             ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
+            transition: wrapperStateParams?.transition ?? 'none'
           }}
         >
           {hasGLEffect && isFXAllowed ? (
             <canvas
               style={inlineStyles}
               ref={fxCanvas}
-              className={`img-canvas image-${item.id} ${statesImgClassNames}`}
+              className={`img-canvas image-${item.id}`}
               width={rectWidth}
               height={rectHeight}
             />
           ) : (
             <img
               alt=""
-              className={`image image-${item.id} ${statesImgClassNames}`}
+              className={`image image-${item.id}`}
               style={inlineStyles}
-              ref={setImgRef}
               src={item.commonParams.url}
             />
           )}
@@ -134,9 +144,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
           border-width: 0;
           box-sizing: border-box;
         }
-        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, stateParams]) => {
-          const wrapperStatesCSS = getStatesCSS(item.id, 'image-wrapper', ['angle', 'opacity', 'blur'], stateParams);
-          const imgStatesCSS = getStatesCSS(item.id, 'image', ['strokeWidth', 'radius', 'strokeColor'], stateParams);
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
           return (`
             .image-wrapper-${item.id} {
               opacity: ${layoutParams.opacity};
@@ -148,8 +156,6 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
               border-radius: ${layoutParams.radius * 100}vw;
               border-width: ${layoutParams.strokeWidth * 100}vw;
             }
-            ${wrapperStatesCSS}
-            ${imgStatesCSS}
           `);
         })}
       `}</JSXStyle>

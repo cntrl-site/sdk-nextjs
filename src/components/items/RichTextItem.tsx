@@ -10,29 +10,42 @@ import { useRegisterResize } from "../../common/useRegisterResize";
 import { getFontFamilyValue } from '../../utils/getFontFamilyValue';
 import { useExemplary } from '../../common/useExemplary';
 import { useItemAngle } from '../useItemAngle';
-import { useStatesClassNames } from '../useStatesClassNames';
-import { getStatesCSS } from '../../utils/getStatesCSS';
-import { useStatesTransitions } from '../useStatesTransitions';
+import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
 
-export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize }) => {
+export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
   const [content, styles] = useRichTextItem(item);
   const id = useId();
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const { layouts } = useCntrlContext();
-  const angle = useItemAngle(item, sectionId);
-  const { blur, wordSpacing, letterSpacing, color, fontSize, lineHeight } = useRichTextItemValues(item, sectionId);
-  const textColor = useMemo(() => color ? CntrlColor.parse(color) : undefined, [color]);
-  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state];
+  const itemAngle = useItemAngle(item, sectionId);
+  const {
+    blur: itemBlur,
+    wordSpacing: itemWordSpacing,
+    letterSpacing: itemLetterSpacing,
+    color: itemColor,
+    fontSize,
+    lineHeight
+  } = useRichTextItemValues(item, sectionId);
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const exemplary = useExemplary();
-  const stateClassNames = useStatesClassNames(item.id, item.state, 'rich-text-wrapper');
   useRegisterResize(ref, onResize);
-  useStatesTransitions(ref, item.state, ['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color']);
+  const stateParams = interactionCtrl?.getState(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color']);
+  const stateStyles = stateParams?.styles ?? {};
+  const transition = stateParams?.transition ?? 'none';
+  const textColor = useMemo(() => {
+    const color = getStyleFromItemStateAndParams(stateParams?.styles?.color, itemColor);
+    return color ? CntrlColor.parse(color) : undefined;
+  }, [itemColor, stateStyles.color]);
+  const angle = getStyleFromItemStateAndParams(stateStyles.angle, itemAngle);
+  const blur = getStyleFromItemStateAndParams(stateStyles.blur, itemBlur);
+  const letterSpacing = getStyleFromItemStateAndParams(stateStyles.letterSpacing, itemLetterSpacing);
+  const wordSpacing = getStyleFromItemStateAndParams(stateStyles.wordSpacing, itemWordSpacing);
 
   return (
     <>
       <div
         ref={setRef}
-        className={`rich-text-wrapper-${item.id} ${stateClassNames}`}
+        className={`rich-text-wrapper-${item.id}`}
         style={{
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
           ...(textColor ? { color: `${textColor.fmt('rgba')}` } : {}),
@@ -41,20 +54,15 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
           ...(wordSpacing !== undefined ? { wordSpacing: `${wordSpacing * exemplary}px` } : {}),
           ...(fontSize !== undefined ? { fontSize: `${Math.round(fontSize * exemplary)}px` } : {}),
           ...(lineHeight !== undefined ? { lineHeight: `${lineHeight * exemplary}px` } : {}),
+          transition
         }}
       >
         {content}
       </div>
       <JSXStyle id={id}>
         {styles}
-        {`${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, states]) => {
+        {`${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
           const color = CntrlColor.parse(layoutParams.color);
-          const statesCSS = getStatesCSS(
-            item.id,
-            'rich-text-wrapper',
-            ['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color'],
-            states
-          );
           return (`
             .rich-text-wrapper-${item.id} {
               font-size: ${layoutParams.fontSize * 100}vw;
@@ -76,7 +84,6 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
                 color: ${color.fmt('rgba')};
               }
             }
-            ${statesCSS}
           `);
         })}`}
       </JSXStyle>

@@ -8,27 +8,31 @@ import { useItemAngle } from '../useItemAngle';
 import { getLayoutStyles, VimeoEmbedItem as TVimeoEmbedItem } from '@cntrl-site/sdk';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useRegisterResize } from "../../common/useRegisterResize";
-import { useStatesClassNames } from '../useStatesClassNames';
-import { getStatesCSS } from '../../utils/getStatesCSS';
-import { useStatesTransitions } from '../useStatesTransitions';
+import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
 
-export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId, onResize }) => {
+export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
-  const { radius, blur, opacity } = useEmbedVideoItem(item, sectionId);
+  const {
+    radius: itemRadius,
+    blur: itemBlur,
+    opacity: itemOpacity
+  } = useEmbedVideoItem(item, sectionId);
   const [iframeRef, setIframeRef] = useState<HTMLIFrameElement | null>(null);
   const vimeoPlayer = useMemo(() => iframeRef ? new Player(iframeRef) : undefined, [iframeRef]);
-  const angle = useItemAngle(item, sectionId);
+  const itemAngle = useItemAngle(item, sectionId);
   const { play, controls, loop, muted, pictureInPicture, url } = item.commonParams;
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const [imgRef, setImgRef] = useState<HTMLImageElement | null>(null);
   const [isCoverVisible, setIsCoverVisible] = useState(false);
-  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state];
-  const wrapperClassNames = useStatesClassNames(item.id, item.state, 'embed-video-wrapper');
-  const videoClassNames = useStatesClassNames(item.id, item.state, 'embed-video');
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
+  const wrapperStateParams = interactionCtrl?.getState(['angle', 'blur', 'opacity']);
+  const frameStateParams = interactionCtrl?.getState(['radius']);
+  const angle = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.angle, itemAngle);
+  const blur = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.blur, itemBlur);
+  const opacity = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.opacity, itemOpacity);
+  const radius = getStyleFromItemStateAndParams(frameStateParams?.styles?.radius, itemRadius);
   useRegisterResize(ref, onResize);
-  useStatesTransitions(ref, item.state, ['angle', 'blur', 'opacity']);
-  useStatesTransitions(iframeRef, item.state, ['radius']);
   const getValidVimeoUrl = (url: string): string => {
     const validURL = new URL(url);
     validURL.searchParams.append('controls', String(controls));
@@ -66,12 +70,13 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
-        className={`embed-video-wrapper-${item.id} ${wrapperClassNames}`}
+        className={`embed-video-wrapper-${item.id}`}
         ref={setRef}
         style={{
           ...(opacity !== undefined ? { opacity } : {}),
           ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
+          transition: wrapperStateParams?.transition ?? 'none'
         }}
         onMouseEnter={() => {
           if (!vimeoPlayer || play !== 'on-hover') return;
@@ -102,12 +107,13 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
         )}
         <iframe
           ref={setIframeRef}
-          className={`embed-video ${videoClassNames}`}
+          className={`embed-video`}
           src={validUrl || ''}
           allow="autoplay; fullscreen; picture-in-picture;"
           allowFullScreen
           style={{
-            ...(radius !== undefined  ? { borderRadius: `${radius * 100}vw` } : {})
+            ...(radius !== undefined  ? { borderRadius: `${radius * 100}vw` } : {}),
+            transition: frameStateParams?.transition ?? 'none'
           }}
         />
       </div>
@@ -124,9 +130,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
         border: none;
         overflow: hidden;
       }
-      ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, stateParams]) => {
-        const wrapperStatesCSS = getStatesCSS(item.id, 'embed-video-wrapper', ['angle', 'blur', 'opacity'], stateParams);
-        const videoStatesCSS = getStatesCSS(item.id, 'embed-video', ['radius'], stateParams);
+      ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
         return (`
           .embed-video-wrapper-${item.id} {
             opacity: ${layoutParams.opacity};
@@ -136,8 +140,6 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
           .embed-video-wrapper-${item.id} .embed-video {
             border-radius: ${layoutParams.radius * 100}vw;
           }
-          ${wrapperStatesCSS}
-          ${videoStatesCSS}
         `);
       })}
     `}</JSXStyle>

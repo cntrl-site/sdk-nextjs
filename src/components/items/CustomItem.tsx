@@ -5,35 +5,32 @@ import { ItemProps } from '../Item';
 import JSXStyle from 'styled-jsx/style';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { useItemAngle } from '../useItemAngle';
-import { useStatesClassNames } from '../useStatesClassNames';
-import { getStatesCSS } from '../../utils/getStatesCSS';
-import { useStatesTransitions } from '../useStatesTransitions';
 
-export const CustomItem: FC<ItemProps<TCustomItem>> = ({ item, onResize, sectionId }) => {
+export const CustomItem: FC<ItemProps<TCustomItem>> = ({ item, onResize, sectionId, interactionCtrl }) => {
   const sdk = useCntrlContext();
   const { layouts } = useCntrlContext();
-  const angle = useItemAngle(item, sectionId);
+  const itemAngle = useItemAngle(item, sectionId);
   const component = sdk.customItems.get(item.commonParams.name);
-  const layoutValues: Record<string, any>[] = [item.area, item.state];
+  const layoutValues: Record<string, any>[] = [item.area];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
-  const statesClassNames = useStatesClassNames(item.id, item.state, 'custom-component');
-  useStatesTransitions(ref, item.state, ['angle'])
+  const stateParams = interactionCtrl?.getState(['angle']);
+  const angle = stateParams?.styles?.angle ?? itemAngle;
   if (!component) return null;
   return (
     <>
       <div
-        className={`custom-component-${item.id} ${statesClassNames}`}
+        className={`custom-component-${item.id}`}
         ref={setRef}
         style={{
           ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
+          transition: stateParams?.transition ?? 'none'
         }}
       >
         {component({})}
       </div>
       <JSXStyle id={item.id}>
-        {`${getLayoutStyles(layouts, layoutValues, ([area, stateParams]) => {
-          const statesCSS = getStatesCSS(item.id, 'custom-component', ['angle'], stateParams);
+        {`${getLayoutStyles(layouts, layoutValues, ([area]) => {
           return (`
             .custom-component-${item.id} {
               transform: rotate(${area.angle}deg);
@@ -43,7 +40,6 @@ export const CustomItem: FC<ItemProps<TCustomItem>> = ({ item, onResize, section
               left: 0;
               top: 0;
             }
-            ${statesCSS}
           `);
         })}`}
       </JSXStyle>

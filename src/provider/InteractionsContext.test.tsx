@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
-import { InteractionsProvider, InteractionsContext } from './InteractionsContext';
+import { InteractionsProvider, InteractionsContextOld } from './InteractionsContext.old';
 import { Interaction } from '@cntrl-site/sdk';
 
 describe('InteractionsProvider', () => {
@@ -28,12 +28,12 @@ describe('InteractionsProvider', () => {
 
     render(
       <InteractionsProvider interactions={interactions}>
-        <InteractionsContext.Consumer>
+        <InteractionsContextOld.Consumer>
           {value => {
             contextValue = value;
             return null;
           }}
-        </InteractionsContext.Consumer>
+        </InteractionsContextOld.Consumer>
       </InteractionsProvider>
     );
 
@@ -49,12 +49,12 @@ describe('InteractionsProvider', () => {
 
     render(
       <InteractionsProvider interactions={interactions}>
-        <InteractionsContext.Consumer>
+        <InteractionsContextOld.Consumer>
           {value => {
             contextValue = value;
             return null;
           }}
-        </InteractionsContext.Consumer>
+        </InteractionsContextOld.Consumer>
       </InteractionsProvider>
     );
 
@@ -71,12 +71,12 @@ describe('InteractionsProvider', () => {
 
     render(
       <InteractionsProvider interactions={interactions}>
-        <InteractionsContext.Consumer>
+        <InteractionsContextOld.Consumer>
           {value => {
             contextValue = value;
             return null;
           }}
-        </InteractionsContext.Consumer>
+        </InteractionsContextOld.Consumer>
       </InteractionsProvider>
     );
 

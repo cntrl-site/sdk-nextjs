@@ -7,31 +7,31 @@ import { useRegisterResize } from '../../common/useRegisterResize';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useItemAngle } from '../useItemAngle';
 import { useGroupItem } from './useGroupItem';
-import { useStatesClassNames } from '../useStatesClassNames';
-import { getStatesCSS } from '../../utils/getStatesCSS';
-import { useStatesTransitions } from '../useStatesTransitions';
+import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
 
-export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize, articleHeight }) => {
+export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize, articleHeight, interactionCtrl }) => {
   const id = useId();
   const { items } = item;
-  const angle = useItemAngle(item, sectionId);
+  const itemAngle = useItemAngle(item, sectionId);
   const { layouts } = useCntrlContext();
-  const { opacity } = useGroupItem(item, sectionId);
-  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state];
-  const statesClassNames = useStatesClassNames(item.id, item.state, 'group');
+  const { opacity: itemOpacity } = useGroupItem(item, sectionId);
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
-  useStatesTransitions(ref!, item.state, ['opacity', 'angle']);
+  const stateParams = interactionCtrl?.getState(['opacity', 'angle']);
+  const angle = getStyleFromItemStateAndParams(stateParams?.styles?.angle, itemAngle);
+  const opacity = getStyleFromItemStateAndParams(stateParams?.styles?.opacity, itemOpacity);
 
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <>
         <div
-          className={`group-${item.id} ${statesClassNames}`}
+          className={`group-${item.id}`}
           ref={setRef}
           style={{
             ...(opacity !== undefined ? { opacity } : {}),
             ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
+            transition: stateParams?.transition ?? 'none'
           }}
         >
           {items && items.map(item => (
@@ -40,6 +40,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
               key={item.id}
               sectionId={sectionId}
               articleHeight={articleHeight}
+              interactionCtrl={interactionCtrl}
               isInGroup
             />
           ))}
@@ -51,14 +52,12 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
           height: 100%;
           box-sizing: border-box;
         }
-        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, stateParams]) => {
-          const statesCSS = getStatesCSS(item.id, 'group', ['opacity', 'angle'], stateParams);
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
           return (`
             .group-${item.id} {
               opacity: ${layoutParams.opacity};
               transform: rotate(${area.angle}deg);
             }
-            ${statesCSS}
           `);
         })}
       `}</JSXStyle>

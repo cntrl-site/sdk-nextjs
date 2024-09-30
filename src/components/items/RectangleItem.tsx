@@ -8,29 +8,45 @@ import { useRectangleItem } from './useRectangleItem';
 import { useItemAngle } from '../useItemAngle';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useRegisterResize } from "../../common/useRegisterResize";
-import { getStatesCSS } from '../../utils/getStatesCSS';
-import { useStatesClassNames } from '../useStatesClassNames';
-import { useStatesTransitions } from '../useStatesTransitions';
+import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
 
-export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, onResize }) => {
+export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
-  const { fillColor, radius, strokeWidth, strokeColor, blur, backdropBlur } = useRectangleItem(item, sectionId);
-  const angle = useItemAngle(item, sectionId);
-  const backgroundColor = useMemo(() => fillColor ? CntrlColor.parse(fillColor) : undefined, [fillColor]);
-  const borderColor = useMemo(() => strokeColor ? CntrlColor.parse(strokeColor) : undefined, [strokeColor]);
-  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state];
+  const {
+    fillColor: itemFillColor,
+    radius: itemRadius,
+    strokeWidth: itemStrokeWidth,
+    strokeColor: itemStrokeColor,
+    blur: itemBlur,
+    backdropBlur: itemBackdropBlur
+  } = useRectangleItem(item, sectionId);
+  const itemAngle = useItemAngle(item, sectionId);
+  const stateParams = interactionCtrl?.getState(['angle', 'fillColor', 'strokeWidth', 'radius', 'strokeColor', 'blur', 'backdropBlur']);
+  const styles = stateParams?.styles ?? {};
+  const backgroundColor = useMemo(() => {
+    const fillColor = getStyleFromItemStateAndParams(styles?.fillColor, itemFillColor);
+    return fillColor ? CntrlColor.parse(fillColor) : undefined;
+  }, [itemFillColor, styles?.fillColor]);
+  const borderColor = useMemo(() => {
+    const strokeColor = getStyleFromItemStateAndParams(styles?.strokeColor, itemStrokeColor);
+    return strokeColor ? CntrlColor.parse(strokeColor) : undefined;
+  }, [itemStrokeColor, styles?.strokeColor]);
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
-  const statesClassNames = useStatesClassNames(item.id, item.state, 'rectangle');
   useRegisterResize(ref, onResize);
+  const backdropBlur = getStyleFromItemStateAndParams(styles?.backdropBlur, itemBackdropBlur);
+  const radius = getStyleFromItemStateAndParams(styles?.radius, itemRadius);
+  const strokeWidth = getStyleFromItemStateAndParams(styles?.strokeWidth, itemStrokeWidth);
+  const angle = getStyleFromItemStateAndParams(styles?.angle, itemAngle);
+  const blur = getStyleFromItemStateAndParams(styles?.blur, itemBlur);
   const backdropFilterValue = backdropBlur ? `blur(${backdropBlur * 100}vw)`: undefined;
-  useStatesTransitions(ref, item.state, ['angle', 'fillColor', 'strokeWidth', 'radius', 'strokeColor', 'blur', 'backdropBlur']);
 
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <>
         <div
-          className={`rectangle-${item.id} ${statesClassNames}`}
+          className={`rectangle-${item.id}`}
           ref={setRef}
           style={{
             ...(backgroundColor ? { backgroundColor : `${backgroundColor.fmt('rgba')}` } : {}),
@@ -43,6 +59,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
               ? { backdropFilter: backdropFilterValue, WebkitBackdropFilter: backdropFilterValue }
               : {}
             ),
+            transition: stateParams?.transition ?? 'none'
           }}
         />
         <JSXStyle id={id}>{`
@@ -53,8 +70,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
           border-style: solid;
           box-sizing: border-box;
         }
-        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, states]) => {
-          const statesCSS = getStatesCSS(item.id, 'rectangle', ['angle', 'fillColor', 'strokeWidth', 'radius', 'strokeColor', 'blur', 'backdropBlur'], states);
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
           return (`
             .rectangle-${item.id} {
               background-color: ${CntrlColor.parse(layoutParams.fillColor).fmt('rgba')};
@@ -66,7 +82,6 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
               backdrop-filter: ${layoutParams.backdropFilter !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
               -webkit-backdrop-filter: ${layoutParams.backdropFilter !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
             }
-            ${statesCSS}
           `);
         })}
       `}</JSXStyle>

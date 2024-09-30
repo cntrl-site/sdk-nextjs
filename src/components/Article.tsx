@@ -1,6 +1,6 @@
 import { FC, useEffect, useId, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
-import { Article as TArticle, ArticleItemType, ItemState, ItemStateParams } from '@cntrl-site/sdk';
+import { Article as TArticle } from '@cntrl-site/sdk';
 import { Section } from './Section';
 import { Item } from './Item';
 import { useArticleRectObserver } from '../utils/ArticleRectManager/useArticleRectObserver';
@@ -28,7 +28,7 @@ export const Article: FC<Props> = ({ article, sectionData }) => {
 
   return (
     <ArticleRectContext.Provider value={articleRectObserver}>
-      <InteractionsProvider interactions={article.interactions}>
+      <InteractionsProvider article={article}>
         <ArticleWrapper>
           <div className="article" ref={articleRef}>
             {article.sections.map((section, i) => {

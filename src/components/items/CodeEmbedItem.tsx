@@ -7,9 +7,6 @@ import { useRegisterResize } from "../../common/useRegisterResize";
 import { useItemAngle } from '../useItemAngle';
 import { LinkWrapper } from '../LinkWrapper';
 import { useCodeEmbedItem } from './useCodeEmbedItem';
-import { getStatesCSS } from '../../utils/getStatesCSS';
-import { useStatesClassNames } from '../useStatesClassNames';
-import { useStatesTransitions } from '../useStatesTransitions';
 
 const stylesMap = {
   [AreaAnchor.TopLeft]: {},
@@ -23,18 +20,20 @@ const stylesMap = {
   [AreaAnchor.BottomRight]: { justifyContent: 'flex-end', alignItems: 'flex-end' }
 };
 
-export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, onResize }) => {
+export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
-  const { anchor, blur, opacity } = useCodeEmbedItem(item, sectionId);
-  const angle = useItemAngle(item, sectionId);
+  const { anchor, blur: itemBlur, opacity: itemOpacity } = useCodeEmbedItem(item, sectionId);
+  const itemAngle = useItemAngle(item, sectionId);
   const { html } = item.commonParams;
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
   const pos = stylesMap[anchor];
-  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state];
-  const statesClassNames = useStatesClassNames(item.id, item.state, 'embed-wrapper');
-  useStatesTransitions(ref!, item.state, ['angle', 'blur', 'opacity']);
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
+  const stateParams = interactionCtrl?.getState(['angle', 'blur', 'opacity']);
+  const blur = (stateParams?.styles?.blur ?? itemBlur) as number;
+  const opacity = stateParams?.styles?.opacity ?? itemOpacity;
+  const angle = stateParams?.styles?.angle ?? itemAngle;
 
   useEffect(() => {
     if (!ref) return;
@@ -60,11 +59,12 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
-        className={`embed-wrapper-${item.id} ${statesClassNames}`}
+        className={`embed-wrapper-${item.id}`}
         style={{
           ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
           ...(opacity !== undefined ? { opacity } : {}),
+          transition: stateParams?.transition ?? 'none'
       }}
         ref={setRef}
       >
@@ -97,8 +97,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
         z-index: 1;
         border: none;
       }
-      ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, stateParams], exemplary) => {
-        const statesCSS = getStatesCSS(item.id, 'embed-wrapper', ['angle', 'blur', 'opacity'], stateParams);
+      ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams], exemplary) => {
         return (`
           .embed-wrapper-${item.id} {
             opacity: ${layoutParams.opacity};
@@ -109,7 +108,6 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
             width: ${item.commonParams.scale ? `${area.width * exemplary}px` : '100%'};
             height: ${item.commonParams.scale ? `${area.height * exemplary}px` : '100%'};
           }
-          ${statesCSS}
         `);
       })}
     `}</JSXStyle>

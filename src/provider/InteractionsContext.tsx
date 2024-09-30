@@ -1,65 +1,28 @@
-import { createContext, FC, PropsWithChildren, useState } from 'react';
-import { Interaction, InteractionTrigger } from '@cntrl-site/sdk';
+import { createContext, FC, PropsWithChildren, useContext, useMemo } from 'react';
+import { InteractionsRegistry } from '../interactions/InteractionsRegistry';
+import { Article } from '@cntrl-site/sdk';
+import { useCurrentLayout } from '../common/useCurrentLayout';
 
-const defaultState = {
-  interactionsStatesMap: {},
-  interactions: [],
-  transitionTo: () => {},
-  getItemTrigger: () => null
-};
-
-export const InteractionsContext = createContext<{
-  interactionsStatesMap: StatesMap,
-  interactions: Interaction[],
-  transitionTo: (interactionId: string, stateId: string) => void,
-  getItemTrigger: (itemId: string, triggerType: TriggerType) => Trigger | null
-}>(defaultState);
+export const InteractionsContext = createContext<InteractionsRegistry | undefined>(undefined);
 
 interface Props {
-  interactions: Interaction[];
+  article: Article;
 }
 
-export const InteractionsProvider: FC<PropsWithChildren<Props>> = ({ interactions, children }) => {
-  const defaultStatesMap = interactions.reduce<Record<string, string>>((map, { id, startStateId }) => {
-    map[id] = startStateId;
-    return map;
-  }, {});
-  const [interactionsStatesMap, setInteractionsStatesMap] = useState(defaultStatesMap);
-  const transitionTo = (interactionId: string, stateId: string) => {
-    setInteractionsStatesMap((map) => ({ ...map, [interactionId]: stateId }));
-  };
-  const getItemTrigger = (itemId: string, triggerType: TriggerType): Trigger | null => {
-    for (const interaction of interactions) {
-      const activeStateId = interactionsStatesMap[interaction.id];
-      const matchingTrigger = interaction.triggers.find((trigger) =>
-        trigger.itemId === itemId &&
-        trigger.from === activeStateId &&
-        trigger.type === triggerType
-      );
-      if (matchingTrigger) {
-        return {
-          id: interaction.id,
-          from: matchingTrigger.from,
-          to: matchingTrigger.to,
-        };
-      }
-    }
-    return null;
-  };
+export const InteractionsProvider: FC<PropsWithChildren<Props>> = ({ article, children }) => {
+  const { layoutId } = useCurrentLayout();
+  const registry = useMemo(() => {
+    if (!layoutId) return;
+    return new InteractionsRegistry(article, layoutId);
+  }, [layoutId]);
   return (
-    <InteractionsContext.Provider value={{
-      transitionTo,
-      interactionsStatesMap,
-      interactions,
-      getItemTrigger
-    }}>
+    <InteractionsContext.Provider value={registry}>
       {children}
     </InteractionsContext.Provider>
   );
 };
 
-type StatesMap = Record<InteractionId, StateId>;
-type Trigger = { id: InteractionId, from: StateId, to: StateId };
-type TriggerType = InteractionTrigger['type'];
-type InteractionId = string;
-type StateId = string;
+export function useInteractionsRegistry(): InteractionsRegistry | undefined {
+  const registry = useContext(InteractionsContext);
+  return registry;
+}
