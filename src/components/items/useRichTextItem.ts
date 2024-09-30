@@ -5,8 +5,8 @@ import { ReactNode } from 'react';
 
 const richTextConverter = new RichTextConverter();
 
-export const useRichTextItem = (item: RichTextItem): [ReactNode[], string] => {
+export const useRichTextItem = (item: RichTextItem, isInteractive: boolean): [ReactNode[], string] => {
   const { layouts } = useCntrlContext();
-  const [content, styles] = richTextConverter.toHtml(item, layouts);
+  const [content, styles] = richTextConverter.toHtml(item, layouts, isInteractive);
   return [content, styles];
 };

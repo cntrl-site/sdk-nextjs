@@ -41,9 +41,10 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
   const angle = getStyleFromItemStateAndParams(styles?.angle, itemAngle);
   const blur = getStyleFromItemStateAndParams(styles?.blur, itemBlur);
   const backdropFilterValue = backdropBlur ? `blur(${backdropBlur * 100}vw)`: undefined;
+  const isInteractive = backgroundColor?.getAlpha() !== 0 || (strokeWidth !== 0 && borderColor?.getAlpha() !== 0);
 
   return (
-    <LinkWrapper url={item.link?.url} target={item.link?.target}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target} isInteractive={isInteractive}>
       <>
         <div
           className={`rectangle-${item.id}`}

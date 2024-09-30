@@ -21,9 +21,9 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
   const stateParams = interactionCtrl?.getState(['opacity', 'angle']);
   const angle = getStyleFromItemStateAndParams(stateParams?.styles?.angle, itemAngle);
   const opacity = getStyleFromItemStateAndParams(stateParams?.styles?.opacity, itemOpacity);
-
+  const isVisible = opacity !== 0;
   return (
-    <LinkWrapper url={item.link?.url} target={item.link?.target}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target} isInteractive={isVisible}>
       <>
         <div
           className={`group-${item.id}`}
@@ -41,6 +41,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
               sectionId={sectionId}
               articleHeight={articleHeight}
               interactionCtrl={interactionCtrl}
+              isItemVisible={isVisible}
               isInGroup
             />
           ))}

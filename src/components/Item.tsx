@@ -44,6 +44,7 @@ export interface ItemProps<I extends ItemAny> {
 export interface ItemWrapperProps extends ItemProps<ItemAny> {
   articleHeight: number;
   isInGroup?: boolean;
+  isItemVisible?: boolean;
 }
 
 const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
@@ -78,7 +79,7 @@ const RichTextWrapper: FC<PropsWithChildren<RTWrapperProps>> = ({ isRichText, ch
 
 const noop = () => null;
 
-export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isInGroup = false }) => {
+export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isItemVisible = true, isInGroup = false }) => {
   const itemWrapperRef = useRef<HTMLDivElement | null>(null);
   const itemInnerRef = useRef<HTMLDivElement | null>(null);
   const rectObserver = useContext(ArticleRectContext);
@@ -187,7 +188,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
                   : 'max-content'}`,
                 height: `${sizingAxis.y === 'manual' ? `${height * 100}vw` : 'unset'}` } : {}),
               ...(scale !== undefined ? { transform: `scale(${scale})`, 'WebkitTransform': `scale(${scale})` } : {}),
-              transition: innerStateProps?.transition ?? 'none'
+              transition: innerStateProps?.transition ?? 'none',
+              pointerEvents: isItemVisible ? 'auto' : 'none'
             }}
           >
             <ItemComponent
@@ -215,7 +217,6 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
               height: fit-content;
             }
             .item-${item.id}-inner {
-              pointer-events: auto;
               width: ${sizingAxis.x === 'manual'
                 ? `${area.width * 100}vw`
                 : 'max-content'};

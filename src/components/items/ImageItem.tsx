@@ -89,7 +89,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
     transition: imgStateParams?.transition ?? 'none'
   };
   return (
-    <LinkWrapper url={item.link?.url} target={item.link?.target}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target} isInteractive={opacity !== 0}>
       <>
         <div
           className={`image-wrapper-${item.id}`}

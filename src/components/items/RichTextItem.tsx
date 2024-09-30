@@ -11,9 +11,9 @@ import { getFontFamilyValue } from '../../utils/getFontFamilyValue';
 import { useExemplary } from '../../common/useExemplary';
 import { useItemAngle } from '../useItemAngle';
 import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
+import { useCurrentLayout } from '../../common/useCurrentLayout';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
-  const [content, styles] = useRichTextItem(item);
   const id = useId();
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const { layouts } = useCntrlContext();
@@ -28,6 +28,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   } = useRichTextItemValues(item, sectionId);
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const exemplary = useExemplary();
+  const { layoutId } = useCurrentLayout();
   useRegisterResize(ref, onResize);
   const stateParams = interactionCtrl?.getState(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color']);
   const stateStyles = stateParams?.styles ?? {};
@@ -40,6 +41,15 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   const blur = getStyleFromItemStateAndParams(stateStyles.blur, itemBlur);
   const letterSpacing = getStyleFromItemStateAndParams(stateStyles.letterSpacing, itemLetterSpacing);
   const wordSpacing = getStyleFromItemStateAndParams(stateStyles.wordSpacing, itemWordSpacing);
+  const colorAlpha = textColor?.getAlpha();
+  const rangeStyles = layoutId ? item.layoutParams[layoutId]?.rangeStyles ?? [] : [];
+  const rangeColors = rangeStyles.filter((style) => style.style === 'COLOR');
+  const hasVisibleRangeColors = rangeColors.some((color) => {
+    const alpha = CntrlColor.parse(color.value!).getAlpha();
+    return alpha > 0;
+  });
+  const isInteractive = colorAlpha !== 0 || hasVisibleRangeColors;
+  const [content, styles] = useRichTextItem(item, isInteractive);
 
   return (
     <>
@@ -54,6 +64,8 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
           ...(wordSpacing !== undefined ? { wordSpacing: `${wordSpacing * exemplary}px` } : {}),
           ...(fontSize !== undefined ? { fontSize: `${Math.round(fontSize * exemplary)}px` } : {}),
           ...(lineHeight !== undefined ? { lineHeight: `${lineHeight * exemplary}px` } : {}),
+          pointerEvents: isInteractive ? 'unset' : 'none',
+          userSelect: isInteractive ? 'unset' : 'none',
           transition
         }}
       >

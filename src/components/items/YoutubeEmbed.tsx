@@ -30,6 +30,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   const blur = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.blur, itemBlur);
   const opacity = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.opacity, itemOpacity);
   const radius = getStyleFromItemStateAndParams(frameStateParams?.styles?.radius, itemRadius);
+  const isInteractive = opacity !== 0;
   useRegisterResize(div, onResize);
   useEffect(() => {
     const newUrl = new URL(url);
@@ -81,7 +82,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   }, []);
 
   return (
-    <LinkWrapper url={item.link?.url} target={item.link?.target}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target} isInteractive={isInteractive}>
       <div
         className={`embed-youtube-video-wrapper-${item.id}`}
         onMouseEnter={() => {

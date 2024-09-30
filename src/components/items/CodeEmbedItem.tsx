@@ -56,8 +56,10 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
     iframe.srcdoc = item.commonParams.html;
   }, [item.commonParams.html, item.commonParams.iframe, ref]);
 
+  const isInteractive = Number(opacity) > 0;
+
   return (
-    <LinkWrapper url={item.link?.url} target={item.link?.target}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target} isInteractive={isInteractive}>
       <div
         className={`embed-wrapper-${item.id}`}
         style={{

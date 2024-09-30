@@ -66,9 +66,10 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
     vimeoPlayer!.play();
     setIsCoverVisible(false);
   };
+  const isInteractive = opacity !== 0;
 
   return (
-    <LinkWrapper url={item.link?.url} target={item.link?.target}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target} isInteractive={isInteractive}>
       <div
         className={`embed-video-wrapper-${item.id}`}
         ref={setRef}

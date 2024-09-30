@@ -1,23 +1,26 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { CSSProperties, ReactElement, ReactNode } from 'react';
 
 interface Props {
   url?: string;
   children: ReactElement | ReactNode[];
   target?: string;
+  isInteractive?: boolean;
 }
 
-export const LinkWrapper: React.FC<Props> = ({ url, children, target }) => {
+export const LinkWrapper: React.FC<Props> = ({ url, children, target, isInteractive = true }) => {
   const validUrl = url && buildValidUrl(url);
+  const style: CSSProperties = { pointerEvents: isInteractive ? 'unset' : 'none' };
   return url ? (
     <a
       href={validUrl}
       target={target}
       rel="noreferrer"
+      style={style}
     >
       {children}
     </a>
   ) : (
-    <>{children}</>
+    <span style={style}>{children}</span>
   );
 };
 
