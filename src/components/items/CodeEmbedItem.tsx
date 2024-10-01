@@ -20,7 +20,7 @@ const stylesMap = {
   [AreaAnchor.BottomRight]: { justifyContent: 'flex-end', alignItems: 'flex-end' }
 };
 
-export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
+export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
   const { anchor, blur: itemBlur, opacity: itemOpacity } = useCodeEmbedItem(item, sectionId);
@@ -55,11 +55,13 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
     if (!iframe) return;
     iframe.srcdoc = item.commonParams.html;
   }, [item.commonParams.html, item.commonParams.iframe, ref]);
-
-  const isInteractive = Number(opacity) > 0;
+  const isInteractive = opacity !== 0;
+  useEffect(() => {
+    onVisibilityChange?.(isInteractive);
+  }, [isInteractive, onVisibilityChange]);
 
   return (
-    <LinkWrapper url={item.link?.url} target={item.link?.target} isInteractive={isInteractive}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
         className={`embed-wrapper-${item.id}`}
         style={{

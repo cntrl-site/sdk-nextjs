@@ -3,7 +3,7 @@ import { FC, useState } from 'react';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { ItemProps } from '../Item';
 import JSXStyle from 'styled-jsx/style';
-import { useRegisterResize } from "../../common/useRegisterResize";
+import { useRegisterResize } from '../../common/useRegisterResize';
 import { useItemAngle } from '../useItemAngle';
 
 export const CustomItem: FC<ItemProps<TCustomItem>> = ({ item, onResize, sectionId, interactionCtrl }) => {

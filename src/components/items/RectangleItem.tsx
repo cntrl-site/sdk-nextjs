@@ -1,4 +1,4 @@
-import { FC, useId, useMemo, useState } from 'react';
+import { FC, useEffect, useId, useMemo, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { CntrlColor } from '@cntrl-site/color';
 import { RectangleItem as TRectangleItem, getLayoutStyles } from '@cntrl-site/sdk';
@@ -10,7 +10,7 @@ import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
 
-export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
+export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
   const {
@@ -42,9 +42,12 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
   const blur = getStyleFromItemStateAndParams(styles?.blur, itemBlur);
   const backdropFilterValue = backdropBlur ? `blur(${backdropBlur * 100}vw)`: undefined;
   const isInteractive = backgroundColor?.getAlpha() !== 0 || (strokeWidth !== 0 && borderColor?.getAlpha() !== 0);
+  useEffect(() => {
+    onVisibilityChange?.(isInteractive);
+  }, [isInteractive, onVisibilityChange]);
 
   return (
-    <LinkWrapper url={item.link?.url} target={item.link?.target} isInteractive={isInteractive}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <>
         <div
           className={`rectangle-${item.id}`}

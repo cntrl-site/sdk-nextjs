@@ -1,4 +1,4 @@
-import React, { FC, useId, useState } from 'react';
+import React, { FC, useEffect, useId, useState } from 'react';
 import { Item, ItemProps } from '../Item';
 import JSXStyle from 'styled-jsx/style';
 import { getLayoutStyles, GroupItem as TGroupItem } from '@cntrl-site/sdk';
@@ -9,7 +9,7 @@ import { useItemAngle } from '../useItemAngle';
 import { useGroupItem } from './useGroupItem';
 import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
 
-export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize, articleHeight, interactionCtrl }) => {
+export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize, articleHeight, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
   const { items } = item;
   const itemAngle = useItemAngle(item, sectionId);
@@ -21,9 +21,12 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
   const stateParams = interactionCtrl?.getState(['opacity', 'angle']);
   const angle = getStyleFromItemStateAndParams(stateParams?.styles?.angle, itemAngle);
   const opacity = getStyleFromItemStateAndParams(stateParams?.styles?.opacity, itemOpacity);
-  const isVisible = opacity !== 0;
+  const isInteractive = opacity !== 0;
+  useEffect(() => {
+    onVisibilityChange?.(isInteractive);
+  }, [isInteractive, onVisibilityChange]);
   return (
-    <LinkWrapper url={item.link?.url} target={item.link?.target} isInteractive={isVisible}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <>
         <div
           className={`group-${item.id}`}
@@ -40,8 +43,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
               key={item.id}
               sectionId={sectionId}
               articleHeight={articleHeight}
-              interactionCtrl={interactionCtrl}
-              isItemVisible={isVisible}
+              isParentVisible={isInteractive}
               isInGroup
             />
           ))}

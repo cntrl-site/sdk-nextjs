@@ -40,8 +40,7 @@ export const FontStyles: Record<string, Record<string, string>> = {
 export class RichTextConverter {
   toHtml(
     richText: RichTextItem,
-    layouts: Layout[],
-    isInteractive: boolean
+    layouts: Layout[]
   ): [ReactNode[], string] {
     const { text, blocks = [] } = richText.commonParams;
     const root: ReactElement[] = [];
@@ -123,16 +122,7 @@ export class RichTextConverter {
             offset = entity.end;
           }
           if (entity.link) {
-            kids.push(
-              <LinkWrapper
-                key={entity.start}
-                url={entity.link}
-                target={entity.target}
-                isInteractive={isInteractive}
-              >
-                {entityKids}
-              </LinkWrapper>
-            );
+            kids.push(<LinkWrapper key={entity.start} url={entity.link} target={entity.target}>{entityKids}</LinkWrapper>);
             continue;
           }
           kids.push(...entityKids);

@@ -10,7 +10,7 @@ import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
 
-export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
+export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
   const {
@@ -67,9 +67,12 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
     setIsCoverVisible(false);
   };
   const isInteractive = opacity !== 0;
+  useEffect(() => {
+    onVisibilityChange?.(isInteractive);
+  }, [isInteractive, onVisibilityChange]);
 
   return (
-    <LinkWrapper url={item.link?.url} target={item.link?.target} isInteractive={isInteractive}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
         className={`embed-video-wrapper-${item.id}`}
         ref={setRef}

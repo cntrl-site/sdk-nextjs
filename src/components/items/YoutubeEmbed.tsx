@@ -12,7 +12,7 @@ import { YTPlayer } from '../../utils/Youtube/YoutubeIframeApi';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
 
-export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
+export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
   const { play, controls, url } = item.commonParams;
@@ -31,6 +31,9 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   const opacity = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.opacity, itemOpacity);
   const radius = getStyleFromItemStateAndParams(frameStateParams?.styles?.radius, itemRadius);
   const isInteractive = opacity !== 0;
+  useEffect(() => {
+    onVisibilityChange?.(isInteractive);
+  }, [isInteractive, onVisibilityChange]);
   useRegisterResize(div, onResize);
   useEffect(() => {
     const newUrl = new URL(url);
@@ -82,7 +85,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   }, []);
 
   return (
-    <LinkWrapper url={item.link?.url} target={item.link?.target} isInteractive={isInteractive}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
         className={`embed-youtube-video-wrapper-${item.id}`}
         onMouseEnter={() => {

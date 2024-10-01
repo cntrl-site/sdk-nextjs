@@ -1,4 +1,4 @@
-import { FC, useId, useMemo, useRef, useState } from 'react';
+import { FC, useEffect, useId, useMemo, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { CntrlColor } from '@cntrl-site/color';
 import { getLayoutStyles, VideoItem as TVideoItem } from '@cntrl-site/sdk';
@@ -12,7 +12,7 @@ import { useLayoutContext } from '../useLayoutContext';
 import { ScrollPlaybackVideo } from '../ScrollPlaybackVideo';
 import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
 
-export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
+export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
   const {
@@ -47,9 +47,13 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
     ...(borderColor ? { borderColor: `${borderColor.toCss()}` } : {}),
     transition: videoStateParams?.transition ?? 'none'
   };
+  const isInteractive = opacity !== 0;
+  useEffect(() => {
+    onVisibilityChange?.(isInteractive);
+  }, [isInteractive, onVisibilityChange]);
 
   return (
-    <LinkWrapper url={item.link?.url} target={item.link?.target} isInteractive={opacity !== 0}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
         className={`video-wrapper-${item.id}`}
         ref={setRef}

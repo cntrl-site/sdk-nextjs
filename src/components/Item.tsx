@@ -1,4 +1,15 @@
-import { ComponentType, FC, PropsWithChildren, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
+import {
+  ComponentType,
+  FC,
+  PropsWithChildren,
+  useCallback,
+  useContext,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import JSXStyle from 'styled-jsx/style';
 import {
   AnchorSide,
@@ -36,15 +47,18 @@ import { useItemInteractionCtrl } from '../interactions/useItemInteractionCtrl';
 export interface ItemProps<I extends ItemAny> {
   item: I;
   sectionId: string;
-  onResize?: (height: number) => void;
   articleHeight: number;
+  onResize?: (height: number) => void;
   interactionCtrl?: ReturnType<typeof useItemInteractionCtrl>;
+  onVisibilityChange: (isVisible: boolean) => void;
 }
 
-export interface ItemWrapperProps extends ItemProps<ItemAny> {
+export interface ItemWrapperProps {
+  item: ItemAny;
+  sectionId: string;
   articleHeight: number;
   isInGroup?: boolean;
-  isItemVisible?: boolean;
+  isParentVisible?: boolean;
 }
 
 const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
@@ -79,7 +93,7 @@ const RichTextWrapper: FC<PropsWithChildren<RTWrapperProps>> = ({ isRichText, ch
 
 const noop = () => null;
 
-export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isItemVisible = true, isInGroup = false }) => {
+export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isParentVisible = true, isInGroup = false }) => {
   const itemWrapperRef = useRef<HTMLDivElement | null>(null);
   const itemInnerRef = useRef<HTMLDivElement | null>(null);
   const rectObserver = useContext(ArticleRectContext);
@@ -89,6 +103,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
   const { layouts } = useCntrlContext();
   const layout = useLayoutContext();
   const exemplary = useExemplary();
+  const [allowPointerEvents, setAllowPointerEvents] = useState<boolean>(isParentVisible);
   const [wrapperHeight, setWrapperHeight] = useState<undefined | number>(undefined);
   const [itemHeight, setItemHeight] = useState<undefined | number>(undefined);
   const itemScale = useItemScale(item, sectionId);
@@ -132,6 +147,11 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
     setItemHeight(height);
     setWrapperHeight(wrapperHeight);
   };
+
+  const handleVisibilityChange = useCallback((isVisible: boolean) => {
+    if (!isParentVisible) return;
+    setAllowPointerEvents(isVisible);
+  }, [isParentVisible]);
 
   useEffect(() => {
     isInitialRef.current = false;
@@ -189,7 +209,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
                 height: `${sizingAxis.y === 'manual' ? `${height * 100}vw` : 'unset'}` } : {}),
               ...(scale !== undefined ? { transform: `scale(${scale})`, 'WebkitTransform': `scale(${scale})` } : {}),
               transition: innerStateProps?.transition ?? 'none',
-              pointerEvents: isItemVisible ? 'auto' : 'none'
+              pointerEvents: allowPointerEvents ? 'auto' : 'none'
             }}
           >
             <ItemComponent
@@ -198,6 +218,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
               onResize={handleItemResize}
               articleHeight={articleHeight}
               interactionCtrl={interactionCtrl}
+              onVisibilityChange={handleVisibilityChange}
             />
           </div>
         </RichTextWrapper>

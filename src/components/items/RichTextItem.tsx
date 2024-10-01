@@ -1,4 +1,4 @@
-import { FC, useId, useMemo, useState } from 'react';
+import { FC, useEffect, useId, useMemo, useState } from 'react';
 import { CntrlColor } from '@cntrl-site/color';
 import { getLayoutStyles, RichTextItem as TRichTextItem } from '@cntrl-site/sdk';
 import JSXStyle from 'styled-jsx/style';
@@ -13,7 +13,7 @@ import { useItemAngle } from '../useItemAngle';
 import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
 import { useCurrentLayout } from '../../common/useCurrentLayout';
 
-export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
+export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const { layouts } = useCntrlContext();
@@ -49,7 +49,10 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
     return alpha > 0;
   });
   const isInteractive = colorAlpha !== 0 || hasVisibleRangeColors;
-  const [content, styles] = useRichTextItem(item, isInteractive);
+  const [content, styles] = useRichTextItem(item);
+  useEffect(() => {
+    onVisibilityChange?.(isInteractive);
+  }, [isInteractive, onVisibilityChange]);
 
   return (
     <>
@@ -64,8 +67,6 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
           ...(wordSpacing !== undefined ? { wordSpacing: `${wordSpacing * exemplary}px` } : {}),
           ...(fontSize !== undefined ? { fontSize: `${Math.round(fontSize * exemplary)}px` } : {}),
           ...(lineHeight !== undefined ? { lineHeight: `${lineHeight * exemplary}px` } : {}),
-          pointerEvents: isInteractive ? 'unset' : 'none',
-          userSelect: isInteractive ? 'unset' : 'none',
           transition
         }}
       >

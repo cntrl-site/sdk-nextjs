@@ -22,7 +22,7 @@ uniform float u_time;
 uniform vec2 u_cursor;
 varying vec2 v_texCoord;`;
 
-export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
+export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
   const layoutId = useLayoutContext();
@@ -88,8 +88,12 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
     ...(strokeWidth !== undefined ? { borderWidth: `${strokeWidth * 100}vw` } : {}),
     transition: imgStateParams?.transition ?? 'none'
   };
+  const isInteractive = opacity !== 0;
+  useEffect(() => {
+    onVisibilityChange?.(isInteractive);
+  }, [isInteractive, onVisibilityChange]);
   return (
-    <LinkWrapper url={item.link?.url} target={item.link?.target} isInteractive={opacity !== 0}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <>
         <div
           className={`image-wrapper-${item.id}`}
