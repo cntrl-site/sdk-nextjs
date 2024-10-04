@@ -21,7 +21,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
   const stateParams = interactionCtrl?.getState(['opacity', 'angle']);
   const angle = getStyleFromItemStateAndParams(stateParams?.styles?.angle, itemAngle);
   const opacity = getStyleFromItemStateAndParams(stateParams?.styles?.opacity, itemOpacity);
-  const isInteractive = opacity !== 0;
+  const isInteractive = opacity !== 0 && opacity !== undefined;
   useEffect(() => {
     onVisibilityChange?.(isInteractive);
   }, [isInteractive, onVisibilityChange]);
