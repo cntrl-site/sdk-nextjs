@@ -30,13 +30,17 @@ export const CNTRLHead: FC<Props> = ({ meta, project }) => {
   return (
     <Head>
       <title>{meta.title}</title>
-      <meta name="description" content={meta.description} />
-      <meta name="og:description" content={meta.description} />
-      <meta name="twitter:description" content={meta.description} />
-      <meta name="keywords" content={meta.keywords} />
-      <meta name="og:image" content={meta.opengraphThumbnail} />
-      <meta name="generator" content="https://cntrl.site" />
-      <link rel="icon" href={meta.favicon} />
+      <meta name="description" content={meta.description}/>
+      <meta name="keywords" content={meta.keywords}/>
+      <meta name="og:title" content={meta.title}/>
+      <meta name="og:image" content={meta.opengraphThumbnail}/>
+      <meta name="og:description" content={meta.description}/>
+      <meta name="twitter:title" content={meta.title}/>
+      <meta name="twitter:image" content={meta.opengraphThumbnail}/>
+      <meta name="twitter:description" content={meta.description}/>
+      <meta property="twitter:card" content="summary_large_image"/>
+      <meta name="generator" content="https://cntrl.site"/>
+      <link rel="icon" href={meta.favicon}/>
       {customFonts.length > 0 && (
         <style
           dangerouslySetInnerHTML={{
