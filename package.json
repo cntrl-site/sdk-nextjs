@@ -1,6 +1,6 @@
 {
   "name": "@cntrl-site/sdk-nextjs",
-  "version": "1.0.20",
+  "version": "1.1.1",
   "description": "SDK for Next.js",
   "main": "lib/index.js",
   "types": "src/index.ts",
@@ -23,7 +23,7 @@
   "dependencies": {
     "@cntrl-site/color": "^1.0.0",
     "@cntrl-site/effects": "^1.2.0",
-    "@cntrl-site/sdk": "^1.12.3",
+    "@cntrl-site/sdk": "^1.13.0",
     "@types/vimeo__player": "^2.18.0",
     "@vimeo/player": "^2.20.1",
     "html-react-parser": "^3.0.1",
@@ -38,12 +38,15 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.4.8",
+    "@testing-library/react": "^16.0.0",
     "@tsconfig/node16": "^1.0.3",
     "@tsconfig/recommended": "^1.0.1",
-    "@types/jest": "^29.2.5",
+    "@types/jest": "^29.5.12",
     "@types/node": "^18.11.7",
     "@types/react": "^18.0.15",
-    "jest": "^29.3.1",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "ts-jest": "^29.0.3",
     "typescript": "^5.2.2"
   },

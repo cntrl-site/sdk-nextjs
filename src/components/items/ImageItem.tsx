@@ -1,17 +1,17 @@
 import { FC, useEffect, useId, useMemo, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { CntrlColor } from '@cntrl-site/color';
-import { ArticleItemType, getLayoutStyles, ImageItem as TImageItem } from '@cntrl-site/sdk';
+import { getLayoutStyles, ImageItem as TImageItem } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useFileItem } from './useFileItem';
 import { useItemAngle } from '../useItemAngle';
 import { useCntrlContext } from '../../provider/useCntrlContext';
-import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { useImageFx } from '../../utils/effects/useImageFx';
 import { useElementRect } from '../../utils/useElementRect';
 import { useLayoutContext } from '../useLayoutContext';
+import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
 
 const baseVariables = `precision mediump float;
 uniform sampler2D u_image;
@@ -22,15 +22,20 @@ uniform float u_time;
 uniform vec2 u_cursor;
 varying vec2 v_texCoord;`;
 
-export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize }) => {
+export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
   const layoutId = useLayoutContext();
-  const { radius, strokeWidth, opacity, strokeColor, blur } = useFileItem(item, sectionId);
-  const angle = useItemAngle(item, sectionId);
-  const borderColor = useMemo(() => strokeColor ? CntrlColor.parse(strokeColor) : undefined, [strokeColor]);
-  const [ref, setRef] = useState<HTMLDivElement | null>(null);
-  useRegisterResize(ref, onResize);
+  const {
+    radius: itemRadius,
+    strokeWidth: itemStrokeWidth,
+    opacity: itemOpacity,
+    strokeColor: itemStrokeColor,
+    blur: itemBlur
+  } = useFileItem(item, sectionId);
+  const itemAngle = useItemAngle(item, sectionId);
+  const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
+  useRegisterResize(wrapperRef, onResize);
   const { url, hasGLEffect, fragmentShader, FXControls, FXCursor } = item.commonParams;
   const fxCanvas = useRef<HTMLCanvasElement | null>(null);
   const isInitialRef = useRef(true);
@@ -41,12 +46,15 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
     acc[control.shaderParam] = control.value;
     return acc;
   }, {});
-  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const fullShaderCode = `${baseVariables}\n${controlsVariables}\n${fragmentShader}`;
   const area = layoutId ? item.area[layoutId] : null;
   const exemplary = layouts?.find(l => l.id === layoutId)?.exemplary;
   const width = area && exemplary ? area.width * exemplary : 0;
   const height = area && exemplary ? area.height * exemplary : 0;
+  const wrapperStateParams = interactionCtrl?.getState(['angle', 'opacity', 'blur']);
+  const imgStateParams = interactionCtrl?.getState(['strokeWidth', 'radius', 'strokeColor']);
+
   useEffect(() => {
     isInitialRef.current = false;
   }, []);
@@ -62,24 +70,39 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
     width,
     height
   );
-  const rect = useElementRect(ref);
+  const rect = useElementRect(wrapperRef);
   const rectWidth = Math.floor(rect?.width ?? 0);
   const rectHeight = Math.floor(rect?.height ?? 0);
+  const borderColor = useMemo(() => {
+    const borderColor = getStyleFromItemStateAndParams(imgStateParams?.styles?.strokeColor, itemStrokeColor)
+    return borderColor ? CntrlColor.parse(borderColor) : undefined;
+  }, [itemStrokeColor, imgStateParams?.styles?.strokeColor]);
+  const radius = getStyleFromItemStateAndParams(imgStateParams?.styles?.radius, itemRadius);
+  const strokeWidth = getStyleFromItemStateAndParams(imgStateParams?.styles?.strokeWidth, itemStrokeWidth);
+  const angle = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.angle, itemAngle);
+  const opacity = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.opacity, itemOpacity);
+  const blur = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.blur, itemBlur);
   const inlineStyles = {
     ...(borderColor ? { borderColor: `${borderColor.fmt('rgba')}` } : {}),
     ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),
     ...(strokeWidth !== undefined ? { borderWidth: `${strokeWidth * 100}vw` } : {}),
+    transition: imgStateParams?.transition ?? 'none'
   };
+  const isInteractive = opacity !== 0;
+  useEffect(() => {
+    onVisibilityChange?.(isInteractive);
+  }, [isInteractive, onVisibilityChange]);
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <>
         <div
           className={`image-wrapper-${item.id}`}
-          ref={setRef}
+          ref={setWrapperRef}
           style={{
             ...(opacity !== undefined ? { opacity } : {}),
             ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
             ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
+            transition: wrapperStateParams?.transition ?? 'none'
           }}
         >
           {hasGLEffect && isFXAllowed ? (
@@ -125,25 +148,17 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
           border-width: 0;
           box-sizing: border-box;
         }
-        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams]) => {
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
           return (`
             .image-wrapper-${item.id} {
               opacity: ${layoutParams.opacity};
               transform: rotate(${area.angle}deg);
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
-              transition: ${getTransitions<ArticleItemType.Image>(['angle', 'opacity', 'blur'], hoverParams)};
-            }
-            .image-wrapper-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.Image>(['angle', 'opacity', 'blur'], hoverParams)};
             }
             .image-${item.id} {
               border-color: ${CntrlColor.parse(layoutParams.strokeColor).fmt('rgba')};
               border-radius: ${layoutParams.radius * 100}vw;
               border-width: ${layoutParams.strokeWidth * 100}vw;
-              transition: ${getTransitions<ArticleItemType.Image>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)};
-            }
-            .image-wrapper-${item.id}:hover .image, .image-wrapper-${item.id}:hover .img-canvas {
-              ${getHoverStyles<ArticleItemType.Image>(['strokeWidth', 'radius', 'strokeColor'], hoverParams)};
             }
           `);
         })}

@@ -1,20 +1,21 @@
-import { ArticleItemType, getLayoutStyles, CustomItem as TCustomItem } from '@cntrl-site/sdk';
+import { getLayoutStyles, CustomItem as TCustomItem } from '@cntrl-site/sdk';
 import { FC, useState } from 'react';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { ItemProps } from '../Item';
-import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
 import JSXStyle from 'styled-jsx/style';
-import { useRegisterResize } from "../../common/useRegisterResize";
+import { useRegisterResize } from '../../common/useRegisterResize';
 import { useItemAngle } from '../useItemAngle';
 
-export const CustomItem: FC<ItemProps<TCustomItem>> = ({ item, onResize, sectionId }) => {
+export const CustomItem: FC<ItemProps<TCustomItem>> = ({ item, onResize, sectionId, interactionCtrl }) => {
   const sdk = useCntrlContext();
   const { layouts } = useCntrlContext();
-  const angle = useItemAngle(item, sectionId);
+  const itemAngle = useItemAngle(item, sectionId);
   const component = sdk.customItems.get(item.commonParams.name);
-  const layoutValues: Record<string, any>[] = [item.area, item.state.hover];
+  const layoutValues: Record<string, any>[] = [item.area];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
+  const stateParams = interactionCtrl?.getState(['angle']);
+  const angle = stateParams?.styles?.angle ?? itemAngle;
   if (!component) return null;
   return (
     <>
@@ -23,24 +24,21 @@ export const CustomItem: FC<ItemProps<TCustomItem>> = ({ item, onResize, section
         ref={setRef}
         style={{
           ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
+          transition: stateParams?.transition ?? 'none'
         }}
       >
         {component({})}
       </div>
       <JSXStyle id={item.id}>
-        {`${getLayoutStyles(layouts, layoutValues, ([area, hoverParams]) => {
+        {`${getLayoutStyles(layouts, layoutValues, ([area]) => {
           return (`
             .custom-component-${item.id} {
               transform: rotate(${area.angle}deg);
-              transition: ${getTransitions<ArticleItemType.Custom>(['angle'], hoverParams)};
               height: 100%;
               width: 100%;
               position: absolute;
               left: 0;
               top: 0;
-            }
-            .custom-component-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.Custom>(['angle'], hoverParams)};
             }
           `);
         })}`}

@@ -1,26 +1,50 @@
-import { FC, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { FC, useEffect, useId, useMemo, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { CntrlColor } from '@cntrl-site/color';
-import { RectangleItem as TRectangleItem, getLayoutStyles, ArticleItemType } from '@cntrl-site/sdk';
+import { RectangleItem as TRectangleItem, getLayoutStyles } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useRectangleItem } from './useRectangleItem';
 import { useItemAngle } from '../useItemAngle';
 import { useCntrlContext } from '../../provider/useCntrlContext';
-import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
 import { useRegisterResize } from "../../common/useRegisterResize";
+import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
 
-export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, onResize }) => {
+export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
-  const { fillColor, radius, strokeWidth, strokeColor, blur, backdropBlur } = useRectangleItem(item, sectionId);
-  const angle = useItemAngle(item, sectionId);
-  const backgroundColor = useMemo(() => fillColor ? CntrlColor.parse(fillColor) : undefined, [fillColor]);
-  const borderColor = useMemo(() => strokeColor ? CntrlColor.parse(strokeColor) : undefined, [strokeColor]);
-  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
+  const {
+    fillColor: itemFillColor,
+    radius: itemRadius,
+    strokeWidth: itemStrokeWidth,
+    strokeColor: itemStrokeColor,
+    blur: itemBlur,
+    backdropBlur: itemBackdropBlur
+  } = useRectangleItem(item, sectionId);
+  const itemAngle = useItemAngle(item, sectionId);
+  const stateParams = interactionCtrl?.getState(['angle', 'fillColor', 'strokeWidth', 'radius', 'strokeColor', 'blur', 'backdropBlur']);
+  const styles = stateParams?.styles ?? {};
+  const backgroundColor = useMemo(() => {
+    const fillColor = getStyleFromItemStateAndParams(styles?.fillColor, itemFillColor);
+    return fillColor ? CntrlColor.parse(fillColor) : undefined;
+  }, [itemFillColor, styles?.fillColor]);
+  const borderColor = useMemo(() => {
+    const strokeColor = getStyleFromItemStateAndParams(styles?.strokeColor, itemStrokeColor);
+    return strokeColor ? CntrlColor.parse(strokeColor) : undefined;
+  }, [itemStrokeColor, styles?.strokeColor]);
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
+  const backdropBlur = getStyleFromItemStateAndParams(styles?.backdropBlur, itemBackdropBlur);
+  const radius = getStyleFromItemStateAndParams(styles?.radius, itemRadius);
+  const strokeWidth = getStyleFromItemStateAndParams(styles?.strokeWidth, itemStrokeWidth);
+  const angle = getStyleFromItemStateAndParams(styles?.angle, itemAngle);
+  const blur = getStyleFromItemStateAndParams(styles?.blur, itemBlur);
   const backdropFilterValue = backdropBlur ? `blur(${backdropBlur * 100}vw)`: undefined;
+  const isInteractive = backgroundColor?.getAlpha() !== 0 || (strokeWidth !== 0 && borderColor?.getAlpha() !== 0);
+  useEffect(() => {
+    onVisibilityChange?.(isInteractive);
+  }, [isInteractive, onVisibilityChange]);
 
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
@@ -39,6 +63,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
               ? { backdropFilter: backdropFilterValue, WebkitBackdropFilter: backdropFilterValue }
               : {}
             ),
+            transition: stateParams?.transition ?? 'none'
           }}
         />
         <JSXStyle id={id}>{`
@@ -49,7 +74,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
           border-style: solid;
           box-sizing: border-box;
         }
-        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams]) => {
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
           return (`
             .rectangle-${item.id} {
               background-color: ${CntrlColor.parse(layoutParams.fillColor).fmt('rgba')};
@@ -60,10 +85,6 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
               backdrop-filter: ${layoutParams.backdropFilter !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
               -webkit-backdrop-filter: ${layoutParams.backdropFilter !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
-              transition: ${getTransitions<ArticleItemType.Rectangle>(['angle', 'fillColor', 'strokeWidth', 'radius', 'strokeColor', 'blur', 'backdropBlur'], hoverParams)};
-            }
-            .rectangle-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.Rectangle>(['angle', 'fillColor', 'strokeWidth', 'radius', 'strokeColor', 'blur', 'backdropBlur'], hoverParams)};
             }
           `);
         })}

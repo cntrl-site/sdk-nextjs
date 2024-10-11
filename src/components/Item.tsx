@@ -1,4 +1,15 @@
-import { ComponentType, FC, PropsWithChildren, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
+import {
+  ComponentType,
+  FC,
+  PropsWithChildren,
+  useCallback,
+  useContext,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import JSXStyle from 'styled-jsx/style';
 import {
   AnchorSide,
@@ -21,7 +32,6 @@ import { useItemDimensions } from './useItemDimensions';
 import { useItemScale } from './useItemScale';
 import { ScaleAnchorMap } from '../utils/ScaleAnchorMap';
 import { useSectionHeightData } from './useSectionHeightMap';
-import { getHoverStyles, getTransitions } from '../utils/HoverStyles/HoverStyles';
 import { getItemTopStyle } from '../utils/getItemTopStyle';
 import { useStickyItemTop } from './items/useStickyItemTop';
 import { getAnchoredItemTop } from '../utils/getAnchoredItemTop';
@@ -32,17 +42,23 @@ import { GroupItem } from './items/GroupItem';
 import { CodeEmbedItem } from './items/CodeEmbedItem';
 import { AreaAnchor } from '@cntrl-site/sdk/src/types/article/ItemArea';
 import { KeyframesContext } from '../provider/KeyframesContext';
+import { useItemInteractionCtrl } from '../interactions/useItemInteractionCtrl';
 
 export interface ItemProps<I extends ItemAny> {
   item: I;
   sectionId: string;
-  onResize?: (height: number) => void;
   articleHeight: number;
+  onResize?: (height: number) => void;
+  interactionCtrl?: ReturnType<typeof useItemInteractionCtrl>;
+  onVisibilityChange: (isVisible: boolean) => void;
 }
 
-export interface ItemWrapperProps extends ItemProps<ItemAny> {
+export interface ItemWrapperProps {
+  item: ItemAny;
+  sectionId: string;
   articleHeight: number;
   isInGroup?: boolean;
+  isParentVisible?: boolean;
 }
 
 const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
@@ -77,8 +93,9 @@ const RichTextWrapper: FC<PropsWithChildren<RTWrapperProps>> = ({ isRichText, ch
 
 const noop = () => null;
 
-export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isInGroup = false }) => {
+export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isParentVisible = true, isInGroup = false }) => {
   const itemWrapperRef = useRef<HTMLDivElement | null>(null);
+  const itemInnerRef = useRef<HTMLDivElement | null>(null);
   const rectObserver = useContext(ArticleRectContext);
   const keyframesRepo = useContext(KeyframesContext);
   const id = useId();
@@ -86,21 +103,27 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
   const { layouts } = useCntrlContext();
   const layout = useLayoutContext();
   const exemplary = useExemplary();
+  const [allowPointerEvents, setAllowPointerEvents] = useState<boolean>(isParentVisible);
   const [wrapperHeight, setWrapperHeight] = useState<undefined | number>(undefined);
   const [itemHeight, setItemHeight] = useState<undefined | number>(undefined);
-  const scale = useItemScale(item, sectionId);
-  const position = useItemPosition(item, sectionId);
+  const itemScale = useItemScale(item, sectionId);
+  const interactionCtrl = useItemInteractionCtrl(item.id);
+  const wrapperStateProps = interactionCtrl?.getState(['top', 'left']);
+  const innerStateProps = interactionCtrl?.getState(['width', 'height', 'scale']);
+  const position = useItemPosition(item, sectionId, {
+    top: wrapperStateProps?.styles?.top as number,
+    left: wrapperStateProps?.styles?.left as number,
+  });
   const sectionHeight = useSectionHeightData(sectionId);
   const stickyTop = useStickyItemTop(item, sectionHeight, sectionId);
   const dimensions = useItemDimensions(item, sectionId);
-  const layoutValues: Record<string, any>[] = [item.area, item.hidden, item.state.hover];
+  const layoutValues: Record<string, any>[] = [item.area, item.hidden];
   const isInitialRef = useRef(true);
   layoutValues.push(item.sticky);
   layoutValues.push(sectionHeight);
   if (item.layoutParams) {
     layoutValues.push(item.layoutParams);
   }
-
   const sizing = layout && isItemType(item, ArticleItemType.RichText)
     ? item.layoutParams[layout].sizing
     : undefined;
@@ -125,20 +148,33 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
     setWrapperHeight(wrapperHeight);
   };
 
+  const handleVisibilityChange = useCallback((isVisible: boolean) => {
+    if (!isParentVisible) return;
+    setAllowPointerEvents(isVisible);
+  }, [isParentVisible]);
+
   useEffect(() => {
     isInitialRef.current = false;
   }, []);
 
   const isRichText = isItemType(item, ArticleItemType.RichText);
+  const width = (innerStateProps?.styles?.width ?? dimensions?.width) as number | undefined;
+  const height = (innerStateProps?.styles?.height ?? dimensions?.height) as number | undefined;
+  const scale = innerStateProps?.styles?.scale ?? itemScale;
   return (
     <div
       className={`item-wrapper-${item.id}`}
       ref={itemWrapperRef}
+      onTransitionEnd={(e) => {
+        e.stopPropagation();
+        interactionCtrl?.handleTransitionEnd?.(e.propertyName);
+      }}
       style={{
         ...(position ? { top: position.top } : {}),
         ...(position ? { left: position.left } : {}),
         ...(position ? { bottom: position.bottom } : {}),
-        ...(wrapperHeight !== undefined ? { height: `${wrapperHeight * 100}vw` } : {})
+        ...(wrapperHeight !== undefined ? { height: `${wrapperHeight * 100}vw` } : {}),
+        transition: wrapperStateProps?.transition ?? 'none'
       }}
     >
       <div
@@ -153,23 +189,42 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
         <RichTextWrapper isRichText={isRichText}>
           <div
             className={`item-${item.id}-inner`}
+            ref={itemInnerRef}
+            onClick={() => {
+              interactionCtrl?.sendTrigger('click');
+            }}
+            onMouseEnter={() => {
+              interactionCtrl?.sendTrigger('hover-in');
+            }}
+            onMouseLeave={() => {
+              interactionCtrl?.sendTrigger('hover-out');
+            }}
             style={{
-              ...(dimensions ? {
+              ...((width && height) ? {
                 width: `${sizingAxis.x === 'manual'
                   ? isRichText
-                    ? `${dimensions.width * exemplary}px`
-                    : `${dimensions.width * 100}vw`
+                    ? `${width * exemplary}px`
+                    : `${width * 100}vw`
                   : 'max-content'}`,
-                height: `${sizingAxis.y === 'manual' ? `${dimensions.height * 100}vw` : 'unset'}` } : {}),
+                height: `${sizingAxis.y === 'manual' ? `${height * 100}vw` : 'unset'}` } : {}),
               ...(scale !== undefined ? { transform: `scale(${scale})`, 'WebkitTransform': `scale(${scale})` } : {}),
+              transition: innerStateProps?.transition ?? 'none',
+              pointerEvents: allowPointerEvents ? 'auto' : 'none'
             }}
           >
-            <ItemComponent item={item} sectionId={sectionId} onResize={handleItemResize} articleHeight={articleHeight} />
+            <ItemComponent
+              item={item}
+              sectionId={sectionId}
+              onResize={handleItemResize}
+              articleHeight={articleHeight}
+              interactionCtrl={interactionCtrl}
+              onVisibilityChange={handleVisibilityChange}
+            />
           </div>
         </RichTextWrapper>
       </div>
       <JSXStyle id={id}>{`
-        ${getLayoutStyles(layouts, layoutValues, ([area, hidden, hoverParams, sticky, sectionHeight, layoutParams], exemplary) => {
+        ${getLayoutStyles(layouts, layoutValues, ([area, hidden, sticky, sectionHeight, layoutParams], exemplary) => {
           const sizingAxis = parseSizing(layoutParams.sizing);
           const isScreenBasedBottom = area.positionType === PositionType.ScreenBased && area.anchorSide === AnchorSide.Bottom;
           const scaleAnchor = area.scaleAnchor as AreaAnchor;
@@ -183,8 +238,6 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
               height: fit-content;
             }
             .item-${item.id}-inner {
-              transition: ${getTransitions(['width', 'height', 'scale'], hoverParams)};
-              pointer-events: auto;
               width: ${sizingAxis.x === 'manual'
                 ? `${area.width * 100}vw`
                 : 'max-content'};
@@ -200,13 +253,6 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isI
               bottom: ${isScreenBasedBottom ? `${-area.top * 100}vw` : 'unset'};
               top: ${isScreenBasedBottom ? 'unset' : getItemTopStyle(area.top, area.anchorSide)};
               left: ${area.left * 100}vw;
-              transition: ${getTransitions(['left', 'top'], hoverParams)};
-            }
-            .item-${item.id}-inner:hover {
-              ${getHoverStyles(['width', 'height', 'scale'], hoverParams)};
-            }
-            .item-wrapper-${item.id}:hover {
-              ${getHoverStyles(['left', 'top'], hoverParams, area.anchorSide)};
             }
           `);
       })}
@@ -223,11 +269,11 @@ function parseSizing(sizing: string = 'manual'): Axis {
   } as Axis;
 }
 
+export function isItemType<T extends ArticleItemType>(item: ItemAny, itemType: T): item is TItem<T> {
+  return item.type === itemType;
+}
+
 interface Axis {
   x: 'manual' | 'auto';
   y: 'manual' | 'auto';
-}
-
-export function isItemType<T extends ArticleItemType>(item: ItemAny, itemType: T): item is TItem<T> {
-  return item.type === itemType;
 }

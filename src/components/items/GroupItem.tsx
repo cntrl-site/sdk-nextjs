@@ -1,24 +1,30 @@
-import React, { FC, useId, useState } from 'react';
+import React, { FC, useEffect, useId, useState } from 'react';
 import { Item, ItemProps } from '../Item';
 import JSXStyle from 'styled-jsx/style';
-import { ArticleItemType, getLayoutStyles, GroupItem as TGroupItem } from '@cntrl-site/sdk';
-import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
+import { getLayoutStyles, GroupItem as TGroupItem } from '@cntrl-site/sdk';
 import { LinkWrapper } from '../LinkWrapper';
 import { useRegisterResize } from '../../common/useRegisterResize';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useItemAngle } from '../useItemAngle';
 import { useGroupItem } from './useGroupItem';
+import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
 
-export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize, articleHeight }) => {
+export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize, articleHeight, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
   const { items } = item;
-  const angle = useItemAngle(item, sectionId);
+  const itemAngle = useItemAngle(item, sectionId);
   const { layouts } = useCntrlContext();
-  const { opacity } = useGroupItem(item, sectionId);
-  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
+  const { opacity: itemOpacity } = useGroupItem(item, sectionId);
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
-
+  const stateParams = interactionCtrl?.getState(['opacity', 'angle']);
+  const angle = getStyleFromItemStateAndParams(stateParams?.styles?.angle, itemAngle);
+  const opacity = getStyleFromItemStateAndParams(stateParams?.styles?.opacity, itemOpacity);
+  const isInteractive = opacity !== 0 && opacity !== undefined;
+  useEffect(() => {
+    onVisibilityChange?.(isInteractive);
+  }, [isInteractive, onVisibilityChange]);
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <>
@@ -28,6 +34,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
           style={{
             ...(opacity !== undefined ? { opacity } : {}),
             ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
+            transition: stateParams?.transition ?? 'none'
           }}
         >
           {items && items.map(item => (
@@ -36,6 +43,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
               key={item.id}
               sectionId={sectionId}
               articleHeight={articleHeight}
+              isParentVisible={isInteractive}
               isInGroup
             />
           ))}
@@ -47,15 +55,11 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
           height: 100%;
           box-sizing: border-box;
         }
-        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams]) => {
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
           return (`
             .group-${item.id} {
               opacity: ${layoutParams.opacity};
               transform: rotate(${area.angle}deg);
-              transition: ${getTransitions<ArticleItemType.Group>(['opacity', 'angle'], hoverParams)};
-            }
-            .group-${item.id}:hover {
-              ${getHoverStyles<ArticleItemType.Group>(['opacity', 'angle'], hoverParams)};
             }
           `);
         })}

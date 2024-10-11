@@ -1,8 +1,7 @@
-import { ArticleItemType, getLayoutStyles, CodeEmbedItem as TCodeEmbedItem, AreaAnchor } from '@cntrl-site/sdk';
+import { getLayoutStyles, CodeEmbedItem as TCodeEmbedItem, AreaAnchor } from '@cntrl-site/sdk';
 import { FC, useEffect, useId, useState } from 'react';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { ItemProps } from '../Item';
-import { getHoverStyles, getTransitions } from '../../utils/HoverStyles/HoverStyles';
 import JSXStyle from 'styled-jsx/style';
 import { useRegisterResize } from "../../common/useRegisterResize";
 import { useItemAngle } from '../useItemAngle';
@@ -21,16 +20,20 @@ const stylesMap = {
   [AreaAnchor.BottomRight]: { justifyContent: 'flex-end', alignItems: 'flex-end' }
 };
 
-export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, onResize }) => {
+export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
-  const { anchor, blur, opacity } = useCodeEmbedItem(item, sectionId);
-  const angle = useItemAngle(item, sectionId);
+  const { anchor, blur: itemBlur, opacity: itemOpacity } = useCodeEmbedItem(item, sectionId);
+  const itemAngle = useItemAngle(item, sectionId);
   const { html } = item.commonParams;
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
   const pos = stylesMap[anchor];
-  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams, item.state.hover];
+  const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
+  const stateParams = interactionCtrl?.getState(['angle', 'blur', 'opacity']);
+  const blur = (stateParams?.styles?.blur ?? itemBlur) as number;
+  const opacity = stateParams?.styles?.opacity ?? itemOpacity;
+  const angle = stateParams?.styles?.angle ?? itemAngle;
 
   useEffect(() => {
     if (!ref) return;
@@ -52,6 +55,10 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
     if (!iframe) return;
     iframe.srcdoc = item.commonParams.html;
   }, [item.commonParams.html, item.commonParams.iframe, ref]);
+  const isInteractive = opacity !== 0;
+  useEffect(() => {
+    onVisibilityChange?.(isInteractive);
+  }, [isInteractive, onVisibilityChange]);
 
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
@@ -61,6 +68,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
           ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
           ...(opacity !== undefined ? { opacity } : {}),
+          transition: stateParams?.transition ?? 'none'
       }}
         ref={setRef}
       >
@@ -93,20 +101,16 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
         z-index: 1;
         border: none;
       }
-      ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hoverParams], exemplary) => {
+      ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams], exemplary) => {
         return (`
           .embed-wrapper-${item.id} {
             opacity: ${layoutParams.opacity};
             transform: rotate(${area.angle}deg);
             filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
-            transition: ${getTransitions<ArticleItemType.CodeEmbed>(['angle', 'blur', 'opacity'], hoverParams)};
           }
           .embed-${item.id} {
             width: ${item.commonParams.scale ? `${area.width * exemplary}px` : '100%'};
             height: ${item.commonParams.scale ? `${area.height * exemplary}px` : '100%'};
-          }
-          .embed-wrapper-${item.id}:hover {
-            ${getHoverStyles<ArticleItemType.CodeEmbed>(['angle', 'blur', 'opacity'], hoverParams)}
           }
         `);
       })}
