@@ -161,6 +161,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const width = (innerStateProps?.styles?.width ?? dimensions?.width) as number | undefined;
   const height = (innerStateProps?.styles?.height ?? dimensions?.height) as number | undefined;
   const scale = innerStateProps?.styles?.scale ?? itemScale;
+  const hasClickTriggers = interactionCtrl?.getHasTrigger(item.id, 'click') ?? false;
   return (
     <div
       className={`item-wrapper-${item.id}`}
@@ -209,6 +210,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
                 height: `${sizingAxis.y === 'manual' ? `${height * 100}vw` : 'unset'}` } : {}),
               ...(scale !== undefined ? { transform: `scale(${scale})`, 'WebkitTransform': `scale(${scale})` } : {}),
               transition: innerStateProps?.transition ?? 'none',
+              cursor: hasClickTriggers ? 'pointer' : 'unset',
               pointerEvents: allowPointerEvents ? 'auto' : 'none'
             }}
           >
@@ -224,7 +226,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
         </RichTextWrapper>
       </div>
       <JSXStyle id={id}>{`
-        ${getLayoutStyles(layouts, layoutValues, ([area, hidden, sticky, sectionHeight, layoutParams], exemplary) => {
+        ${getLayoutStyles(layouts, layoutValues, ([area, hidden, sticky, sectionHeight, layoutParams]) => {
           const sizingAxis = parseSizing(layoutParams.sizing);
           const isScreenBasedBottom = area.positionType === PositionType.ScreenBased && area.anchorSide === AnchorSide.Bottom;
           const scaleAnchor = area.scaleAnchor as AreaAnchor;
