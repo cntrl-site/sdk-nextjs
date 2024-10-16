@@ -133,11 +133,11 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
           updated: timestamp
         };
       });
-      const triggersToNotify = new Set<ItemId>();
+      const itemsToNotify = new Set<ItemId>(transitioningItems);
       for (const trigger of interaction.triggers) {
-        triggersToNotify.add(trigger.itemId);
+        itemsToNotify.add(trigger.itemId);
       }
-      this.notifyItemCtrlsChange([...transitioningItems, ...triggersToNotify]);
+      this.notifyItemCtrlsChange(Array.from(itemsToNotify));
       this.notifyTransitionStartForItems(transitioningItems, activeStateId);
     }
   }
