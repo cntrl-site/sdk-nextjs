@@ -61,6 +61,17 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
     });
   }, [vimeoPlayer, imgRef]);
 
+  const handleClick = async () => {
+    if (!vimeoPlayer) return;
+    const isPaused = await vimeoPlayer.getPaused(); // Check if the video is paused
+    if (isPaused) {
+      vimeoPlayer.play();
+      setIsCoverVisible(false);
+    } else {
+      vimeoPlayer.pause();
+    }
+  };
+
   const onCoverClick = () => {
     if (!vimeoPlayer || !imgRef) return;
     vimeoPlayer!.play();
@@ -107,6 +118,19 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
               left: '0'
             }}
             alt="Cover img"
+          />
+        )}
+        {/* ↓ This is necessary to track clicks on an iframe. */}
+        {(!item.commonParams.controls && play === 'on-click') && (
+          <div
+            onClick={handleClick}
+            style={{
+              position: 'absolute',
+              height: '100%',
+              width: '100%',
+              top: '0',
+              left: '0'
+            }}
           />
         )}
         <iframe
