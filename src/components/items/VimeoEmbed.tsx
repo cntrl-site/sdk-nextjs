@@ -63,7 +63,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
 
   const handleClick = async () => {
     if (!vimeoPlayer) return;
-    const isPaused = await vimeoPlayer.getPaused(); // Check if the video is paused
+    const isPaused = await vimeoPlayer.getPaused();
     if (isPaused) {
       vimeoPlayer.play();
       setIsCoverVisible(false);
