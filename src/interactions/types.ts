@@ -1,7 +1,8 @@
-import { ArticleItemType, ItemState } from '@cntrl-site/sdk';
+import { ArticleItemType, InteractionTrigger, ItemState } from '@cntrl-site/sdk';
 
 export interface ItemInteractionCtrl {
   getState(keys: string[]): StateCSSInfo;
+  getHasTrigger(itemId: string, triggerType: InteractionTrigger['type']): boolean;
   sendTrigger(type: 'click' | 'hover-in' | 'hover-out'): void;
   handleTransitionEnd?: (styleKey: string) => void;
   handleTransitionStart?: (styleKeys: string[]) => void;
@@ -11,6 +12,7 @@ export interface ItemInteractionCtrl {
 export interface InteractionsRegistryPort {
   register(itemId: string, ctrl: ItemInteractionCtrl): void;
   getStatePropsForItem(itemId: string): StateProps;
+  getItemAvailableTriggers(itemId: string): Set<InteractionTrigger['type']>;
   notifyTrigger(itemId: string, type: TriggerType): void;
   notifyTransitionEnd(itemId: string): void;
 }

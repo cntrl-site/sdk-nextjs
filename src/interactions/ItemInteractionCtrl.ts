@@ -1,6 +1,7 @@
 import { InteractionsRegistryPort, ItemInteractionCtrl } from './types';
 import { getTransition } from './getTransition';
 import { getStyleKeysFromCSSProperty } from './CSSPropertyNameMap';
+import { InteractionTrigger } from '@cntrl-site/sdk';
 
 export class ItemInteractionController implements ItemInteractionCtrl {
   private transitionsInProgress: Set<string> = new Set();
@@ -25,6 +26,11 @@ export class ItemInteractionController implements ItemInteractionCtrl {
       styles,
       transition
     };
+  }
+
+  getHasTrigger(itemId: string, triggerType: InteractionTrigger['type']): boolean {
+    const triggers = this.registry.getItemAvailableTriggers(itemId);
+    return triggers.has(triggerType);
   }
 
   sendTrigger(type: 'click' | 'hover-in' | 'hover-out') {

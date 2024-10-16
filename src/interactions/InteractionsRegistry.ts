@@ -92,6 +92,21 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
     return itemStyles;
   }
 
+  getItemAvailableTriggers(itemId: string): Set<InteractionTrigger['type']> {
+    const available = new Set<InteractionTrigger['type']>();
+    const activeStates = Object.values(this.interactionStateMap);
+    for (const interaction of this.interactions) {
+      const { triggers } = interaction;
+      for (const trigger of triggers) {
+        if (trigger.itemId !== itemId) continue;
+        if (activeStates.some((stateId) => trigger.from === stateId)) {
+          available.add(trigger.type);
+        }
+      }
+    }
+    return available;
+  }
+
   notifyTrigger(itemId: string, triggerType: TriggerType): void {
     const timestamp = Date.now();
     for (const interaction of this.interactions) {
@@ -118,7 +133,11 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
           updated: timestamp
         };
       });
-      this.notifyItemCtrlsChange(transitioningItems);
+      const itemsToNotify = new Set<ItemId>(transitioningItems);
+      for (const trigger of interaction.triggers) {
+        itemsToNotify.add(trigger.itemId);
+      }
+      this.notifyItemCtrlsChange(Array.from(itemsToNotify));
       this.notifyTransitionStartForItems(transitioningItems, activeStateId);
     }
   }
