@@ -7,6 +7,7 @@ import {
   ItemAny,
 } from '@cntrl-site/sdk';
 import { isItemType } from '../components/Item';
+import { AudioPlayer } from './AudioPlayer';
 
 export class InteractionsRegistry implements InteractionsRegistryPort {
   private ctrls: Map<ItemId, ItemInteractionCtrl> = new Map();
@@ -16,7 +17,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
   private interactionStateMap: InteractionStateMap;
   private itemsStages: ItemStages;
   private activeStateIdInteractionIdMap: Record<StateId, InteractionId>;
-
+  private audioPlayer = new AudioPlayer();
   constructor(article: Article, private layoutId: string) {
     const { interactions } = article;
     this.items = this.unpackItems(article);
@@ -137,6 +138,9 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
       for (const trigger of interaction.triggers) {
         itemsToNotify.add(trigger.itemId);
       }
+      if (triggerType === 'click') {
+        this.playClickSound();
+      }
       this.notifyItemCtrlsChange(Array.from(itemsToNotify));
       this.notifyTransitionStartForItems(transitioningItems, activeStateId);
     }
@@ -233,6 +237,10 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
       }
     }
     return stages;
+  }
+
+  private playClickSound() {
+    this.audioPlayer.play();
   }
 }
 
