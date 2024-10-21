@@ -1,10 +1,9 @@
-import { KeyframeType, RectangleItem } from '@cntrl-site/sdk';
-import { useKeyframeValue } from '../../common/useKeyframeValue';
-import { useLayoutContext } from '../useLayoutContext';
+import { ImageItem, KeyframeType, VideoItem } from '@cntrl-site/sdk';
+import { useKeyframeValue } from '../../../common/useKeyframeValue';
+import { useLayoutContext } from '../../useLayoutContext';
 
-const defaultColor = 'rgba(0, 0, 0, 1)';
-
-export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
+const DEFAULT_COLOR = 'rgba(0, 0, 0, 1)';
+export const useFileItem = (item: ImageItem | VideoItem, sectionId: string) => {
   const layoutId = useLayoutContext();
   const radius = useKeyframeValue(
     item,
@@ -30,30 +29,33 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
     sectionId,
     [layoutId]
   );
-  const fillColor = useKeyframeValue(
+
+  const opacity = useKeyframeValue(
     item,
-    KeyframeType.Color,
+    KeyframeType.Opacity,
     (item, layoutId) => {
       if (!layoutId) return;
       const layoutParams = item.layoutParams[layoutId];
-      return 'fillColor' in layoutParams ? layoutParams.fillColor : defaultColor;
+      return 'opacity' in layoutParams ? layoutParams.opacity : 1;
     },
-    (animator, scroll, value) => value ? animator.getColor({ color: value }, scroll).color : undefined,
+    (animator, scroll, value) => value !== undefined ? animator.getOpacity({ opacity: value }, scroll).opacity : undefined,
     sectionId,
     [layoutId]
   );
+
   const strokeColor = useKeyframeValue(
     item,
     KeyframeType.BorderColor,
     (item, layoutId) => {
       if (!layoutId) return;
       const layoutParams = item.layoutParams[layoutId];
-      return 'strokeColor' in layoutParams ? layoutParams.strokeColor : defaultColor;
+      return 'strokeColor' in layoutParams ? layoutParams.strokeColor : DEFAULT_COLOR;
     },
     (animator, scroll, value) => value ? animator.getBorderColor({ color: value }, scroll).color : undefined,
     sectionId,
     [layoutId]
   );
+
   const blur = useKeyframeValue(
     item,
     KeyframeType.Blur,
@@ -66,17 +68,6 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
     sectionId,
     [layoutId]
   );
-  const backdropBlur = useKeyframeValue(
-    item,
-    KeyframeType.BackdropBlur,
-    (item, layoutId) => {
-      if (!layoutId) return;
-      const layoutParams = item.layoutParams[layoutId];
-      return 'backdropBlur' in layoutParams ? layoutParams.backdropBlur : 0;
-    },
-    (animator, scroll, value) => value !== undefined ? animator.getBackdropBlur({ backdropBlur: value }, scroll).backdropBlur : undefined,
-    sectionId,
-    [layoutId]
-  );
-  return { fillColor, strokeWidth, radius, strokeColor, blur, backdropBlur };
+
+  return { radius, strokeWidth, opacity, strokeColor, blur };
 };

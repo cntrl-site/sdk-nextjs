@@ -9,7 +9,7 @@ import {
   RichTextStyle,
   RichTextEntity
 } from '@cntrl-site/sdk';
-import { LinkWrapper } from '../../components/LinkWrapper';
+import { LinkWrapper } from '../../components/items/LinkWrapper';
 import { getFontFamilyValue } from '../getFontFamilyValue';
 
 interface StyleGroup {

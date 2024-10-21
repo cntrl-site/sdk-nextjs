@@ -4,14 +4,14 @@ import { getLayoutStyles, RichTextItem as TRichTextItem } from '@cntrl-site/sdk'
 import JSXStyle from 'styled-jsx/style';
 import { ItemProps } from '../Item';
 import { useRichTextItem } from './useRichTextItem';
-import { useCntrlContext } from '../../provider/useCntrlContext';
-import { useRichTextItemValues } from './useRichTextItemValues';
-import { useRegisterResize } from "../../common/useRegisterResize";
-import { getFontFamilyValue } from '../../utils/getFontFamilyValue';
-import { useExemplary } from '../../common/useExemplary';
+import { useCntrlContext } from '../../../provider/useCntrlContext';
+import { useRichTextItemValues } from '../useRichTextItemValues';
+import { useRegisterResize } from "../../../common/useRegisterResize";
+import { getFontFamilyValue } from '../../../utils/getFontFamilyValue';
+import { useExemplary } from '../../../common/useExemplary';
 import { useItemAngle } from '../useItemAngle';
-import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
-import { useCurrentLayout } from '../../common/useCurrentLayout';
+import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
+import { useCurrentLayout } from '../../../common/useCurrentLayout';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();

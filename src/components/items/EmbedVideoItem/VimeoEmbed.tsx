@@ -6,9 +6,9 @@ import { LinkWrapper } from '../LinkWrapper';
 import { useEmbedVideoItem } from './useEmbedVideoItem';
 import { useItemAngle } from '../useItemAngle';
 import { getLayoutStyles, VimeoEmbedItem as TVimeoEmbedItem } from '@cntrl-site/sdk';
-import { useCntrlContext } from '../../provider/useCntrlContext';
-import { useRegisterResize } from "../../common/useRegisterResize";
-import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
+import { useCntrlContext } from '../../../provider/useCntrlContext';
+import { useRegisterResize } from "../../../common/useRegisterResize";
+import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
 
 export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();

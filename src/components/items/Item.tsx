@@ -1,7 +1,5 @@
-import {
-  ComponentType,
+import React, {
   FC,
-  PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
@@ -15,39 +13,32 @@ import {
   AnchorSide,
   ArticleItemType,
   getLayoutStyles,
-  Item as TItem,
   ItemAny,
   PositionType
 } from '@cntrl-site/sdk';
-import { RectangleItem } from './items/RectangleItem';
-import { ImageItem } from './items/ImageItem';
-import { VideoItem } from './items/VideoItem';
-import { RichTextItem } from './items/RichTextItem';
-import { VimeoEmbedItem } from './items/VimeoEmbed';
-import { YoutubeEmbedItem } from './items/YoutubeEmbed';
-import { CustomItem } from './items/CustomItem';
-import { useCntrlContext } from '../provider/useCntrlContext';
+import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useItemPosition } from './useItemPosition';
 import { useItemDimensions } from './useItemDimensions';
 import { useItemScale } from './useItemScale';
-import { ScaleAnchorMap } from '../utils/ScaleAnchorMap';
-import { useSectionHeightData } from './useSectionHeightMap';
-import { getItemTopStyle } from '../utils/getItemTopStyle';
-import { useStickyItemTop } from './items/useStickyItemTop';
-import { getAnchoredItemTop } from '../utils/getAnchoredItemTop';
-import { useLayoutContext } from './useLayoutContext';
-import { ArticleRectContext } from "../provider/ArticleRectContext";
-import { useExemplary } from "../common/useExemplary";
-import { GroupItem } from './items/GroupItem';
-import { CodeEmbedItem } from './items/CodeEmbedItem';
+import { ScaleAnchorMap } from '../../utils/ScaleAnchorMap';
+import { useSectionHeightData } from '../Section/useSectionHeightMap';
+import { getItemTopStyle } from '../../utils/getItemTopStyle';
+import { useStickyItemTop } from './useStickyItemTop';
+import { getAnchoredItemTop } from '../../utils/getAnchoredItemTop';
+import { useLayoutContext } from '../useLayoutContext';
+import { ArticleRectContext } from "../../provider/ArticleRectContext";
+import { useExemplary } from "../../common/useExemplary";
 import { AreaAnchor } from '@cntrl-site/sdk/src/types/article/ItemArea';
-import { KeyframesContext } from '../provider/KeyframesContext';
-import { useItemInteractionCtrl } from '../interactions/useItemInteractionCtrl';
+import { KeyframesContext } from '../../provider/KeyframesContext';
+import { useItemInteractionCtrl } from '../../interactions/useItemInteractionCtrl';
+import { isItemType } from '../../utils/isItemType';
+import { RichTextWrapper } from './RichTextWrapper';
+import { itemsMap } from './itemsMap';
 
 export interface ItemProps<I extends ItemAny> {
   item: I;
   sectionId: string;
-  articleHeight: number;
+  articleHeight?: number;
   onResize?: (height: number) => void;
   interactionCtrl?: ReturnType<typeof useItemInteractionCtrl>;
   onVisibilityChange: (isVisible: boolean) => void;
@@ -56,40 +47,15 @@ export interface ItemProps<I extends ItemAny> {
 export interface ItemWrapperProps {
   item: ItemAny;
   sectionId: string;
-  articleHeight: number;
+  articleHeight?: number;
   isInGroup?: boolean;
   isParentVisible?: boolean;
-}
-
-const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
-  [ArticleItemType.Rectangle]: RectangleItem,
-  [ArticleItemType.Image]: ImageItem,
-  [ArticleItemType.Video]: VideoItem,
-  [ArticleItemType.RichText]: RichTextItem,
-  [ArticleItemType.YoutubeEmbed]: YoutubeEmbedItem,
-  [ArticleItemType.VimeoEmbed]: VimeoEmbedItem,
-  [ArticleItemType.Custom]: CustomItem,
-  [ArticleItemType.Group]: GroupItem,
-  [ArticleItemType.CodeEmbed]: CodeEmbedItem
-};
-
-interface RTWrapperProps {
-  isRichText: boolean;
 }
 
 const stickyFix = `
   -webkit-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
 `;
-
-const RichTextWrapper: FC<PropsWithChildren<RTWrapperProps>> = ({ isRichText, children }) => {
-  if (!isRichText) return <>{children}</>;
-  return (
-    <div style={{ transformOrigin: 'top left', transform: 'scale(var(--layout-deviation))' }}>
-      {children}
-    </div>
-  );
-};
 
 const noop = () => null;
 
@@ -134,7 +100,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const handleItemResize = (height: number) => {
     if (!layout) return;
     const sticky = item.sticky[layout];
-    if (!sticky || stickyTop === undefined) {
+    if (!sticky || stickyTop === undefined || !articleHeight) {
       setWrapperHeight(undefined);
       return;
     }
@@ -160,6 +126,9 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const isRichText = isItemType(item, ArticleItemType.RichText);
   const width = (innerStateProps?.styles?.width ?? dimensions?.width) as number | undefined;
   const height = (innerStateProps?.styles?.height ?? dimensions?.height) as number | undefined;
+  const anchorSide = layout ? item.area[layout].anchorSide : AnchorSide.Top;
+  const positionType = layout ? item.area[layout].positionType : PositionType.ScreenBased;
+  const isScreenBasedBottom = positionType === PositionType.ScreenBased && anchorSide === AnchorSide.Bottom;
   const scale = innerStateProps?.styles?.scale ?? itemScale;
   const hasClickTriggers = interactionCtrl?.getHasTrigger(item.id, 'click') ?? false;
   return (
@@ -171,9 +140,9 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
         interactionCtrl?.handleTransitionEnd?.(e.propertyName);
       }}
       style={{
-        ...(position ? { top: position.top } : {}),
-        ...(position ? { left: position.left } : {}),
-        ...(position ? { bottom: position.bottom } : {}),
+        ...(position ? { top: isScreenBasedBottom ? 'unset' : getItemTopStyle(position.top, anchorSide) } : {}),
+        ...(position ? { left: `${position.left * 100}vw` } : {}),
+        ...(position ? { bottom: isScreenBasedBottom ? `${-position.top * 100}vw` : 'unset' } : {}),
         ...(wrapperHeight !== undefined ? { height: `${wrapperHeight * 100}vw` } : {}),
         transition: wrapperStateProps?.transition ?? 'none'
       }}
@@ -269,10 +238,6 @@ function parseSizing(sizing: string = 'manual'): Axis {
     y: axisSizing[0],
     x: axisSizing[1] ? axisSizing[1] : axisSizing[0]
   } as Axis;
-}
-
-export function isItemType<T extends ArticleItemType>(item: ItemAny, itemType: T): item is TItem<T> {
-  return item.type === itemType;
 }
 
 interface Axis {

@@ -1,6 +1,6 @@
 import { ItemAny, KeyframeType } from '@cntrl-site/sdk';
-import { useKeyframeValue } from '../common/useKeyframeValue';
-import { useLayoutContext } from './useLayoutContext';
+import { useKeyframeValue } from '../../common/useKeyframeValue';
+import { useLayoutContext } from '../useLayoutContext';
 
 export const useItemDimensions = (item: ItemAny, sectionId: string) => {
   const layoutId = useLayoutContext();

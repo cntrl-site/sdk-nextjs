@@ -1,20 +1,22 @@
 import React, { FC, useEffect, useId, useState } from 'react';
-import { Item, ItemProps } from '../Item';
-import JSXStyle from 'styled-jsx/style';
-import { getLayoutStyles, GroupItem as TGroupItem } from '@cntrl-site/sdk';
-import { LinkWrapper } from '../LinkWrapper';
-import { useRegisterResize } from '../../common/useRegisterResize';
-import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useItemAngle } from '../useItemAngle';
-import { useGroupItem } from './useGroupItem';
-import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
+import { useCntrlContext } from '../../../provider/useCntrlContext';
+import { useRegisterResize } from '../../../common/useRegisterResize';
+import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
+import { LinkWrapper } from '../LinkWrapper';
+import { ItemProps } from '../Item';
+import JSXStyle from 'styled-jsx/style';
+import { getLayoutStyles } from '@cntrl-site/sdk';
+import { CompoundItem as TCompoundItem } from '@cntrl-site/sdk';
+import { CompoundChild } from './CompoundChild';
+import { useCompoundItem } from './useCompoundItem';
 
-export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize, articleHeight, interactionCtrl, onVisibilityChange }) => {
+export const CompoundItem: FC<ItemProps<TCompoundItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
   const { items } = item;
   const itemAngle = useItemAngle(item, sectionId);
   const { layouts } = useCntrlContext();
-  const { opacity: itemOpacity } = useGroupItem(item, sectionId);
+  const { opacity: itemOpacity } = useCompoundItem(item, sectionId);
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
@@ -29,7 +31,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <>
         <div
-          className={`group-${item.id}`}
+          className={`compound-${item.id}`}
           ref={setRef}
           style={{
             ...(opacity !== undefined ? { opacity } : {}),
@@ -38,18 +40,16 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
           }}
         >
           {items && items.map(item => (
-            <Item
+            <CompoundChild
               item={item}
               key={item.id}
               sectionId={sectionId}
-              articleHeight={articleHeight}
               isParentVisible={isInteractive}
-              isInGroup
             />
           ))}
         </div>
         <JSXStyle id={id}>{`
-        .group-${item.id} {
+        .compound-${item.id} {
           position: absolute;
           width: 100%;
           height: 100%;
@@ -57,7 +57,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
         }
         ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
           return (`
-            .group-${item.id} {
+            .compound-${item.id} {
               opacity: ${layoutParams.opacity};
               transform: rotate(${area.angle}deg);
             }

@@ -6,7 +6,7 @@ import {
   InteractionTrigger,
   ItemAny,
 } from '@cntrl-site/sdk';
-import { isItemType } from '../components/Item';
+import { isItemType } from '../utils/isItemType';
 
 export class InteractionsRegistry implements InteractionsRegistryPort {
   private ctrls: Map<ItemId, ItemInteractionCtrl> = new Map();
@@ -203,10 +203,11 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
       for (const item of section.items) {
         const { items, ...itemWithoutChildren } = item;
         itemsArr.push(itemWithoutChildren);
-        if (!isItemType(item, ArticleItemType.Group)) continue;
-        const groupChildren = item?.items ?? [];
-        for (const child of groupChildren) {
-          itemsArr.push(child);
+        if (isItemType(item, ArticleItemType.Group) || isItemType(item, ArticleItemType.Compound)) {
+          const groupChildren = item?.items ?? [];
+          for (const child of groupChildren) {
+            itemsArr.push(child);
+          }
         }
       }
     }
