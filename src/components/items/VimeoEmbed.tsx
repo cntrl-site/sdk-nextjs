@@ -39,7 +39,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
     const validURL = new URL(url);
     validURL.searchParams.append('controls', String(controls));
     validURL.searchParams.append('autoplay', String(play === 'auto'));
-    validURL.searchParams.append('muted', String(play !== 'on-click' && play !== 'on-hover' ? true : muted));
+    validURL.searchParams.append('muted', String(muted));
     validURL.searchParams.append('loop', String(loop));
     validURL.searchParams.append('pip', String(pictureInPicture));
     validURL.searchParams.append('title', '0');
