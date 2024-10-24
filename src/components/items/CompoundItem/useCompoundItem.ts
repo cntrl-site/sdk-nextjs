@@ -1,8 +1,8 @@
-import { useKeyframeValue } from '../../common/useKeyframeValue';
-import { GroupItem, KeyframeType } from '@cntrl-site/sdk';
-import { useLayoutContext } from '../useLayoutContext';
+import { CompoundItem, KeyframeType } from '@cntrl-site/sdk';
+import { useLayoutContext } from '../../useLayoutContext';
+import { useKeyframeValue } from '../../../common/useKeyframeValue';
 
-export function useGroupItem(item: GroupItem, sectionId: string) {
+export function useCompoundItem(item: CompoundItem, sectionId: string) {
   const layoutId = useLayoutContext();
   const opacity = useKeyframeValue(
     item,

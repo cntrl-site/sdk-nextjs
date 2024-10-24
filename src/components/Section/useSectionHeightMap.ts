@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { CntrlContext } from '../provider/CntrlContext';
+import { CntrlContext } from '../../provider/CntrlContext';
 import { Layout, SectionHeight } from '@cntrl-site/sdk';
 import { getSectionHeight } from './Section';
 

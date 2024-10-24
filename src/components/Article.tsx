@@ -1,8 +1,8 @@
 import { FC, useEffect, useId, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { Article as TArticle } from '@cntrl-site/sdk';
-import { Section } from './Section';
-import { Item } from './Item';
+import { Section } from './Section/Section';
+import { Item } from './items/Item';
 import { useArticleRectObserver } from '../utils/ArticleRectManager/useArticleRectObserver';
 import { ArticleRectContext } from '../provider/ArticleRectContext';
 import { ArticleWrapper } from './ArticleWrapper';

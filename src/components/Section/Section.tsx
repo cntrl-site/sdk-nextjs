@@ -7,8 +7,8 @@ import {
   SectionHeight,
   SectionHeightMode
 } from '@cntrl-site/sdk';
-import { useCntrlContext } from '../provider/useCntrlContext';
-import { useSectionRegistry } from '../utils/ArticleRectManager/useSectionRegistry';
+import { useCntrlContext } from '../../provider/useCntrlContext';
+import { useSectionRegistry } from '../../utils/ArticleRectManager/useSectionRegistry';
 import { CntrlColor } from '@cntrl-site/color';
 
 type SectionChild = ReactElement<any, any>;

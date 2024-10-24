@@ -1,6 +1,6 @@
 import { RichTextItem } from '@cntrl-site/sdk';
-import { RichTextConverter } from '../../utils/RichTextConverter/RichTextConverter';
-import { useCntrlContext } from '../../provider/useCntrlContext';
+import { RichTextConverter } from '../../../utils/RichTextConverter/RichTextConverter';
+import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { ReactNode } from 'react';
 
 const richTextConverter = new RichTextConverter();

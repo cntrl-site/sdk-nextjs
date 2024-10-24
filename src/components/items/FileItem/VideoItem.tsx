@@ -6,11 +6,11 @@ import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useFileItem } from './useFileItem';
 import { useItemAngle } from '../useItemAngle';
-import { useCntrlContext } from '../../provider/useCntrlContext';
-import { useRegisterResize } from "../../common/useRegisterResize";
-import { useLayoutContext } from '../useLayoutContext';
-import { ScrollPlaybackVideo } from '../ScrollPlaybackVideo';
-import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
+import { useCntrlContext } from '../../../provider/useCntrlContext';
+import { useRegisterResize } from "../../../common/useRegisterResize";
+import { useLayoutContext } from '../../useLayoutContext';
+import { ScrollPlaybackVideo } from '../../ScrollPlaybackVideo';
+import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
 
 export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
