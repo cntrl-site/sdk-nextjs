@@ -1,20 +1,16 @@
 import type { VimeoEmbedItem as TVimeoEmbedItem } from '@cntrl-site/sdk';
+import { getLayoutStyles } from '@cntrl-site/sdk';
 import type { FC } from 'react';
 import type { ItemProps } from '../Item';
-import { getLayoutStyles } from '@cntrl-site/sdk';
 import Player from '@vimeo/player';
 import { useEffect, useId, useMemo, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
-import { useRegisterResize } from '../../common/useRegisterResize';
-import { useCntrlContext } from '../../provider/useCntrlContext';
-import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
-import { LinkWrapper } from '../LinkWrapper';
 import { useItemAngle } from '../useItemAngle';
-import { getLayoutStyles, VimeoEmbedItem as TVimeoEmbedItem } from '@cntrl-site/sdk';
 import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { useRegisterResize } from "../../../common/useRegisterResize";
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
 import { useEmbedVideoItem } from './useEmbedVideoItem';
+import { LinkWrapper } from '../LinkWrapper';
 
 export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
