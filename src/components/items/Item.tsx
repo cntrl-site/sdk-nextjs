@@ -1,8 +1,6 @@
 import React, {
   FC,
-  useCallback,
   useContext,
-  useEffect,
   useId,
   useMemo,
   useRef,
@@ -17,8 +15,6 @@ import {
   PositionType
 } from '@cntrl-site/sdk';
 import { useCntrlContext } from '../../provider/useCntrlContext';
-import { useItemPosition } from './useItemPosition';
-import { useItemDimensions } from './useItemDimensions';
 import { useItemScale } from './useItemScale';
 import { ScaleAnchorMap } from '../../utils/ScaleAnchorMap';
 import { useSectionHeightData } from '../Section/useSectionHeightMap';
@@ -34,6 +30,10 @@ import { useItemInteractionCtrl } from '../../interactions/useItemInteractionCtr
 import { isItemType } from '../../utils/isItemType';
 import { RichTextWrapper } from './RichTextWrapper';
 import { itemsMap } from './itemsMap';
+import { useItemTriggers } from './useItemTriggers';
+import { parseSizing, useSizing } from './useSizing';
+import { useItemPointerEvents } from './useItemPointerEvents';
+import { useItemArea } from './useItemArea';
 
 export interface ItemProps<I extends ItemAny> {
   item: I;
@@ -69,31 +69,29 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const { layouts } = useCntrlContext();
   const layout = useLayoutContext();
   const exemplary = useExemplary();
-  const [allowPointerEvents, setAllowPointerEvents] = useState<boolean>(isParentVisible);
+  const { handleVisibilityChange, allowPointerEvents } = useItemPointerEvents(isParentVisible);
   const [wrapperHeight, setWrapperHeight] = useState<undefined | number>(undefined);
   const [itemHeight, setItemHeight] = useState<undefined | number>(undefined);
   const itemScale = useItemScale(item, sectionId);
   const interactionCtrl = useItemInteractionCtrl(item.id);
+  const triggers = useItemTriggers(interactionCtrl);
   const wrapperStateProps = interactionCtrl?.getState(['top', 'left']);
-  const innerStateProps = interactionCtrl?.getState(['width', 'height', 'scale']);
-  const position = useItemPosition(item, sectionId, {
+  const innerStateProps = interactionCtrl?.getState(['width', 'height', 'scale', 'top', 'left']);
+  const { width, height, top, left } = useItemArea(item, sectionId, {
     top: wrapperStateProps?.styles?.top as number,
     left: wrapperStateProps?.styles?.left as number,
+    width: innerStateProps?.styles?.width as number,
+    height: innerStateProps?.styles?.height as number
   });
   const sectionHeight = useSectionHeightData(sectionId);
   const stickyTop = useStickyItemTop(item, sectionHeight, sectionId);
-  const dimensions = useItemDimensions(item, sectionId);
   const layoutValues: Record<string, any>[] = [item.area, item.hidden];
-  const isInitialRef = useRef(true);
   layoutValues.push(item.sticky);
   layoutValues.push(sectionHeight);
   if (item.layoutParams) {
     layoutValues.push(item.layoutParams);
   }
-  const sizing = layout && isItemType(item, ArticleItemType.RichText)
-    ? item.layoutParams[layout].sizing
-    : undefined;
-  const sizingAxis = parseSizing(sizing);
+  const sizingAxis = useSizing(item);
   const ItemComponent = itemsMap[item.type] || noop;
   const sectionTop = rectObserver ? rectObserver.getSectionTop(sectionId) : 0;
 
@@ -114,18 +112,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
     setWrapperHeight(wrapperHeight);
   };
 
-  const handleVisibilityChange = useCallback((isVisible: boolean) => {
-    if (!isParentVisible) return;
-    setAllowPointerEvents(isVisible);
-  }, [isParentVisible]);
-
-  useEffect(() => {
-    isInitialRef.current = false;
-  }, []);
-
   const isRichText = isItemType(item, ArticleItemType.RichText);
-  const width = (innerStateProps?.styles?.width ?? dimensions?.width) as number | undefined;
-  const height = (innerStateProps?.styles?.height ?? dimensions?.height) as number | undefined;
   const anchorSide = layout ? item.area[layout].anchorSide : AnchorSide.Top;
   const positionType = layout ? item.area[layout].positionType : PositionType.ScreenBased;
   const isScreenBasedBottom = positionType === PositionType.ScreenBased && anchorSide === AnchorSide.Bottom;
@@ -140,9 +127,9 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
         interactionCtrl?.handleTransitionEnd?.(e.propertyName);
       }}
       style={{
-        ...(position ? { top: isScreenBasedBottom ? 'unset' : getItemTopStyle(position.top, anchorSide) } : {}),
-        ...(position ? { left: `${position.left * 100}vw` } : {}),
-        ...(position ? { bottom: isScreenBasedBottom ? `${-position.top * 100}vw` : 'unset' } : {}),
+        ...(top ? { top: isScreenBasedBottom ? 'unset' : getItemTopStyle(top, anchorSide) } : {}),
+        ...(left ? { left: `${left * 100}vw` } : {}),
+        ...(top ? { bottom: isScreenBasedBottom ? `${-top * 100}vw` : 'unset' } : {}),
         ...(wrapperHeight !== undefined ? { height: `${wrapperHeight * 100}vw` } : {}),
         transition: wrapperStateProps?.transition ?? 'none'
       }}
@@ -160,15 +147,6 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
           <div
             className={`item-${item.id}-inner`}
             ref={itemInnerRef}
-            onClick={() => {
-              interactionCtrl?.sendTrigger('click');
-            }}
-            onMouseEnter={() => {
-              interactionCtrl?.sendTrigger('hover-in');
-            }}
-            onMouseLeave={() => {
-              interactionCtrl?.sendTrigger('hover-out');
-            }}
             style={{
               ...((width && height) ? {
                 width: `${sizingAxis.x === 'manual'
@@ -182,6 +160,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
               cursor: hasClickTriggers ? 'pointer' : 'unset',
               pointerEvents: allowPointerEvents ? 'auto' : 'none'
             }}
+            {...triggers}
           >
             <ItemComponent
               item={item}
@@ -231,16 +210,3 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
     </div>
   );
 };
-
-function parseSizing(sizing: string = 'manual'): Axis {
-  const axisSizing = sizing.split(' ');
-  return {
-    y: axisSizing[0],
-    x: axisSizing[1] ? axisSizing[1] : axisSizing[0]
-  } as Axis;
-}
-
-interface Axis {
-  x: 'manual' | 'auto';
-  y: 'manual' | 'auto';
-}
