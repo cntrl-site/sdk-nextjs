@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { CntrlColor } from '@cntrl-site/color';
-import { useLayoutContext } from './useLayoutContext';
+import { useLayoutContext } from '../useLayoutContext';
 
 type LayoutIdentifier = string;
 const DEFAULT_COLOR = 'rgba(0, 0, 0, 0)';

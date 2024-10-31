@@ -6,12 +6,12 @@ import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useFileItem } from './useFileItem';
 import { useItemAngle } from '../useItemAngle';
-import { useCntrlContext } from '../../provider/useCntrlContext';
-import { useRegisterResize } from "../../common/useRegisterResize";
-import { useImageFx } from '../../utils/effects/useImageFx';
-import { useElementRect } from '../../utils/useElementRect';
-import { useLayoutContext } from '../useLayoutContext';
-import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
+import { useCntrlContext } from '../../../provider/useCntrlContext';
+import { useRegisterResize } from "../../../common/useRegisterResize";
+import { useImageFx } from '../../../utils/effects/useImageFx';
+import { useElementRect } from '../../../utils/useElementRect';
+import { useLayoutContext } from '../../useLayoutContext';
+import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
 
 const baseVariables = `precision mediump float;
 uniform sampler2D u_image;

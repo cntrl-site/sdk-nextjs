@@ -1,21 +1,10 @@
-import { KeyframeType, VimeoEmbedItem, YoutubeEmbedItem } from '@cntrl-site/sdk';
-import { useKeyframeValue } from '../../common/useKeyframeValue';
-import { useLayoutContext } from '../useLayoutContext';
+import { CodeEmbedItem, AreaAnchor, KeyframeType } from '@cntrl-site/sdk';
+import { useLayoutContext } from '../../useLayoutContext';
+import { useKeyframeValue } from '../../../common/useKeyframeValue';
 
-export const useEmbedVideoItem = (item: VimeoEmbedItem | YoutubeEmbedItem, sectionId: string) => {
+export const useCodeEmbedItem = (item: CodeEmbedItem, sectionId: string) => {
   const layoutId = useLayoutContext();
-  const radius = useKeyframeValue(
-    item,
-    KeyframeType.BorderRadius,
-    (item, layoutId) => {
-      if (!layoutId) return;
-      const layoutParams = item.layoutParams[layoutId];
-      return  'radius' in layoutParams ? layoutParams.radius : 0;
-    },
-    (animator, scroll, value) => value !== undefined ? animator.getRadius({ radius: value }, scroll).radius : undefined,
-    sectionId,
-    [layoutId]
-  );
+
   const blur = useKeyframeValue(
     item,
     KeyframeType.Blur,
@@ -42,5 +31,6 @@ export const useEmbedVideoItem = (item: VimeoEmbedItem | YoutubeEmbedItem, secti
     [layoutId]
   );
 
-  return { radius, blur, opacity };
+  const anchor = layoutId && 'areaAnchor' in item.layoutParams[layoutId] ? item.layoutParams[layoutId].areaAnchor : AreaAnchor.TopLeft;
+  return { anchor, blur, opacity };
 };

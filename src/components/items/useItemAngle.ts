@@ -1,5 +1,5 @@
 import { ItemAny, KeyframeType } from '@cntrl-site/sdk';
-import { useKeyframeValue } from '../common/useKeyframeValue';
+import { useKeyframeValue } from '../../common/useKeyframeValue';
 
 export const useItemAngle = (item: ItemAny, sectionId: string) => {
   const angle = useKeyframeValue(

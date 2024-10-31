@@ -6,9 +6,9 @@ import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useRectangleItem } from './useRectangleItem';
 import { useItemAngle } from '../useItemAngle';
-import { useCntrlContext } from '../../provider/useCntrlContext';
-import { useRegisterResize } from "../../common/useRegisterResize";
-import { getStyleFromItemStateAndParams } from '../../utils/getStyleFromItemStateAndParams';
+import { useCntrlContext } from '../../../provider/useCntrlContext';
+import { useRegisterResize } from "../../../common/useRegisterResize";
+import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
 
 export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();

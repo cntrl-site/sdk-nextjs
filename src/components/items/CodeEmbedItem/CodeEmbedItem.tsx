@@ -1,9 +1,9 @@
 import { getLayoutStyles, CodeEmbedItem as TCodeEmbedItem, AreaAnchor } from '@cntrl-site/sdk';
 import { FC, useEffect, useId, useState } from 'react';
-import { useCntrlContext } from '../../provider/useCntrlContext';
+import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { ItemProps } from '../Item';
 import JSXStyle from 'styled-jsx/style';
-import { useRegisterResize } from "../../common/useRegisterResize";
+import { useRegisterResize } from "../../../common/useRegisterResize";
 import { useItemAngle } from '../useItemAngle';
 import { LinkWrapper } from '../LinkWrapper';
 import { useCodeEmbedItem } from './useCodeEmbedItem';

@@ -1,10 +1,21 @@
-import { CodeEmbedItem, AreaAnchor, KeyframeType } from '@cntrl-site/sdk';
-import { useLayoutContext } from '../useLayoutContext';
-import { useKeyframeValue } from '../../common/useKeyframeValue';
+import { KeyframeType, VimeoEmbedItem, YoutubeEmbedItem } from '@cntrl-site/sdk';
+import { useKeyframeValue } from '../../../common/useKeyframeValue';
+import { useLayoutContext } from '../../useLayoutContext';
 
-export const useCodeEmbedItem = (item: CodeEmbedItem, sectionId: string) => {
+export const useEmbedVideoItem = (item: VimeoEmbedItem | YoutubeEmbedItem, sectionId: string) => {
   const layoutId = useLayoutContext();
-
+  const radius = useKeyframeValue(
+    item,
+    KeyframeType.BorderRadius,
+    (item, layoutId) => {
+      if (!layoutId) return;
+      const layoutParams = item.layoutParams[layoutId];
+      return  'radius' in layoutParams ? layoutParams.radius : 0;
+    },
+    (animator, scroll, value) => value !== undefined ? animator.getRadius({ radius: value }, scroll).radius : undefined,
+    sectionId,
+    [layoutId]
+  );
   const blur = useKeyframeValue(
     item,
     KeyframeType.Blur,
@@ -31,6 +42,5 @@ export const useCodeEmbedItem = (item: CodeEmbedItem, sectionId: string) => {
     [layoutId]
   );
 
-  const anchor = layoutId && 'areaAnchor' in item.layoutParams[layoutId] ? item.layoutParams[layoutId].areaAnchor : AreaAnchor.TopLeft;
-  return { anchor, blur, opacity };
+  return { radius, blur, opacity };
 };
