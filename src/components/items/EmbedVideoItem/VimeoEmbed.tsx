@@ -87,7 +87,10 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
   const isInteractive = opacity !== 0;
   useEffect(() => {
     onVisibilityChange?.(isInteractive);
-  }, [isInteractive, onVisibilityChange]);
+    if (!isInteractive && vimeoPlayer) {
+      vimeoPlayer.pause();
+    }
+  }, [isInteractive, onVisibilityChange, vimeoPlayer]);
 
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
