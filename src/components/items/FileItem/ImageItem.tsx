@@ -7,20 +7,12 @@ import { LinkWrapper } from '../LinkWrapper';
 import { useFileItem } from './useFileItem';
 import { useItemAngle } from '../useItemAngle';
 import { useCntrlContext } from '../../../provider/useCntrlContext';
-import { useRegisterResize } from "../../../common/useRegisterResize";
+import { useRegisterResize } from '../../../common/useRegisterResize';
 import { useImageFx } from '../../../utils/effects/useImageFx';
 import { useElementRect } from '../../../utils/useElementRect';
 import { useLayoutContext } from '../../useLayoutContext';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
-
-const baseVariables = `precision mediump float;
-uniform sampler2D u_image;
-uniform sampler2D u_pattern;
-uniform vec2 u_imgDimensions;
-uniform vec2 u_patternDimensions;
-uniform float u_time;
-uniform vec2 u_cursor;
-varying vec2 v_texCoord;`;
+import { baseVariables } from './shaderBaseVars';
 
 export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
@@ -41,7 +33,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const isInitialRef = useRef(true);
   const controls = FXControls ?? [];
   const controlsVariables = controls.map((c) => `uniform ${c.type} ${c.shaderParam};`)
-      .join('\n');
+    .join('\n');
   const controlValues = controls.reduce<Record<string, ControlValue>>((acc, control) => {
     acc[control.shaderParam] = control.value;
     return acc;
@@ -74,7 +66,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const rectWidth = Math.floor(rect?.width ?? 0);
   const rectHeight = Math.floor(rect?.height ?? 0);
   const borderColor = useMemo(() => {
-    const borderColor = getStyleFromItemStateAndParams(imgStateParams?.styles?.strokeColor, itemStrokeColor)
+    const borderColor = getStyleFromItemStateAndParams(imgStateParams?.styles?.strokeColor, itemStrokeColor);
     return borderColor ? CntrlColor.parse(borderColor) : undefined;
   }, [itemStrokeColor, imgStateParams?.styles?.strokeColor]);
   const radius = getStyleFromItemStateAndParams(imgStateParams?.styles?.radius, itemRadius);
@@ -105,22 +97,24 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
             transition: wrapperStateParams?.transition ?? 'none'
           }}
         >
-          {hasGLEffect && isFXAllowed ? (
-            <canvas
-              style={inlineStyles}
-              ref={fxCanvas}
-              className={`img-canvas image-${item.id}`}
-              width={rectWidth}
-              height={rectHeight}
-            />
-          ) : (
-            <img
-              alt=""
-              className={`image image-${item.id}`}
-              style={inlineStyles}
-              src={item.commonParams.url}
-            />
-          )}
+          {hasGLEffect && isFXAllowed
+            ? (
+                <canvas
+                  style={inlineStyles}
+                  ref={fxCanvas}
+                  className={`img-canvas image-${item.id}`}
+                  width={rectWidth}
+                  height={rectHeight}
+                />
+              )
+            : (
+                <img
+                  alt=""
+                  className={`image image-${item.id}`}
+                  style={inlineStyles}
+                  src={item.commonParams.url}
+                />
+              )}
         </div>
         <JSXStyle id={id}>{`
         .image-wrapper-${item.id} {
