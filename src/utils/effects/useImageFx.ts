@@ -33,11 +33,11 @@ export function useImageFx(
   const [isFXAllowed, setIsFXAllowed] = useState(true);
   const mousePos = useRef<[number, number]>([0.0, 0.0]);
   const imageTextureManager = useMemo(() => {
-    if (!imageUrl || !enabled) return undefined;
+    if (!imageUrl || !enabled) return;
     return new ImageTextureManager(imageUrl);
   }, [imageUrl, enabled]);
   const imageFx = useMemo<MediaEffect | undefined>(() => {
-    if (!cursor || !imageTextureManager) return undefined;
+    if (!cursor || !imageTextureManager) return;
     const { type, x, y } = cursor;
     return new MediaEffect(
       imageTextureManager,
