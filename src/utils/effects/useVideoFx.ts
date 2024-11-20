@@ -36,7 +36,10 @@ export function useVideoFx(
   const mousePos = useRef<[number, number]>([0.0, 0.0]);
   const videoTextureManager = useMemo(() => {
     if (!videoUrl || !enabled) return;
-    return new VideoTextureManager(videoUrl);
+    const handlePlayError = () => {
+      setIsFXAllowed(false);
+    };
+    return new VideoTextureManager(videoUrl, handlePlayError);
   }, [videoUrl, enabled]);
   const videoFx = useMemo<MediaEffect | undefined>(() => {
     if (!cursor || !videoTextureManager) return;
