@@ -84,7 +84,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
     height: innerStateProps?.styles?.height as number
   });
   const sectionHeight = useSectionHeightData(sectionId);
-  const stickyTop = useStickyItemTop(item, sectionHeight, sectionId);
+  const stickyTop = useStickyItemTop(item, sectionId, wrapperStateProps?.styles?.top as number);
   const layoutValues: Record<string, any>[] = [item.area, item.hidden];
   layoutValues.push(item.sticky);
   layoutValues.push(sectionHeight);

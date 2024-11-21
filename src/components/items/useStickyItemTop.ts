@@ -2,7 +2,7 @@ import { ItemAny, KeyframeType } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../../common/useKeyframeValue';
 import { useLayoutContext } from '../useLayoutContext';
 
-export function useStickyItemTop(item: ItemAny, sectionHeightMap: Record<string, string>, sectionId: string) {
+  export function useStickyItemTop(item: ItemAny, sectionId: string, stateTop?: number) {
   const layoutId = useLayoutContext();
   const data = useKeyframeValue<{ top: number; left: number } | undefined>(
     item,
@@ -17,5 +17,5 @@ export function useStickyItemTop(item: ItemAny, sectionHeightMap: Record<string,
   );
   const top = data ? data.top : layoutId ? item.area[layoutId].top : 0;
   const sticky = layoutId ? item.sticky[layoutId] : undefined;
-  return sticky ? top - sticky.from : 0;
+  return sticky ? (stateTop ?? top) - sticky.from : 0;
 }
