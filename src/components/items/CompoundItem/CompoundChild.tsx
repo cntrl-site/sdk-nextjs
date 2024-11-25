@@ -18,7 +18,8 @@ import { itemsMap } from '../itemsMap';
 import {
   getCompoundHeight,
   getCompoundLeft,
-  getCompoundTop, getCompoundTransform,
+  getCompoundTop,
+  getCompoundTransform,
   getCompoundWidth
 } from '../../../utils/getCompoundBondaryStyles';
 import { useItemTriggers } from '../useItemTriggers';
@@ -39,7 +40,10 @@ export const CompoundChild: FC<ChildItemProps> = ({ item, sectionId, isParentVis
   const { layouts } = useCntrlContext();
   const layout = useLayoutContext();
   const exemplary = useExemplary();
-  const { handleVisibilityChange, allowPointerEvents } = useItemPointerEvents(isParentVisible);
+  const { handleVisibilityChange, allowPointerEvents } = useItemPointerEvents(
+    item.commonParams?.pointerEvents ?? 'when_visible',
+    isParentVisible
+  );
   const itemScale = useItemScale(item, sectionId);
   const interactionCtrl = useItemInteractionCtrl(item.id);
   const triggers = useItemTriggers(interactionCtrl);
