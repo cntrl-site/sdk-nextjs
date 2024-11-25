@@ -22,8 +22,8 @@ import { getItemTopStyle } from '../../utils/getItemTopStyle';
 import { useStickyItemTop } from './useStickyItemTop';
 import { getAnchoredItemTop } from '../../utils/getAnchoredItemTop';
 import { useLayoutContext } from '../useLayoutContext';
-import { ArticleRectContext } from "../../provider/ArticleRectContext";
-import { useExemplary } from "../../common/useExemplary";
+import { ArticleRectContext } from '../../provider/ArticleRectContext';
+import { useExemplary } from '../../common/useExemplary';
 import { AreaAnchor } from '@cntrl-site/sdk/src/types/article/ItemArea';
 import { KeyframesContext } from '../../provider/KeyframesContext';
 import { useItemInteractionCtrl } from '../../interactions/useItemInteractionCtrl';
@@ -69,7 +69,10 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const { layouts } = useCntrlContext();
   const layout = useLayoutContext();
   const exemplary = useExemplary();
-  const { handleVisibilityChange, allowPointerEvents } = useItemPointerEvents(isParentVisible);
+  const { handleVisibilityChange, allowPointerEvents } = useItemPointerEvents(
+    item.commonParams.pointerEvents ?? 'when_visible',
+    isParentVisible
+  );
   const [wrapperHeight, setWrapperHeight] = useState<undefined | number>(undefined);
   const [itemHeight, setItemHeight] = useState<undefined | number>(undefined);
   const itemScale = useItemScale(item, sectionId);
@@ -148,14 +151,17 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
             className={`item-${item.id}-inner`}
             ref={itemInnerRef}
             style={{
-              ...((width && height) ? {
-                width: `${sizingAxis.x === 'manual'
-                  ? isRichText
-                    ? `${width * exemplary}px`
-                    : `${width * 100}vw`
-                  : 'max-content'}`,
-                height: `${sizingAxis.y === 'manual' ? `${height * 100}vw` : 'unset'}` } : {}),
-              ...(scale !== undefined ? { transform: `scale(${scale})`, 'WebkitTransform': `scale(${scale})` } : {}),
+              ...((width && height)
+                ? {
+                    width: `${sizingAxis.x === 'manual'
+                      ? isRichText
+                        ? `${width * exemplary}px`
+                        : `${width * 100}vw`
+                      : 'max-content'}`,
+                    height: `${sizingAxis.y === 'manual' ? `${height * 100}vw` : 'unset'}`
+                  }
+                : {}),
+              ...(scale !== undefined ? { transform: `scale(${scale})`, WebkitTransform: `scale(${scale})` } : {}),
               transition: innerStateProps?.transition ?? 'none',
               cursor: hasClickTriggers ? 'pointer' : 'unset',
               pointerEvents: allowPointerEvents ? 'auto' : 'none'
@@ -175,10 +181,10 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
       </div>
       <JSXStyle id={id}>{`
         ${getLayoutStyles(layouts, layoutValues, ([area, hidden, sticky, sectionHeight, layoutParams]) => {
-          const sizingAxis = parseSizing(layoutParams.sizing);
-          const isScreenBasedBottom = area.positionType === PositionType.ScreenBased && area.anchorSide === AnchorSide.Bottom;
-          const scaleAnchor = area.scaleAnchor as AreaAnchor;
-          return (`
+      const sizingAxis = parseSizing(layoutParams.sizing);
+      const isScreenBasedBottom = area.positionType === PositionType.ScreenBased && area.anchorSide === AnchorSide.Bottom;
+      const scaleAnchor = area.scaleAnchor as AreaAnchor;
+      return (`
             .item-${item.id} {
               position: ${sticky ? 'sticky' : 'absolute'};
               top: ${sticky ? `${getAnchoredItemTop(area.top - sticky.from, sectionHeight, area.anchorSide)}` : 0};
@@ -196,7 +202,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
               transform: scale(${area.scale});
             }
             .item-wrapper-${item.id} {
-              position: ${area.positionType === PositionType.ScreenBased ? 'fixed': 'absolute'};
+              position: ${area.positionType === PositionType.ScreenBased ? 'fixed' : 'absolute'};
               z-index: ${area.zIndex};
               ${!isInGroup && stickyFix}
               pointer-events: none;
@@ -206,7 +212,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
             }
           `);
       })}
-      `}</JSXStyle>
+      `}
+      </JSXStyle>
     </div>
   );
 };
