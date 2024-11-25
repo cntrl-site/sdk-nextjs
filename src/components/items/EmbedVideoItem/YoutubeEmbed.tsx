@@ -84,6 +84,13 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
     }
   }, []);
 
+  useEffect(() => {
+    onVisibilityChange?.(isInteractive);
+    if (!isInteractive && player) {
+      player.pauseVideo();
+    }
+  }, [isInteractive, onVisibilityChange, player]);
+
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
