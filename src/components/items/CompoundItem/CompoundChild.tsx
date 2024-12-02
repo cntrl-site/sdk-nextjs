@@ -80,19 +80,19 @@ export const CompoundChild: FC<ChildItemProps> = ({ item, sectionId, isParentVis
         interactionCtrl?.handleTransitionEnd?.(e.propertyName);
       }}
       style={{
-        ...(top && compoundSettings ? { top: getCompoundTop(compoundSettings, top) } : {}),
-        ...(left && compoundSettings ? { left: getCompoundLeft(compoundSettings, left) } : {}),
-        ...(width && compoundSettings
+        ...(top !== undefined && compoundSettings ? { top: getCompoundTop(compoundSettings, top) } : {}),
+        ...(left !== undefined && compoundSettings ? { left: getCompoundLeft(compoundSettings, left) } : {}),
+        ...(width !== undefined && compoundSettings
           ? { width: `${sizingAxis.x === 'manual' 
               ? getCompoundWidth(compoundSettings, width, isRichText, exemplary) 
               : 'max-content'}` }
           : {}),
-        ...(height && compoundSettings
+        ...(height !== undefined && compoundSettings
           ? { height: `${sizingAxis.y === 'manual' 
               ? getCompoundHeight(compoundSettings, height) 
               : 'unset'}` }
           : {}),
-        ...(scale && compoundSettings ? { transform: `scale(${scale}) ${getCompoundTransform(compoundSettings)}` } : {}),
+        ...(scale !== undefined && compoundSettings ? { transform: `scale(${scale}) ${getCompoundTransform(compoundSettings)}` } : {}),
         transition: stateProps?.transition ?? 'none',
         cursor: hasClickTriggers ? 'pointer' : 'unset',
         pointerEvents: allowPointerEvents ? 'auto' : 'none'

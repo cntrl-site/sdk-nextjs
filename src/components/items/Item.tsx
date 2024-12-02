@@ -130,9 +130,9 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
         interactionCtrl?.handleTransitionEnd?.(e.propertyName);
       }}
       style={{
-        ...(top ? { top: isScreenBasedBottom ? 'unset' : getItemTopStyle(top, anchorSide) } : {}),
-        ...(left ? { left: `${left * 100}vw` } : {}),
-        ...(top ? { bottom: isScreenBasedBottom ? `${-top * 100}vw` : 'unset' } : {}),
+        ...(top !== undefined ? { top: isScreenBasedBottom ? 'unset' : getItemTopStyle(top, anchorSide) } : {}),
+        ...(left !== undefined ? { left: `${left * 100}vw` } : {}),
+        ...(top !== undefined ? { bottom: isScreenBasedBottom ? `${-top * 100}vw` : 'unset' } : {}),
         ...(wrapperHeight !== undefined ? { height: `${wrapperHeight * 100}vw` } : {}),
         transition: wrapperStateProps?.transition ?? 'none'
       }}
@@ -143,7 +143,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
         style={{
           opacity: (keyframes.length !== 0 && !layout) ? 0 : 1,
           top: `${stickyTop * 100}vw`,
-          height: isRichText && itemHeight ? `${itemHeight * 100}vw` : 'unset',
+          height: isRichText && itemHeight !== undefined ? `${itemHeight * 100}vw` : 'unset',
         }}
       >
         <RichTextWrapper isRichText={isRichText}>
@@ -151,7 +151,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
             className={`item-${item.id}-inner`}
             ref={itemInnerRef}
             style={{
-              ...((width && height)
+              ...((width !== undefined && height !== undefined)
                 ? {
                     width: `${sizingAxis.x === 'manual'
                       ? isRichText
