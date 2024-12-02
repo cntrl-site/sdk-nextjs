@@ -14,7 +14,7 @@ const positionMatrix: Record<AreaAnchor, [number, number]> = {
 };
 
 export function getCompoundHeight(compoundSettings: CompoundSettings | undefined, height: number | undefined) {
-  if (!height || !compoundSettings) return;
+  if (height === undefined || !compoundSettings) return;
   if (compoundSettings.heightMode === 'relative') {
     return `${height * 100}%`;
   }
@@ -22,7 +22,7 @@ export function getCompoundHeight(compoundSettings: CompoundSettings | undefined
 }
 
 export function getCompoundWidth(compoundSettings: CompoundSettings | undefined, width: number | undefined, isRichText: boolean, exemplary?: number) {
-  if (!width || !compoundSettings) return;
+  if (width === undefined || !compoundSettings) return;
   if (compoundSettings.widthMode === 'relative') {
     return `${width * 100}%`;
   }
@@ -30,7 +30,7 @@ export function getCompoundWidth(compoundSettings: CompoundSettings | undefined,
 }
 
 export function getCompoundTop(compoundSettings: CompoundSettings | undefined, top: number | undefined) {
-  if (!top || !compoundSettings) return;
+  if (top === undefined || !compoundSettings) return;
   if (compoundSettings.heightMode === 'relative') {
     return `${top * 100}%`;
   }
@@ -39,7 +39,7 @@ export function getCompoundTop(compoundSettings: CompoundSettings | undefined, t
 }
 
 export function getCompoundLeft(compoundSettings: CompoundSettings | undefined, left: number | undefined) {
-  if (!left || !compoundSettings) return;
+  if (left === undefined || !compoundSettings) return;
   if (compoundSettings.widthMode === 'relative') {
     return `${left * 100}%`;
   }
