@@ -126,7 +126,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
       for (const action of actions) {
         const ctrl = this.ctrls.get(action.itemId);
         if (!ctrl) continue;
-        ctrl.receiveAction(action.action);
+        ctrl.receiveAction(action.type);
       }
       this.itemsStages = this.itemsStages.map((stage) => {
         if (stage.interactionId !== interaction.id) return stage;
