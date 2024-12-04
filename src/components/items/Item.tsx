@@ -107,7 +107,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
     }
     const itemArticleOffset = sectionTop / window.innerWidth + stickyTop;
     const maxStickyTo = articleHeight - itemArticleOffset - height;
-    const end = sticky.to
+    const end = sticky.to !== undefined
       ? Math.min(maxStickyTo, sticky.to)
       : articleHeight - itemArticleOffset - height;
     const wrapperHeight = end - sticky.from + height;
