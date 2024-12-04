@@ -5,10 +5,11 @@ import { InteractionTrigger } from '@cntrl-site/sdk';
 
 export class ItemInteractionController implements ItemInteractionCtrl {
   private transitionsInProgress: Set<string> = new Set();
+  private actionReceiver: ((type: 'play' | 'pause') => void) | undefined;
   constructor(
     private itemId: string,
     private registry: InteractionsRegistryPort,
-    private onChange: () => void
+    private onChange: () => void,
   ) {
     this.registry.register(itemId, this);
   }
@@ -35,6 +36,14 @@ export class ItemInteractionController implements ItemInteractionCtrl {
 
   sendTrigger(type: 'click' | 'hover-in' | 'hover-out') {
     this.registry.notifyTrigger(this.itemId, type);
+  }
+
+  receiveAction(type: 'play' | 'pause') {
+    this.actionReceiver?.(type);
+  }
+
+  setActionReceiver(action: (type: 'play' | 'pause') => void) {
+    this.actionReceiver = action;
   }
 
   handleTransitionStart = (types: string[]) => {

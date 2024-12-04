@@ -121,6 +121,13 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
       const isNewStateActive = matchingTrigger.to === activeStateId;
       this.setCurrentStateForInteraction(interaction.id, matchingTrigger.to);
       const transitioningItems = this.stateItemsIdsMap[activeStateId] ?? [];
+      const state = interaction.states.find((state) => state.id === matchingTrigger.to);
+      const actions = state?.actions ?? [];
+      for (const action of actions) {
+        const ctrl = this.ctrls.get(action.itemId);
+        if (!ctrl) continue;
+        ctrl.receiveAction(action.type);
+      }
       this.itemsStages = this.itemsStages.map((stage) => {
         if (stage.interactionId !== interaction.id) return stage;
         return {
@@ -166,8 +173,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
     });
     this.ctrls.get(itemId)?.receiveChange();
   }
-
-
+  
   private getCurrentStateByInteractionId(id: InteractionId): string {
     let state;
     for (const interactionId of Object.keys(this.interactionStateMap)) {

@@ -92,6 +92,20 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
     }
   }, [isInteractive, onVisibilityChange, vimeoPlayer]);
 
+  useEffect(() => {
+    if (!vimeoPlayer || !interactionCtrl) return;
+    interactionCtrl.setActionReceiver((type) => {
+      switch(type) {
+        case 'play':
+          vimeoPlayer.play();
+          break;
+        case 'pause':
+          vimeoPlayer.pause();
+          break;
+      }
+    });
+  }, [interactionCtrl, vimeoPlayer]);
+
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div

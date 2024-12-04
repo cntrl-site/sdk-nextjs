@@ -7,6 +7,8 @@ export interface ItemInteractionCtrl {
   handleTransitionEnd?: (styleKey: string) => void;
   handleTransitionStart?: (styleKeys: string[]) => void;
   receiveChange: () => void;
+  receiveAction: (type: 'play' | 'pause') => void;
+  setActionReceiver: (action: (type: 'play' | 'pause') => void) => void;
 }
 
 export interface InteractionsRegistryPort {

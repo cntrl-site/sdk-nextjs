@@ -91,6 +91,20 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
     }
   }, [isInteractive, onVisibilityChange, player]);
 
+  useEffect(() => {
+    if (!player || !interactionCtrl) return;
+    interactionCtrl.setActionReceiver((type) => {
+      switch(type) {
+        case 'play':
+          player.playVideo();
+          break;
+        case 'pause':
+          player.pauseVideo();
+          break;
+      }
+    });
+  }, [interactionCtrl, player]);
+
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <div
