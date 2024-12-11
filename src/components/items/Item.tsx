@@ -34,6 +34,7 @@ import { useItemTriggers } from './useItemTriggers';
 import { parseSizing, useSizing } from './useSizing';
 import { useItemPointerEvents } from './useItemPointerEvents';
 import { useItemArea } from './useItemArea';
+import { useDraggable } from './useDraggable';
 
 export interface ItemProps<I extends ItemAny> {
   item: I;
@@ -78,6 +79,17 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const itemScale = useItemScale(item, sectionId);
   const interactionCtrl = useItemInteractionCtrl(item.id);
   const triggers = useItemTriggers(interactionCtrl);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  useDraggable(itemInnerRef.current, ({ startX, startY, currentX, currentY, lastX, lastY, drag }) => {
+    const item = itemInnerRef.current;
+    if (!item) return;
+    if (drag) {
+      setPosition({ 
+        x: (currentX - startX) + lastX,
+        y: (currentY - startY) + lastY
+      });
+    }
+  });
   const wrapperStateProps = interactionCtrl?.getState(['top', 'left']);
   const innerStateProps = interactionCtrl?.getState(['width', 'height', 'scale', 'top', 'left']);
   const { width, height, top, left } = useItemArea(item, sectionId, {
@@ -151,6 +163,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
             className={`item-${item.id}-inner`}
             ref={itemInnerRef}
             style={{
+              top: `${position.y}px`,
+              left: `${position.x}px`,
               ...((width !== undefined && height !== undefined)
                 ? {
                     width: `${sizingAxis.x === 'manual'
@@ -200,6 +214,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
               height: ${sizingAxis.y === 'manual' ? `${area.height * 100}vw` : 'unset'};
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
               transform: scale(${area.scale});
+              position: relative;
             }
             .item-wrapper-${item.id} {
               position: ${area.positionType === PositionType.ScreenBased ? 'fixed' : 'absolute'};
