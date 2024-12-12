@@ -14,13 +14,14 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
   const { items } = item;
   const itemAngle = useItemAngle(item, sectionId);
   const { layouts } = useCntrlContext();
-  const { opacity: itemOpacity } = useGroupItem(item, sectionId);
+  const { opacity: itemOpacity, blur: itemBlur } = useGroupItem(item, sectionId);
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
-  const stateParams = interactionCtrl?.getState(['opacity', 'angle']);
+  const stateParams = interactionCtrl?.getState(['opacity', 'angle', 'blur']);
   const angle = getStyleFromItemStateAndParams(stateParams?.styles?.angle, itemAngle);
   const opacity = getStyleFromItemStateAndParams(stateParams?.styles?.opacity, itemOpacity);
+  const blur = getStyleFromItemStateAndParams(stateParams?.styles?.blur, itemBlur);
   const isInteractive = opacity !== 0 && opacity !== undefined;
   useEffect(() => {
     onVisibilityChange?.(isInteractive);
@@ -34,6 +35,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
           style={{
             ...(opacity !== undefined ? { opacity } : {}),
             ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
+            ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
             transition: stateParams?.transition ?? 'none'
           }}
         >
