@@ -211,7 +211,6 @@ export function useDraggable(
       if (preventDragOnChildren && event.target instanceof Node && element instanceof Node) {
         if (event.target !== element && element.contains(event.target)) return;
       }
-      // Clear any text selection
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden'; 
       const selection = document.getSelection();
@@ -239,7 +238,6 @@ export function useDraggable(
       if (animationFrameRef.current !== undefined) {
         window.cancelAnimationFrame(animationFrameRef.current);
       }
-      // Ensure overflow is restored on unmount
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
     };

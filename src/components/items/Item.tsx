@@ -80,16 +80,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const interactionCtrl = useItemInteractionCtrl(item.id);
   const triggers = useItemTriggers(interactionCtrl);
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  useDraggable(itemInnerRef.current, ({ startX, startY, currentX, currentY, lastX, lastY, drag }) => {
-    const item = itemInnerRef.current;
-    if (!item) return;
-    if (drag) {
-      setPosition({ 
-        x: (currentX - startX) + lastX,
-        y: (currentY - startY) + lastY
-      });
-    }
-  });
+  const [isDraggingActive, setIsDraggingActive] = useState(false);
   const wrapperStateProps = interactionCtrl?.getState(['top', 'left']);
   const innerStateProps = interactionCtrl?.getState(['width', 'height', 'scale', 'top', 'left']);
   const { width, height, top, left } = useItemArea(item, sectionId, {
@@ -109,6 +100,21 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const sizingAxis = useSizing(item);
   const ItemComponent = itemsMap[item.type] || noop;
   const sectionTop = rectObserver ? rectObserver.getSectionTop(sectionId) : 0;
+  const layoutParams = layout ? item.layoutParams[layout] : undefined;
+  const isDragging = layoutParams && 'isDraggable' in layoutParams ? layoutParams.isDraggable : undefined;
+  useDraggable(isDragging ? itemInnerRef.current : null, ({ startX, startY, currentX, currentY, lastX, lastY, drag }) => {
+    const item = itemInnerRef.current;
+    if (!item) return;
+    if (drag) {
+      setIsDraggingActive(true);
+      setPosition({ 
+        x: (currentX - startX) + lastX,
+        y: (currentY - startY) + lastY
+      });
+    } else {
+      setIsDraggingActive(false);
+    }
+  });
 
   const handleItemResize = (height: number) => {
     if (!layout) return;
@@ -177,7 +183,13 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
                 : {}),
               ...(scale !== undefined ? { transform: `scale(${scale})`, WebkitTransform: `scale(${scale})` } : {}),
               transition: innerStateProps?.transition ?? 'none',
-              cursor: hasClickTriggers ? 'pointer' : 'unset',
+              cursor: isDraggingActive 
+                ? 'grabbing' 
+                : isDragging 
+                  ? 'grab'
+                  : hasClickTriggers 
+                    ? 'pointer' 
+                    : 'unset',
               pointerEvents: allowPointerEvents ? 'auto' : 'none'
             }}
             {...triggers}
