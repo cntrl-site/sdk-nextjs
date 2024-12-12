@@ -28,7 +28,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const itemAngle = useItemAngle(item, sectionId);
   const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(wrapperRef, onResize);
-  const { url, hasGLEffect, fragmentShader, FXControls, FXCursor } = item.commonParams;
+  const { url, hasGLEffect, fragmentShader, FXControls } = item.commonParams;
   const fxCanvas = useRef<HTMLCanvasElement | null>(null);
   const isInitialRef = useRef(true);
   const controls = FXControls ?? [];
@@ -56,8 +56,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
     {
       imageUrl: url,
       fragmentShader: fullShaderCode,
-      cursor: FXCursor,
-      controls: controlValues
+      controlsValues: controlValues
     },
     width,
     height

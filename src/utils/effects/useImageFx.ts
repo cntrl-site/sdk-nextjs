@@ -1,18 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MediaEffect, ImageTextureManager } from '@cntrl-site/effects';
 import { rangeMap } from '../rangeMap';
-
-export interface FXCursor {
-  type: 'mouse' | 'manual';
-  x: number;
-  y: number;
-}
 
 interface FxParams {
   imageUrl?: string;
   fragmentShader: string | null;
-  cursor: FXCursor | null;
-  controls?: Record<string, number | [number, number]>;
+  controlsValues?: Record<string, number | [number, number]>;
 }
 
 const PATTERN_URL = 'https://cdn.cntrl.site/client-app-files/texture2.png';
@@ -24,21 +17,18 @@ export function useImageFx(
   {
     imageUrl,
     fragmentShader,
-    cursor,
-    controls
+    controlsValues
   }: FxParams,
   width: number,
   height: number
 ): boolean {
   const [isFXAllowed, setIsFXAllowed] = useState(true);
-  const mousePos = useRef<[number, number]>([0.0, 0.0]);
   const imageTextureManager = useMemo(() => {
     if (!imageUrl || !enabled) return;
     return new ImageTextureManager(imageUrl);
   }, [imageUrl, enabled]);
   const imageFx = useMemo<MediaEffect | undefined>(() => {
-    if (!cursor || !imageTextureManager) return;
-    const { type, x, y } = cursor;
+    if (!imageTextureManager) return;
     return new MediaEffect(
       imageTextureManager,
       PATTERN_URL,
@@ -46,8 +36,8 @@ export function useImageFx(
       fragmentShader!,
       {
         time: 0,
-        cursor: type === 'mouse' ? mousePos.current : [x, y],
-        ...controls
+        cursor: [0, 0],
+        ...controlsValues
       },
       width,
       height
@@ -55,7 +45,7 @@ export function useImageFx(
   }, [imageTextureManager, fragmentShader, width, height]);
 
   useEffect(() => {
-    if (!cursor || cursor.type !== 'mouse' || !canvas || !imageFx) return;
+    if (!canvas || !imageFx) return;
     const handleMouseMove = (evt: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       const x = rangeMap(evt.clientX, rect.left, rect.left + rect.width, 0, 1, true);
@@ -66,7 +56,7 @@ export function useImageFx(
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [canvas, imageFx, cursor?.type]);
+  }, [canvas, imageFx]);
 
   useEffect(() => {
     const gl = canvas?.getContext('webgl2');

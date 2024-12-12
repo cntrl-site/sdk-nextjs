@@ -30,7 +30,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const fxCanvas = useRef<HTMLCanvasElement | null>(null);
-  const { url, hasGLEffect, fragmentShader, FXControls, FXCursor } = item.commonParams;
+  const { url, hasGLEffect, fragmentShader, FXControls } = item.commonParams;
   const isInitialRef = useRef(true);
   const area = layoutId ? item.area[layoutId] : null;
   const exemplary = layouts?.find(l => l.id === layoutId)?.exemplary;
@@ -70,7 +70,6 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
     {
       videoUrl: url,
       fragmentShader: fullShaderCode,
-      cursor: FXCursor,
       controls: controlValues
     },
     width,
