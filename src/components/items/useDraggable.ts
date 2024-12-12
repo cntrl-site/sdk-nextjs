@@ -137,18 +137,113 @@ export function useDraggable(
     [trackMouseMove]
   );
 
+  const handleTouchMove = useCallback<EventHandler<TouchEvent>>(
+    event => {
+      event.stopPropagation();
+      event.preventDefault(); // Prevent scrolling while dragging
+      
+      
+      const touch = event.touches[0];
+      const el = event.target;
+      if (!(el instanceof HTMLElement)) return;
+
+      setDragState(state => {
+        if (!state.drag) {
+          const clientRect = el.getBoundingClientRect();
+          return {
+            drag: true,
+            startX: touch.clientX,
+            startY: touch.clientY,
+            currentX: touch.clientX,
+            currentY: touch.clientY,
+            pivotX: touch.clientX - clientRect.x,
+            pivotY: touch.clientY - clientRect.y,
+            lastX: state.lastX,
+            lastY: state.lastY
+          };
+        }
+        
+        const movementX = touch.clientX - state.currentX;
+        const movementY = touch.clientY - state.currentY;
+        
+        return {
+          ...state,
+          currentX: state.currentX + movementX,
+          currentY: state.currentY + movementY
+        };
+      });
+    },
+    [setDragState]
+  );
+
+  const handleTouchEnd = useCallback<EventHandler<TouchEvent>>(
+    event => {
+      event.stopPropagation();
+      
+      // Remove overflow hidden from body
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      setDragState(state => ({
+        ...state,
+        drag: false,
+        lastX: state.currentX - state.startX + state.lastX,
+        lastY: state.currentY - state.startY + state.lastY
+      }));
+      untrackMouseMoveRef.current?.();
+    },
+    [setDragState]
+  );
+
+  const trackTouchMove = useCallback(() => {
+    window.addEventListener('touchmove', handleTouchMove, { capture: true, passive: false });
+    window.addEventListener('touchend', handleTouchEnd, { capture: true });
+    window.addEventListener('touchcancel', handleTouchEnd, { capture: true });
+    return () => {
+      window.removeEventListener('touchmove', handleTouchMove, { capture: true });
+      window.removeEventListener('touchend', handleTouchEnd, { capture: true });
+      window.removeEventListener('touchcancel', handleTouchEnd, { capture: true });
+    };
+  }, [handleTouchMove, handleTouchEnd]);
+
+  const handleTouchStart = useCallback<EventHandler<TouchEvent>>(
+    event => {
+      event.stopPropagation();
+      if (preventDragOnChildren && event.target instanceof Node && element instanceof Node) {
+        if (event.target !== element && element.contains(event.target)) return;
+      }
+      // Clear any text selection
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden'; 
+      const selection = document.getSelection();
+      if (selection) {
+        selection.removeAllRanges();
+      }
+      untrackMouseMoveRef.current?.();
+      untrackMouseMoveRef.current = trackTouchMove();
+    },
+    [trackTouchMove]
+  );
+
   useEffect(() => {
     if (!element) return;
-    const handler = handleMouseDown;
-    element.addEventListener('mousedown', handler);
+    const mouseHandler = handleMouseDown;
+    const touchHandler = handleTouchStart;
+
+    element.addEventListener('mousedown', mouseHandler);
+    element.addEventListener('touchstart', touchHandler);
+
     return () => {
-      element.removeEventListener('mousedown', handler);
+      element.removeEventListener('mousedown', mouseHandler);
+      element.removeEventListener('touchstart', touchHandler);
       untrackMouseMoveRef.current?.();
       if (animationFrameRef.current !== undefined) {
         window.cancelAnimationFrame(animationFrameRef.current);
       }
+      // Ensure overflow is restored on unmount
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     };
-  }, [element, handleMouseDown]);
+  }, [element, handleMouseDown, handleTouchStart]);
 }
 
 interface DragState {
