@@ -24,7 +24,6 @@ export function useDraggable(
     isEnabled: boolean
   },
   dragHandler?: DragHandler,
-  isMouseLocked: boolean = false,
   preventDragOnChildren: boolean = false,
 ) {
   const dragStateRef = useRef<DragState>(INITIAL_STATE);
@@ -61,9 +60,6 @@ export function useDraggable(
       event.stopPropagation();
       const el = event.target;
       if (!(el instanceof HTMLElement)) return;
-      if (isMouseLocked) {
-        el.requestPointerLock();
-      }
       setDragState(state => {
         if (!state.drag) {
           const clientRect = el.getBoundingClientRect();
@@ -86,15 +82,12 @@ export function useDraggable(
         };
       });
     },
-    [isMouseLocked, setDragState, data.draggableRef, preventDragOnChildren]
+    [setDragState, data.draggableRef, preventDragOnChildren]
   );
 
   const handleMouseUp = useCallback<EventHandler<MouseEvent>>(
     event => {
       event.stopPropagation();
-      if (isMouseLocked) {
-        document.exitPointerLock();
-      }
       setDragState(state => ({
         ...state,
         drag: false,
@@ -103,7 +96,7 @@ export function useDraggable(
       }));
       untrackMouseMoveRef.current?.();
     },
-    [isMouseLocked, setDragState]
+    [ setDragState]
   );
 
   const handleScroll = useCallback<EventHandler<Event>>((event) => {
@@ -127,12 +120,6 @@ export function useDraggable(
       if (preventDragOnChildren && event.target instanceof Node && data.draggableRef instanceof Node) {
         if (event.target !== data.draggableRef && data.draggableRef.contains(event.target)) return;
       }
-      // Ticket: CNTRL-1909
-      const selection = document.getSelection();
-      if (selection) {
-        selection.removeAllRanges();
-      }
-      // the action is allowed only for the left mouse button
       if (event.button !== 0) return;
       untrackMouseMoveRef.current?.();
       untrackMouseMoveRef.current = trackMouseMove();
@@ -143,9 +130,7 @@ export function useDraggable(
   const handleTouchMove = useCallback<EventHandler<TouchEvent>>(
     event => {
       event.stopPropagation();
-      event.preventDefault(); // Prevent scrolling while dragging
-      
-      
+      event.preventDefault();
       const touch = event.touches[0];
       const el = event.target;
       if (!(el instanceof HTMLElement)) return;
@@ -182,8 +167,6 @@ export function useDraggable(
   const handleTouchEnd = useCallback<EventHandler<TouchEvent>>(
     event => {
       event.stopPropagation();
-      
-      // Remove overflow hidden from body
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
       setDragState(state => ({
