@@ -101,8 +101,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const ItemComponent = itemsMap[item.type] || noop;
   const sectionTop = rectObserver ? rectObserver.getSectionTop(sectionId) : 0;
   const layoutParams = layout ? item.layoutParams[layout] : undefined;
-  const isDragging = layoutParams && 'isDraggable' in layoutParams ? layoutParams.isDraggable : undefined;
-  useDraggable({ draggableRef: itemInnerRef.current, isEnabled: isDragging ?? false }, ({ startX, startY, currentX, currentY, lastX, lastY, drag }) => {
+  const isDraggable = layoutParams && 'isDraggable' in layoutParams ? layoutParams.isDraggable : undefined;
+  useDraggable({ draggableRef: itemInnerRef.current, isEnabled: isDraggable ?? false }, ({ startX, startY, currentX, currentY, lastX, lastY, drag }) => {
     const item = itemInnerRef.current;
     if (!item) return;
     if (drag) {
@@ -185,12 +185,16 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
               transition: innerStateProps?.transition ?? 'none',
               cursor: isDraggingActive 
                 ? 'grabbing' 
-                : isDragging 
+                : isDraggable 
                   ? 'grab'
                   : hasClickTriggers 
                     ? 'pointer' 
                     : 'unset',
-              pointerEvents: allowPointerEvents ? 'auto' : 'none'
+              pointerEvents: allowPointerEvents ? 'auto' : 'none',
+              userSelect: isDraggable ? 'none' : 'unset',
+              WebkitUserSelect: isDraggable ? 'none' : 'unset',
+              MozUserSelect: isDraggable ? 'none' : 'unset',
+              msUserSelect: isDraggable ? 'none' : 'unset'
             }}
             {...triggers}
           >
