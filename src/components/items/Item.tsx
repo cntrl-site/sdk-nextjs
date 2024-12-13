@@ -102,7 +102,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const sectionTop = rectObserver ? rectObserver.getSectionTop(sectionId) : 0;
   const layoutParams = layout ? item.layoutParams[layout] : undefined;
   const isDragging = layoutParams && 'isDraggable' in layoutParams ? layoutParams.isDraggable : undefined;
-  useDraggable(isDragging ? itemInnerRef.current : null, ({ startX, startY, currentX, currentY, lastX, lastY, drag }) => {
+  useDraggable({ draggableRef: itemInnerRef.current, isEnabled: isDragging ?? false }, ({ startX, startY, currentX, currentY, lastX, lastY, drag }) => {
     const item = itemInnerRef.current;
     if (!item) return;
     if (drag) {

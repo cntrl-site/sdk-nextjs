@@ -19,10 +19,13 @@ const INITIAL_STATE: DragState = {
 };
 
 export function useDraggable(
-  element: HTMLElement | null | undefined,
+  data: {
+    draggableRef: HTMLElement | null | undefined,
+    isEnabled: boolean
+  },
   dragHandler?: DragHandler,
   isMouseLocked: boolean = false,
-  preventDragOnChildren: boolean = false
+  preventDragOnChildren: boolean = false,
 ) {
   const dragStateRef = useRef<DragState>(INITIAL_STATE);
   const prevDragStateRef = useRef<DragState | undefined>();
@@ -83,7 +86,7 @@ export function useDraggable(
         };
       });
     },
-    [isMouseLocked, setDragState, element, preventDragOnChildren]
+    [isMouseLocked, setDragState, data.draggableRef, preventDragOnChildren]
   );
 
   const handleMouseUp = useCallback<EventHandler<MouseEvent>>(
@@ -121,8 +124,8 @@ export function useDraggable(
   const handleMouseDown = useCallback<EventHandler<MouseEvent>>(
     event => {
       event.stopPropagation();
-      if (preventDragOnChildren && event.target instanceof Node && element instanceof Node) {
-        if (event.target !== element && element.contains(event.target)) return;
+      if (preventDragOnChildren && event.target instanceof Node && data.draggableRef instanceof Node) {
+        if (event.target !== data.draggableRef && data.draggableRef.contains(event.target)) return;
       }
       // Ticket: CNTRL-1909
       const selection = document.getSelection();
@@ -208,8 +211,8 @@ export function useDraggable(
   const handleTouchStart = useCallback<EventHandler<TouchEvent>>(
     event => {
       event.stopPropagation();
-      if (preventDragOnChildren && event.target instanceof Node && element instanceof Node) {
-        if (event.target !== element && element.contains(event.target)) return;
+      if (preventDragOnChildren && event.target instanceof Node && data.draggableRef instanceof Node) {
+        if (event.target !== data.draggableRef && data.draggableRef.contains(event.target)) return;
       }
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden'; 
@@ -224,16 +227,16 @@ export function useDraggable(
   );
 
   useEffect(() => {
-    if (!element) return;
+    if (!data.draggableRef || !data.isEnabled) return;
     const mouseHandler = handleMouseDown;
     const touchHandler = handleTouchStart;
 
-    element.addEventListener('mousedown', mouseHandler);
-    element.addEventListener('touchstart', touchHandler);
+    data.draggableRef.addEventListener('mousedown', mouseHandler);
+    data.draggableRef.addEventListener('touchstart', touchHandler);
 
     return () => {
-      element.removeEventListener('mousedown', mouseHandler);
-      element.removeEventListener('touchstart', touchHandler);
+      data.draggableRef?.removeEventListener('mousedown', mouseHandler);
+      data.draggableRef?.removeEventListener('touchstart', touchHandler);
       untrackMouseMoveRef.current?.();
       if (animationFrameRef.current !== undefined) {
         window.cancelAnimationFrame(animationFrameRef.current);
@@ -241,7 +244,7 @@ export function useDraggable(
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
     };
-  }, [element, handleMouseDown, handleTouchStart]);
+  }, [data.draggableRef, data.isEnabled, handleMouseDown, handleTouchStart]);
 }
 
 interface DragState {
