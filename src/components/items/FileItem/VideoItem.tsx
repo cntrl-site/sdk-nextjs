@@ -155,10 +155,8 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
           box-sizing: border-box;
           opacity: 1;
           object-fit: cover;
-          pointer-events: none;
           overflow: hidden;
           border-style: solid;
-          pointer-events: auto;
         }
         .video-${item.id} {
           border-color: ${itemStrokeColor};
