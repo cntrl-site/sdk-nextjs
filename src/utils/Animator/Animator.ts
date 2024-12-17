@@ -25,6 +25,7 @@ export class Animator {
   private static pushKeyframeToMap<T extends KeyframeType>(keyframe: AnimationData<T>, map: KeyframesMap): void {
     insertBin(map[keyframe.type], keyframe);
   }
+
   private keyframesMap: KeyframesMap = createKeyframesMap();
   constructor(
     private keyframes: AnimationData<KeyframeType>[]
@@ -302,7 +303,6 @@ export class Animator {
     };
   }
 
-
   getStartEnd<T extends KeyframeType>(position: number, keyframes: AnimationData<T>[]): PositionKeyframes<T> {
     const index = binSearchInsertAt(keyframes, { position }, compare);
     const end = index === keyframes.length ? index - 1 : index;
@@ -329,7 +329,6 @@ export class Animator {
     return mixedColor.fmt('oklch');
   }
 }
-
 
 function createKeyframesMap(): KeyframesMap {
   return {
