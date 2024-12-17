@@ -34,6 +34,7 @@ import { useItemTriggers } from './useItemTriggers';
 import { parseSizing, useSizing } from './useSizing';
 import { useItemPointerEvents } from './useItemPointerEvents';
 import { useItemArea } from './useItemArea';
+import { useDraggable } from './useDraggable';
 
 export interface ItemProps<I extends ItemAny> {
   item: I;
@@ -78,6 +79,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const itemScale = useItemScale(item, sectionId);
   const interactionCtrl = useItemInteractionCtrl(item.id);
   const triggers = useItemTriggers(interactionCtrl);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDraggingActive, setIsDraggingActive] = useState(false);
   const wrapperStateProps = interactionCtrl?.getState(['top', 'left']);
   const innerStateProps = interactionCtrl?.getState(['width', 'height', 'scale', 'top', 'left']);
   const { width, height, top, left } = useItemArea(item, sectionId, {
@@ -97,6 +100,21 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const sizingAxis = useSizing(item);
   const ItemComponent = itemsMap[item.type] || noop;
   const sectionTop = rectObserver ? rectObserver.getSectionTop(sectionId) : 0;
+  const layoutParams = layout ? item.layoutParams[layout] : undefined;
+  const isDraggable = layoutParams && 'isDraggable' in layoutParams ? layoutParams.isDraggable : undefined;
+  useDraggable({ draggableRef: itemInnerRef.current, isEnabled: isDraggable ?? false }, ({ startX, startY, currentX, currentY, lastX, lastY, drag }) => {
+    const item = itemInnerRef.current;
+    if (!item) return;
+    if (drag) {
+      setIsDraggingActive(true);
+      setPosition({ 
+        x: (currentX - startX) + lastX,
+        y: (currentY - startY) + lastY
+      });
+    } else {
+      setIsDraggingActive(false);
+    }
+  });
 
   const handleItemResize = (height: number) => {
     if (!layout) return;
@@ -151,6 +169,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
             className={`item-${item.id}-inner`}
             ref={itemInnerRef}
             style={{
+              top: `${position.y}px`,
+              left: `${position.x}px`,
               ...((width !== undefined && height !== undefined)
                 ? {
                     width: `${sizingAxis.x === 'manual'
@@ -163,8 +183,18 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
                 : {}),
               ...(scale !== undefined ? { transform: `scale(${scale})`, WebkitTransform: `scale(${scale})` } : {}),
               transition: innerStateProps?.transition ?? 'none',
-              cursor: hasClickTriggers ? 'pointer' : 'unset',
-              pointerEvents: allowPointerEvents ? 'auto' : 'none'
+              cursor: isDraggingActive 
+                ? 'grabbing' 
+                : isDraggable 
+                  ? 'grab'
+                  : hasClickTriggers 
+                    ? 'pointer' 
+                    : 'unset',
+              pointerEvents: allowPointerEvents ? 'auto' : 'none',
+              userSelect: isDraggable ? 'none' : 'unset',
+              WebkitUserSelect: isDraggable ? 'none' : 'unset',
+              MozUserSelect: isDraggable ? 'none' : 'unset',
+              msUserSelect: isDraggable ? 'none' : 'unset'
             }}
             {...triggers}
           >
@@ -200,6 +230,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
               height: ${sizingAxis.y === 'manual' ? `${area.height * 100}vw` : 'unset'};
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
               transform: scale(${area.scale});
+              position: relative;
             }
             .item-wrapper-${item.id} {
               position: ${area.positionType === PositionType.ScreenBased ? 'fixed' : 'absolute'};
