@@ -45,6 +45,13 @@ export function useImageFx(
   }, [imageTextureManager, fragmentShader, width, height]);
 
   useEffect(() => {
+    if (!imageFx || !controlsValues) return;
+    for (const [key, value] of Object.entries(controlsValues)) {
+      imageFx.setParam(key, value);
+    }
+  }, [imageFx, controlsValues]);
+
+  useEffect(() => {
     if (!canvas || !imageFx) return;
     const handleMouseMove = (evt: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
