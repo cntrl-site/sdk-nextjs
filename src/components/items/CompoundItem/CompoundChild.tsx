@@ -92,13 +92,18 @@ export const CompoundChild: FC<ChildItemProps> = ({ item, sectionId, isParentVis
               ? getCompoundHeight(compoundSettings, height) 
               : 'unset'}` }
           : {}),
-        ...(scale !== undefined && compoundSettings ? { transform: `scale(${scale}) ${getCompoundTransform(compoundSettings)}` } : {}),
+        ...(compoundSettings ? { transform: `${getCompoundTransform(compoundSettings)}` } : {}),
         transition: stateProps?.transition ?? 'none',
         cursor: hasClickTriggers ? 'pointer' : 'unset',
         pointerEvents: allowPointerEvents ? 'auto' : 'none'
       }}
       {...triggers}
     >
+      <div className={`item-${item.id}-inner`}
+        style={{
+          ...(scale !== undefined ? { transform: `scale(${scale})` } : {}),
+        }}
+      >
       <RichTextWrapper isRichText={isRichText} transformOrigin={transformOrigin}>
         <ItemComponent
           item={item}
@@ -107,11 +112,16 @@ export const CompoundChild: FC<ChildItemProps> = ({ item, sectionId, isParentVis
           onVisibilityChange={handleVisibilityChange}
         />
       </RichTextWrapper>
+      </div>
       <JSXStyle id={id}>{`
         ${getLayoutStyles(layouts, layoutValues, ([area, hidden, compoundSettings, layoutParams]) => {
           const sizingAxis = parseSizing(layoutParams.sizing);
           const scaleAnchor = area.scaleAnchor as AreaAnchor;
           return (`
+            .item-${item.id}-inner {
+              transform-origin: ${ScaleAnchorMap[scaleAnchor]};
+              transform: scale(${area.scale});
+            }
             .item-${item.id} {
               position: absolute;
               top: ${getCompoundTop(compoundSettings, area.top)};
@@ -122,8 +132,7 @@ export const CompoundChild: FC<ChildItemProps> = ({ item, sectionId, isParentVis
                 ? `${getCompoundWidth(compoundSettings, area.width, isRichText)}`
                 : 'max-content'};
               height: ${sizingAxis.y === 'manual' ? `${getCompoundHeight(compoundSettings, area.height)}` : 'unset'};
-              transform-origin: ${ScaleAnchorMap[scaleAnchor]};
-              transform: scale(${area.scale}) ${getCompoundTransform(compoundSettings)};
+              transform: ${getCompoundTransform(compoundSettings)};
               z-index: ${area.zIndex};
             }
           `);
