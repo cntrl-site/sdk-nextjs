@@ -4,7 +4,7 @@ import { useLayoutContext } from '../../useLayoutContext';
 
 const defaultColor = 'rgba(0, 0, 0, 1)';
 
-export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
+export function useRectangleItem(item: RectangleItem, sectionId: string) {
   const layoutId = useLayoutContext();
   const radius = useKeyframeValue(
     item,
@@ -12,7 +12,7 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
     (item, layoutId) => {
       if (!layoutId) return;
       const layoutParams = item.layoutParams[layoutId];
-      return  'radius' in layoutParams ? layoutParams.radius : 0;
+      return 'radius' in layoutParams ? layoutParams.radius : 0;
     },
     (animator, scroll, value) => value !== undefined ? animator.getRadius({ radius: value }, scroll).radius : undefined,
     sectionId,
@@ -79,4 +79,4 @@ export const useRectangleItem = (item: RectangleItem, sectionId: string) => {
     [layoutId]
   );
   return { fillColor, strokeWidth, radius, strokeColor, blur, backdropBlur };
-};
+}

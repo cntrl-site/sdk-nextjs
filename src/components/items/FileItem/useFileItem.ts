@@ -3,7 +3,7 @@ import { useKeyframeValue } from '../../../common/useKeyframeValue';
 import { useLayoutContext } from '../../useLayoutContext';
 
 const DEFAULT_COLOR = 'rgba(0, 0, 0, 1)';
-export const useFileItem = (item: ImageItem | VideoItem, sectionId: string) => {
+export function useFileItem(item: ImageItem | VideoItem, sectionId: string) {
   const layoutId = useLayoutContext();
   const radius = useKeyframeValue(
     item,
@@ -11,7 +11,7 @@ export const useFileItem = (item: ImageItem | VideoItem, sectionId: string) => {
     (item, layoutId) => {
       if (!layoutId) return;
       const layoutParams = item.layoutParams[layoutId];
-      return  'radius' in layoutParams ? layoutParams.radius : 0;
+      return 'radius' in layoutParams ? layoutParams.radius : 0;
     },
     (animator, scroll, value) => value !== undefined ? animator.getRadius({ radius: value }, scroll).radius : undefined,
     sectionId,
@@ -70,4 +70,4 @@ export const useFileItem = (item: ImageItem | VideoItem, sectionId: string) => {
   );
 
   return { radius, strokeWidth, opacity, strokeColor, blur };
-};
+}

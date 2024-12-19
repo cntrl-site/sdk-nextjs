@@ -83,8 +83,8 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
               border-width: ${layoutParams.strokeWidth * 100}vw;
               transform: rotate(${area.angle}deg);
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
-              backdrop-filter: ${layoutParams.backdropFilter !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
-              -webkit-backdrop-filter: ${layoutParams.backdropFilter !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
+              backdrop-filter: ${layoutParams.backdropBlur !== 0 ? `blur(${layoutParams.backdropBlur * 100}vw)` : 'unset'};
+              -webkit-backdrop-filter: ${layoutParams.backdropBlur !== 0 ? `blur(${layoutParams.backdropBlur * 100}vw)` : 'unset'};
             }
           `);
         })}

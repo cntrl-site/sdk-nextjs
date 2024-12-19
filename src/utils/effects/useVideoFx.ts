@@ -1,17 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MediaEffect, VideoTextureManager } from '@cntrl-site/effects';
 import { rangeMap } from '../rangeMap';
-
-export interface FXCursor {
-  type: 'mouse' | 'manual';
-  x: number;
-  y: number;
-}
 
 interface FxParams {
   videoUrl?: string;
   fragmentShader: string | null;
-  cursor: FXCursor | null;
   controls?: Record<string, number | [number, number]>;
 }
 
@@ -24,7 +17,6 @@ export function useVideoFx(
   {
     videoUrl,
     fragmentShader,
-    cursor,
     controls
   }: FxParams,
   width: number,
@@ -33,7 +25,6 @@ export function useVideoFx(
   const [isFXAllowed, setIsFXAllowed] = useState(true);
   const [isReady, setIsReady] = useState(false);
   const active = enabled && isReady;
-  const mousePos = useRef<[number, number]>([0.0, 0.0]);
   const videoTextureManager = useMemo(() => {
     if (!videoUrl || !enabled) return;
     const handlePlayError = () => {
@@ -42,8 +33,7 @@ export function useVideoFx(
     return new VideoTextureManager(videoUrl, handlePlayError);
   }, [videoUrl, enabled]);
   const videoFx = useMemo<MediaEffect | undefined>(() => {
-    if (!cursor || !videoTextureManager) return;
-    const { type, x, y } = cursor;
+    if (!videoTextureManager) return;
     return new MediaEffect(
       videoTextureManager,
       PATTERN_URL,
@@ -51,7 +41,7 @@ export function useVideoFx(
       fragmentShader!,
       {
         time: 0,
-        cursor: type === 'mouse' ? mousePos.current : [x, y],
+        cursor: [0, 0],
         ...controls
       },
       width,
@@ -65,7 +55,7 @@ export function useVideoFx(
   }, [videoTextureManager]);
 
   useEffect(() => {
-    if (!cursor || cursor.type !== 'mouse' || !canvas || !videoFx) return;
+    if (!canvas || !videoFx) return;
     const handleMouseMove = (evt: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       const x = rangeMap(evt.clientX, rect.left, rect.left + rect.width, 0, 1, true);
@@ -76,7 +66,7 @@ export function useVideoFx(
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [canvas, videoFx, cursor?.type]);
+  }, [canvas, videoFx]);
 
   useEffect(() => {
     const gl = canvas?.getContext('webgl2');
