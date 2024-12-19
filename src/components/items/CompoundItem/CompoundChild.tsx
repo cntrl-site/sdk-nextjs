@@ -119,6 +119,8 @@ export const CompoundChild: FC<ChildItemProps> = ({ item, sectionId, isParentVis
           const scaleAnchor = area.scaleAnchor as AreaAnchor;
           return (`
             .item-${item.id}-inner {
+              width: 100%;
+              height: 100%;
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
               transform: scale(${area.scale});
             }
