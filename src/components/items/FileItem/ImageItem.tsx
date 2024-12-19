@@ -12,7 +12,7 @@ import { useImageFx } from '../../../utils/effects/useImageFx';
 import { useElementRect } from '../../../utils/useElementRect';
 import { useLayoutContext } from '../../useLayoutContext';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
-import { baseVariables } from './shaderBaseVars';
+import { useItemFXData } from '../../../common/useItemFXData';
 
 export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
@@ -28,18 +28,12 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const itemAngle = useItemAngle(item, sectionId);
   const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(wrapperRef, onResize);
-  const { url, hasGLEffect, fragmentShader, FXControls, FXCursor } = item.commonParams;
+  const { url, hasGLEffect } = item.commonParams;
   const fxCanvas = useRef<HTMLCanvasElement | null>(null);
   const isInitialRef = useRef(true);
-  const controls = FXControls ?? [];
-  const controlsVariables = controls.map((c) => `uniform ${c.type} ${c.shaderParam};`)
-    .join('\n');
-  const controlValues = controls.reduce<Record<string, ControlValue>>((acc, control) => {
-    acc[control.shaderParam] = control.value;
-    return acc;
-  }, {});
+
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
-  const fullShaderCode = `${baseVariables}\n${controlsVariables}\n${fragmentShader}`;
+  const { controlsValues, fragmentShader } = useItemFXData(item, sectionId);
   const area = layoutId ? item.area[layoutId] : null;
   const exemplary = layouts?.find(l => l.id === layoutId)?.exemplary;
   const width = area && exemplary ? area.width * exemplary : 0;
@@ -55,9 +49,8 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
     !!(hasGLEffect && !isInitialRef.current),
     {
       imageUrl: url,
-      fragmentShader: fullShaderCode,
-      cursor: FXCursor,
-      controls: controlValues
+      fragmentShader,
+      controlsValues
     },
     width,
     height
@@ -143,7 +136,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
           box-sizing: border-box;
         }
         ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
-          return (`
+      return (`
             .image-wrapper-${item.id} {
               opacity: ${layoutParams.opacity};
               transform: rotate(${area.angle}deg);
@@ -155,11 +148,9 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
               border-width: ${layoutParams.strokeWidth * 100}vw;
             }
           `);
-        })}
+    })}
       `}</JSXStyle>
       </>
     </LinkWrapper>
   );
 };
-
-type ControlValue = number | [number, number];

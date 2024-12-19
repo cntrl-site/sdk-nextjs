@@ -25,11 +25,32 @@ export class Animator {
   private static pushKeyframeToMap<T extends KeyframeType>(keyframe: AnimationData<T>, map: KeyframesMap): void {
     insertBin(map[keyframe.type], keyframe);
   }
+
   private keyframesMap: KeyframesMap = createKeyframesMap();
   constructor(
     private keyframes: AnimationData<KeyframeType>[]
   ) {
     this.fillKeyframesMap();
+  }
+
+  getFXParams(
+    valuesMap: Record<string, number>,
+    pos: number
+  ): KeyframeValueMap[KeyframeType.FXParams] {
+    const keyframes = this.keyframesMap[KeyframeType.FXParams];
+    if (!keyframes.length) return valuesMap;
+    if (keyframes.length === 1) {
+      const [keyframe] = keyframes;
+      return Object.entries(valuesMap).reduce<Record<string, number>>((acc, [key, fallbackValue]) => {
+        acc[key] = keyframe.value[key] ?? fallbackValue;
+        return acc;
+      }, {});
+    }
+    const { start, end } = this.getStartEnd<KeyframeType.FXParams>(pos, keyframes);
+    return Object.entries(valuesMap).reduce<Record<string, number>>((acc, [key, fallbackValue]) => {
+      acc[key] = rangeMap(pos, start.position, end.position, start.value[key] ?? fallbackValue, end.value[key] ?? fallbackValue, true);
+      return acc;
+    }, {});
   }
 
   getDimensions(
@@ -302,7 +323,6 @@ export class Animator {
     };
   }
 
-
   getStartEnd<T extends KeyframeType>(position: number, keyframes: AnimationData<T>[]): PositionKeyframes<T> {
     const index = binSearchInsertAt(keyframes, { position }, compare);
     const end = index === keyframes.length ? index - 1 : index;
@@ -330,7 +350,6 @@ export class Animator {
   }
 }
 
-
 function createKeyframesMap(): KeyframesMap {
   return {
     [KeyframeType.Dimensions]: [],
@@ -346,6 +365,7 @@ function createKeyframesMap(): KeyframesMap {
     [KeyframeType.BackdropBlur]: [],
     [KeyframeType.LetterSpacing]: [],
     [KeyframeType.WordSpacing]: [],
-    [KeyframeType.TextColor]: []
+    [KeyframeType.TextColor]: [],
+    [KeyframeType.FXParams]: []
   };
 }

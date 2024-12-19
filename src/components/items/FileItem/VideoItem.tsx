@@ -11,9 +11,9 @@ import { useRegisterResize } from '../../../common/useRegisterResize';
 import { useLayoutContext } from '../../useLayoutContext';
 import { ScrollPlaybackVideo } from '../../ScrollPlaybackVideo';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
-import { baseVariables } from './shaderBaseVars';
 import { useVideoFx } from '../../../utils/effects/useVideoFx';
 import { useElementRect } from '../../../utils/useElementRect';
+import { useItemFXData } from '../../../common/useItemFXData';
 
 export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
@@ -30,20 +30,13 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const fxCanvas = useRef<HTMLCanvasElement | null>(null);
-  const { url, hasGLEffect, fragmentShader, FXControls, FXCursor } = item.commonParams;
+  const { url, hasGLEffect } = item.commonParams;
   const isInitialRef = useRef(true);
   const area = layoutId ? item.area[layoutId] : null;
   const exemplary = layouts?.find(l => l.id === layoutId)?.exemplary;
   const width = area && exemplary ? area.width * exemplary : 0;
   const height = area && exemplary ? area.height * exemplary : 0;
-  const controls = FXControls ?? [];
-  const controlsVariables = controls.map((c) => `uniform ${c.type} ${c.shaderParam};`)
-    .join('\n');
-  const controlValues = controls.reduce<Record<string, ControlValue>>((acc, control) => {
-    acc[control.shaderParam] = control.value;
-    return acc;
-  }, {});
-  const fullShaderCode = `${baseVariables}\n${controlsVariables}\n${fragmentShader}`;
+  const { controlsValues, fragmentShader } = useItemFXData(item, sectionId);
   const rect = useElementRect(ref);
   const rectWidth = Math.floor(rect?.width ?? 0);
   const rectHeight = Math.floor(rect?.height ?? 0);
@@ -69,9 +62,8 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
     !!(hasGLEffect && !isInitialRef.current),
     {
       videoUrl: url,
-      fragmentShader: fullShaderCode,
-      cursor: FXCursor,
-      controls: controlValues
+      fragmentShader,
+      controls: controlsValues
     },
     width,
     height
@@ -191,5 +183,3 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
     </LinkWrapper>
   );
 };
-
-type ControlValue = number | [number, number];

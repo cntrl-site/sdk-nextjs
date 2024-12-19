@@ -10,14 +10,14 @@ export type AnimatorGetter<T> = (animator: Animator, scroll: number, value: T) =
 type ItemParamGetter<T> = (item: ItemAny, layoutId: string | undefined) => T;
 const emptyDeps: DependencyList = [];
 
-export const useKeyframeValue = <T>(
+export function useKeyframeValue<T>(
   item: ItemAny,
   type: KeyframeType,
   itemParamsGetter: ItemParamGetter<T>,
   animatorGetter: AnimatorGetter<T>,
   sectionId: string,
   deps: DependencyList = emptyDeps
-): T => {
+): T {
   const animatorGetterRef = useRef(animatorGetter);
   const itemParamsGetterRef = useRef(itemParamsGetter);
 
@@ -64,7 +64,7 @@ export const useKeyframeValue = <T>(
     if (!articleRectObserver || !animator) return;
     const scroll = articleRectObserver.getSectionScroll(sectionId);
     handleKeyframeValue(scroll);
-  }, [articleRectObserver, handleKeyframeValue, animator])
+  }, [articleRectObserver, handleKeyframeValue, animator]);
 
   useEffect(() => {
     if (!articleRectObserver || !animator) return;
@@ -82,5 +82,4 @@ export const useKeyframeValue = <T>(
     });
   }, [handleKeyframeValue, articleRectObserver, animator]);
   return keyframes.length ? adjustedValue : paramValue;
-};
-
+}
