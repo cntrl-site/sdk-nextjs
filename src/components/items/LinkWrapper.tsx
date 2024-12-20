@@ -8,11 +8,11 @@ interface Props {
 
 export const LinkWrapper: React.FC<Props> = ({ url, children, target }) => {
   const validUrl = url && buildValidUrl(url);
+  const targetParams = target === '_blank' ? { target, rel: 'noreferrer' } : {};
   return url ? (
     <a
       href={validUrl}
-      target={target}
-      rel="noreferrer"
+      {...targetParams}
     >
       {children}
     </a>
@@ -20,7 +20,6 @@ export const LinkWrapper: React.FC<Props> = ({ url, children, target }) => {
     <>{children}</>
   );
 };
-
 
 function buildValidUrl(url: string): string {
   const prefixes = [

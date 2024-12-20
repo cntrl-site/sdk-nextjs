@@ -28,7 +28,8 @@ export default antfu(
       'no-extra-boolean-cast': 'off',
       'prefer-promise-reject-errors': 'off',
       'new-cap': 'off',
-      'perfectionist/sort-named-exports': 'off'
+      'perfectionist/sort-named-exports': 'off',
+      'style/multiline-ternary': 'off'
     },
   },
 );
