@@ -50,6 +50,7 @@ export const CompoundItem: FC<ItemProps<TCompoundItem>> = ({ item, sectionId, on
         </div>
         <JSXStyle id={id}>{`
         .compound-${item.id} {
+          overflow: ${item.commonParams.overflow};
           position: absolute;
           width: 100%;
           height: 100%;
