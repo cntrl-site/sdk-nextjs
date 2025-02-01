@@ -6,7 +6,7 @@ import { ItemProps } from '../Item';
 import { useRichTextItem } from './useRichTextItem';
 import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { useRichTextItemValues } from '../useRichTextItemValues';
-import { useRegisterResize } from "../../../common/useRegisterResize";
+import { useRegisterResize } from '../../../common/useRegisterResize';
 import { getFontFamilyValue } from '../../../utils/getFontFamilyValue';
 import { useExemplary } from '../../../common/useExemplary';
 import { useItemAngle } from '../useItemAngle';

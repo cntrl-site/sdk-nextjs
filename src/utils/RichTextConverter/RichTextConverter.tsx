@@ -32,9 +32,9 @@ interface Style {
 }
 
 export const FontStyles: Record<string, Record<string, string>> = {
-  'normal': {},
-  'bold': { 'font-weight': 'bold' },
-  'italic': { 'font-style': 'italic' }
+  normal: { 'font-style': 'normal' },
+  bold: { 'font-weight': 'bold' },
+  italic: { 'font-style': 'italic' }
 };
 
 export class RichTextConverter {
@@ -48,7 +48,7 @@ export class RichTextConverter {
       rec[layout.id] = [];
       return rec;
     }, {});
-    let currentLineHeight = layouts.reduce<Record<string, string | undefined>>((rec, layout) => {
+    const currentLineHeight = layouts.reduce<Record<string, string | undefined>>((rec, layout) => {
       const styles = richText.layoutParams[layout.id].rangeStyles;
       rec[layout.id] = styles?.find(s => s.style === 'LINEHEIGHT')?.value;
       return rec;
@@ -194,7 +194,7 @@ export class RichTextConverter {
         start,
         end,
         styles: applied.map(s => ({ name: s.style, value: s.value }))
-      })
+      });
     }
 
     return styleGroups;
@@ -262,18 +262,18 @@ export class RichTextConverter {
   private static fromRangeStylesToInline(draftStyle: Style, exemplary: number): string {
     const { value, name } = draftStyle;
     const map: Record<string, Record<string, string | undefined>> = {
-      'COLOR': { 'color': getResolvedValue(value, name) },
-      'TYPEFACE': { 'font-family': `${getFontFamilyValue(value!)}` },
-      'FONTSTYLE': value ? { ...FontStyles[value] } : {},
-      'FONTWEIGHT': { 'font-weight': value },
-      'FONTSIZE': { 'font-size': `${parseFloat(value!) * exemplary}px` },
-      'LINEHEIGHT': { 'line-height': `${parseFloat(value!) * exemplary}px` },
-      'LETTERSPACING': { 'letter-spacing': `${parseFloat(value!) * exemplary}px` },
-      'WORDSPACING': { 'word-spacing': `${parseFloat(value!) * exemplary}px` },
-      'TEXTTRANSFORM': value ? { 'text-transform': value as TextTransform } : { 'text-transform': TextTransform.None },
-      'VERTICALALIGN': value ? { 'vertical-align': value as VerticalAlign } : { 'vertical-align': VerticalAlign.Unset },
-      'TEXTDECORATION': { 'text-decoration': value },
-      'FONTVARIANT': { 'font-variant': value }
+      COLOR: { color: getResolvedValue(value, name) },
+      TYPEFACE: { 'font-family': `${getFontFamilyValue(value!)}` },
+      FONTSTYLE: value ? { ...FontStyles[value] } : {},
+      FONTWEIGHT: { 'font-weight': value },
+      FONTSIZE: { 'font-size': `${Number.parseFloat(value!) * exemplary}px` },
+      LINEHEIGHT: { 'line-height': `${Number.parseFloat(value!) * exemplary}px` },
+      LETTERSPACING: { 'letter-spacing': `${Number.parseFloat(value!) * exemplary}px` },
+      WORDSPACING: { 'word-spacing': `${Number.parseFloat(value!) * exemplary}px` },
+      TEXTTRANSFORM: value ? { 'text-transform': value as TextTransform } : { 'text-transform': TextTransform.None },
+      VERTICALALIGN: value ? { 'vertical-align': value as VerticalAlign } : { 'vertical-align': VerticalAlign.Unset },
+      TEXTDECORATION: { 'text-decoration': value },
+      FONTVARIANT: { 'font-variant': value }
     };
     const css = map[name];
     if (!css) {
@@ -300,8 +300,8 @@ function getResolvedValue(value: string | undefined, name: string) {
   return value ? CntrlColor.parse(value).toCss() : value;
 }
 
-function sliceSymbols(text: string, start: number, end: number = NaN): string {
-  let startOffset = NaN;
+function sliceSymbols(text: string, start: number, end: number = Number.NaN): string {
+  let startOffset = Number.NaN;
   let endOffset = 0;
   let count = -1;
   for (const ch of text) {
