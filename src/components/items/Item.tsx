@@ -43,6 +43,7 @@ export interface ItemProps<I extends ItemAny> {
   onResize?: (height: number) => void;
   interactionCtrl?: ReturnType<typeof useItemInteractionCtrl>;
   onVisibilityChange: (isVisible: boolean) => void;
+  isInCompound?: boolean;
 }
 
 export interface ItemWrapperProps {
@@ -107,7 +108,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
     if (!item) return;
     if (drag) {
       setIsDraggingActive(true);
-      setPosition({ 
+      setPosition({
         x: (currentX - startX) + lastX,
         y: (currentY - startY) + lastY
       });
@@ -183,12 +184,12 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
                 : {}),
               ...(scale !== undefined ? { transform: `scale(${scale})`, WebkitTransform: `scale(${scale})` } : {}),
               transition: innerStateProps?.transition ?? 'none',
-              cursor: isDraggingActive 
-                ? 'grabbing' 
-                : isDraggable 
+              cursor: isDraggingActive
+                ? 'grabbing'
+                : isDraggable
                   ? 'grab'
-                  : hasClickTriggers 
-                    ? 'pointer' 
+                  : hasClickTriggers
+                    ? 'pointer'
                     : 'unset',
               pointerEvents: allowPointerEvents ? 'auto' : 'none',
               userSelect: isDraggable ? 'none' : 'unset',

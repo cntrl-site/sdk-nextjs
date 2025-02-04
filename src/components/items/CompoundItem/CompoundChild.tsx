@@ -83,13 +83,13 @@ export const CompoundChild: FC<ChildItemProps> = ({ item, sectionId, isParentVis
         ...(top !== undefined && compoundSettings ? { top: getCompoundTop(compoundSettings, top) } : {}),
         ...(left !== undefined && compoundSettings ? { left: getCompoundLeft(compoundSettings, left) } : {}),
         ...(width !== undefined && compoundSettings
-          ? { width: `${sizingAxis.x === 'manual' 
-              ? getCompoundWidth(compoundSettings, width, isRichText, exemplary) 
+          ? { width: `${sizingAxis.x === 'manual'
+              ? getCompoundWidth(compoundSettings, width, isRichText, exemplary)
               : 'max-content'}` }
           : {}),
         ...(height !== undefined && compoundSettings
-          ? { height: `${sizingAxis.y === 'manual' 
-              ? getCompoundHeight(compoundSettings, height) 
+          ? { height: `${sizingAxis.y === 'manual'
+              ? getCompoundHeight(compoundSettings, height)
               : 'unset'}` }
           : {}),
         ...(compoundSettings ? { transform: `${getCompoundTransform(compoundSettings)}` } : {}),
@@ -99,25 +99,27 @@ export const CompoundChild: FC<ChildItemProps> = ({ item, sectionId, isParentVis
       }}
       {...triggers}
     >
-      <div className={`item-${item.id}-inner`}
+      <div
+        className={`item-${item.id}-inner`}
         style={{
           ...(scale !== undefined ? { transform: `scale(${scale})` } : {}),
         }}
       >
-      <RichTextWrapper isRichText={isRichText} transformOrigin={transformOrigin}>
-        <ItemComponent
-          item={item}
-          sectionId={sectionId}
-          interactionCtrl={interactionCtrl}
-          onVisibilityChange={handleVisibilityChange}
-        />
-      </RichTextWrapper>
+        <RichTextWrapper isRichText={isRichText} transformOrigin={transformOrigin}>
+          <ItemComponent
+            item={item}
+            sectionId={sectionId}
+            interactionCtrl={interactionCtrl}
+            onVisibilityChange={handleVisibilityChange}
+            isInCompound
+          />
+        </RichTextWrapper>
       </div>
       <JSXStyle id={id}>{`
         ${getLayoutStyles(layouts, layoutValues, ([area, hidden, compoundSettings, layoutParams]) => {
-          const sizingAxis = parseSizing(layoutParams.sizing);
-          const scaleAnchor = area.scaleAnchor as AreaAnchor;
-          return (`
+      const sizingAxis = parseSizing(layoutParams.sizing);
+      const scaleAnchor = area.scaleAnchor as AreaAnchor;
+      return (`
             .item-${item.id}-inner {
               width: 100%;
               height: 100%;
@@ -131,15 +133,16 @@ export const CompoundChild: FC<ChildItemProps> = ({ item, sectionId, isParentVis
               transition: opacity 0.2s linear 0.1s;
               display: ${hidden ? 'none' : 'block'};
               width: ${sizingAxis.x === 'manual'
-                ? `${getCompoundWidth(compoundSettings, area.width, isRichText)}`
-                : 'max-content'};
+          ? `${getCompoundWidth(compoundSettings, area.width, isRichText)}`
+          : 'max-content'};
               height: ${sizingAxis.y === 'manual' ? `${getCompoundHeight(compoundSettings, area.height)}` : 'unset'};
               transform: ${getCompoundTransform(compoundSettings)};
               z-index: ${area.zIndex};
             }
           `);
-      })}
-      `}</JSXStyle>
+    })}
+      `}
+      </JSXStyle>
     </div>
   );
 };

@@ -206,18 +206,23 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
   private unpackItems(article: Article): ItemAny[] {
     const itemsArr = [];
     for (const section of article.sections) {
-      for (const item of section.items) {
-        const { items, ...itemWithoutChildren } = item;
-        itemsArr.push(itemWithoutChildren);
-        if (isItemType(item, ArticleItemType.Group) || isItemType(item, ArticleItemType.Compound)) {
-          const groupChildren = item?.items ?? [];
-          for (const child of groupChildren) {
-            itemsArr.push(child);
-          }
-        }
-      }
+      const items = this.getNestedItems(section.items);
+      itemsArr.push(...items);
     }
     return itemsArr;
+  }
+
+  private getNestedItems(items: ItemAny[]): ItemAny[] {
+    const allItems: ItemAny[] = [];
+    for (const item of items) {
+      if (isItemType(item, ArticleItemType.Group) || isItemType(item, ArticleItemType.Compound)) {
+        const groupChildren = item?.items ?? [];
+        const nestedItems = this.getNestedItems(groupChildren);
+        allItems.push(...nestedItems);
+      }
+      allItems.push(item);
+    }
+    return allItems;
   }
 
   private getDefaultItemStages(): ItemStages {
