@@ -47,13 +47,14 @@ export const CompoundChild: FC<ChildItemProps> = ({ item, sectionId, isParentVis
   const itemScale = useItemScale(item, sectionId);
   const interactionCtrl = useItemInteractionCtrl(item.id);
   const triggers = useItemTriggers(interactionCtrl);
-  const stateProps = interactionCtrl?.getState(['top', 'left', 'width', 'height', 'scale']);
+  const wrapperStateProps = interactionCtrl?.getState(['top', 'left', 'width', 'height']);
+  const innerStateProps = interactionCtrl?.getState(['scale']);
   const compoundSettings = layout && item.compoundSettings ? item.compoundSettings[layout] : undefined;
   const { width, height, top, left } = useItemArea(item, sectionId, {
-    top: stateProps?.styles?.top as number,
-    left: stateProps?.styles?.left as number,
-    width: stateProps?.styles?.width as number,
-    height: stateProps?.styles?.height as number
+    top: wrapperStateProps?.styles?.top as number,
+    left: wrapperStateProps?.styles?.left as number,
+    width: wrapperStateProps?.styles?.width as number,
+    height: wrapperStateProps?.styles?.height as number
   });
   const isInitialRef = useRef(true);
   const sizingAxis = useSizing(item);
@@ -65,7 +66,7 @@ export const CompoundChild: FC<ChildItemProps> = ({ item, sectionId, isParentVis
 
   const transformOrigin = compoundSettings ? ScaleAnchorMap[compoundSettings.positionAnchor] : 'top left';
   const isRichText = isItemType(item, ArticleItemType.RichText);
-  const scale = stateProps?.styles?.scale ?? itemScale;
+  const scale = innerStateProps?.styles?.scale ?? itemScale;
   const hasClickTriggers = interactionCtrl?.getHasTrigger(item.id, 'click') ?? false;
   if (!item.compoundSettings) return null;
   const layoutValues: Record<string, any>[] = [item.area, item.hidden, item.compoundSettings];
@@ -93,7 +94,7 @@ export const CompoundChild: FC<ChildItemProps> = ({ item, sectionId, isParentVis
               : 'unset'}` }
           : {}),
         ...(compoundSettings ? { transform: `${getCompoundTransform(compoundSettings)}` } : {}),
-        transition: stateProps?.transition ?? 'none',
+        transition: wrapperStateProps?.transition ?? 'none',
         cursor: hasClickTriggers ? 'pointer' : 'unset',
         pointerEvents: allowPointerEvents ? 'auto' : 'none'
       }}
@@ -102,6 +103,7 @@ export const CompoundChild: FC<ChildItemProps> = ({ item, sectionId, isParentVis
       <div
         className={`item-${item.id}-inner`}
         style={{
+          transition: innerStateProps?.transition ?? 'none',
           ...(scale !== undefined ? { transform: `scale(${scale})` } : {}),
         }}
       >
