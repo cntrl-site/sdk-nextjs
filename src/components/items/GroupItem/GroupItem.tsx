@@ -8,8 +8,9 @@ import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { useItemAngle } from '../useItemAngle';
 import { useGroupItem } from './useGroupItem';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
+import { CompoundChild } from '../CompoundItem/CompoundChild';
 
-export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
+export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange, isInCompound }) => {
   const id = useId();
   const { items } = item;
   const itemAngle = useItemAngle(item, sectionId);
@@ -39,7 +40,14 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
             transition: stateParams?.transition ?? 'none'
           }}
         >
-          {items && items.map(item => (
+          {items && items.map(item => isInCompound ? (
+            <CompoundChild
+              item={item}
+              key={item.id}
+              sectionId={sectionId}
+              isParentVisible={isInteractive}
+            />
+          ) : (
             <Item
               item={item}
               key={item.id}
@@ -57,13 +65,13 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
           box-sizing: border-box;
         }
         ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
-          return (`
+      return (`
             .group-${item.id} {
               opacity: ${layoutParams.opacity};
               transform: rotate(${area.angle}deg);
             }
           `);
-        })}
+    })}
       `}</JSXStyle>
       </>
     </LinkWrapper>
