@@ -1,9 +1,9 @@
-import { getLayoutStyles, CodeEmbedItem as TCodeEmbedItem, AreaAnchor } from '@cntrl-site/sdk';
+import { getLayoutStyles, CodeEmbedItem as TCodeEmbedItem, AreaAnchor, FontFaceGenerator } from '@cntrl-site/sdk';
 import { FC, useEffect, useId, useState } from 'react';
 import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { ItemProps } from '../Item';
 import JSXStyle from 'styled-jsx/style';
-import { useRegisterResize } from "../../../common/useRegisterResize";
+import { useRegisterResize } from '../../../common/useRegisterResize';
 import { useItemAngle } from '../useItemAngle';
 import { LinkWrapper } from '../LinkWrapper';
 import { useCodeEmbedItem } from './useCodeEmbedItem';
@@ -22,7 +22,10 @@ const stylesMap = {
 
 export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
-  const { layouts } = useCntrlContext();
+  const { layouts, fonts } = useCntrlContext();
+  const fontGoogleTags = fonts?.google;
+  const fontAdobeTags = fonts?.adobe;
+  const fontCustomTags = new FontFaceGenerator(fonts?.custom ?? []).generate();
   const { anchor, blur: itemBlur, opacity: itemOpacity } = useCodeEmbedItem(item, sectionId);
   const itemAngle = useItemAngle(item, sectionId);
   const { html } = item.commonParams;
@@ -47,14 +50,23 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
       script.parentNode!.removeChild(script);
       ref.appendChild(newScript);
     }
-  }, [item.commonParams.html])
+  }, [item.commonParams.html]);
 
   useEffect(() => {
     if (!ref) return;
     const iframe: HTMLIFrameElement | null = ref.querySelector(`[data-embed="${item.id}"]`);
     if (!iframe) return;
-    iframe.srcdoc = item.commonParams.html;
+    const htmlWithStyles = `
+      ${fontGoogleTags}
+      ${fontAdobeTags}
+      <style>
+        ${fontCustomTags}
+      </style>
+      ${item.commonParams.html}
+    `;
+    iframe.srcdoc = htmlWithStyles;
   }, [item.commonParams.html, item.commonParams.iframe, ref]);
+
   const isInteractive = opacity !== 0;
   useEffect(() => {
     onVisibilityChange?.(isInteractive);
@@ -69,7 +81,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
           ...(opacity !== undefined ? { opacity } : {}),
           transition: stateParams?.transition ?? 'none'
-      }}
+        }}
         ref={setRef}
       >
         {item.commonParams.iframe ? (
@@ -102,7 +114,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
         border: none;
       }
       ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams], exemplary) => {
-        return (`
+      return (`
           .embed-wrapper-${item.id} {
             opacity: ${layoutParams.opacity};
             transform: rotate(${area.angle}deg);
@@ -113,7 +125,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
             height: ${item.commonParams.scale ? `${area.height * exemplary}px` : '100%'};
           }
         `);
-      })}
+    })}
     `}</JSXStyle>
     </LinkWrapper>
   );
