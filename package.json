@@ -18,7 +18,7 @@
     "test": "jest",
     "prebuild": "rm -rf ./lib",
     "build": "tsc --project tsconfig.build.json",
-    "prepublishOnly": "set NODE_ENV=production npm run build"
+    "prepublishOnly": "NODE_ENV=production npm run build"
   },
   "peerDependencies": {
     "@types/lodash.isequal": "^4.5.6",
