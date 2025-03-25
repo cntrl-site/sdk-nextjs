@@ -9,6 +9,7 @@ interface SdkContextInitProps {
 
 export class CntrlSdkContext {
   private _layouts: Layout[] = [];
+  private _fonts?: Project['fonts'] = undefined;
   private sectionHeightMap: Map<string, Record<string, SectionHeight>> = new Map();
   constructor(
     public readonly customItems: CustomItemRegistry,
@@ -31,6 +32,7 @@ export class CntrlSdkContext {
 
   init({ project, article }: SdkContextInitProps) {
     this.setLayouts(project.layouts);
+    this.setFonts(project.fonts);
     this.setSectionsHeight(article.sections);
   }
 
@@ -38,9 +40,13 @@ export class CntrlSdkContext {
     this._layouts = layouts;
   }
 
+  private setFonts(fonts: Project['fonts']) {
+    this._fonts = fonts;
+  }
+
   setSectionsHeight(sections: Section[]) {
     for (const section of sections) {
-      this.sectionHeightMap.set(section.id, section.height)
+      this.sectionHeightMap.set(section.id, section.height);
     }
   }
 
@@ -51,6 +57,10 @@ export class CntrlSdkContext {
 
   get layouts(): Layout[] {
     return this._layouts;
+  }
+
+  get fonts(): Project['fonts'] | undefined {
+    return this._fonts;
   }
 }
 
