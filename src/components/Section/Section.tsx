@@ -11,8 +11,6 @@ import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useSectionRegistry } from '../../utils/ArticleRectManager/useSectionRegistry';
 import { CntrlColor } from '@cntrl-site/color';
 import { useLayoutContext } from '../useLayoutContext';
-import { ArticleRectContext } from '../../provider/ArticleRectContext';
-import { debounce } from 'lodash';
 
 type SectionChild = ReactElement<any, any>;
 const DEFAULT_COLOR = 'rgba(0, 0, 0, 0)';
@@ -33,11 +31,11 @@ export const Section: FC<Props> = ({ section, data, children }) => {
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const { layouts, customSections } = useCntrlContext();
   const layout = useLayoutContext();
-  const articleRectObserver = useContext(ArticleRectContext);
   const layoutValues: Record<string, any>[] = [section.height, section.color, section.background ?? {}];
   const SectionComponent = section.name ? customSections.getComponent(section.name) : undefined;
   const isVideo = layout && section.background?.[layout]?.url ? isVideoUrl(String(section.background?.[layout]?.url)) : false;
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const sectionRectRef = useRef<DOMRect | null>(null);
   useSectionRegistry(section.id, sectionRef.current);
 
   const getSectionVisibilityStyles = () => {
@@ -83,21 +81,32 @@ export const Section: FC<Props> = ({ section, data, children }) => {
 
   useEffect(() => {
     if ((layout && sectionRef.current && section.background?.[layout]?.position !== 'fixed') || !isVideo) return;
-    const rect = sectionRef.current!.getBoundingClientRect();
     let rafId: number;
     const updateMask = (): void => {
+      sectionRectRef.current = sectionRef.current!.getBoundingClientRect();
       const video = videoRef.current;
+      const rect = sectionRectRef.current;
       if (!rect || !video) return;
-      const maskTop = rect.top - window.scrollY;
-      const maskBottom = window.innerHeight - (rect.top - window.scrollY) - rect.height;
-      video.style.clipPath = `inset(${maskTop.toFixed(2)}px 0 ${maskBottom.toFixed(2)}px 0)`;
+      const maskTop = (rect.top).toFixed(2);
+      const maskBottom = (window.innerHeight - (rect.height + rect.top)).toFixed(2);
+      video.style.clipPath = `inset(${maskTop}px 0 ${maskBottom}px 0)`;
       rafId = requestAnimationFrame(updateMask);
     };
     rafId = requestAnimationFrame(updateMask);
     return () => {
       cancelAnimationFrame(rafId);
     };
-  }, [sectionRef.current, articleRectObserver, layout, section.id, isVideo]);
+  }, [layout, section.id, isVideo]);
+
+  useEffect(() => {
+    if ((layout && sectionRef.current && section.background?.[layout]?.position !== 'fixed') || !isVideo) return;
+    const handleResize = () => {
+      sectionRectRef.current = sectionRef.current!.getBoundingClientRect();
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [layout, section.id, isVideo]);
 
   if (SectionComponent) return <div ref={sectionRef}><SectionComponent data={data}>{children}</SectionComponent></div>;
 
@@ -110,8 +119,8 @@ export const Section: FC<Props> = ({ section, data, children }) => {
       >
         {isVideo && sectionRef.current && layout && (
           <div
-            key={`videoBackgroundWrapper-${section.id}`}
-            className={`videoBackgroundWrapper-${section.id}`}
+            key={`video-background-wrapper-${section.id}`}
+            className={`video-background-wrapper-${section.id}`}
           >
             <video
               ref={videoRef}
@@ -120,7 +129,7 @@ export const Section: FC<Props> = ({ section, data, children }) => {
               muted
               playsInline
               preload="auto"
-              className={`videoBackground-${section.id}`}
+              className={`video-background-${section.id}`}
             >
               <source src={section.background?.[layout]?.url ?? ''} />
             </video>
@@ -141,7 +150,7 @@ export const Section: FC<Props> = ({ section, data, children }) => {
             background-repeat: ${background?.size === 'contain' ? 'no-repeat' : 'repeat'};
             background-attachment: ${background?.position ?? ''};
          }
-         .videoBackgroundWrapper-${section.id} {
+         .video-background-wrapper-${section.id} {
             top: 0;
             left: 0;
             position: ${background?.position === 'fixed' ? 'fixed' : 'relative'};
@@ -149,7 +158,7 @@ export const Section: FC<Props> = ({ section, data, children }) => {
             width: 100%;
             overflow: hidden;
          }
-         .videoBackground-${section.id} {
+         .video-background-${section.id} {
             object-fit: ${background?.size ?? 'cover'};
             width: 100%;
             height: 100%;
