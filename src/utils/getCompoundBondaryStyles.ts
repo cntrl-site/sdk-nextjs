@@ -54,7 +54,6 @@ export function getCompoundTransform(compoundSettings: CompoundSettings | undefi
   return `translate(${kx * (-100)}%, ${ky * (-100)}%)`;
 }
 
-
 type CompoundSettings = {
   positionAnchor: AreaAnchor;
   widthMode: DimensionMode;
