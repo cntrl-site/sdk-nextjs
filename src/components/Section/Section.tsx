@@ -77,7 +77,6 @@ export const Section: FC<Props> = ({ section, data, children }) => {
         threshold: 0
       }
     );
-
     observer.observe(section);
     return () => observer.disconnect();
   }, [isVideo]);
@@ -85,17 +84,18 @@ export const Section: FC<Props> = ({ section, data, children }) => {
   useEffect(() => {
     if ((layout && sectionRef.current && section.background?.[layout]?.position !== 'fixed') || !isVideo) return;
     const rect = sectionRef.current!.getBoundingClientRect();
-    const updateMask = () => {
+    let rafId: number;
+    const updateMask = (): void => {
       const video = videoRef.current;
       if (!rect || !video) return;
       const maskTop = rect.top - window.scrollY;
       const maskBottom = window.innerHeight - (rect.top - window.scrollY) - rect.height;
       video.style.clipPath = `inset(${maskTop.toFixed(2)}px 0 ${maskBottom.toFixed(2)}px 0)`;
+      rafId = requestAnimationFrame(updateMask);
     };
-    updateMask();
-    window.addEventListener('scroll', updateMask);
+    rafId = requestAnimationFrame(updateMask);
     return () => {
-      window.removeEventListener('scroll', updateMask);
+      cancelAnimationFrame(rafId);
     };
   }, [sectionRef.current, articleRectObserver, layout, section.id, isVideo]);
 
@@ -112,9 +112,6 @@ export const Section: FC<Props> = ({ section, data, children }) => {
           <div
             key={`videoBackgroundWrapper-${section.id}`}
             className={`videoBackgroundWrapper-${section.id}`}
-            style={{
-              width: sectionRef.current.offsetWidth,
-            }}
           >
             <video
               ref={videoRef}
@@ -149,6 +146,7 @@ export const Section: FC<Props> = ({ section, data, children }) => {
             left: 0;
             position: ${background?.position === 'fixed' ? 'fixed' : 'relative'};
             height: 100%;
+            width: 100%;
             overflow: hidden;
          }
          .videoBackground-${section.id} {
