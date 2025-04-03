@@ -141,7 +141,7 @@ export const Section: FC<Props> = ({ section, data, children }) => {
             left: 0;
          }
          .image-background-${section.id} {
-            object-fit: ${media?.size ?? 'cover'};
+            object-fit: ${media?.size};
             width: 100%;
             height: ${media?.position === 'fixed' ? '100vh' : '100%'};
             position: ${media?.position === 'fixed' ? 'sticky' : 'relative'};
