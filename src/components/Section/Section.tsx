@@ -31,9 +31,9 @@ export const Section: FC<Props> = ({ section, data, children }) => {
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const { layouts, customSections } = useCntrlContext();
   const layout = useLayoutContext();
-  const layoutValues: Record<string, any>[] = [section.height, section.color, section.background ?? {}];
+  const layoutValues: Record<string, any>[] = [section.height, section.color, section.media ?? {}];
   const SectionComponent = section.name ? customSections.getComponent(section.name) : undefined;
-  const isVideo = layout && section.background?.[layout]?.url ? isVideoUrl(String(section.background?.[layout]?.url)) : false;
+  const isVideo = layout && section.media?.[layout]?.url ? isVideoUrl(String(section.media?.[layout]?.url)) : false;
   const videoRef = useRef<HTMLVideoElement | null>(null);
   useSectionRegistry(section.id, sectionRef.current);
 
@@ -78,13 +78,6 @@ export const Section: FC<Props> = ({ section, data, children }) => {
 
   if (SectionComponent) return <div ref={sectionRef}><SectionComponent data={data}>{children}</SectionComponent></div>;
 
-  // const bg = layout && section.background ? section.background?.[layout] : null;
-  // const style = bg ? {
-  //   backgroundSize: bg.size === 'auto'
-  //     ? `${bg.percentage}%`
-  //     : bg.size
-  // } : {};
-
   return (
     <>
       <div
@@ -92,23 +85,27 @@ export const Section: FC<Props> = ({ section, data, children }) => {
         id={section.name}
         ref={sectionRef}
       >
-        {isVideo && sectionRef.current && layout && (
-          <div className={`video-background-overlay-${section.id}`}>
+        {layout && section.media?.[layout]?.url && section.media?.[layout]?.size !== 'none' && sectionRef.current && (
+          <div className={`section-background-overlay-${section.id}`}>
             <div
-              key={`video-background-wrapper-${section.id}`}
-              className={`video-background-wrapper-${section.id}`}
+              key={`section-background-wrapper-${section.id}`}
+              className={`section-background-wrapper-${section.id}`}
             >
-              <video
-                ref={videoRef}
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-                className={`video-background-${section.id}`}
-              >
-                <source src={section.background?.[layout]?.url ?? ''} />
-              </video>
+              {isVideo ? (
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="auto"
+                  className={`video-background-${section.id}`}
+                >
+                  <source src={section.media?.[layout]?.url ?? ''} />
+                </video>
+              ) : (
+                <img src={section.media?.[layout]?.url ?? ''} className={`image-background-${section.id}`} />
+              )}
             </div>
           </div>
         )}
@@ -116,37 +113,39 @@ export const Section: FC<Props> = ({ section, data, children }) => {
       </div>
       <JSXStyle id={id}>{`
       ${
-    getLayoutStyles(layouts, layoutValues, ([height, color, background]) => (`
+    getLayoutStyles(layouts, layoutValues, ([height, color, media]) => (`
          .section-${section.id} {
             height: ${getSectionHeight(height)};
             position: relative;
             background-color: ${CntrlColor.parse(color ?? DEFAULT_COLOR).fmt('rgba')};
-            background-image: ${background && !isVideo && background.size !== 'none' ? `url(${background.url})` : 'none'};
-            background-size: ${background?.size === 'auto' ? `${background?.percentage ?? '50'}%` : background?.size};
-            background-position: center;
-            background-repeat: ${background?.size === 'contain' ? 'no-repeat' : 'repeat'};
-            background-attachment: ${background?.position ?? ''};
          }
-         .video-background-overlay-${section.id} {
+         .section-background-overlay-${section.id} {
             height: ${getSectionHeight(height)};
             width: 100%;
             position: relative;
             overflow: clip;
          }
-         .video-background-wrapper-${section.id} {
-            transform: translateY(-100vh);
+         .section-background-wrapper-${section.id} {
+            transform: ${media?.position === 'fixed' ? 'translateY(-100vh)' : 'unset'};
             left: 0;
             position: relative;
-            height: calc(${getSectionHeight(height)} + 200vh);
+            height: ${media?.position === 'fixed' ? `calc(${getSectionHeight(height)} + 200vh)` : getSectionHeight(height)}};
             width: 100%;
          }
          .video-background-${section.id} {
-            object-fit: ${background?.size ?? 'cover'};
+            object-fit: ${media?.size ?? 'cover'};
             width: 100%;
-            height: ${background?.position === 'fixed' ? '100vh' : '100%'};
-            position: ${background?.position === 'fixed' ? 'sticky' : 'relative'};
-            top: ${background?.position === 'fixed' ? '100vh' : 'unset'};
+            height: ${media?.position === 'fixed' ? '100vh' : '100%'};
+            position: ${media?.position === 'fixed' ? 'sticky' : 'relative'};
+            top: ${media?.position === 'fixed' ? '100vh' : 'unset'};
             left: 0;
+         }
+         .image-background-${section.id} {
+            object-fit: ${media?.size ?? 'cover'};
+            width: 100%;
+            height: ${media?.position === 'fixed' ? '100vh' : '100%'};
+            position: ${media?.position === 'fixed' ? 'sticky' : 'relative'};
+            top: ${media?.position === 'fixed' ? '100vh' : 'unset'};
          }
         `
     ))
