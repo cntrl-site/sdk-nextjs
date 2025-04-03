@@ -27,7 +27,7 @@ export class ArticleRectObserver extends EventEmitter<EventMap> {
   getSectionScroll(sectionId: string): number {
     const sectionTop = this.sectionsScrollMap.get(sectionId);
     if (sectionTop === undefined) return 0;
-    return - (sectionTop / this.articleWidth - this.scrollPos);
+    return -(sectionTop / this.articleWidth - this.scrollPos);
   }
 
   getSectionTop(sectionId: string): number {
