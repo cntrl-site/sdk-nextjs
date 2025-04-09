@@ -127,25 +127,25 @@ export const Section: FC<Props> = ({ section, data, children }) => {
          }
          .section-background-wrapper-${section.id} {
             transform: ${media?.position === 'fixed' ? 'translateY(-100vh)' : 'unset'};
-            left: 0;
             position: relative;
             height: ${media?.position === 'fixed' ? `calc(${getSectionHeight(height)} + 200vh)` : getSectionHeight(height)}};
             width: 100%;
          }
          .video-background-${section.id} {
             object-fit: ${media?.size ?? 'cover'};
-            width: 100%;
+            width: ${media?.offsetX === null || media?.size === 'cover' ? '100%' : 'auto'};
             height: ${media?.position === 'fixed' ? '100vh' : '100%'};
             position: ${media?.position === 'fixed' ? 'sticky' : 'relative'};
             top: ${media?.position === 'fixed' ? '100vh' : 'unset'};
-            left: 0;
+            ${media && media.offsetX !== null && media.size !== 'cover' ? `margin-left: ${media.offsetX * 100}vw;` : ''}
          }
          .image-background-${section.id} {
             object-fit: ${media?.size};
-            width: 100%;
+            width: ${media?.offsetX === null ? '100%' : 'auto'};
             height: ${media?.position === 'fixed' ? '100vh' : '100%'};
             position: ${media?.position === 'fixed' ? 'sticky' : 'relative'};
             top: ${media?.position === 'fixed' ? '100vh' : 'unset'};
+            ${media && media.offsetX !== null && media.size !== 'cover' ? `margin-left: ${media.offsetX * 100}vw;` : ''}
          }
         `
     ))
