@@ -1,10 +1,10 @@
+import JSXStyle from 'styled-jsx/style';
 import { ItemProps } from '../Item';
 import { ComponentItem as TComponentItem, getLayoutStyles } from '@cntrl-site/sdk';
 import { FC, useId, useState } from 'react';
 import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { useComponentItem } from './useComponentItem';
 import { useItemAngle } from '../useItemAngle';
-import JSXStyle from 'styled-jsx/style';
 import { useRegisterResize } from '../../../common/useRegisterResize';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
 import { useLayoutContext } from '../../useLayoutContext';
@@ -42,17 +42,21 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
           {...parameters}
         />
       </div>
-      <JSXStyle id={id}>
-        {`${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
-          return (`
-            .custom-component-${item.id} {
-              transform: rotate(${area.angle}deg);
-              opacity: ${layoutParams.opacity};
-              width: 100%;
-              height: 100%;
-            }
-          `);
-        })}`}
+      <JSXStyle id={id}> {`
+      .custom-component-${item.id} {
+        width: 100%;
+        height: 100%;
+      }
+      ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
+        return (`
+          .custom-component-${item.id} {
+            transform: rotate(${area.angle}deg);
+            opacity: ${layoutParams.opacity};
+            width: 100%;
+            height: 100%;
+          }
+        `);
+      })}`}
       </JSXStyle>
     </>
   );
