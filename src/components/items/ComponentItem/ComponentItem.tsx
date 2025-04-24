@@ -11,7 +11,6 @@ import { useLayoutContext } from '../../useLayoutContext';
 
 export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
   const sdk = useCntrlContext();
-  const id = useId();
   const { layouts } = sdk;
   const itemAngle = useItemAngle(item, sectionId);
   const layout = useLayoutContext();
@@ -23,9 +22,8 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
   const stateParams = interactionCtrl?.getState(['opacity', 'angle']);
   const angle = getStyleFromItemStateAndParams(stateParams?.styles?.angle, itemAngle);
   const opacity = getStyleFromItemStateAndParams(stateParams?.styles?.opacity, itemOpacity);
-  if (!component || !layout) return null;
-  const Element = component.element;
-  const parameters = item.layoutParams[layout].parameters;
+  const Element = component ? component.element : undefined;
+  const parameters = layout ? item.layoutParams[layout].parameters : undefined;
   return (
     <>
       <div
@@ -37,26 +35,26 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
           transition: stateParams?.transition ?? 'none'
         }}
       >
-        <Element
-          content={item.commonParams.content}
-          {...parameters}
-        />
+        {parameters && Element && (
+          <Element
+            content={item.commonParams.content}
+            {...parameters}
+          />
+        )}
       </div>
-      <JSXStyle id={id}> {`
+      <JSXStyle id={item.id}>{`
       .custom-component-${item.id} {
         width: 100%;
         height: 100%;
       }
       ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
-        return (`
+      return (`
           .custom-component-${item.id} {
             transform: rotate(${area.angle}deg);
             opacity: ${layoutParams.opacity};
-            width: 100%;
-            height: 100%;
           }
         `);
-      })}`}
+    })}`}
       </JSXStyle>
     </>
   );

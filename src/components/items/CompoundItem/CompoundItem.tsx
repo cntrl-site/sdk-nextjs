@@ -6,8 +6,7 @@ import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemS
 import { LinkWrapper } from '../LinkWrapper';
 import { ItemProps } from '../Item';
 import JSXStyle from 'styled-jsx/style';
-import { getLayoutStyles } from '@cntrl-site/sdk';
-import { CompoundItem as TCompoundItem } from '@cntrl-site/sdk';
+import { getLayoutStyles, CompoundItem as TCompoundItem } from '@cntrl-site/sdk';
 import { CompoundChild } from './CompoundChild';
 import { useCompoundItem } from './useCompoundItem';
 
