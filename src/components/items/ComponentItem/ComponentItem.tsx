@@ -42,20 +42,16 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
         />
       </div>
       <JSXStyle id={item.id}>
-        {`
-          .custom-component-${item.id} {
-            width: 100%;
-            height: 100%;
-          }
-          ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
-      return (`
-              .custom-component-${item.id} {
-                transform: rotate(${area.angle}deg);
-                opacity: ${layoutParams.opacity};
-              }
-            `);
-    })}
-        `}
+        {`${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
+          return (`
+            .custom-component-${item.id} {
+              transform: rotate(${area.angle}deg);
+              opacity: ${layoutParams.opacity};
+              width: 100%;
+              height: 100%;
+            }
+          `);
+        })}`}
       </JSXStyle>
     </>
   );
