@@ -1,6 +1,6 @@
 import { ItemProps } from '../Item';
 import { ComponentItem as TComponentItem, getLayoutStyles } from '@cntrl-site/sdk';
-import { FC, useState } from 'react';
+import { FC, useId, useState } from 'react';
 import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { useComponentItem } from './useComponentItem';
 import { useItemAngle } from '../useItemAngle';
@@ -11,6 +11,7 @@ import { useLayoutContext } from '../../useLayoutContext';
 
 export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
   const sdk = useCntrlContext();
+  const id = useId();
   const { layouts } = sdk;
   const itemAngle = useItemAngle(item, sectionId);
   const layout = useLayoutContext();
@@ -41,7 +42,7 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
           {...parameters}
         />
       </div>
-      <JSXStyle id={item.id}>
+      <JSXStyle id={id}>
         {`${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
           return (`
             .custom-component-${item.id} {
