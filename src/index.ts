@@ -1,5 +1,6 @@
-export * from '@cntrl-site/sdk';
+import { cntrlSdkContext as sdk } from './provider/defaultContext';
 
+export * from '@cntrl-site/sdk';
 export { RichTextConverter } from './utils/RichTextConverter/RichTextConverter';
 export { Page } from './components/Page';
 export type { PageProps } from './components/Page';
@@ -15,7 +16,6 @@ export { LayoutStyle } from './components/LayoutStyle';
 export { VimeoEmbedItem } from './components/items/EmbedVideoItem/VimeoEmbed';
 export { YoutubeEmbedItem } from './components/items/EmbedVideoItem/YoutubeEmbed';
 
-import { cntrlSdkContext as sdk } from './provider/defaultContext';
 export { CntrlProvider } from './provider/CntrlProvider';
 export type { CustomItemComponent } from './provider/CustomItemTypes';
 export { useCntrlContext } from './provider/useCntrlContext';

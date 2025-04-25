@@ -43,5 +43,6 @@ export const CustomItem: FC<ItemProps<TCustomItem>> = ({ item, onResize, section
           `);
         })}`}
       </JSXStyle>
-    </>);
+    </>
+  );
 };

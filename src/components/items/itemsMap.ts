@@ -11,6 +11,7 @@ import { GroupItem } from './GroupItem/GroupItem';
 import { CodeEmbedItem } from './CodeEmbedItem/CodeEmbedItem';
 import { ItemProps } from './Item';
 import { CompoundItem } from './CompoundItem/CompoundItem';
+import { ComponentItem } from './ComponentItem/ComponentItem';
 
 export const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = {
   [ArticleItemType.Rectangle]: RectangleItem,
@@ -22,5 +23,6 @@ export const itemsMap: Record<ArticleItemType, ComponentType<ItemProps<any>>> = 
   [ArticleItemType.Custom]: CustomItem,
   [ArticleItemType.Group]: GroupItem,
   [ArticleItemType.Compound]: CompoundItem,
-  [ArticleItemType.CodeEmbed]: CodeEmbedItem
+  [ArticleItemType.CodeEmbed]: CodeEmbedItem,
+  [ArticleItemType.Component]: ComponentItem
 };

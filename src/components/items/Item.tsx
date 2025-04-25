@@ -12,6 +12,7 @@ import {
   ArticleItemType,
   getLayoutStyles,
   ItemAny,
+  AreaAnchor,
   PositionType
 } from '@cntrl-site/sdk';
 import { useCntrlContext } from '../../provider/useCntrlContext';
@@ -24,7 +25,6 @@ import { getAnchoredItemTop } from '../../utils/getAnchoredItemTop';
 import { useLayoutContext } from '../useLayoutContext';
 import { ArticleRectContext } from '../../provider/ArticleRectContext';
 import { useExemplary } from '../../common/useExemplary';
-import { AreaAnchor } from '@cntrl-site/sdk/src/types/article/ItemArea';
 import { KeyframesContext } from '../../provider/KeyframesContext';
 import { useItemInteractionCtrl } from '../../interactions/useItemInteractionCtrl';
 import { isItemType } from '../../utils/isItemType';

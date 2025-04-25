@@ -7,7 +7,7 @@ import { LinkWrapper } from '../LinkWrapper';
 import { useRectangleItem } from './useRectangleItem';
 import { useItemAngle } from '../useItemAngle';
 import { useCntrlContext } from '../../../provider/useCntrlContext';
-import { useRegisterResize } from "../../../common/useRegisterResize";
+import { useRegisterResize } from '../../../common/useRegisterResize';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
 
 export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
@@ -40,7 +40,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
   const strokeWidth = getStyleFromItemStateAndParams(styles?.strokeWidth, itemStrokeWidth);
   const angle = getStyleFromItemStateAndParams(styles?.angle, itemAngle);
   const blur = getStyleFromItemStateAndParams(styles?.blur, itemBlur);
-  const backdropFilterValue = backdropBlur ? `blur(${backdropBlur * 100}vw)`: undefined;
+  const backdropFilterValue = backdropBlur ? `blur(${backdropBlur * 100}vw)` : undefined;
   const isInteractive = backgroundColor?.getAlpha() !== 0 || (strokeWidth !== 0 && borderColor?.getAlpha() !== 0);
   useEffect(() => {
     onVisibilityChange?.(isInteractive);
@@ -53,7 +53,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
           className={`rectangle-${item.id}`}
           ref={setRef}
           style={{
-            ...(backgroundColor ? { backgroundColor : `${backgroundColor.fmt('rgba')}` } : {}),
+            ...(backgroundColor ? { backgroundColor: `${backgroundColor.fmt('rgba')}` } : {}),
             ...(borderColor ? { borderColor: `${borderColor.fmt('rgba')}` } : {}),
             ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),
             ...(strokeWidth !== undefined ? { borderWidth: `${strokeWidth * 100}vw` } : {}),

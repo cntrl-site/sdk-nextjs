@@ -1,6 +1,7 @@
 import { CustomItemRegistry } from './CustomItemRegistry';
-import { Article, Section, Layout, Project, SectionHeight } from '@cntrl-site/sdk';
+import { Article, Section, Layout, Project, SectionHeight, components, Component as TComponent } from '@cntrl-site/sdk';
 import { CustomSectionRegistry } from './CustomSectionRegistry';
+import { Component } from 'react';
 
 interface SdkContextInitProps {
   project: Project;
@@ -11,6 +12,8 @@ export class CntrlSdkContext {
   private _layouts: Layout[] = [];
   private _fonts?: Project['fonts'] = undefined;
   private sectionHeightMap: Map<string, Record<string, SectionHeight>> = new Map();
+  private components: Map<string, TComponent> = new Map();
+
   constructor(
     public readonly customItems: CustomItemRegistry,
     public readonly customSections: CustomSectionRegistry
@@ -32,12 +35,19 @@ export class CntrlSdkContext {
 
   init({ project, article }: SdkContextInitProps) {
     this.setLayouts(project.layouts);
+    this.setComponents(components);
     this.setFonts(project.fonts);
     this.setSectionsHeight(article.sections);
   }
 
   setLayouts(layouts: Layout[]) {
     this._layouts = layouts;
+  }
+
+  private setComponents(components: TComponent[]) {
+    for (const component of components) {
+      this.components.set(component.id, component);
+    }
   }
 
   private setFonts(fonts: Project['fonts']) {
@@ -61,6 +71,10 @@ export class CntrlSdkContext {
 
   get fonts(): Project['fonts'] | undefined {
     return this._fonts;
+  }
+
+  getComponent(id: string): TComponent | undefined {
+    return this.components.get(id);
   }
 }
 
