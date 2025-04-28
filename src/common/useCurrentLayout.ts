@@ -14,7 +14,7 @@ type UseCurrentLayoutReturn = {
   layoutDeviation: number;
 };
 
-export const useCurrentLayout = (): UseCurrentLayoutReturn => {
+export function useCurrentLayout(): UseCurrentLayoutReturn {
   const { layouts } = useCntrlContext();
   const articleRectObserver = useContext(ArticleRectContext);
   const layoutRanges = useMemo(() => {
@@ -49,4 +49,4 @@ export const useCurrentLayout = (): UseCurrentLayoutReturn => {
   }, [articleRectObserver, getCurrentLayout]);
 
   return { layoutId, layoutDeviation: deviation };
-};
+}

@@ -96,10 +96,10 @@ export function useDraggable(
       }));
       untrackMouseMoveRef.current?.();
     },
-    [ setDragState]
+    [setDragState]
   );
 
-  const handleScroll = useCallback<EventHandler<Event>>((event) => {
+  const handleScroll = useCallback<EventHandler<Event>>(() => {
     setDragState(state => state);
   }, [setDragState]);
 
@@ -150,10 +150,10 @@ export function useDraggable(
             lastY: state.lastY
           };
         }
-        
+
         const movementX = touch.clientX - state.currentX;
         const movementY = touch.clientY - state.currentY;
-        
+
         return {
           ...state,
           currentX: state.currentX + movementX,
@@ -198,7 +198,7 @@ export function useDraggable(
         if (event.target !== data.draggableRef && data.draggableRef.contains(event.target)) return;
       }
       document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden'; 
+      document.documentElement.style.overflow = 'hidden';
       const selection = document.getSelection();
       if (selection) {
         selection.removeAllRanges();
