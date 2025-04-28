@@ -128,7 +128,7 @@ export const Section: FC<Props> = ({ section, data, children }) => {
          .section-background-wrapper-${section.id} {
             transform: ${media?.position === 'fixed' ? 'translateY(-100vh)' : 'unset'};
             position: relative;
-            height: ${media?.position === 'fixed' ? `calc(${getSectionHeight(height)} + 200vh)` : getSectionHeight(height)}};
+            height: ${media?.position === 'fixed' ? `calc(${getSectionHeight(height)} + 200vh)` : getSectionHeight(height)};
             width: 100%;
          }
          .video-background-${section.id} {
