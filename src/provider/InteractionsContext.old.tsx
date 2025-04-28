@@ -32,9 +32,9 @@ export const InteractionsProvider: FC<PropsWithChildren<Props>> = ({ interaction
     for (const interaction of interactions) {
       const activeStateId = interactionsStatesMap[interaction.id];
       const matchingTrigger = interaction.triggers.find((trigger) =>
-        trigger.itemId === itemId &&
-        trigger.from === activeStateId &&
-        trigger.type === triggerType
+        trigger.itemId === itemId
+        && trigger.from === activeStateId
+        && trigger.type === triggerType
       );
       if (matchingTrigger) {
         return {
@@ -52,7 +52,8 @@ export const InteractionsProvider: FC<PropsWithChildren<Props>> = ({ interaction
       interactionsStatesMap,
       interactions,
       getItemTrigger
-    }}>
+    }}
+    >
       {children}
     </InteractionsContextOld.Provider>
   );
