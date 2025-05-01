@@ -21,7 +21,7 @@ import {
   getCompoundTop,
   getCompoundTransform,
   getCompoundWidth
-} from '../../../utils/getCompoundBondaryStyles';
+} from '../../../utils/getCompoundBoundaryStyles';
 import { useItemTriggers } from '../useItemTriggers';
 import { parseSizing, useSizing } from '../useSizing';
 import { useItemPointerEvents } from '../useItemPointerEvents';

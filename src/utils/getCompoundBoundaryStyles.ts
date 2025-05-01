@@ -1,5 +1,4 @@
-import { AreaAnchor } from '@cntrl-site/sdk';
-import { DimensionMode } from '@cntrl-site/sdk/dist/types/article/ItemArea';
+import { AreaAnchor, DimensionMode } from '@cntrl-site/sdk';
 
 const positionMatrix: Record<AreaAnchor, [number, number]> = {
   [AreaAnchor.TopLeft]: [0, 0],
