@@ -46,6 +46,7 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
       .custom-component-${item.id} {
         width: 100%;
         height: 100%;
+        pointer-events: auto;
       }
       ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
       return (`
