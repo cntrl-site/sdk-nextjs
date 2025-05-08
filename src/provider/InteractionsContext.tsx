@@ -1,4 +1,4 @@
-import { createContext, FC, PropsWithChildren, useContext, useMemo } from 'react';
+import { createContext, FC, PropsWithChildren, useContext, useEffect, useMemo } from 'react';
 import { InteractionsRegistry } from '../interactions/InteractionsRegistry';
 import { Article } from '@cntrl-site/sdk';
 import { useCurrentLayout } from '../common/useCurrentLayout';
@@ -15,6 +15,17 @@ export const InteractionsProvider: FC<PropsWithChildren<Props>> = ({ article, ch
     if (!layoutId) return;
     return new InteractionsRegistry(article, layoutId);
   }, [layoutId]);
+
+  useEffect(() => {
+    if (!registry) return;
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      registry.notifyScrollTrigger(scrollY);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [registry]);
+
   return (
     <InteractionsContext.Provider value={registry}>
       {children}
