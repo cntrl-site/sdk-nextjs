@@ -2,6 +2,7 @@ import { createContext, FC, PropsWithChildren, useContext, useEffect, useMemo } 
 import { InteractionsRegistry } from '../interactions/InteractionsRegistry';
 import { Article } from '@cntrl-site/sdk';
 import { useCurrentLayout } from '../common/useCurrentLayout';
+import { ArticleRectContext } from './ArticleRectContext';
 
 export const InteractionsContext = createContext<InteractionsRegistry | undefined>(undefined);
 
@@ -11,20 +12,20 @@ interface Props {
 
 export const InteractionsProvider: FC<PropsWithChildren<Props>> = ({ article, children }) => {
   const { layoutId } = useCurrentLayout();
+  const articleRectObserver = useContext(ArticleRectContext);
   const registry = useMemo(() => {
     if (!layoutId) return;
     return new InteractionsRegistry(article, layoutId);
   }, [layoutId]);
 
   useEffect(() => {
-    if (!registry) return;
+    if (!registry || !articleRectObserver) return;
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      registry.notifyScrollTrigger(scrollY);
+      registry.notifyScrollTrigger(window.scrollY);
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [registry]);
+    articleRectObserver.on('scroll', handleScroll);
+    return () => articleRectObserver.off('scroll', handleScroll);
+  }, [registry, articleRectObserver]);
 
   return (
     <InteractionsContext.Provider value={registry}>
