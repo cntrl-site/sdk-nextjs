@@ -112,13 +112,59 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
     return available;
   }
 
+  notifyLoad() {
+    const timestamp = Date.now();
+    for (const interaction of this.interactions) {
+      const currentStateId = this.getCurrentStateByInteractionId(interaction.id);
+      const matchingTrigger = interaction.triggers.find(trigger =>
+        'position' in trigger && trigger.position === 0 && trigger.from === currentStateId
+      );
+      if (!matchingTrigger) continue;
+      const activeStateId = this.getActiveInteractionState(interaction.id);
+      const isNewStateActive = matchingTrigger.to === activeStateId;
+      this.setCurrentStateForInteraction(interaction.id, matchingTrigger.to);
+      const transitioningItems = this.stateItemsIdsMap[activeStateId] ?? [];
+      const state = interaction.states.find((state) => state.id === matchingTrigger.to);
+      const actions = state?.actions ?? [];
+      for (const action of actions) {
+        const ctrl = this.ctrls.get(action.itemId);
+        if (!ctrl) continue;
+        ctrl.receiveAction(action.type);
+      }
+
+      this.itemsStages = this.itemsStages.map((stage) => {
+        if (stage.interactionId !== interaction.id) return stage;
+        return {
+          itemId: stage.itemId,
+          interactionId: stage.interactionId,
+          type: 'transitioning',
+          from: stage.type === 'transitioning' ? stage.to : stage.stateId!,
+          to: matchingTrigger.to,
+          direction: isNewStateActive ? 'in' : 'out',
+          updated: timestamp
+        };
+      });
+
+      const itemsToNotify = new Set<ItemId>(transitioningItems);
+      for (const trigger of interaction.triggers) {
+        if (!('itemId' in trigger)) continue;
+        itemsToNotify.add(trigger.itemId);
+      }
+      this.notifyItemCtrlsChange(Array.from(itemsToNotify));
+      this.notifyTransitionStartForItems(transitioningItems, activeStateId);
+    }
+  }
+
   notifyScrollTrigger(position: number) {
     const timestamp = Date.now();
     for (const interaction of this.interactions) {
       const currentStateId = this.getCurrentStateByInteractionId(interaction.id);
-      const matchingTrigger = interaction.triggers.find((trigger) =>
-        'position' in trigger && (trigger.position < position ? trigger.from : trigger.to) === currentStateId // refactor
-      );
+      const matchingTrigger = interaction.triggers.find((trigger) => {
+        if (!('position' in trigger) || trigger.position === 0) return false;
+        const isScrollingDown = trigger.position < position;
+        const relevantState = isScrollingDown ? trigger.from : trigger.to;
+        return relevantState === currentStateId;
+      });
       if (!matchingTrigger || !('position' in matchingTrigger)) continue;
       const activeStateId = this.getActiveInteractionState(interaction.id);
       const targetStateId = matchingTrigger.position > position ? matchingTrigger.from : matchingTrigger.to;

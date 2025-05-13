@@ -21,11 +21,22 @@ export const InteractionsProvider: FC<PropsWithChildren<Props>> = ({ article, ch
   useEffect(() => {
     if (!registry || !articleRectObserver) return;
     const handleScroll = () => {
-      registry.notifyScrollTrigger(window.scrollY);
+      const scrollY = window.scrollY;
+      registry.notifyScrollTrigger(scrollY);
     };
-    articleRectObserver.on('scroll', handleScroll);
-    return () => articleRectObserver.off('scroll', handleScroll);
+    return articleRectObserver.on('scroll', handleScroll);
   }, [registry, articleRectObserver]);
+
+  useEffect(() => {
+    if (!registry) return;
+    registry.notifyLoad();
+
+    const handleLoad = () => {
+      registry.notifyLoad();
+    };
+    window.addEventListener('load', handleLoad);
+    return () => window.removeEventListener('load', handleLoad);
+  }, [registry]);
 
   return (
     <InteractionsContext.Provider value={registry}>

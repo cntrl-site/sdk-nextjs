@@ -24,7 +24,7 @@ export const ScrollPlaybackVideo: FC<Props> = ({ sectionId, src, playbackParams,
       const scrollPos = articleRectObserver.getSectionScroll(sectionId);
       const time = rangeMap(scrollPos, playbackParams.from, playbackParams.to, 0, 1, true);
       setTime(toFixed(time));
-    })
+    });
   }, [playbackParams?.from, playbackParams?.to, time]);
 
   const scrollVideoManager = useMemo<ScrollPlaybackVideoManager | null>(() => {
