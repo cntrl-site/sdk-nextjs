@@ -60,7 +60,12 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
       ${fontGoogleTags}
       ${fontAdobeTags}
       <style>
-        ${fontCustomTags}
+      ${fontCustomTags}
+        html, body {
+          height: 100%;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
       </style>
       ${item.commonParams.html}
     `;
