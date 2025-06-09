@@ -16,8 +16,20 @@ export function useComponentItem(item: ComponentItem, sectionId: string) {
     sectionId,
     [layoutId]
   );
-
+  const blur = useKeyframeValue(
+    item,
+    KeyframeType.Blur,
+    (item, layoutId) => {
+      if (!layoutId) return;
+      const layoutParams = item.layoutParams[layoutId];
+      return 'blur' in layoutParams ? layoutParams.blur : 0;
+    },
+    (animator, scroll, value) => value !== undefined ? animator.getBlur({ blur: value }, scroll).blur : undefined,
+    sectionId,
+    [layoutId]
+  );
   return {
-    opacity
+    opacity,
+    blur
   };
 }
