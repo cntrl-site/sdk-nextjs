@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import ResizeObserver from 'resize-observer-polyfill';
 
-export const useRegisterResize = (ref: HTMLElement | null, onResize?: (height: number) => void) => {
+export function useRegisterResize(ref: HTMLElement | null, onResize?: (height: number) => void) {
   useEffect(() => {
     if (!ref || !onResize) return;
     const observer = new ResizeObserver((entries) => {
@@ -13,5 +13,4 @@ export const useRegisterResize = (ref: HTMLElement | null, onResize?: (height: n
       observer.unobserve(ref);
     };
   }, [ref, onResize]);
-};
-
+}
