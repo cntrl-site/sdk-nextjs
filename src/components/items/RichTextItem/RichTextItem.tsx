@@ -62,7 +62,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
         style={{
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
           ...(textColor ? { color: `${textColor.fmt('rgba')}` } : {}),
-          ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
+          ...(angle !== undefined ? { transform: `rotate(${angle}deg) translateZ(0)` } : {}),
           ...(letterSpacing !== undefined ? { letterSpacing: `${letterSpacing * exemplary}px` } : {}),
           ...(wordSpacing !== undefined ? { wordSpacing: `${wordSpacing * exemplary}px` } : {}),
           ...(fontSize !== undefined ? { fontSize: `${Math.round(fontSize * exemplary)}px` } : {}),
@@ -88,7 +88,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
               vertical-align: ${layoutParams.verticalAlign};
               font-variant: ${layoutParams.fontVariant};
               color: ${color.fmt('rgba')};
-              transform: rotate(${area.angle}deg);
+              transform: rotate(${area.angle}deg) translateZ(0);
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
               text-transform: ${layoutParams.textTransform};
             }
