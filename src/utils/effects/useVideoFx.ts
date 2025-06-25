@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { MediaEffect, VideoTextureManager } from '@cntrl-site/effects';
 import { rangeMap } from '../rangeMap';
+import { WebglContextManagerContext } from '../../provider/WebGLContextManagerContext';
 
 interface FxParams {
   videoUrl?: string;
@@ -25,6 +26,10 @@ export function useVideoFx(
   const [isFXAllowed, setIsFXAllowed] = useState(true);
   const [isReady, setIsReady] = useState(false);
   const active = enabled && isReady;
+  const webGLContextManager = useContext(WebglContextManagerContext);
+  const glRef = useRef<WebGL2RenderingContext | null>(null);
+  const isRenderingRef = useRef(false);
+  const frameRef = useRef<number>();
   const videoTextureManager = useMemo(() => {
     if (!videoUrl || !enabled) return;
     const handlePlayError = () => {
@@ -69,46 +74,83 @@ export function useVideoFx(
   }, [canvas, videoFx]);
 
   useEffect(() => {
-    const gl = canvas?.getContext('webgl2');
-    if (!active || !canvas || !gl || !videoFx) return;
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    let running = false;
+    if (!active || !canvas || !videoFx) return;
     let time = 0;
-    let frame: number;
 
-    const renderFrame = () => {
-      time += 0.1;
-      videoFx.setViewport(Math.floor(canvas.width), Math.floor(canvas.height));
-      videoFx.setParam('time', time);
-      try {
-        videoFx.render(gl);
-      } catch {
-        setIsFXAllowed(false);
-      }
-      frame = requestAnimationFrame(renderFrame);
-    };
+    const startRendering = () => {
+      if (isRenderingRef.current) return;
 
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !running) {
-        frame = requestAnimationFrame(renderFrame);
-        running = true;
+      const gl = webGLContextManager.getContext(canvas);
+      if (!gl) {
         return;
       }
-      if (!entry.isIntersecting && running) {
-        window.cancelAnimationFrame(frame);
-        running = false;
-      }
-    });
-    observer.observe(canvas);
-    try {
+
+      glRef.current = gl;
+      isRenderingRef.current = true;
+
       videoFx.prepare(gl);
-    } catch {
-      setIsFXAllowed(false);
-    }
+
+      const renderFrame = () => {
+        if (!isRenderingRef.current || !glRef.current) return;
+
+        time += 0.1;
+
+        webGLContextManager.updateContextSize(glRef.current, canvas.width, canvas.height);
+
+        videoFx.setViewport(Math.floor(canvas.width), Math.floor(canvas.height));
+        videoFx.setParam('time', time);
+        try {
+          videoFx.render(glRef.current);
+        } catch {
+          setIsFXAllowed(false);
+        }
+        webGLContextManager.renderToCanvas(glRef.current, canvas);
+
+        frameRef.current = requestAnimationFrame(renderFrame);
+      };
+
+      frameRef.current = requestAnimationFrame(renderFrame);
+    };
+
+    const stopRendering = () => {
+      if (!isRenderingRef.current) return;
+
+      if (frameRef.current) {
+        cancelAnimationFrame(frameRef.current);
+        frameRef.current = undefined;
+      }
+
+      if (glRef.current) {
+        webGLContextManager.releaseContext(canvas);
+        glRef.current = null;
+      }
+
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+
+      isRenderingRef.current = false;
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          startRendering();
+        } else {
+          stopRendering();
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '50px'
+      }
+    );
+
+    observer.observe(canvas);
 
     return () => {
-      window.cancelAnimationFrame(frame);
+      stopRendering();
       observer.disconnect();
     };
   }, [canvas, videoFx, active]);

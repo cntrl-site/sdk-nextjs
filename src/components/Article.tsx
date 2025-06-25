@@ -1,4 +1,4 @@
-import { FC, useEffect, useId, useRef, useState } from 'react';
+import { FC, useEffect, useId, useMemo, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { Article as TArticle } from '@cntrl-site/sdk';
 import { Section } from './Section/Section';
@@ -7,6 +7,8 @@ import { useArticleRectObserver } from '../utils/ArticleRectManager/useArticleRe
 import { ArticleRectContext } from '../provider/ArticleRectContext';
 import { ArticleWrapper } from './ArticleWrapper';
 import { InteractionsProvider } from '../provider/InteractionsContext';
+import { WebglContextManagerContext } from '../provider/WebGLContextManagerContext';
+import { WebGLContextManager } from '@cntrl-site/effects';
 
 interface Props {
   article: TArticle;
@@ -26,30 +28,35 @@ export const Article: FC<Props> = ({ article, sectionData }) => {
     });
   }, [articleRectObserver]);
 
+  const webglContextManager = useMemo(() => new WebGLContextManager(), []);
+
   return (
     <ArticleRectContext.Provider value={articleRectObserver}>
       <InteractionsProvider article={article}>
         <ArticleWrapper>
           <div className="article" ref={articleRef}>
-            {article.sections.map((section, i) => {
-              const data = section.name ? sectionData[section.name] : {};
-              return (
-                <Section
-                  section={section}
-                  key={section.id}
-                  data={data}
-                >
-                  {article.sections[i].items.map(item => (
-                    <Item
-                      item={item}
-                      key={item.id}
-                      sectionId={section.id}
-                      articleHeight={articleHeight}
-                    />
-                  ))}
-                </Section>
-              );
-            })}
+            <WebglContextManagerContext.Provider value={webglContextManager}>
+              {article.sections.map((section, i) => {
+                const data = section.name ? sectionData[section.name] : {};
+                return (
+                  <Section
+                    section={section}
+                    key={section.id}
+                    data={data}
+                  >
+                    {article.sections[i].items.map(item => (
+                      <Item
+                        item={item}
+                        key={item.id}
+                        sectionId={section.id}
+                        articleHeight={articleHeight}
+                      />
+                    ))}
+                  </Section>
+                );
+              })}
+            </WebglContextManagerContext.Provider>
+
           </div>
         </ArticleWrapper>
         <JSXStyle id={id}>{`
