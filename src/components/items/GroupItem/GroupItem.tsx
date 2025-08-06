@@ -35,7 +35,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
           ref={setRef}
           style={{
             ...(opacity !== undefined ? { opacity } : {}),
-            ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
+            ...(angle !== undefined ? { transform: `rotate(${angle}deg) translateZ(0)` } : {}),
             ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
             transition: stateParams?.transition ?? 'none'
           }}
@@ -68,7 +68,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
       return (`
             .group-${item.id} {
               opacity: ${layoutParams.opacity};
-              transform: rotate(${area.angle}deg);
+              transform: rotate(${area.angle}deg) translateZ(0);
             }
           `);
     })}

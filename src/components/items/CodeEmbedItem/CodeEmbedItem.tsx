@@ -60,7 +60,12 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
       ${fontGoogleTags}
       ${fontAdobeTags}
       <style>
-        ${fontCustomTags}
+      ${fontCustomTags}
+        html, body {
+          height: 100%;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
       </style>
       ${item.commonParams.html}
     `;
@@ -77,7 +82,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
       <div
         className={`embed-wrapper-${item.id}`}
         style={{
-          ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
+          ...(angle !== undefined ? { transform: `rotate(${angle}deg) translateZ(0)` } : {}),
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
           ...(opacity !== undefined ? { opacity } : {}),
           transition: stateParams?.transition ?? 'none'
@@ -117,7 +122,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
       return (`
           .embed-wrapper-${item.id} {
             opacity: ${layoutParams.opacity};
-            transform: rotate(${area.angle}deg);
+            transform: rotate(${area.angle}deg) translateZ(0);
             filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
           }
           .embed-${item.id} {

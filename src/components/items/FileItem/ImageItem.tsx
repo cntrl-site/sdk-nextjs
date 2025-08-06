@@ -85,7 +85,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
           ref={setWrapperRef}
           style={{
             ...(opacity !== undefined ? { opacity } : {}),
-            ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
+            ...(angle !== undefined ? { transform: `rotate(${angle}deg) translateZ(0)` } : {}),
             ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
             transition: wrapperStateParams?.transition ?? 'none'
           }}
@@ -139,7 +139,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
       return (`
             .image-wrapper-${item.id} {
               opacity: ${layoutParams.opacity};
-              transform: rotate(${area.angle}deg);
+              transform: rotate(${area.angle}deg) translateZ(0);
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
             }
             .image-${item.id} {

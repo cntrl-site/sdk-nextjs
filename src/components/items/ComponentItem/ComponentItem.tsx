@@ -17,11 +17,12 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const component = sdk.getComponent(item.commonParams.componentId);
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
-  const { opacity: itemOpacity } = useComponentItem(item, sectionId);
+  const { opacity: itemOpacity, blur: itemBlur } = useComponentItem(item, sectionId);
   useRegisterResize(ref, onResize);
-  const stateParams = interactionCtrl?.getState(['opacity', 'angle']);
+  const stateParams = interactionCtrl?.getState(['opacity', 'angle', 'blur']);
   const angle = getStyleFromItemStateAndParams(stateParams?.styles?.angle, itemAngle);
   const opacity = getStyleFromItemStateAndParams(stateParams?.styles?.opacity, itemOpacity);
+  const blur = getStyleFromItemStateAndParams(stateParams?.styles?.blur, itemBlur);
   const Element = component ? component.element : undefined;
   const parameters = layout ? item.layoutParams[layout].parameters : undefined;
   return (
@@ -31,7 +32,8 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
         ref={setRef}
         style={{
           ...(opacity !== undefined ? { opacity } : {}),
-          ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
+          ...(angle !== undefined ? { transform: `rotate(${angle}deg) translateZ(0)` } : {}),
+          ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
           transition: stateParams?.transition ?? 'none'
         }}
       >
@@ -51,8 +53,9 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
       ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
       return (`
           .custom-component-${item.id} {
-            transform: rotate(${area.angle}deg);
+            transform: rotate(${area.angle}deg) translateZ(0);
             opacity: ${layoutParams.opacity};
+            filter: blur(${layoutParams.blur}vw);
           }
         `);
     })}`}

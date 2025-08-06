@@ -113,7 +113,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
         ref={setRef}
         style={{
           ...(opacity !== undefined ? { opacity } : {}),
-          ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
+          ...(angle !== undefined ? { transform: `rotate(${angle}deg) translateZ(0)` } : {}),
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
           transition: wrapperStateParams?.transition ?? 'none'
         }}
@@ -187,7 +187,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
       return (`
           .embed-video-wrapper-${item.id} {
             opacity: ${layoutParams.opacity};
-            transform: rotate(${area.angle}deg);
+            transform: rotate(${area.angle}deg) translateZ(0);
             filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
           }
           .embed-video-wrapper-${item.id} .embed-video {

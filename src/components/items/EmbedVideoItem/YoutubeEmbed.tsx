@@ -119,7 +119,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
         }}
         style={{
           ...(opacity !== undefined ? { opacity } : {}),
-          ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
+          ...(angle !== undefined ? { transform: `rotate(${angle}deg) translateZ(0)` } : {}),
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
           transition: wrapperStateParams?.transition ?? 'none'
         }}
@@ -172,7 +172,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
           return (`
             .embed-youtube-video-wrapper-${item.id} {
               opacity: ${layoutParams.opacity};
-              transform: rotate(${area.angle}deg);
+              transform: rotate(${area.angle}deg) translateZ(0);
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
             }
             .embed-youtube-video-wrapper-${item.id} .embed-${item.id} {
