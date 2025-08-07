@@ -155,22 +155,24 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
     }
   }
 
-  notifyScrollTrigger(position: number) {
+  notifyScroll(position: number) {
     const timestamp = Date.now();
     for (const interaction of this.interactions) {
       const currentStateId = this.getCurrentStateByInteractionId(interaction.id);
+      const activeStateId = interaction.states.find((state) => state.id !== interaction.startStateId)?.id;
       const matchingTrigger = interaction.triggers.find((trigger) => {
         if (!('position' in trigger) || trigger.position === 0) return false;
         const triggerPosition = trigger.position * window.innerWidth;
-        const isScrollingDown = triggerPosition < position;
-        const relevantState = isScrollingDown ? trigger.from : trigger.to;
-        return relevantState === currentStateId;
+        const isScrolledPastTrigger = triggerPosition < position;
+        if (!isScrolledPastTrigger && !trigger.isReverse) return false;
+        const stateId = isScrolledPastTrigger ? trigger.from : trigger.to;
+        return stateId === currentStateId;
       });
-      if (!matchingTrigger || !('position' in matchingTrigger)) continue;
-      const activeStateId = this.getActiveInteractionState(interaction.id);
-      const targetStateId = matchingTrigger.position > position ? matchingTrigger.from : matchingTrigger.to;
-      const isNewStateActive = targetStateId === activeStateId;
-      this.setCurrentStateForInteraction(interaction.id, targetStateId ?? activeStateId);
+      if (!matchingTrigger || !('position' in matchingTrigger) || !activeStateId) continue;
+      const triggerPosition = matchingTrigger.position * window.innerWidth;
+      const isScrolledPastTrigger = triggerPosition < position;
+      const targetStateId = isScrolledPastTrigger ? matchingTrigger.to : matchingTrigger.from;
+      this.setCurrentStateForInteraction(interaction.id, targetStateId);
       const transitioningItems = this.stateItemsIdsMap[activeStateId] ?? [];
       const state = interaction.states.find((state) => state.id === targetStateId);
       const actions = state?.actions ?? [];
@@ -187,7 +189,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
           type: 'transitioning' as const,
           from: stage.type === 'transitioning' ? stage.to : stage.stateId!,
           to: targetStateId,
-          direction: isNewStateActive ? 'in' as const : 'out' as const,
+          direction: targetStateId === activeStateId ? 'in' as const : 'out' as const,
           updated: timestamp
         };
         return newStage;

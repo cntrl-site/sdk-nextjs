@@ -22,7 +22,7 @@ export const InteractionsProvider: FC<PropsWithChildren<Props>> = ({ article, ch
     if (!registry || !articleRectObserver) return;
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      registry.notifyScrollTrigger(scrollY);
+      registry.notifyScroll(scrollY);
     };
     return articleRectObserver.on('scroll', handleScroll);
   }, [registry, articleRectObserver]);
