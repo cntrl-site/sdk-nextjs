@@ -39,7 +39,6 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
       }
       return map;
     }, {});
-    const itemStages = this.getDefaultItemStages();
     const stateItemsIdsMap = activeStatesIds.reduce<StateItemsIdsMap>((map, stateId) => {
       map[stateId] = this.items
         .filter((item) => {
@@ -51,9 +50,10 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
       return map;
     }, {});
     this.interactions = interactions;
-    this.itemsStages = itemStages;
     this.stateItemsIdsMap = stateItemsIdsMap;
     this.interactionStateMap = interactionStateMap;
+    const itemStages = this.getDefaultItemStages();
+    this.itemsStages = itemStages;
   }
 
   register(itemId: ItemId, ctrl: ItemInteractionCtrl) {
@@ -161,7 +161,8 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
       const currentStateId = this.getCurrentStateByInteractionId(interaction.id);
       const matchingTrigger = interaction.triggers.find((trigger) => {
         if (!('position' in trigger) || trigger.position === 0) return false;
-        const isScrollingDown = trigger.position < position;
+        const triggerPosition = trigger.position * window.innerWidth;
+        const isScrollingDown = triggerPosition < position;
         const relevantState = isScrollingDown ? trigger.from : trigger.to;
         return relevantState === currentStateId;
       });
@@ -180,7 +181,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
       }
       const itemsStages = this.itemsStages.map((stage) => {
         if (stage.interactionId !== interaction.id) return stage;
-        return {
+        const newStage = {
           itemId: stage.itemId,
           interactionId: stage.interactionId,
           type: 'transitioning' as const,
@@ -189,6 +190,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
           direction: isNewStateActive ? 'in' as const : 'out' as const,
           updated: timestamp
         };
+        return newStage;
       });
       this.itemsStages = itemsStages;
       const itemsToNotify = new Set<ItemId>(transitioningItems);
@@ -340,7 +342,8 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
           interactionId,
           type: 'active',
           isStartState: true,
-          updated: timestamp
+          updated: timestamp,
+          stateId: this.interactions.find((interaction) => interaction.id === interactionId)?.startStateId
         });
       }
     }
