@@ -1,4 +1,4 @@
-import { createContext, FC, PropsWithChildren, useContext, useEffect, useMemo } from 'react';
+import { createContext, FC, PropsWithChildren, useCallback, useContext, useEffect, useMemo } from 'react';
 import { InteractionsRegistry } from '../interactions/InteractionsRegistry';
 import { Article } from '@cntrl-site/sdk';
 import { useCurrentLayout } from '../common/useCurrentLayout';
@@ -27,16 +27,32 @@ export const InteractionsProvider: FC<PropsWithChildren<Props>> = ({ article, ch
     return articleRectObserver.on('scroll', handleScroll);
   }, [registry, articleRectObserver]);
 
-  useEffect(() => {
+  const notifyLoad = useCallback(() => {
     if (!registry) return;
-    registry.notifyLoad();
-
-    const handleLoad = () => {
-      registry.notifyLoad();
-    };
-    window.addEventListener('load', handleLoad);
-    return () => window.removeEventListener('load', handleLoad);
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        registry.notifyLoad();
+      }, 0);
+    });
   }, [registry]);
+
+  useEffect(() => {
+    if (document.readyState === 'complete') {
+      notifyLoad();
+    } else {
+      window.addEventListener('load', notifyLoad);
+    }
+
+    return () => window.removeEventListener('load', notifyLoad);
+  }, [notifyLoad]);
+
+  useEffect(() => {
+    const log = () => {
+      console.log('load');
+    };
+    window.addEventListener('load', log);
+    return () => window.removeEventListener('load', log);
+  }, []);
 
   return (
     <InteractionsContext.Provider value={registry}>
