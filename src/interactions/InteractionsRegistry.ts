@@ -3,7 +3,7 @@ import {
   Article,
   ArticleItemType,
   Interaction,
-  InteractionTrigger,
+  InteractionItemTrigger,
   ItemAny,
 } from '@cntrl-site/sdk';
 import { isItemType } from '../utils/isItemType';
@@ -39,7 +39,6 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
       }
       return map;
     }, {});
-    const itemStages = this.getDefaultItemStages();
     const stateItemsIdsMap = activeStatesIds.reduce<StateItemsIdsMap>((map, stateId) => {
       map[stateId] = this.items
         .filter((item) => {
@@ -51,9 +50,10 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
       return map;
     }, {});
     this.interactions = interactions;
-    this.itemsStages = itemStages;
     this.stateItemsIdsMap = stateItemsIdsMap;
     this.interactionStateMap = interactionStateMap;
+    const itemStages = this.getDefaultItemStages();
+    this.itemsStages = itemStages;
   }
 
   register(itemId: ItemId, ctrl: ItemInteractionCtrl) {
@@ -96,12 +96,13 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
     return itemStyles;
   }
 
-  getItemAvailableTriggers(itemId: string): Set<InteractionTrigger['type']> {
-    const available = new Set<InteractionTrigger['type']>();
+  getItemAvailableTriggers(itemId: string): Set<InteractionItemTrigger['type']> {
+    const available = new Set<InteractionItemTrigger['type']>();
     const activeStates = Object.values(this.interactionStateMap);
     for (const interaction of this.interactions) {
       const { triggers } = interaction;
       for (const trigger of triggers) {
+        if (!('itemId' in trigger)) continue;
         if (trigger.itemId !== itemId) continue;
         if (activeStates.includes(trigger.from)) {
           available.add(trigger.type);
@@ -111,12 +112,106 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
     return available;
   }
 
-  notifyTrigger(itemId: string, triggerType: TriggerType): void {
+  notifyLoad() {
+    const timestamp = Date.now();
+    for (const interaction of this.interactions) {
+      const currentStateId = this.getCurrentStateByInteractionId(interaction.id);
+      const matchingTrigger = interaction.triggers.find(trigger =>
+        'position' in trigger && trigger.position === 0 && trigger.from === currentStateId
+      );
+      if (!matchingTrigger) continue;
+      const activeStateId = this.getActiveInteractionState(interaction.id);
+      const isNewStateActive = matchingTrigger.to === activeStateId;
+      this.setCurrentStateForInteraction(interaction.id, matchingTrigger.to);
+      const transitioningItems = this.stateItemsIdsMap[activeStateId] ?? [];
+      const state = interaction.states.find((state) => state.id === matchingTrigger.to);
+      const actions = state?.actions ?? [];
+      for (const action of actions) {
+        const ctrl = this.ctrls.get(action.itemId);
+        if (!ctrl) continue;
+        ctrl.receiveAction(action.type);
+      }
+
+      this.itemsStages = this.itemsStages.map((stage) => {
+        if (stage.interactionId !== interaction.id) return stage;
+        return {
+          itemId: stage.itemId,
+          interactionId: stage.interactionId,
+          type: 'transitioning',
+          from: stage.type === 'transitioning' ? stage.to : stage.stateId!,
+          to: matchingTrigger.to,
+          direction: isNewStateActive ? 'in' : 'out',
+          updated: timestamp
+        };
+      });
+
+      const itemsToNotify = new Set<ItemId>(transitioningItems);
+      for (const trigger of interaction.triggers) {
+        if (!('itemId' in trigger)) continue;
+        itemsToNotify.add(trigger.itemId);
+      }
+      this.notifyItemCtrlsChange(Array.from(itemsToNotify));
+      this.notifyTransitionStartForItems(transitioningItems, activeStateId);
+    }
+  }
+
+  notifyScroll(position: number) {
+    const timestamp = Date.now();
+    for (const interaction of this.interactions) {
+      const currentStateId = this.getCurrentStateByInteractionId(interaction.id);
+      const activeStateId = interaction.states.find((state) => state.id !== interaction.startStateId)?.id;
+      const matchingTrigger = interaction.triggers.find((trigger) => {
+        if (!('position' in trigger) || trigger.position === 0) return false;
+        const triggerPosition = trigger.position * window.innerWidth;
+        const isScrolledPastTrigger = triggerPosition < position;
+        if (!isScrolledPastTrigger && !trigger.isReverse) return false;
+        const stateId = isScrolledPastTrigger ? trigger.from : trigger.to;
+        return stateId === currentStateId;
+      });
+      if (!matchingTrigger || !('position' in matchingTrigger) || !activeStateId) continue;
+      const triggerPosition = matchingTrigger.position * window.innerWidth;
+      const isScrolledPastTrigger = triggerPosition < position;
+      const targetStateId = isScrolledPastTrigger ? matchingTrigger.to : matchingTrigger.from;
+      this.setCurrentStateForInteraction(interaction.id, targetStateId);
+      const transitioningItems = this.stateItemsIdsMap[activeStateId] ?? [];
+      const state = interaction.states.find((state) => state.id === targetStateId);
+      const actions = state?.actions ?? [];
+      for (const action of actions) {
+        const ctrl = this.ctrls.get(action.itemId);
+        if (!ctrl) continue;
+        ctrl.receiveAction(action.type);
+      }
+      const itemsStages = this.itemsStages.map((stage) => {
+        if (stage.interactionId !== interaction.id) return stage;
+        const newStage = {
+          itemId: stage.itemId,
+          interactionId: stage.interactionId,
+          type: 'transitioning' as const,
+          from: stage.type === 'transitioning' ? stage.to : stage.stateId!,
+          to: targetStateId,
+          direction: targetStateId === activeStateId ? 'in' as const : 'out' as const,
+          updated: timestamp
+        };
+        return newStage;
+      });
+      this.itemsStages = itemsStages;
+      const itemsToNotify = new Set<ItemId>(transitioningItems);
+      for (const trigger of interaction.triggers) {
+        if (!('itemId' in trigger)) continue;
+        itemsToNotify.add(trigger.itemId);
+      }
+      this.notifyItemCtrlsChange(Array.from(itemsToNotify));
+      this.notifyTransitionStartForItems(transitioningItems, activeStateId);
+    }
+  }
+
+  notifyItemTrigger(itemId: string, triggerType: TriggerType): void {
     const timestamp = Date.now();
     for (const interaction of this.interactions) {
       const currentStateId = this.getCurrentStateByInteractionId(interaction.id);
       const matchingTrigger = interaction.triggers.find((trigger) =>
-        trigger.itemId === itemId
+        'itemId' in trigger
+        && trigger.itemId === itemId
         && trigger.from === currentStateId
         && trigger.type === triggerType
       );
@@ -146,6 +241,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
       });
       const itemsToNotify = new Set<ItemId>(transitioningItems);
       for (const trigger of interaction.triggers) {
+        if (!('itemId' in trigger)) continue;
         itemsToNotify.add(trigger.itemId);
       }
       this.notifyItemCtrlsChange(Array.from(itemsToNotify));
@@ -248,7 +344,8 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
           interactionId,
           type: 'active',
           isStartState: true,
-          updated: timestamp
+          updated: timestamp,
+          stateId: this.interactions.find((interaction) => interaction.id === interactionId)?.startStateId
         });
       }
     }
@@ -269,7 +366,7 @@ type TransitioningStage = {
 type ActiveStage = { type: 'active'; itemId: string; interactionId: string; stateId?: string; isStartState: boolean; updated: number; };
 type InteractionStateMap = Record<InteractionId, StateId>;
 type StateItemsIdsMap = Record<StateId, ItemId[]>;
-type TriggerType = InteractionTrigger['type'];
+type TriggerType = InteractionItemTrigger['type'];
 type InteractionId = string;
 type StateId = string;
 type ItemId = string;

@@ -1,11 +1,12 @@
 import { InteractionsRegistryPort, ItemInteractionCtrl } from './types';
 import { getTransition } from './getTransition';
 import { getStyleKeysFromCSSProperty } from './CSSPropertyNameMap';
-import { InteractionTrigger } from '@cntrl-site/sdk';
+import { InteractionItemTrigger } from '@cntrl-site/sdk';
 
 export class ItemInteractionController implements ItemInteractionCtrl {
   private transitionsInProgress: Set<string> = new Set();
   private actionReceiver: ((type: 'play' | 'pause') => void) | undefined;
+
   constructor(
     private itemId: string,
     private registry: InteractionsRegistryPort,
@@ -29,13 +30,13 @@ export class ItemInteractionController implements ItemInteractionCtrl {
     };
   }
 
-  getHasTrigger(itemId: string, triggerType: InteractionTrigger['type']): boolean {
+  getHasTrigger(itemId: string, triggerType: InteractionItemTrigger['type']): boolean {
     const triggers = this.registry.getItemAvailableTriggers(itemId);
     return triggers.has(triggerType);
   }
 
   sendTrigger(type: 'click' | 'hover-in' | 'hover-out') {
-    this.registry.notifyTrigger(this.itemId, type);
+    this.registry.notifyItemTrigger(this.itemId, type);
   }
 
   receiveAction(type: 'play' | 'pause') {
