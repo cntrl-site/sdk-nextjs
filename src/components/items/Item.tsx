@@ -83,7 +83,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDraggingActive, setIsDraggingActive] = useState(false);
   const wrapperStateProps = interactionCtrl?.getState(['top', 'left']);
-  const innerStateProps = interactionCtrl?.getState(['width', 'height', 'scale', 'top', 'left']);
+  const innerStateProps = interactionCtrl?.getState(['width', 'height', 'scale']);
   const { width, height, top, left } = useItemArea(item, sectionId, {
     top: wrapperStateProps?.styles?.top as number,
     left: wrapperStateProps?.styles?.left as number,
@@ -216,6 +216,14 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
       const isScreenBasedBottom = area.positionType === PositionType.ScreenBased && area.anchorSide === AnchorSide.Bottom;
       const scaleAnchor = area.scaleAnchor as AreaAnchor;
       return (`
+            @keyframes fadeInUp {
+              0% {
+                transform: scale(1);
+              }
+              100% {
+                transform: scale(2);
+              }
+            }
             .item-${item.id} {
               position: ${sticky ? 'sticky' : 'absolute'};
               top: ${sticky ? `${getAnchoredItemTop(area.top - sticky.from, sectionHeight, area.anchorSide)}` : 0};
@@ -232,6 +240,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
               transform: scale(${area.scale});
               position: relative;
+              animation: 0.2s fadeInUp;
             }
             .item-wrapper-${item.id} {
               position: ${area.positionType === PositionType.ScreenBased ? 'fixed' : 'absolute'};
