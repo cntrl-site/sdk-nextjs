@@ -138,7 +138,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const anchorSide = layout ? item.area[layout].anchorSide : AnchorSide.Top;
   const positionType = layout ? item.area[layout].positionType : PositionType.ScreenBased;
   const isScreenBasedBottom = positionType === PositionType.ScreenBased && anchorSide === AnchorSide.Bottom;
-  const scale = innerStateProps?.styles?.scale ?? itemScale;
+  const scale = innerStateProps?.styles?.scale ?? 2; // for testing purposes. itemScale should be used.
   const hasClickTriggers = interactionCtrl?.getHasTrigger(item.id, 'click') ?? false;
   return (
     <div
