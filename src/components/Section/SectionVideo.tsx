@@ -69,6 +69,7 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
         ref={setVideo}
         autoPlay={play === 'auto'}
         loop
+        style={{ opacity: !isPlaying && play === 'on-click' ? 0 : 1 }}
         controls={false}
         muted={play === 'auto'}
         playsInline
@@ -86,28 +87,32 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
       </div>
       <JSXStyle id={id}>{`
         .video-background-${sectionId}-cover-container {
-          position: ${position === 'fixed' ? 'sticky' : 'absolute'};
+          position: absolute;
           pointer-events: ${play === 'on-click' ? 'auto' : 'none'};
           left: 0;
-          width: 100vw;
-          height: 100vh;
-          top: ${position === 'fixed' ? '100vh' : '0'};
+          width: 100%;
+          height: 100%;
+          top: 0;
         }
         .video-background-${sectionId}-cover {
-          width: 100%;
+          position: ${position === 'fixed' ? 'sticky' : 'relative'};
+          margin-left: ${isContainHeight ? '50%' : (hasOffsetX ? `${offsetX * 100}vw` : '0')};
+          width: ${isContainHeight ? 'auto' : '100%'};
+          height: ${position === 'fixed' ? '100vh' : '100%'};
+          object-fit: ${isContainHeight ? 'unset' : size ?? 'cover'};
           transition: opacity 0.1s ease-in-out;
-          height: 100%;
-          object-fit: cover;
+          top: ${position === 'fixed' ? '100vh' : '0'};
+          transform: ${isContainHeight ? 'translateX(-50%)' : 'none'};
+          ${hasOffsetX ? 'max-width: 100vw;' : ''}
         }
         .video-background-${sectionId} {
           object-fit: ${isContainHeight ? 'unset' : size ?? 'cover'};
-          width: ${isContainHeight || hasOffsetX ? 'auto' : '100%'};
+          width: ${isContainHeight ? 'auto' : '100%'};
           height: ${position === 'fixed' ? '100vh' : '100%'};
           transform: ${isContainHeight ? 'translateX(-50%)' : 'none'};
           position: ${position === 'fixed' ? 'sticky' : 'relative'};
           top: ${position === 'fixed' ? '100vh' : 'unset'};
           margin-left: ${isContainHeight ? '50%' : (hasOffsetX ? `${offsetX * 100}vw` : '0')};
-          ${offsetX ? 'max-width: 100vw;' : ''}
         }
       `}
       </JSXStyle>
