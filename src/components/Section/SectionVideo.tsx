@@ -54,12 +54,6 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
     return () => observer.disconnect();
   }, [container, play]);
 
-  useEffect(() => {
-    if (!video || play !== 'on-click') return;
-    video.currentTime = 0.01;
-    video.pause();
-  }, [play]);
-
   const isContainHeight = size === 'contain-height';
   const hasOffsetX = offsetX !== null && size === 'contain';
 
