@@ -63,7 +63,7 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
         ref={setVideo}
         autoPlay={play === 'auto'}
         loop
-        style={{ opacity: !isPlaying && play === 'on-click' ? 0 : 1 }}
+        style={{ opacity: !isPlaying && play === 'on-click' && coverUrl ? 0 : 1 }}
         controls={false}
         muted={play === 'auto'}
         playsInline
