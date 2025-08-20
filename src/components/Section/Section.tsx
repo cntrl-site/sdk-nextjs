@@ -1,4 +1,4 @@
-import { FC, ReactElement, useId, useRef } from 'react';
+import React, { FC, ReactElement, useId, useRef, useMemo } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import {
   getLayoutMediaQuery,
@@ -13,6 +13,7 @@ import { CntrlColor } from '@cntrl-site/color';
 import { useLayoutContext } from '../useLayoutContext';
 import { SectionVideo } from './SectionVideo';
 import { SectionImage } from './SectionImage';
+import { isOverflowClipSupported } from '../../utils/checkOverflowClipSupport';
 
 type SectionChild = ReactElement<any, any>;
 const DEFAULT_COLOR = 'rgba(0, 0, 0, 0)';
@@ -31,7 +32,18 @@ export const Section: FC<Props> = ({ section, data, children }) => {
   const layoutValues: Record<string, any>[] = [section.height, section.color, section.media ?? {}];
   const SectionComponent = section.name ? customSections.getComponent(section.name) : undefined;
   useSectionRegistry(section.id, sectionRef.current);
+  const sectionHeight = layout && section.height[layout] ? section.height[layout] : undefined;
   const layoutMedia = layout && section.media && section.media[layout] ? section.media[layout] : undefined;
+
+  const media = useMemo(() => {
+    if (layoutMedia && !isOverflowClipSupported()) {
+      return {
+        ...layoutMedia,
+        position: 'local'
+      };
+    }
+    return layoutMedia;
+  }, [layoutMedia]);
 
   const getSectionVisibilityStyles = () => {
     return layouts
@@ -57,17 +69,21 @@ export const Section: FC<Props> = ({ section, data, children }) => {
         id={section.name}
         ref={sectionRef}
       >
-        {layoutMedia && layoutMedia.size !== 'none' && sectionRef.current && (
+        {media && media.size !== 'none' && sectionRef.current && (
           <div className={`section-background-overlay-${section.id}`}>
             <div
               key={`section-background-wrapper-${section.id}`}
               className={`section-background-wrapper-${section.id}`}
+              style={{
+                transform: media.position === 'fixed' ? 'translateY(-100vh)' : 'unset',
+                ...(sectionHeight && { height: media.position === 'fixed' ? `calc(${getSectionHeight(sectionHeight)} + 200vh)` : getSectionHeight(sectionHeight) })
+              }}
             >
-              {layoutMedia.type === 'video' && (
-                <SectionVideo container={sectionRef.current} sectionId={section.id} media={layoutMedia} />
+              {media.type === 'video' && (
+                <SectionVideo container={sectionRef.current} sectionId={section.id} media={media} />
               )}
-              {layoutMedia.type === 'image' && (
-                <SectionImage media={layoutMedia} sectionId={section.id} />
+              {media.type === 'image' && (
+                <SectionImage media={media} sectionId={section.id} />
               )}
             </div>
           </div>
