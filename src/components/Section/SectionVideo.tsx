@@ -22,37 +22,36 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
   const { url, size, position, offsetX, coverUrl, play } = media;
   const id = useId();
   const [isPlaying, setIsPlaying] = useState(false);
+  const [userPaused, setUserPaused] = useState(false);
+  const [isClickedOnCover, setIsClickedOnCover] = useState(false);
 
   const handleCoverClick = () => {
     if (!video || play !== 'on-click') return;
+    setIsClickedOnCover(true);
     if (isPlaying) {
       video.pause();
+      setUserPaused(true);
     } else {
       video.play();
+      setUserPaused(false);
     }
   };
 
   useEffect(() => {
-    if (!video || play !== 'auto') return;
+    if (!video || play !== 'on-click') return;
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (userPaused || !isClickedOnCover) return;
         if (entry.isIntersecting) {
-          video.style.display = 'block';
-          video.play().catch(() => {});
+          video.play();
         } else {
-          video.style.display = 'none';
           video.pause();
         }
-      },
-      {
-        root: null,
-        rootMargin: '50px',
-        threshold: 0
       }
     );
     observer.observe(container);
     return () => observer.disconnect();
-  }, [container, play]);
+  }, [container, play, userPaused, isClickedOnCover]);
 
   const isContainHeight = size === 'contain-height';
   const hasOffsetX = offsetX !== null && size === 'contain';
