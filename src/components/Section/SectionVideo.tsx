@@ -1,4 +1,4 @@
-import { FC, useEffect, useId, useRef, useState } from 'react';
+import { CSSProperties, FC, useEffect, useId, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 
 export type TSectionVideo = {
@@ -20,7 +20,6 @@ interface Props {
 export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
   const [video, setVideo] = useState<HTMLVideoElement | null>(null);
   const { url, size, position, offsetX, coverUrl, play } = media;
-  const id = useId();
   const [isPlaying, setIsPlaying] = useState(false);
   const [userPaused, setUserPaused] = useState(false);
   const [isClickedOnCover, setIsClickedOnCover] = useState(false);
@@ -58,12 +57,29 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
 
   return (
     <>
-      <div className={`section-video-wrapper-${sectionId}`}>
+      <div
+        className={`section-video-wrapper-${sectionId}`}
+        style={{
+          position: position === 'fixed' ? 'sticky' : 'relative',
+          height: position === 'fixed' ? '100vh' : '100%',
+          top: position === 'fixed' ? '100vh' : '0',
+          overflow: 'hidden',
+          width: '100%'
+        }}
+      >
         <video
           ref={setVideo}
           autoPlay={play === 'auto'}
           loop
-          style={{ opacity: !isPlaying && play === 'on-click' && coverUrl ? 0 : 1 }}
+          style={{
+            opacity: !isPlaying && play === 'on-click' && coverUrl ? 0 : 1,
+            objectFit: isContainHeight ? 'unset' : (size ?? 'cover') as CSSProperties['objectFit'],
+            width: isContainHeight ? 'auto' : '100%',
+            transform: isContainHeight ? 'translateX(-50%)' : 'none',
+            left: isContainHeight ? '50%' : (hasOffsetX ? `${offsetX * 100}vw` : '0'),
+            height: '100%',
+            position: 'relative'
+          }}
           controls={false}
           muted={play === 'auto'}
           playsInline
@@ -74,48 +90,37 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
         >
           <source src={`${url}#t=0.001`} />
         </video>
-        <div className={`video-background-${sectionId}-cover-container`} onClick={handleCoverClick}>
+        <div
+          className={`video-background-${sectionId}-cover-container`}
+          style={{
+            pointerEvents: play === 'on-click' ? 'auto' : 'none',
+            position: 'absolute',
+            left: 0,
+            width: '100%',
+            height: '100%',
+            top: 0
+          }}
+          onClick={handleCoverClick}
+        >
           {coverUrl && play === 'on-click' && (
-            <img src={coverUrl} alt="Video cover" className={`video-background-${sectionId}-cover`} style={{ opacity: isPlaying ? 0 : 1 }} />
+            <img
+              src={coverUrl}
+              alt="Video cover"
+              className={`video-background-${sectionId}-cover`}
+              style={{
+                opacity: isPlaying ? 0 : 1,
+                left: isContainHeight ? '50%' : (hasOffsetX ? `${offsetX * 100}vw` : '0'),
+                width: isContainHeight ? 'auto' : '100%',
+                objectFit: isContainHeight ? 'unset' : (size ?? 'cover') as CSSProperties['objectFit'],
+                transform: isContainHeight ? 'translateX(-50%)' : 'none',
+                position: 'relative',
+                height: '100%',
+                transition: 'opacity 0.1s ease-in-out'
+              }}
+            />
           )}
         </div>
       </div>
-      <JSXStyle id={id}>{`
-        .section-video-wrapper-${sectionId} {
-          position: ${position === 'fixed' ? 'sticky' : 'relative'};
-          height: ${position === 'fixed' ? '100vh' : '100%'};
-          top: ${position === 'fixed' ? '100vh' : '0'};
-          width: 100%;
-          overflow: hidden;
-        }
-        .video-background-${sectionId}-cover-container {
-          position: absolute;
-          pointer-events: ${play === 'on-click' ? 'auto' : 'none'};
-          left: 0;
-          width: 100%;
-          height: 100%;
-          top: 0;
-        }
-        .video-background-${sectionId}-cover {
-          position: relative;
-          left: ${isContainHeight ? '50%' : (hasOffsetX ? `${offsetX * 100}vw` : '0')};
-          width: ${isContainHeight ? 'auto' : '100%'};
-          height: 100%;
-          object-fit: ${isContainHeight ? 'unset' : size ?? 'cover'};
-          transition: opacity 0.1s ease-in-out;
-          transform: ${isContainHeight ? 'translateX(-50%)' : 'none'};
-          ${hasOffsetX ? 'max-width: 100vw;' : ''}
-        }
-        .video-background-${sectionId} {
-          object-fit: ${isContainHeight ? 'unset' : size ?? 'cover'};
-          width: ${isContainHeight ? 'auto' : '100%'};
-          height: 100%;
-          position: relative;
-          transform: ${isContainHeight ? 'translateX(-50%)' : 'none'};
-          left: ${isContainHeight ? '50%' : (hasOffsetX ? `${offsetX * 100}vw` : '0')};
-        }
-      `}
-      </JSXStyle>
     </>
   );
 };
