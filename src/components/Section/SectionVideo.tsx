@@ -19,6 +19,8 @@ interface Props {
 
 export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
   const [video, setVideo] = useState<HTMLVideoElement | null>(null);
+  const [videoWrapper, setVideoWrapper] = useState<HTMLDivElement | null>(null);
+  const [isVideoWidthOverflow, setIsVideoWidthOverflow] = useState(false);
   const { url, size, position, offsetX, coverUrl, play } = media;
   const [isPlaying, setIsPlaying] = useState(false);
   const [userPaused, setUserPaused] = useState(false);
@@ -52,12 +54,27 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
     return () => observer.disconnect();
   }, [container, play, userPaused, isClickedOnCover]);
 
+  useEffect(() => {
+    if (!video || !videoWrapper) return;
+    video.addEventListener('loadedmetadata', () => {
+      const h = video.videoHeight;
+      const w = video.videoWidth;
+      const width = (videoWrapper.clientHeight / h) * w;
+      if (width > videoWrapper.clientWidth) {
+        setIsVideoWidthOverflow(true);
+      } else {
+        setIsVideoWidthOverflow(false);
+      }
+    });
+  }, [video, videoWrapper]);
+
   const isContainHeight = size === 'contain-height';
   const hasOffsetX = offsetX !== null && size === 'contain';
 
   return (
     <>
       <div
+        ref={setVideoWrapper}
         className={`section-video-wrapper-${sectionId}`}
         style={{
           position: position === 'fixed' ? 'sticky' : 'relative',
@@ -73,14 +90,14 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
           loop
           style={{
             opacity: !isPlaying && play === 'on-click' && coverUrl ? 0 : 1,
-            objectFit: isContainHeight ? 'unset' : (size ?? 'cover') as CSSProperties['objectFit'],
-            width: isContainHeight ? 'auto' : '100%',
+            objectFit: isContainHeight ? 'cover' : (size ?? 'cover') as CSSProperties['objectFit'],
+            width: isContainHeight && !isVideoWidthOverflow ? 'auto' : '100%',
             transform: isContainHeight ? 'translateX(-50%)' : 'none',
             left: isContainHeight ? '50%' : (hasOffsetX ? `${offsetX * 100}vw` : '0'),
             height: '100%',
             position: 'relative'
           }}
-          controls={false}
+          controls={play === 'on-click'}
           muted={play === 'auto'}
           playsInline
           preload="auto"
@@ -88,38 +105,39 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
         >
-          <source src={`${url}#t=0.001`} />
+          <source src={`${url}`} />
         </video>
-        <div
-          className={`video-background-${sectionId}-cover-container`}
-          style={{
-            pointerEvents: play === 'on-click' ? 'auto' : 'none',
-            position: 'absolute',
-            left: 0,
-            width: '100%',
-            height: '100%',
-            top: 0
-          }}
-          onClick={handleCoverClick}
-        >
-          {coverUrl && play === 'on-click' && (
-            <img
-              src={coverUrl}
-              alt="Video cover"
-              className={`video-background-${sectionId}-cover`}
-              style={{
-                opacity: isPlaying ? 0 : 1,
-                left: isContainHeight ? '50%' : (hasOffsetX ? `${offsetX * 100}vw` : '0'),
-                width: isContainHeight ? 'auto' : '100%',
-                objectFit: isContainHeight ? 'unset' : (size ?? 'cover') as CSSProperties['objectFit'],
-                transform: isContainHeight ? 'translateX(-50%)' : 'none',
-                position: 'relative',
-                height: '100%',
-                transition: 'opacity 0.1s ease-in-out'
-              }}
-            />
-          )}
-        </div>
+        {play === 'on-click' && !isPlaying && (
+          <div
+            className={`video-background-${sectionId}-cover-container`}
+            style={{
+              position: 'absolute',
+              left: 0,
+              width: '100%',
+              height: '100%',
+              top: 0
+            }}
+            onClick={handleCoverClick}
+          >
+            {coverUrl && play === 'on-click' && (
+              <img
+                src={coverUrl}
+                alt="Video cover"
+                className={`video-background-${sectionId}-cover`}
+                style={{
+                  opacity: isPlaying ? 0 : 1,
+                  left: isContainHeight ? '50%' : (hasOffsetX ? `${offsetX * 100}vw` : '0'),
+                  width: isContainHeight ? 'auto' : '100%',
+                  objectFit: isContainHeight ? 'unset' : (size ?? 'cover') as CSSProperties['objectFit'],
+                  transform: isContainHeight ? 'translateX(-50%)' : 'none',
+                  position: 'relative',
+                  height: '100%',
+                  transition: 'opacity 0.1s ease-in-out'
+                }}
+              />
+            )}
+          </div>
+        )}
       </div>
     </>
   );
