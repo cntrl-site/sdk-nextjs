@@ -89,7 +89,7 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
           autoPlay={play === 'auto'}
           loop
           style={{
-            opacity: !isPlaying && play === 'on-click' && coverUrl ? 0 : 1,
+            opacity: !isClickedOnCover && play === 'on-click' && coverUrl ? 0 : 1,
             objectFit: isContainHeight ? 'cover' : (size ?? 'cover') as CSSProperties['objectFit'],
             width: isContainHeight && !isVideoWidthOverflow ? 'auto' : '100%',
             transform: isContainHeight ? 'translateX(-50%)' : 'none',
@@ -107,7 +107,7 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
         >
           <source src={`${url}`} />
         </video>
-        {play === 'on-click' && !isPlaying && (
+        {play === 'on-click' && !isClickedOnCover && (
           <div
             className={`video-background-${sectionId}-cover-container`}
             style={{
