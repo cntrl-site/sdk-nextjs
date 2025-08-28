@@ -28,7 +28,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
   const fontCustomTags = new FontFaceGenerator(fonts?.custom ?? []).generate();
   const { anchor, blur: itemBlur, opacity: itemOpacity } = useCodeEmbedItem(item, sectionId);
   const itemAngle = useItemAngle(item, sectionId);
-  const html = atob(item.commonParams.html);
+  const html = decodeBase64(item.commonParams.html);
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
   const pos = stylesMap[anchor];
@@ -135,3 +135,9 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
     </LinkWrapper>
   );
 };
+
+export function decodeBase64(str: string): string {
+  const binary = atob(str);
+  const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
