@@ -28,7 +28,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
   const fontCustomTags = new FontFaceGenerator(fonts?.custom ?? []).generate();
   const { anchor, blur: itemBlur, opacity: itemOpacity } = useCodeEmbedItem(item, sectionId);
   const itemAngle = useItemAngle(item, sectionId);
-  const { html } = item.commonParams;
+  const html = atob(item.commonParams.html);
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
   const pos = stylesMap[anchor];
@@ -50,7 +50,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
       script.parentNode!.removeChild(script);
       ref.appendChild(newScript);
     }
-  }, [item.commonParams.html]);
+  }, [html]);
 
   useEffect(() => {
     if (!ref) return;
@@ -67,10 +67,10 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
           padding: 0 !important;
         }
       </style>
-      ${item.commonParams.html}
+      ${html}
     `;
     iframe.srcdoc = htmlWithStyles;
-  }, [item.commonParams.html, item.commonParams.iframe, ref]);
+  }, [html, item.commonParams.iframe, ref]);
 
   const isInteractive = opacity !== 0;
   useEffect(() => {
