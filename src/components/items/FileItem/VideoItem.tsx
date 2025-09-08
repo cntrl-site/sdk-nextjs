@@ -172,6 +172,11 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
             </video>
             {(layoutParams.play === 'on-click' || layoutParams.play === 'on-hover') && item.commonParams.coverUrl && !isVideoInteracted && (
               <img
+                onMouseEnter={() => {
+                  if (!videoRef || layoutParams.play !== 'on-hover') return;
+                  setIsVideoInteracted(true);
+                  videoRef.play();
+                }}
                 src={item.commonParams.coverUrl ?? ''}
                 className={`video-cover-${item.id}`}
                 onClick={() => {
