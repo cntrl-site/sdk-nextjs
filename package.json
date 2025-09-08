@@ -1,6 +1,6 @@
 {
   "name": "@cntrl-site/sdk-nextjs",
-  "version": "1.8.27-alpha.1",
+  "version": "1.8.27",
   "description": "SDK for Next.js",
   "author": "arsen@momdesign.nyc",
   "license": "MIT",
