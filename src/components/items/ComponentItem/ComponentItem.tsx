@@ -32,7 +32,7 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
         ref={setRef}
         style={{
           ...(opacity !== undefined ? { opacity } : {}),
-          ...(angle !== undefined ? { transform: `rotate(${angle}deg) translateZ(0)` } : {}),
+          ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
           transition: stateParams?.transition ?? 'none'
         }}
@@ -49,11 +49,12 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
         width: 100%;
         height: 100%;
         pointer-events: auto;
+        will-change: transform;
       }
       ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
       return (`
           .custom-component-${item.id} {
-            transform: rotate(${area.angle}deg) translateZ(0);
+            transform: rotate(${area.angle}deg);
             opacity: ${layoutParams.opacity};
             filter: blur(${layoutParams.blur}vw);
           }

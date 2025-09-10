@@ -35,7 +35,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
           ref={setRef}
           style={{
             ...(opacity !== undefined ? { opacity } : {}),
-            ...(angle !== undefined ? { transform: `rotate(${angle}deg) translateZ(0)` } : {}),
+            ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
             ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
             transition: stateParams?.transition ?? 'none'
           }}
@@ -63,12 +63,13 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
           width: 100%;
           height: 100%;
           box-sizing: border-box;
+          will-change: transform;
         }
         ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
       return (`
             .group-${item.id} {
               opacity: ${layoutParams.opacity};
-              transform: rotate(${area.angle}deg) translateZ(0);
+              transform: rotate(${area.angle}deg);
             }
           `);
     })}
