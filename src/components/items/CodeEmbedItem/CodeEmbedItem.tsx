@@ -82,7 +82,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
       <div
         className={`embed-wrapper-${item.id}`}
         style={{
-          ...(angle !== undefined ? { transform: `rotate(${angle}deg) translateZ(0)` } : {}),
+          ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
           ...(opacity !== undefined ? { opacity } : {}),
           transition: stateParams?.transition ?? 'none'
@@ -110,6 +110,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
       .embed-wrapper-${item.id} {
         position: absolute;
         width: 100%;
+        will-change: transform;
         height: 100%;
       }
       .embed-${item.id} {
@@ -122,7 +123,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
       return (`
           .embed-wrapper-${item.id} {
             opacity: ${layoutParams.opacity};
-            transform: rotate(${area.angle}deg) translateZ(0);
+            transform: rotate(${area.angle}deg);
             filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
           }
           .embed-${item.id} {
