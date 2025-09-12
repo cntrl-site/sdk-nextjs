@@ -36,14 +36,6 @@ export const InteractionsProvider: FC<PropsWithChildren<Props>> = ({ article, ch
     notifyLoad();
   }, [notifyLoad]);
 
-  useEffect(() => {
-    const log = () => {
-      console.log('load');
-    };
-    window.addEventListener('load', log);
-    return () => window.removeEventListener('load', log);
-  }, []);
-
   return (
     <InteractionsContext.Provider value={registry}>
       {children}
