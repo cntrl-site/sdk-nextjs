@@ -80,10 +80,11 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const itemScale = useItemScale(item, sectionId);
   const interactionCtrl = useItemInteractionCtrl(item.id);
   const triggers = useItemTriggers(interactionCtrl);
+  console.log(interactionCtrl);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDraggingActive, setIsDraggingActive] = useState(false);
   const wrapperStateProps = interactionCtrl?.getState(['top', 'left']);
-  const innerStateProps = interactionCtrl?.getState(['width', 'height', 'scale', 'top', 'left']);
+  const innerStateProps = interactionCtrl?.getState(['width', 'height', 'scale']);
   const { width, height, top, left } = useItemArea(item, sectionId, {
     top: wrapperStateProps?.styles?.top as number,
     left: wrapperStateProps?.styles?.left as number,
