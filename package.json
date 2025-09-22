@@ -31,7 +31,7 @@
     "@antfu/eslint-config": "^3.8.0",
     "@cntrl-site/color": "^1.0.0",
     "@cntrl-site/effects": "^1.4.0",
-    "@cntrl-site/sdk": "^1.22.21",
+    "@cntrl-site/sdk": "^1.23.0",
     "@types/vimeo__player": "^2.18.0",
     "@vimeo/player": "^2.25.0",
     "html-react-parser": "^3.0.1",
