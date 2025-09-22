@@ -4,7 +4,7 @@ import { LayoutContext } from '../provider/LayoutContext';
 
 export const ArticleWrapper: FC<PropsWithChildren<{}>> = ({ children }) => {
   const { layoutId, layoutDeviation } = useCurrentLayout();
-  const layoutDeviationStyle = {'--layout-deviation': layoutDeviation} as CSSProperties;
+  const layoutDeviationStyle = { '--layout-deviation': layoutDeviation } as CSSProperties;
 
   return (
     <LayoutContext.Provider value={layoutId}>

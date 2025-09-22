@@ -9,13 +9,16 @@ import { getLayoutStyles, YoutubeEmbedItem as TYoutubeEmbedItem } from '@cntrl-s
 import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { useYouTubeIframeApi } from '../../../utils/Youtube/useYouTubeIframeApi';
 import { YTPlayer } from '../../../utils/Youtube/YoutubeIframeApi';
-import { useRegisterResize } from "../../../common/useRegisterResize";
+import { useRegisterResize } from '../../../common/useRegisterResize';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
+import { useLayoutContext } from '../../useLayoutContext';
 
 export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
   const { layouts } = useCntrlContext();
-  const { play, controls, url } = item.commonParams;
+  const { url } = item.commonParams;
+  const layoutId = useLayoutContext();
+  const layoutParams = layoutId ? item.layoutParams[layoutId] : null;
   const { radius: itemRadius, blur: itemBlur, opacity: itemOpacity } = useEmbedVideoItem(item, sectionId);
   const itemAngle = useItemAngle(item, sectionId);
   const YT = useYouTubeIframeApi();
@@ -38,7 +41,8 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   useEffect(() => {
     const newUrl = new URL(url);
     const videoId = getYoutubeId(newUrl);
-    if (!YT || !videoId || !div) return;
+    if (!YT || !videoId || !div || !layoutParams) return;
+    const { play, controls } = layoutParams;
     const placeholder = document.createElement('div');
     div.appendChild(placeholder);
     const player = new YT.Player(placeholder, {
@@ -53,7 +57,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
           if (event.data === 1) {
             setIsCoverVisible(false);
           }
-          if (event.data === 2 || event.data === -1 ) {
+          if (event.data === 2 || event.data === -1) {
             setIsCoverVisible(true);
           }
         },
@@ -70,7 +74,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
       player.destroy();
       placeholder.parentElement?.removeChild(placeholder);
     };
-  }, [YT, div]);
+  }, [YT, div, layoutParams]);
 
   const onCoverClick = () => {
     if (!player || !imgRef) return;
@@ -79,10 +83,10 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   };
 
   useEffect(() => {
-    if (play === 'on-click' && !controls) {
+    if (layoutParams && layoutParams.play === 'on-click' && !layoutParams.controls) {
       setIsCoverVisible(true);
     }
-  }, []);
+  }, [layoutParams]);
 
   useEffect(() => {
     onVisibilityChange?.(isInteractive);
@@ -94,7 +98,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   useEffect(() => {
     if (!player || !interactionCtrl) return;
     interactionCtrl.setActionReceiver((type) => {
-      switch(type) {
+      switch (type) {
         case 'play':
           player.playVideo();
           break;
@@ -110,16 +114,16 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
       <div
         className={`embed-youtube-video-wrapper-${item.id}`}
         onMouseEnter={() => {
-          if (!player || play !== 'on-hover') return;
+          if (!player || !layoutParams || layoutParams.play !== 'on-hover') return;
           player.playVideo();
         }}
         onMouseLeave={() => {
-          if (!player || play !== 'on-hover') return;
+          if (!player || !layoutParams || layoutParams.play !== 'on-hover') return;
           player.pauseVideo();
         }}
         style={{
           ...(opacity !== undefined ? { opacity } : {}),
-          ...(angle !== undefined ? { transform: `rotate(${angle}deg) translateZ(0)` } : {}),
+          ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
           transition: wrapperStateParams?.transition ?? 'none'
         }}
@@ -156,6 +160,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
         .embed-youtube-video-wrapper-${item.id},
         .embed-${item.id} {
           position: absolute;
+          will-change: transform;
           width: 100%;
           height: 100%;
         }
@@ -172,16 +177,16 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
           return (`
             .embed-youtube-video-wrapper-${item.id} {
               opacity: ${layoutParams.opacity};
-              transform: rotate(${area.angle}deg) translateZ(0);
+              transform: rotate(${area.angle}deg);
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
             }
             .embed-youtube-video-wrapper-${item.id} .embed-${item.id} {
               border-radius: ${layoutParams.radius * 100}vw;
             }
           `);
-      })}
-      `}</JSXStyle>
+        })}
+      `}
+      </JSXStyle>
     </LinkWrapper>
-  )
+  );
 };
-

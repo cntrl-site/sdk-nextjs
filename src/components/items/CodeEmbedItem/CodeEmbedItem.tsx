@@ -28,7 +28,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
   const fontCustomTags = new FontFaceGenerator(fonts?.custom ?? []).generate();
   const { anchor, blur: itemBlur, opacity: itemOpacity } = useCodeEmbedItem(item, sectionId);
   const itemAngle = useItemAngle(item, sectionId);
-  const { html } = item.commonParams;
+  const html = decodeBase64(item.commonParams.html);
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
   const pos = stylesMap[anchor];
@@ -50,7 +50,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
       script.parentNode!.removeChild(script);
       ref.appendChild(newScript);
     }
-  }, [item.commonParams.html]);
+  }, [html]);
 
   useEffect(() => {
     if (!ref) return;
@@ -67,10 +67,10 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
           padding: 0 !important;
         }
       </style>
-      ${item.commonParams.html}
+      ${html}
     `;
     iframe.srcdoc = htmlWithStyles;
-  }, [item.commonParams.html, item.commonParams.iframe, ref]);
+  }, [html, item.commonParams.iframe, ref]);
 
   const isInteractive = opacity !== 0;
   useEffect(() => {
@@ -82,7 +82,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
       <div
         className={`embed-wrapper-${item.id}`}
         style={{
-          ...(angle !== undefined ? { transform: `rotate(${angle}deg) translateZ(0)` } : {}),
+          ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
           ...(opacity !== undefined ? { opacity } : {}),
           transition: stateParams?.transition ?? 'none'
@@ -110,6 +110,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
       .embed-wrapper-${item.id} {
         position: absolute;
         width: 100%;
+        will-change: transform;
         height: 100%;
       }
       .embed-${item.id} {
@@ -122,7 +123,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
       return (`
           .embed-wrapper-${item.id} {
             opacity: ${layoutParams.opacity};
-            transform: rotate(${area.angle}deg) translateZ(0);
+            transform: rotate(${area.angle}deg);
             filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
           }
           .embed-${item.id} {
@@ -135,3 +136,9 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
     </LinkWrapper>
   );
 };
+
+export function decodeBase64(str: string): string {
+  const binary = atob(str);
+  const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}

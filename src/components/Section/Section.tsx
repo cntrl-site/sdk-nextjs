@@ -1,4 +1,4 @@
-import { FC, ReactElement, useEffect, useId, useRef, useState, useContext } from 'react';
+import React, { FC, ReactElement, useId, useRef, useMemo } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import {
   getLayoutMediaQuery,
@@ -11,6 +11,9 @@ import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useSectionRegistry } from '../../utils/ArticleRectManager/useSectionRegistry';
 import { CntrlColor } from '@cntrl-site/color';
 import { useLayoutContext } from '../useLayoutContext';
+import { SectionVideo } from './SectionVideo';
+import { SectionImage } from './SectionImage';
+import { isOverflowClipSupported } from '../../utils/checkOverflowClipSupport';
 
 type SectionChild = ReactElement<any, any>;
 const DEFAULT_COLOR = 'rgba(0, 0, 0, 0)';
@@ -21,11 +24,6 @@ interface Props {
   data?: any;
 }
 
-function isVideoUrl(url: string): boolean {
-  const videoExtensions = ['.mp4', '.webm', '.ogg'];
-  return videoExtensions.some(ext => url.toLowerCase().endsWith(ext));
-}
-
 export const Section: FC<Props> = ({ section, data, children }) => {
   const id = useId();
   const sectionRef = useRef<HTMLDivElement | null>(null);
@@ -33,9 +31,19 @@ export const Section: FC<Props> = ({ section, data, children }) => {
   const layout = useLayoutContext();
   const layoutValues: Record<string, any>[] = [section.height, section.color, section.media ?? {}];
   const SectionComponent = section.name ? customSections.getComponent(section.name) : undefined;
-  const isVideo = layout && section.media?.[layout]?.url ? isVideoUrl(String(section.media?.[layout]?.url)) : false;
-  const videoRef = useRef<HTMLVideoElement | null>(null);
   useSectionRegistry(section.id, sectionRef.current);
+  const sectionHeight = layout && section.height[layout] ? section.height[layout] : undefined;
+  const layoutMedia = layout && section.media && section.media[layout] ? section.media[layout] : undefined;
+
+  const media = useMemo(() => {
+    if (layoutMedia && !isOverflowClipSupported()) {
+      return {
+        ...layoutMedia,
+        position: 'local'
+      };
+    }
+    return layoutMedia;
+  }, [layoutMedia]);
 
   const getSectionVisibilityStyles = () => {
     return layouts
@@ -52,30 +60,6 @@ export const Section: FC<Props> = ({ section, data, children }) => {
       }, '');
   };
 
-  useEffect(() => {
-    if (!isVideo || !sectionRef.current || !videoRef.current) return;
-    const video = videoRef.current;
-    const section = sectionRef.current;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          video.style.display = 'block';
-          video.play().catch(() => {});
-        } else {
-          video.style.display = 'none';
-          video.pause();
-        }
-      },
-      {
-        root: null,
-        rootMargin: '50px',
-        threshold: 0
-      }
-    );
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, [isVideo]);
-
   if (SectionComponent) return <div ref={sectionRef}><SectionComponent data={data}>{children}</SectionComponent></div>;
 
   return (
@@ -85,26 +69,21 @@ export const Section: FC<Props> = ({ section, data, children }) => {
         id={section.name}
         ref={sectionRef}
       >
-        {layout && section.media?.[layout]?.url && section.media?.[layout]?.size !== 'none' && sectionRef.current && (
+        {media && media.size !== 'none' && sectionRef.current && (
           <div className={`section-background-overlay-${section.id}`}>
             <div
               key={`section-background-wrapper-${section.id}`}
               className={`section-background-wrapper-${section.id}`}
+              style={{
+                transform: media.position === 'fixed' ? 'translateY(-100vh)' : 'unset',
+                ...(sectionHeight && { height: media.position === 'fixed' ? `calc(${getSectionHeight(sectionHeight)} + 200vh)` : getSectionHeight(sectionHeight) })
+              }}
             >
-              {isVideo ? (
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="auto"
-                  className={`video-background-${section.id}`}
-                >
-                  <source src={section.media?.[layout]?.url ?? ''} />
-                </video>
-              ) : (
-                <img src={section.media?.[layout]?.url ?? ''} className={`image-background-${section.id}`} />
+              {media.type === 'video' && (
+                <SectionVideo container={sectionRef.current} sectionId={section.id} media={media} />
+              )}
+              {media.type === 'image' && (
+                <SectionImage media={media} sectionId={section.id} />
               )}
             </div>
           </div>
@@ -130,22 +109,6 @@ export const Section: FC<Props> = ({ section, data, children }) => {
             position: relative;
             height: ${media?.position === 'fixed' ? `calc(${getSectionHeight(height)} + 200vh)` : getSectionHeight(height)};
             width: 100%;
-         }
-         .video-background-${section.id} {
-            object-fit: ${media?.size ?? 'cover'};
-            width: ${media?.offsetX === null || media?.size === 'cover' ? '100%' : 'auto'};
-            height: ${media?.position === 'fixed' ? '100vh' : '100%'};
-            position: ${media?.position === 'fixed' ? 'sticky' : 'relative'};
-            top: ${media?.position === 'fixed' ? '100vh' : 'unset'};
-            ${media && media.offsetX !== null && media.size !== 'cover' ? `margin-left: ${media.offsetX * 100}vw;` : ''}
-         }
-         .image-background-${section.id} {
-            object-fit: ${media?.size};
-            width: ${media?.offsetX === null ? '100%' : 'auto'};
-            height: ${media?.position === 'fixed' ? '100vh' : '100%'};
-            position: ${media?.position === 'fixed' ? 'sticky' : 'relative'};
-            top: ${media?.position === 'fixed' ? '100vh' : 'unset'};
-            ${media && media.offsetX !== null && media.size !== 'cover' ? `margin-left: ${media.offsetX * 100}vw;` : ''}
          }
         `
     ))
