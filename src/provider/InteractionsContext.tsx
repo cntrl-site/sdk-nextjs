@@ -29,11 +29,21 @@ export const InteractionsProvider: FC<PropsWithChildren<Props>> = ({ article, ch
 
   const notifyLoad = useCallback(() => {
     if (!registry) return;
-    registry.notifyLoad();
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        registry.notifyLoad();
+      }, 0);
+    });
   }, [registry]);
 
   useEffect(() => {
-    notifyLoad();
+    if (document.readyState === 'complete') {
+      notifyLoad();
+    } else {
+      window.addEventListener('load', notifyLoad);
+    }
+
+    return () => window.removeEventListener('load', notifyLoad);
   }, [notifyLoad]);
 
   return (
