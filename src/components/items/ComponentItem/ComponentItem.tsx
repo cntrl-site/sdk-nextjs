@@ -34,6 +34,7 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
           ...(opacity !== undefined ? { opacity } : {}),
           ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
+          willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
           transition: stateParams?.transition ?? 'none'
         }}
       >
@@ -49,7 +50,6 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
         width: 100%;
         height: 100%;
         pointer-events: auto;
-        will-change: transform;
       }
       ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
       return (`
@@ -57,6 +57,7 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
             transform: rotate(${area.angle}deg);
             opacity: ${layoutParams.opacity};
             filter: blur(${layoutParams.blur}vw);
+            ${layoutParams.blur !== 0 ? 'will-change: transform;' : ''}
           }
         `);
     })}`}

@@ -85,6 +85,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
           ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
           ...(opacity !== undefined ? { opacity } : {}),
+          willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
           transition: stateParams?.transition ?? 'none'
         }}
         ref={setRef}
@@ -110,7 +111,6 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
       .embed-wrapper-${item.id} {
         position: absolute;
         width: 100%;
-        will-change: transform;
         height: 100%;
       }
       .embed-${item.id} {
@@ -125,6 +125,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
             opacity: ${layoutParams.opacity};
             transform: rotate(${area.angle}deg);
             filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
+            ${layoutParams.blur !== 0 ? 'will-change: transform;' : ''}
           }
           .embed-${item.id} {
             width: ${item.commonParams.scale ? `${area.width * exemplary}px` : '100%'};

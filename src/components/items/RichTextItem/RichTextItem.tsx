@@ -67,6 +67,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
           ...(wordSpacing !== undefined ? { wordSpacing: `${wordSpacing * exemplary}px` } : {}),
           ...(fontSize !== undefined ? { fontSize: `${Math.round(fontSize * exemplary)}px` } : {}),
           ...(lineHeight !== undefined ? { lineHeight: `${lineHeight * exemplary}px` } : {}),
+          willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
           transition
         }}
       >
@@ -89,9 +90,9 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
               font-variant: ${layoutParams.fontVariant};
               color: ${color.fmt('rgba')};
               transform: rotate(${area.angle}deg);
-              will-change: transform;
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
               text-transform: ${layoutParams.textTransform};
+              ${layoutParams.blur !== 0 ? 'will-change: transform;' : ''}
             }
             @supports not (color: oklch(42% 0.3 90 / 1)) {
               .rich-text-wrapper-${item.id} {

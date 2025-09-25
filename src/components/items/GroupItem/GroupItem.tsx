@@ -37,7 +37,8 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
             ...(opacity !== undefined ? { opacity } : {}),
             ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
             ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
-            transition: stateParams?.transition ?? 'none'
+            transition: stateParams?.transition ?? 'none',
+            willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
           }}
         >
           {items && items.map(item => isInCompound ? (
@@ -63,12 +64,12 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
           width: 100%;
           height: 100%;
           box-sizing: border-box;
-          will-change: transform;
         }
         ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
       return (`
             .group-${item.id} {
               opacity: ${layoutParams.opacity};
+              filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
               transform: rotate(${area.angle}deg);
             }
           `);

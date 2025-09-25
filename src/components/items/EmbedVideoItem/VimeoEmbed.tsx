@@ -117,6 +117,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
           ...(opacity !== undefined ? { opacity } : {}),
           ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
+          willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
           transition: wrapperStateParams?.transition ?? 'none'
         }}
         onMouseEnter={() => {
@@ -177,7 +178,6 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
         position: absolute;
         width: 100%;
         height: 100%;
-        will-change: transform;
       }
       .embed-video {
         width: 100%;
@@ -192,6 +192,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
             opacity: ${layoutParams.opacity};
             transform: rotate(${area.angle}deg);
             filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
+            ${layoutParams.blur !== 0 ? 'will-change: transform;' : ''}
           }
           .embed-video-wrapper-${item.id} .embed-video {
             border-radius: ${layoutParams.radius * 100}vw;
