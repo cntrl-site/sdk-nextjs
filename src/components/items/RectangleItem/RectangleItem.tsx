@@ -59,6 +59,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
             ...(strokeWidth !== undefined ? { borderWidth: `${strokeWidth * 100}vw` } : {}),
             ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
             ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
+            willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
             ...(backdropFilterValue !== undefined
               ? { backdropFilter: backdropFilterValue, WebkitBackdropFilter: backdropFilterValue }
               : {}
@@ -82,8 +83,8 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
               border-radius: ${layoutParams.radius * 100}vw;
               border-width: ${layoutParams.strokeWidth * 100}vw;
               transform: rotate(${area.angle}deg);
-              will-change: transform;
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
+              ${layoutParams.blur !== 0 ? 'will-change: transform;' : ''}
               backdrop-filter: ${layoutParams.backdropBlur !== 0 ? `blur(${layoutParams.backdropBlur * 100}vw)` : 'unset'};
               -webkit-backdrop-filter: ${layoutParams.backdropBlur !== 0 ? `blur(${layoutParams.backdropBlur * 100}vw)` : 'unset'};
             }

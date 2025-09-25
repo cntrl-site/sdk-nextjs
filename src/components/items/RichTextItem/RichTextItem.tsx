@@ -67,7 +67,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
           ...(wordSpacing !== undefined ? { wordSpacing: `${wordSpacing * exemplary}px` } : {}),
           ...(fontSize !== undefined ? { fontSize: `${Math.round(fontSize * exemplary)}px` } : {}),
           ...(lineHeight !== undefined ? { lineHeight: `${lineHeight * exemplary}px` } : {}),
-          ...(blur !== 0 && blur !== undefined ? { willChange: 'transform' } : {}),
+          willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
           transition
         }}
       >
