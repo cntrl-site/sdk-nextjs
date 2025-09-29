@@ -66,7 +66,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
     vimeoPlayer.on('ended', () => {
       setIsCoverVisible(true);
     });
-  }, [vimeoPlayer, imgRef]);
+  }, [vimeoPlayer, imgRef, layoutParams]);
 
   const handleClick = async () => {
     if (!vimeoPlayer) return;
