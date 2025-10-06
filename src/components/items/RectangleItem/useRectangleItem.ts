@@ -2,7 +2,14 @@ import { KeyframeType, RectangleItem } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../../../common/useKeyframeValue';
 import { useLayoutContext } from '../../useLayoutContext';
 
-const defaultColor = 'rgba(0, 0, 0, 1)';
+const defaultFill = [
+  {
+    id: 'default',
+    type: 'solid' as const,
+    value: 'rgba(0, 0, 0, 1)',
+    blendMode: 'normal'
+  }
+];
 
 export function useRectangleItem(item: RectangleItem, sectionId: string) {
   const layoutId = useLayoutContext();
@@ -30,27 +37,27 @@ export function useRectangleItem(item: RectangleItem, sectionId: string) {
     sectionId,
     [layoutId]
   );
-  const fillColor = useKeyframeValue(
+  const fill = useKeyframeValue(
     item,
-    KeyframeType.Color,
+    KeyframeType.Fill,
     (item, layoutId) => {
       if (!layoutId) return;
       const layoutParams = item.layoutParams[layoutId];
-      return 'fillColor' in layoutParams ? layoutParams.fillColor : defaultColor;
+      return 'fill' in layoutParams ? layoutParams.fill : defaultFill;
     },
-    (animator, scroll, value) => value ? animator.getColor({ color: value }, scroll).color : undefined,
+    (animator, scroll, value) => value ? animator.getFill(value, scroll) : undefined,
     sectionId,
     [layoutId]
   );
-  const strokeColor = useKeyframeValue(
+  const strokeFill = useKeyframeValue(
     item,
-    KeyframeType.BorderColor,
+    KeyframeType.BorderFill,
     (item, layoutId) => {
       if (!layoutId) return;
       const layoutParams = item.layoutParams[layoutId];
-      return 'strokeColor' in layoutParams ? layoutParams.strokeColor : defaultColor;
+      return 'strokeFill' in layoutParams ? layoutParams.strokeFill : defaultFill;
     },
-    (animator, scroll, value) => value ? animator.getBorderColor({ color: value }, scroll).color : undefined,
+    (animator, scroll, value) => value ? animator.getBorderFill(value, scroll) : undefined,
     sectionId,
     [layoutId]
   );
@@ -78,5 +85,5 @@ export function useRectangleItem(item: RectangleItem, sectionId: string) {
     sectionId,
     [layoutId]
   );
-  return { fillColor, strokeWidth, radius, strokeColor, blur, backdropBlur };
+  return { fill, strokeWidth, radius, strokeFill, blur, backdropBlur };
 }

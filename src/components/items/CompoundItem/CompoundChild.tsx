@@ -47,8 +47,8 @@ export const CompoundChild: FC<ChildItemProps> = ({ item, sectionId, isParentVis
   const itemScale = useItemScale(item, sectionId);
   const interactionCtrl = useItemInteractionCtrl(item.id);
   const triggers = useItemTriggers(interactionCtrl);
-  const wrapperStateProps = interactionCtrl?.getState(['top', 'left', 'width', 'height']);
-  const innerStateProps = interactionCtrl?.getState(['scale']);
+  const wrapperStateProps = interactionCtrl?.getState<number>(['top', 'left', 'width', 'height']);
+  const innerStateProps = interactionCtrl?.getState<number>(['scale']);
   const compoundSettings = layout && item.compoundSettings ? item.compoundSettings[layout] : undefined;
   const { width, height, top, left } = useItemArea(item, sectionId, {
     top: wrapperStateProps?.styles?.top as number,

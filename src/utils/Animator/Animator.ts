@@ -2,6 +2,7 @@ import { KeyframeType, KeyframeValueMap } from '@cntrl-site/sdk';
 import { CntrlColor } from '@cntrl-site/color';
 import { binSearchInsertAt, createInsert } from '../binSearchInsertAt';
 import { rangeMap } from '../rangeMap';
+import { FillLayer } from '@cntrl-site/sdk/dist/types/article/Item';
 
 export interface AnimationData<T extends KeyframeType> {
   position: number;
@@ -93,40 +94,32 @@ export class Animator {
     };
   }
 
-  getColor(
-    values: KeyframeValueMap[KeyframeType.Color],
+  getBorderFill(
+    values: KeyframeValueMap[KeyframeType.BorderFill],
     pos: number
-  ): KeyframeValueMap[KeyframeType.Color] {
-    const keyframes = this.keyframesMap[KeyframeType.Color];
+  ): FillLayer[] {
+    const keyframes = this.keyframesMap[KeyframeType.BorderFill];
     if (!keyframes || !keyframes.length) return values;
     if (keyframes.length === 1) {
       const [keyframe] = keyframes;
-      return {
-        color: keyframe.value.color
-      };
+      return keyframe.value;
     }
-    const { start, end } = this.getStartEnd<KeyframeType.Color>(pos, keyframes);
-    return {
-      color: this.getRangeColor(start, end, pos)
-    };
+    const { start, end } = this.getStartEnd<KeyframeType.BorderFill>(pos, keyframes);
+    return this.getRangeGradient(start, end, pos);
   }
 
-  getBorderColor(
-    values: KeyframeValueMap[KeyframeType.BorderColor],
+  getFill(
+    values: KeyframeValueMap[KeyframeType.Fill],
     pos: number
-  ): KeyframeValueMap[KeyframeType.BorderColor] {
-    const keyframes = this.keyframesMap[KeyframeType.BorderColor];
+  ): FillLayer[] {
+    const keyframes = this.keyframesMap[KeyframeType.Fill];
     if (!keyframes || !keyframes.length) return values;
     if (keyframes.length === 1) {
       const [keyframe] = keyframes;
-      return {
-        color: keyframe.value.color
-      };
+      return keyframe.value;
     }
-    const { start, end } = this.getStartEnd<KeyframeType.BorderColor>(pos, keyframes);
-    return {
-      color: this.getRangeColor(start, end, pos)
-    };
+    const { start, end } = this.getStartEnd<KeyframeType.Fill>(pos, keyframes);
+    return this.getRangeGradient(start, end, pos);
   }
 
   getRadius(
@@ -338,8 +331,8 @@ export class Animator {
   }
 
   private getRangeColor(
-    start: AnimationData<KeyframeType.Color | KeyframeType.BorderColor | KeyframeType.TextColor>,
-    end: AnimationData<KeyframeType.Color | KeyframeType.BorderColor | KeyframeType.TextColor>,
+    start: AnimationData<KeyframeType.TextColor>,
+    end: AnimationData<KeyframeType.TextColor>,
     position: number
   ): string {
     const rangeAmount = rangeMap(position, start.position, end.position, 0, 1, true);
@@ -347,6 +340,207 @@ export class Animator {
     const endColor = CntrlColor.parse(end.value.color);
     const mixedColor = startColor.mix(endColor, rangeAmount);
     return mixedColor.fmt('oklch');
+  }
+
+  private getRangeGradient(
+    start: AnimationData<KeyframeType.Fill | KeyframeType.BorderFill>,
+    end: AnimationData<KeyframeType.Fill | KeyframeType.BorderFill>,
+    position: number
+  ): FillLayer[] {
+    const rangeAmount = rangeMap(position, start.position, end.position, 0, 1, true);
+    const allLayerIds = new Set([
+      ...start.value.map(layer => layer.id),
+      ...end.value.map(layer => layer.id)
+    ]);
+    const result: FillLayer[] = [];
+    for (const layerId of allLayerIds) {
+      const startLayers = start.value.find(layer => layer.id === layerId);
+      const endLayers = end.value.find(layer => layer.id === layerId);
+      const startLayersArray = Array.isArray(startLayers) ? startLayers : startLayers ? [startLayers] : [];
+      const endLayersArray = Array.isArray(endLayers) ? endLayers : endLayers ? [endLayers] : [];
+      if (startLayersArray.length > 0 && endLayersArray.length === 0) {
+        result.push(...startLayersArray);
+        continue;
+      }
+      if (startLayersArray.length === 0 && endLayersArray.length > 0) {
+        result.push(...endLayersArray);
+        continue;
+      }
+      if (startLayersArray.length > 0 && endLayersArray.length > 0) {
+        result.push(...this.interpolateFillLayerArray(startLayersArray, endLayersArray, rangeAmount));
+      }
+    }
+
+    return result;
+  }
+
+  private interpolateFillLayerArray(startLayers: FillLayer[], endLayers: FillLayer[], rangeAmount: number): FillLayer[] {
+    const startLayerMap = new Map(startLayers.map(layer => [layer.id, layer]));
+    const endLayerMap = new Map(endLayers.map(layer => [layer.id, layer]));
+    const allLayerIds = new Set([
+      ...startLayers.map(layer => layer.id),
+      ...endLayers.map(layer => layer.id)
+    ]);
+
+    const interpolatedLayers: FillLayer[] = [];
+
+    for (const layerId of allLayerIds) {
+      const startLayer = startLayerMap.get(layerId);
+      const endLayer = endLayerMap.get(layerId);
+      if (startLayer && !endLayer) {
+        interpolatedLayers.push(startLayer);
+        continue;
+      }
+      if (!startLayer && endLayer) {
+        interpolatedLayers.push(endLayer);
+        continue;
+      }
+      if (startLayer && endLayer) {
+        interpolatedLayers.push(this.interpolateFillLayer(startLayer, endLayer, rangeAmount));
+      }
+    }
+    const result: FillLayer[] = [];
+    for (const startLayer of startLayers) {
+      const interpolatedLayer = interpolatedLayers.find(layer => layer.id === startLayer.id);
+      if (interpolatedLayer) {
+        result.push(interpolatedLayer);
+      }
+    }
+    for (const endLayer of endLayers) {
+      if (!startLayerMap.has(endLayer.id)) {
+        const interpolatedLayer = interpolatedLayers.find(layer => layer.id === endLayer.id);
+        if (interpolatedLayer) {
+          result.push(interpolatedLayer);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  private interpolateFillLayer(startLayer: FillLayer, endLayer: FillLayer, rangeAmount: number): FillLayer {
+    if (startLayer.type !== endLayer.type) {
+      return startLayer;
+    }
+
+    switch (startLayer.type) {
+      case 'solid': {
+        const endSolidLayer = endLayer as typeof startLayer;
+        const startColor = CntrlColor.parse(startLayer.value);
+        const endColor = CntrlColor.parse(endSolidLayer.value);
+        const mixedColor = startColor.mix(endColor, rangeAmount);
+        return {
+          ...startLayer,
+          value: mixedColor.fmt('oklch')
+        };
+      }
+
+      case 'linear-gradient': {
+        const endLinearLayer = endLayer as typeof startLayer;
+        const interpolatedColors = this.interpolateColorStops(startLayer.colors, endLinearLayer.colors, rangeAmount);
+        const angle = startLayer.angle + (endLinearLayer.angle - startLayer.angle) * rangeAmount;
+        const startPoint: [number, number] = [
+          startLayer.start[0] + (endLinearLayer.start[0] - startLayer.start[0]) * rangeAmount,
+          startLayer.start[1] + (endLinearLayer.start[1] - startLayer.start[1]) * rangeAmount
+        ];
+        const endPoint: [number, number] = [
+          startLayer.end[0] + (endLinearLayer.end[0] - startLayer.end[0]) * rangeAmount,
+          startLayer.end[1] + (endLinearLayer.end[1] - startLayer.end[1]) * rangeAmount
+        ];
+        return {
+          ...startLayer,
+          colors: interpolatedColors,
+          angle,
+          start: startPoint,
+          end: endPoint
+        };
+      }
+
+      case 'radial-gradient': {
+        const endRadialLayer = endLayer as typeof startLayer;
+        const interpolatedColors = this.interpolateColorStops(startLayer.colors, endRadialLayer.colors, rangeAmount);
+        const angle = startLayer.angle + (endRadialLayer.angle - startLayer.angle) * rangeAmount;
+        const center: [number, number] = [
+          startLayer.center[0] + (endRadialLayer.center[0] - startLayer.center[0]) * rangeAmount,
+          startLayer.center[1] + (endRadialLayer.center[1] - startLayer.center[1]) * rangeAmount
+        ];
+        const diameter = startLayer.diameter + (endRadialLayer.diameter - startLayer.diameter) * rangeAmount;
+        return {
+          ...startLayer,
+          colors: interpolatedColors,
+          angle,
+          center,
+          diameter
+        };
+      }
+
+      case 'conic-gradient': {
+        const endConicLayer = endLayer as typeof startLayer;
+        const interpolatedColors = this.interpolateColorStops(startLayer.colors, endConicLayer.colors, rangeAmount);
+        const angle = startLayer.angle + (endConicLayer.angle - startLayer.angle) * rangeAmount;
+        const center: [number, number] = [
+          startLayer.center[0] + (endConicLayer.center[0] - startLayer.center[0]) * rangeAmount,
+          startLayer.center[1] + (endConicLayer.center[1] - startLayer.center[1]) * rangeAmount
+        ];
+        return {
+          ...startLayer,
+          colors: interpolatedColors,
+          angle,
+          center
+        };
+      }
+
+      case 'image': {
+        const endImageLayer = endLayer as typeof startLayer;
+        const opacity = startLayer.opacity + (endImageLayer.opacity - startLayer.opacity) * rangeAmount;
+        const backgroundSize = startLayer.backgroundSize + (endImageLayer.backgroundSize - startLayer.backgroundSize) * rangeAmount;
+        return {
+          ...startLayer,
+          opacity,
+          backgroundSize
+        };
+      }
+
+      default:
+        return startLayer;
+    }
+  }
+
+  private interpolateColorStops(startColors: Array<{ id: string; color: string; position: number }>, endColors: Array<{ id: string; color: string; position: number }>, rangeAmount: number): Array<{ id: string; color: string; position: number }> {
+    const startColorMap = new Map(startColors.map(stop => [stop.id, stop]));
+    const endColorMap = new Map(endColors.map(stop => [stop.id, stop]));
+    const allStopIds = new Set([
+      ...startColors.map(stop => stop.id),
+      ...endColors.map(stop => stop.id)
+    ]);
+
+    const interpolatedStops: Array<{ id: string; color: string; position: number }> = [];
+
+    for (const stopId of allStopIds) {
+      const startStop = startColorMap.get(stopId);
+      const endStop = endColorMap.get(stopId);
+      if (startStop && !endStop) {
+        interpolatedStops.push(startStop);
+        continue;
+      }
+      if (!startStop && endStop) {
+        interpolatedStops.push(endStop);
+        continue;
+      }
+      if (startStop && endStop) {
+        const startColor = CntrlColor.parse(startStop.color);
+        const endColor = CntrlColor.parse(endStop.color);
+        const mixedColor = startColor.mix(endColor, rangeAmount);
+        const position = startStop.position + (endStop.position - startStop.position) * rangeAmount;
+
+        interpolatedStops.push({
+          id: stopId,
+          color: mixedColor.fmt('oklch'),
+          position
+        });
+      }
+    }
+    return interpolatedStops.sort((a, b) => a.position - b.position);
   }
 }
 
@@ -356,9 +550,8 @@ function createKeyframesMap(): KeyframesMap {
     [KeyframeType.Position]: [],
     [KeyframeType.BorderWidth]: [],
     [KeyframeType.BorderRadius]: [],
-    [KeyframeType.Color]: [],
     [KeyframeType.Rotation]: [],
-    [KeyframeType.BorderColor]: [],
+    [KeyframeType.BorderFill]: [],
     [KeyframeType.Opacity]: [],
     [KeyframeType.Scale]: [],
     [KeyframeType.Blur]: [],
@@ -366,6 +559,7 @@ function createKeyframesMap(): KeyframesMap {
     [KeyframeType.LetterSpacing]: [],
     [KeyframeType.WordSpacing]: [],
     [KeyframeType.TextColor]: [],
-    [KeyframeType.FXParams]: []
+    [KeyframeType.FXParams]: [],
+    [KeyframeType.Fill]: []
   };
 }

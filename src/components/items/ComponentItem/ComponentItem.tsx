@@ -19,7 +19,7 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const { opacity: itemOpacity, blur: itemBlur } = useComponentItem(item, sectionId);
   useRegisterResize(ref, onResize);
-  const stateParams = interactionCtrl?.getState(['opacity', 'angle', 'blur']);
+  const stateParams = interactionCtrl?.getState<number>(['opacity', 'angle', 'blur']);
   const angle = getStyleFromItemStateAndParams(stateParams?.styles?.angle, itemAngle);
   const opacity = getStyleFromItemStateAndParams(stateParams?.styles?.opacity, itemOpacity);
   const blur = getStyleFromItemStateAndParams(stateParams?.styles?.blur, itemBlur);

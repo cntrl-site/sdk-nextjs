@@ -1,7 +1,7 @@
 import { InteractionsRegistryPort, ItemInteractionCtrl } from './types';
 import { getTransition } from './getTransition';
 import { getStyleKeysFromCSSProperty } from './CSSPropertyNameMap';
-import { InteractionItemTrigger } from '@cntrl-site/sdk';
+import { FillLayer, InteractionItemTrigger } from '@cntrl-site/sdk';
 
 export class ItemInteractionController implements ItemInteractionCtrl {
   private transitionsInProgress: Set<string> = new Set();
@@ -15,12 +15,12 @@ export class ItemInteractionController implements ItemInteractionCtrl {
     this.registry.register(itemId, this);
   }
 
-  getState(keys: string[]) {
+  getState<T>(keys: string[]) {
     const stateProps = this.registry.getStatePropsForItem(this.itemId);
-    const styles = keys.reduce<Record<string, string | number>>((map, styleKey) => {
+    const styles = keys.reduce<Record<string, T>>((map, styleKey) => {
       const prop = stateProps[styleKey];
       if (prop?.value === undefined) return map;
-      map[styleKey] = prop.value;
+      map[styleKey] = prop.value as T;
       return map;
     }, {});
     const transition = getTransition(stateProps, keys);

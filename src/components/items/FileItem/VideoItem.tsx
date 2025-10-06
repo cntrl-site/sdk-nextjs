@@ -14,6 +14,8 @@ import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemS
 import { useVideoFx } from '../../../utils/effects/useVideoFx';
 import { useElementRect } from '../../../utils/useElementRect';
 import { useItemFXData } from '../../../common/useItemFXData';
+import { getFill } from '../../../utils/getFill';
+import { FillLayer } from '@cntrl-site/sdk/dist/types/article/Item';
 
 export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
@@ -22,7 +24,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
   const {
     radius: itemRadius,
     strokeWidth: itemStrokeWidth,
-    strokeColor: itemStrokeColor,
+    strokeFill: itemStrokeFill,
     opacity: itemOpacity,
     blur: itemBlur
   } = useFileItem(item, sectionId);
@@ -48,17 +50,27 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
   const scrollPlayback = layoutParams ? layoutParams.scrollPlayback : null;
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const hasScrollPlayback = scrollPlayback !== null;
-  const wrapperStateParams = interactionCtrl?.getState(['angle', 'opacity', 'blur']);
-  const videoStateParams = interactionCtrl?.getState(['strokeWidth', 'radius', 'strokeColor']);
-  const borderColor = useMemo(() => {
-    const strokeColor = getStyleFromItemStateAndParams(videoStateParams?.styles?.color, itemStrokeColor);
-    return strokeColor ? CntrlColor.parse(strokeColor) : undefined;
-  }, [videoStateParams?.styles?.color, itemStrokeColor]);
+  const wrapperStateParams = interactionCtrl?.getState<number>(['angle', 'opacity', 'blur']);
+  const videoStateParams = interactionCtrl?.getState<number>(['strokeWidth', 'radius']);
+  const stateStrokeFillParams = interactionCtrl?.getState<FillLayer[]>(['strokeFill']);
+  const stateStrokeFillLayers = stateStrokeFillParams?.styles?.strokeFill;
+  const strokeSolidTransition = stateStrokeFillParams?.transition ?? 'none';
+  // const borderColor = useMemo(() => {
+  //   const strokeFill = getStyleFromItemStateAndParams(videoStateParams?.styles?.strokeFill, itemStrokeFill?.[0]);
+  //   return strokeFill ? CntrlColor.parse(strokeFill) : undefined;
+  // }, [videoStateParams?.styles?.strokeFill, itemStrokeFill]);
   const angle = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.angle, itemAngle);
   const opacity = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.opacity, itemOpacity);
   const blur = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.blur, itemBlur);
   const strokeWidth = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.strokeWidth, itemStrokeWidth);
   const radius = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.radius, itemRadius);
+
+  const strokeValue = stateStrokeFillLayers
+    ? getStyleFromItemStateAndParams<FillLayer>(stateStrokeFillLayers[0], itemStrokeFill?.[0])
+    : itemStrokeFill?.[0];
+  const stroke = strokeValue
+    ? getFill(strokeValue) ?? 'transparent'
+    : 'transparent';
   useEffect(() => {
     isInitialRef.current = false;
   }, []);
@@ -76,8 +88,6 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
   useRegisterResize(ref, onResize);
   const inlineStyles = {
     ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),
-    ...(strokeWidth !== undefined ? { borderWidth: `${strokeWidth * 100}vw` } : {}),
-    ...(borderColor ? { borderColor: `${borderColor.toCss()}` } : {}),
     transition: videoStateParams?.transition ?? 'none'
   };
   const isInteractive = opacity !== 0;
@@ -112,6 +122,14 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
           ...(opacity !== undefined ? { opacity } : {}),
           ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
+          ...(strokeValue ? {
+            '--stroke-background': stroke,
+            ...(strokeValue.type === 'image' ? {
+              '--stroke-background-position': 'center',
+              '--stroke-background-size': strokeValue.behavior === 'repeat' ? `${strokeValue.backgroundSize}%` : strokeValue.behavior,
+              '--stroke-background-repeat': strokeValue.behavior === 'repeat' ? 'repeat' : 'no-repeat'
+            } : {})
+          } : {}),
           willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
           transition: wrapperStateParams?.transition ?? 'none'
         }}
@@ -203,6 +221,31 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
             ))}
           </>
         )}
+        <div
+          className={`video-border-${item.id}`}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            borderRadius: 'inherit',
+            pointerEvents: 'none',
+            zIndex: 2,
+            WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+            WebkitMaskComposite: 'xor',
+            maskComposite: 'exclude',
+            ...(strokeWidth !== 0 && strokeValue ? {
+              ...(strokeWidth ? { padding: `${strokeWidth * 100}vw` } : {}),
+              ...(strokeValue.type === 'solid' ? { transition: strokeSolidTransition, background: stroke } : {}),
+              ...(strokeValue.type === 'image' ? {
+                backgroundPosition: 'center',
+                backgroundSize: strokeValue.behavior === 'repeat' ? `${strokeValue.backgroundSize}%` : strokeValue.behavior,
+                backgroundRepeat: strokeValue.behavior === 'repeat' ? 'repeat' : 'no-repeat'
+              } : {
+                background: stroke,
+              }
+              )
+            } : { background: stroke }),
+          }}
+        />
       </div>
       <JSXStyle id={id}>{`
         .video-wrapper-${item.id} {
@@ -240,7 +283,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
           border-style: solid;
         }
         .video-${item.id} {
-          border-color: ${itemStrokeColor};
+          border-radius: ${radius !== undefined ? `${radius * 100}vw` : '0'};
         }
         .video-playback-wrapper {
           display: flex;
@@ -263,9 +306,19 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
               ${layoutParams.blur !== 0 ? 'will-change: transform;' : ''}
             }
             .video-${item.id} {
-              border-color: ${CntrlColor.parse(layoutParams.strokeColor).fmt('rgba')};
               border-radius: ${layoutParams.radius * 100}vw;
-              border-width: ${layoutParams.strokeWidth * 100}vw;
+            }
+            .video-border-${item.id} {
+              position: absolute;
+              inset: 0;
+              border-radius: inherit;
+              pointer-events: none;
+              z-index: 2;
+              -webkit-mask:
+                linear-gradient(#fff 0 0) content-box,
+                linear-gradient(#fff 0 0);
+              -webkit-mask-composite: xor;
+              mask-composite: exclude;
             }
           `);
     })}
