@@ -11,6 +11,7 @@ import { useRegisterResize } from '../../../common/useRegisterResize';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
 import { FillLayer } from '@cntrl-site/sdk/dist/types/article/Item';
 import { getFill } from '../../../utils/getFill';
+import { areFillsVisible } from '../../../utils/areFillsVisible/areFillsVisible';
 
 export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
@@ -32,17 +33,6 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
   const stateStrokeFillLayers = stateStrokeFillParams?.styles?.strokeFill;
   const strokeSolidTransition = stateStrokeFillParams?.transition ?? 'none';
   const styles = stateParams?.styles ?? {};
-  const backgroundColor = itemFill?.length === 1 && itemFill[0].type === 'solid' ? CntrlColor.parse(itemFill[0].value) : undefined;
-  const borderColor = itemStrokeFill?.length === 1 && itemStrokeFill[0].type === 'solid' ? CntrlColor.parse(itemStrokeFill[0].value) : undefined;
-  // const strokeColor = stateStrokeFillLayers?.length === 1 && stateStrokeFillLayers[0].type === 'solid' ? CntrlColor.parse(stateStrokeFillLayers[0].value) : undefined;
-  // const backgroundColor = useMemo(() => {
-  //   const fill = getStyleFromItemStateAndParams(styles?.fill, itemFill);
-  //   return fill ? CntrlColor.parse(fill) : undefined;
-  // }, [itemFill, styles?.fill]);
-  // const borderColor = useMemo(() => {
-  //   const strokeFill = getStyleFromItemStateAndParams(styles?.strokeFill, itemStrokeFill);
-  //   return strokeFill ? CntrlColor.parse(strokeFill) : undefined;
-  // }, [itemStrokeFill, styles?.strokeFill]);
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
@@ -52,8 +42,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
   const angle = getStyleFromItemStateAndParams(styles?.angle, itemAngle);
   const blur = getStyleFromItemStateAndParams(styles?.blur, itemBlur);
   const backdropFilterValue = backdropBlur ? `blur(${backdropBlur * 100}vw)` : undefined;
-  // TODO: for transparent items
-  const isInteractive = backgroundColor?.getAlpha() !== 0 || (strokeWidth !== 0 && borderColor?.getAlpha() !== 0);
+  const isInteractive = areFillsVisible(stateFillLayers ?? itemFill ?? []) || (strokeWidth !== 0 && areFillsVisible(stateStrokeFillLayers ?? itemStrokeFill ?? []));
   useEffect(() => {
     onVisibilityChange?.(isInteractive);
   }, [isInteractive, onVisibilityChange]);
@@ -72,11 +61,8 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
           className={`rectangle-${item.id}`}
           ref={setRef}
           style={{
-            // ...(backgroundColor ? { backgroundColor: `${backgroundColor.fmt('rgba')}` } : {}),
-            // ...(borderColor ? { borderColor: `${borderColor.fmt('rgba')}` } : {}),
             ...(strokeValue ? {
               '--stroke-background': stroke,
-              // ...(strokeWidth !== undefined ? { borderWidth: `${strokeWidth * 100}vw` } : {}),
               ...(strokeValue.type === 'image' ? {
                 backgroundPosition: 'center',
                 backgroundSize: strokeValue.behavior === 'repeat' ? `${strokeValue.backgroundSize}%` : strokeValue.behavior,
@@ -84,7 +70,6 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
               } : {})
             } : {}),
             ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),
-            // ...(strokeWidth !== undefined ? { borderWidth: `${strokeWidth * 100}vw` } : {}),
             ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
             ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
             willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
@@ -122,35 +107,15 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
           />
           {itemFill && itemFill.map((fill) => {
             const stateFillLayer = stateFillLayers?.find((layer) => layer.id === fill.id);
-            const value = stateFillLayer ? getStyleFromItemStateAndParams<FillLayer>(stateFillLayer, fill)! : fill;
+            const value = stateFillLayer
+              ? (getStyleFromItemStateAndParams<FillLayer>(stateFillLayer, fill) ?? fill)
+              : fill;
             const background = value
               ? getFill(value) ?? 'transparent'
               : 'transparent';
 
             return (
               <Fill fill={value} itemId={item.id} background={background} solidTransition={solidTransition} />
-              // <div
-              //   key={fill.id}
-              //   style={{
-              //     ...(value.type === 'solid' ? { background, transition: solidTransition } : {}),
-              //     ...(value.type === 'image'
-              //       ? {
-              //           '--image-rotation': `${value.rotation}deg`,
-              //           '--image-src': `url(${value.src})`,
-              //           '--image-size': value.behavior === 'repeat' ? `${value.backgroundSize}%` : value.behavior,
-              //           '--image-repeat': value.behavior === 'repeat' ? 'repeat' : 'no-repeat',
-              //           'opacity': value.opacity
-              //         }
-              //       : { background }),
-              //     position: 'absolute',
-              //     mixBlendMode: value.blendMode as any,
-              //     top: 0,
-              //     left: 0,
-              //     width: '100%',
-              //     height: '100%',
-              //     pointerEvents: 'none',
-              //   }}
-              // />
             );
           })}
         </div>

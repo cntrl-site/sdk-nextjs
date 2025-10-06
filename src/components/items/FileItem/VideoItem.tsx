@@ -55,10 +55,6 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
   const stateStrokeFillParams = interactionCtrl?.getState<FillLayer[]>(['strokeFill']);
   const stateStrokeFillLayers = stateStrokeFillParams?.styles?.strokeFill;
   const strokeSolidTransition = stateStrokeFillParams?.transition ?? 'none';
-  // const borderColor = useMemo(() => {
-  //   const strokeFill = getStyleFromItemStateAndParams(videoStateParams?.styles?.strokeFill, itemStrokeFill?.[0]);
-  //   return strokeFill ? CntrlColor.parse(strokeFill) : undefined;
-  // }, [videoStateParams?.styles?.strokeFill, itemStrokeFill]);
   const angle = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.angle, itemAngle);
   const opacity = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.opacity, itemOpacity);
   const blur = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.blur, itemBlur);

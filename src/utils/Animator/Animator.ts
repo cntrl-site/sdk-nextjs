@@ -19,6 +19,12 @@ export type KeyframesMap = {
   [T in KeyframeType]: AnimationData<T>[];
 };
 
+type ColorPoint = {
+  id: string;
+  value: string;
+  position: number;
+};
+
 const compare = (lhs: { position: number }, rhs: { position: number }) => lhs.position - rhs.position;
 const insertBin = createInsert(binSearchInsertAt, compare);
 
@@ -506,7 +512,7 @@ export class Animator {
     }
   }
 
-  private interpolateColorStops(startColors: Array<{ id: string; color: string; position: number }>, endColors: Array<{ id: string; color: string; position: number }>, rangeAmount: number): Array<{ id: string; color: string; position: number }> {
+  private interpolateColorStops(startColors: ColorPoint[], endColors: ColorPoint[], rangeAmount: number): ColorPoint[] {
     const startColorMap = new Map(startColors.map(stop => [stop.id, stop]));
     const endColorMap = new Map(endColors.map(stop => [stop.id, stop]));
     const allStopIds = new Set([
@@ -514,7 +520,7 @@ export class Animator {
       ...endColors.map(stop => stop.id)
     ]);
 
-    const interpolatedStops: Array<{ id: string; color: string; position: number }> = [];
+    const interpolatedStops: ColorPoint[] = [];
 
     for (const stopId of allStopIds) {
       const startStop = startColorMap.get(stopId);
@@ -528,14 +534,14 @@ export class Animator {
         continue;
       }
       if (startStop && endStop) {
-        const startColor = CntrlColor.parse(startStop.color);
-        const endColor = CntrlColor.parse(endStop.color);
+        const startColor = CntrlColor.parse(startStop.value);
+        const endColor = CntrlColor.parse(endStop.value);
         const mixedColor = startColor.mix(endColor, rangeAmount);
         const position = startStop.position + (endStop.position - startStop.position) * rangeAmount;
 
         interpolatedStops.push({
           id: stopId,
-          color: mixedColor.fmt('oklch'),
+          value: mixedColor.fmt('oklch'),
           position
         });
       }

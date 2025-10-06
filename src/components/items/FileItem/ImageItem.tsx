@@ -63,10 +63,6 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const rect = useElementRect(wrapperRef);
   const rectWidth = Math.floor(rect?.width ?? 0);
   const rectHeight = Math.floor(rect?.height ?? 0);
-  // const borderFill = useMemo(() => {
-  //   const borderFill = getStyleFromItemStateAndParams(imgStateParams?.styles?.strokeFill, itemStrokeFill);
-  //   return borderFill ? CntrlColor.parse(borderFill) : undefined;
-  // }, [itemStrokeFill, imgStateParams?.styles?.strokeFill]);
   const radius = getStyleFromItemStateAndParams(imgStateParams?.styles?.radius, itemRadius);
   const strokeWidth = getStyleFromItemStateAndParams(imgStateParams?.styles?.strokeWidth, itemStrokeWidth);
   const angle = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.angle, itemAngle);
