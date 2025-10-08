@@ -84,6 +84,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
   useRegisterResize(ref, onResize);
   const inlineStyles = {
     ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),
+    ...(strokeWidth !== undefined ? { borderWidth: `${strokeWidth * 100}vw` } : {}),
     transition: videoStateParams?.transition ?? 'none'
   };
   const isInteractive = opacity !== 0;
@@ -302,6 +303,9 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
               ${layoutParams.blur !== 0 ? 'will-change: transform;' : ''}
             }
             .video-${item.id} {
+              border: solid;
+              border-color: transparent;
+              border-width: ${layoutParams.strokeWidth * 100}vw;
               border-radius: ${layoutParams.radius * 100}vw;
             }
             .video-border-${item.id} {

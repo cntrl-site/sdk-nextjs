@@ -77,6 +77,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
     : 'transparent';
   const inlineStyles = {
     ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),
+    ...(strokeWidth !== undefined ? { borderWidth: `${strokeWidth * 100}vw` } : {}),
     transition: imgStateParams?.transition ?? 'none'
   };
   const isInteractive = opacity !== 0;
@@ -184,6 +185,9 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
               ${layoutParams.blur !== 0 ? 'will-change: transform;' : ''}
             }
             .image-${item.id} {
+              border: solid;
+              border-color: transparent;
+              border-width: ${layoutParams.strokeWidth * 100}vw;
               border-radius: ${layoutParams.radius * 100}vw;
             }
             .image-border-${item.id} {
