@@ -19,7 +19,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
-  const stateParams = interactionCtrl?.getState(['opacity', 'angle', 'blur']);
+  const stateParams = interactionCtrl?.getState<number>(['opacity', 'angle', 'blur']);
   const angle = getStyleFromItemStateAndParams(stateParams?.styles?.angle, itemAngle);
   const opacity = getStyleFromItemStateAndParams(stateParams?.styles?.opacity, itemOpacity);
   const blur = getStyleFromItemStateAndParams(stateParams?.styles?.blur, itemBlur);

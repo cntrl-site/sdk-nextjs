@@ -1,5 +1,5 @@
-export function getStyleFromItemStateAndParams<T extends string | number>(
-  stateValue: string | number | undefined,
+export function getStyleFromItemStateAndParams<T>(
+  stateValue: T | undefined,
   paramsValue: T | undefined
 ): T | undefined {
   return (stateValue as T) !== undefined

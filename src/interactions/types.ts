@@ -1,7 +1,7 @@
-import { ArticleItemType, InteractionItemTrigger, ItemState } from '@cntrl-site/sdk';
+import { ArticleItemType, FillLayer, InteractionItemTrigger, ItemState } from '@cntrl-site/sdk';
 
 export interface ItemInteractionCtrl {
-  getState(keys: string[]): StateCSSInfo;
+  getState<T>(keys: string[]): StateCSSInfo<T>;
   getHasTrigger(itemId: string, triggerType: InteractionItemTrigger['type']): boolean;
   sendTrigger(type: 'click' | 'hover-in' | 'hover-out'): void;
   handleTransitionEnd?: (styleKey: string) => void;
@@ -13,19 +13,19 @@ export interface ItemInteractionCtrl {
 
 export interface InteractionsRegistryPort {
   register(itemId: string, ctrl: ItemInteractionCtrl): void;
-  getStatePropsForItem(itemId: string): StateProps;
+  getStatePropsForItem(itemId: string): StateProps<unknown>;
   getItemAvailableTriggers(itemId: string): Set<InteractionItemTrigger['type']>;
   notifyItemTrigger(itemId: string, type: TriggerType): void;
   notifyTransitionEnd(itemId: string): void;
 }
 
-type StateCSSInfo = {
-  styles: Partial<Record<string, string | number>>;
+type StateCSSInfo<T> = {
+  styles: Partial<Record<string, T>>;
   transition?: string;
 };
 
-type StateProps = Record<keyof ItemState<ArticleItemType>, {
-  value?: string | number;
+type StateProps<T> = Record<keyof ItemState<ArticleItemType>, {
+  value?: T;
   transition?: {
     timing: string;
     duration: number;
