@@ -30,11 +30,11 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   const exemplary = useExemplary();
   const { layoutId } = useCurrentLayout();
   useRegisterResize(ref, onResize);
-  const stateParams = interactionCtrl?.getState(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color']);
+  const stateParams = interactionCtrl?.getState<number | string>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color']);
   const stateStyles = stateParams?.styles ?? {};
   const transition = stateParams?.transition ?? 'none';
   const textColor = useMemo(() => {
-    const color = getStyleFromItemStateAndParams(stateParams?.styles?.color, itemColor);
+    const color = getStyleFromItemStateAndParams(stateParams?.styles?.color as string, itemColor);
     return color ? CntrlColor.parse(color) : undefined;
   }, [itemColor, stateStyles.color]);
   const angle = getStyleFromItemStateAndParams(stateStyles.angle, itemAngle);
@@ -60,11 +60,11 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
         ref={setRef}
         className={`rich-text-wrapper-${item.id}`}
         style={{
-          ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
+          ...(blur !== undefined ? { filter: `blur(${blur as number * 100}vw)` } : {}),
           ...(textColor ? { color: `${textColor.fmt('rgba')}` } : {}),
           ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
-          ...(letterSpacing !== undefined ? { letterSpacing: `${letterSpacing * exemplary}px` } : {}),
-          ...(wordSpacing !== undefined ? { wordSpacing: `${wordSpacing * exemplary}px` } : {}),
+          ...(letterSpacing !== undefined ? { letterSpacing: `${letterSpacing as number * exemplary}px` } : {}),
+          ...(wordSpacing !== undefined ? { wordSpacing: `${wordSpacing as number * exemplary}px` } : {}),
           ...(fontSize !== undefined ? { fontSize: `${Math.round(fontSize * exemplary)}px` } : {}),
           ...(lineHeight !== undefined ? { lineHeight: `${lineHeight * exemplary}px` } : {}),
           willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',

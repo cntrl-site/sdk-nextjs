@@ -33,7 +33,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
   useRegisterResize(ref, onResize);
   const pos = stylesMap[anchor];
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
-  const stateParams = interactionCtrl?.getState(['angle', 'blur', 'opacity']);
+  const stateParams = interactionCtrl?.getState<number>(['angle', 'blur', 'opacity']);
   const blur = (stateParams?.styles?.blur ?? itemBlur) as number;
   const opacity = stateParams?.styles?.opacity ?? itemOpacity;
   const angle = stateParams?.styles?.angle ?? itemAngle;

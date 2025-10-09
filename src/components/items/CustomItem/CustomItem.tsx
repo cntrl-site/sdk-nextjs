@@ -14,7 +14,7 @@ export const CustomItem: FC<ItemProps<TCustomItem>> = ({ item, onResize, section
   const layoutValues: Record<string, any>[] = [item.area];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
-  const stateParams = interactionCtrl?.getState(['angle']);
+  const stateParams = interactionCtrl?.getState<number>(['angle']);
   const angle = stateParams?.styles?.angle ?? itemAngle;
   if (!component) return null;
   return (

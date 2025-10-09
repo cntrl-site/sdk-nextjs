@@ -19,7 +19,7 @@ export const CompoundItem: FC<ItemProps<TCompoundItem>> = ({ item, sectionId, on
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
-  const stateParams = interactionCtrl?.getState(['opacity', 'angle']);
+  const stateParams = interactionCtrl?.getState<number>(['opacity', 'angle']);
   const angle = getStyleFromItemStateAndParams(stateParams?.styles?.angle, itemAngle);
   const opacity = getStyleFromItemStateAndParams(stateParams?.styles?.opacity, itemOpacity);
   const isInteractive = opacity !== 0 && opacity !== undefined;

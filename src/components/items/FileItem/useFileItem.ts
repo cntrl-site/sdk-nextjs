@@ -2,7 +2,15 @@ import { ImageItem, KeyframeType, VideoItem } from '@cntrl-site/sdk';
 import { useKeyframeValue } from '../../../common/useKeyframeValue';
 import { useLayoutContext } from '../../useLayoutContext';
 
-const DEFAULT_COLOR = 'rgba(0, 0, 0, 1)';
+const DEFAULT_FILL = [
+  {
+    id: 'default',
+    type: 'solid' as const,
+    value: 'rgba(0, 0, 0, 1)',
+    blendMode: 'normal'
+  }
+];
+
 export function useFileItem(item: ImageItem | VideoItem, sectionId: string) {
   const layoutId = useLayoutContext();
   const radius = useKeyframeValue(
@@ -43,15 +51,15 @@ export function useFileItem(item: ImageItem | VideoItem, sectionId: string) {
     [layoutId]
   );
 
-  const strokeColor = useKeyframeValue(
+  const strokeFill = useKeyframeValue(
     item,
-    KeyframeType.BorderColor,
+    KeyframeType.BorderFill,
     (item, layoutId) => {
       if (!layoutId) return;
       const layoutParams = item.layoutParams[layoutId];
-      return 'strokeColor' in layoutParams ? layoutParams.strokeColor : DEFAULT_COLOR;
+      return 'strokeFill' in layoutParams ? layoutParams.strokeFill : DEFAULT_FILL;
     },
-    (animator, scroll, value) => value ? animator.getBorderColor({ color: value }, scroll).color : undefined,
+    (animator, scroll, value) => value ? animator.getBorderFill(value, scroll) : undefined,
     sectionId,
     [layoutId]
   );
@@ -69,5 +77,5 @@ export function useFileItem(item: ImageItem | VideoItem, sectionId: string) {
     [layoutId]
   );
 
-  return { radius, strokeWidth, opacity, strokeColor, blur };
+  return { radius, strokeWidth, opacity, strokeFill, blur };
 }
