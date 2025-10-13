@@ -16,7 +16,7 @@
   "types": "src/index.ts",
   "scripts": {
     "test": "jest",
-    "prebuild": "rm -rf ./lib",
+    "prebuild": "rimraf ./lib",
     "build": "tsc --project tsconfig.build.json",
     "prepublishOnly": "cross-env NODE_ENV=production npm run build"
   },
