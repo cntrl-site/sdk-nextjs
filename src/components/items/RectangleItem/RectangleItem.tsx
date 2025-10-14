@@ -1,7 +1,7 @@
 import { FC, useEffect, useId, useMemo, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { CntrlColor } from '@cntrl-site/color';
-import { RectangleItem as TRectangleItem, getLayoutStyles } from '@cntrl-site/sdk';
+import { RectangleItem as TRectangleItem, getLayoutStyles, FillLayer } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useRectangleItem } from './useRectangleItem';
@@ -9,7 +9,6 @@ import { useItemAngle } from '../useItemAngle';
 import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { useRegisterResize } from '../../../common/useRegisterResize';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
-import { FillLayer } from '@cntrl-site/sdk/dist/types/article/Item';
 import { getFill } from '../../../utils/getFill';
 import { areFillsVisible } from '../../../utils/areFillsVisible/areFillsVisible';
 

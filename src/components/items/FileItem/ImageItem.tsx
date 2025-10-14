@@ -1,7 +1,7 @@
 import { FC, useEffect, useId, useMemo, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { CntrlColor } from '@cntrl-site/color';
-import { getLayoutStyles, ImageItem as TImageItem } from '@cntrl-site/sdk';
+import { getLayoutStyles, ImageItem as TImageItem, FillLayer } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useFileItem } from './useFileItem';
@@ -14,7 +14,6 @@ import { useLayoutContext } from '../../useLayoutContext';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
 import { useItemFXData } from '../../../common/useItemFXData';
 import { getFill } from '../../../utils/getFill';
-import { FillLayer } from '@cntrl-site/sdk/dist/types/article/Item';
 
 export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();

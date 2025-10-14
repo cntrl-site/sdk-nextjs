@@ -1,4 +1,4 @@
-import { FillLayer } from '@cntrl-site/sdk/dist/types/article/Item';
+import { FillLayer } from '@cntrl-site/sdk';
 
 export function getFill(fill: FillLayer) {
   if (fill.type === 'linear-gradient' && Array.isArray(fill.colors)) {

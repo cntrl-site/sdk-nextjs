@@ -1,7 +1,7 @@
 import { FC, useEffect, useId, useMemo, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { CntrlColor } from '@cntrl-site/color';
-import { getLayoutStyles, VideoItem as TVideoItem } from '@cntrl-site/sdk';
+import { getLayoutStyles, VideoItem as TVideoItem, FillLayer } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useFileItem } from './useFileItem';
@@ -15,7 +15,6 @@ import { useVideoFx } from '../../../utils/effects/useVideoFx';
 import { useElementRect } from '../../../utils/useElementRect';
 import { useItemFXData } from '../../../common/useItemFXData';
 import { getFill } from '../../../utils/getFill';
-import { FillLayer } from '@cntrl-site/sdk/dist/types/article/Item';
 
 export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();

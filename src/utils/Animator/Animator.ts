@@ -1,8 +1,7 @@
-import { KeyframeType, KeyframeValueMap } from '@cntrl-site/sdk';
+import { FillLayer, KeyframeType, KeyframeValueMap } from '@cntrl-site/sdk';
 import { CntrlColor } from '@cntrl-site/color';
 import { binSearchInsertAt, createInsert } from '../binSearchInsertAt';
 import { rangeMap } from '../rangeMap';
-import { FillLayer } from '@cntrl-site/sdk/dist/types/article/Item';
 
 export interface AnimationData<T extends KeyframeType> {
   position: number;
