@@ -217,31 +217,30 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
             ))}
           </>
         )}
-        <div
-          className={`video-border-${item.id}`}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            borderRadius: 'inherit',
-            pointerEvents: 'none',
-            zIndex: 2,
-            WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-            WebkitMaskComposite: 'xor',
-            maskComposite: 'exclude',
-            ...(strokeWidth !== 0 && strokeValue ? {
-              ...(strokeWidth ? { padding: `${strokeWidth * 100}vw` } : {}),
-              ...(strokeValue.type === 'solid' ? { transition: strokeSolidTransition, background: stroke } : {}),
-              ...(strokeValue.type === 'image' ? {
-                backgroundPosition: 'center',
-                backgroundSize: strokeValue.behavior === 'repeat' ? `${strokeValue.backgroundSize}%` : strokeValue.behavior,
-                backgroundRepeat: strokeValue.behavior === 'repeat' ? 'repeat' : 'no-repeat'
-              } : {
-                background: stroke,
-              }
-              )
-            } : { background: stroke }),
-          }}
-        />
+        {strokeWidth !== 0 && strokeValue && (
+          <div
+            className={`video-border-${item.id}`}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: 'inherit',
+              pointerEvents: 'none',
+              zIndex: 2,
+              WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+              WebkitMaskComposite: 'xor',
+              maskComposite: 'exclude',
+              ...(strokeWidth !== 0 && strokeValue ? {
+                ...(strokeWidth ? { padding: `${strokeWidth * 100}vw` } : {}),
+                ...(strokeValue.type === 'solid' ? { transition: strokeSolidTransition, background: stroke } : {}),
+                ...(strokeValue.type === 'image' ? {
+                  backgroundPosition: 'center',
+                  backgroundSize: strokeValue.behavior === 'repeat' ? `${strokeValue.backgroundSize}%` : strokeValue.behavior,
+                  backgroundRepeat: strokeValue.behavior === 'repeat' ? 'repeat' : 'no-repeat'
+                } : { background: stroke })
+              } : {}),
+            }}
+          />
+        )}
       </div>
       <JSXStyle id={id}>{`
         .video-wrapper-${item.id} {
