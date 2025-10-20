@@ -90,14 +90,16 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
     width: innerStateProps?.styles?.width as number,
     height: innerStateProps?.styles?.height as number
   });
-  const sectionHeight = useSectionHeightData(sectionId);
+  const sectionHeightLayoutMap = useSectionHeightData(sectionId);
+  const sectionHeight = layout && sectionHeightLayoutMap[layout] ? sectionHeightLayoutMap[layout] : '0';
   const stickyTop = useStickyItemTop(item, sectionId, wrapperStateProps?.styles?.top as number);
   const layoutValues: Record<string, any>[] = [item.area, item.hidden];
   layoutValues.push(item.sticky);
-  layoutValues.push(sectionHeight);
+  layoutValues.push(sectionHeightLayoutMap);
   if (item.layoutParams) {
     layoutValues.push(item.layoutParams);
   }
+  const sticky = layout ? item.sticky[layout] : undefined;
   const sizingAxis = useSizing(item);
   const ItemComponent = itemsMap[item.type] || noop;
   const sectionTop = rectObserver ? rectObserver.getSectionTop(sectionId) : 0;
@@ -161,8 +163,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
         className={`item-${item.id}`}
         style={{
           opacity: (keyframes.length !== 0 && !layout) ? 0 : 1,
-          top: `${stickyTop * 100}vw`,
-          height: isRichText && itemHeight !== undefined ? `${itemHeight * 100}vw` : 'unset',
+          top: sticky ? getAnchoredItemTop(stickyTop, sectionHeight, anchorSide) : 0,
+          height: isRichText && itemHeight !== undefined ? `${itemHeight * 100}vw` : 'unset'
         }}
       >
         <RichTextWrapper isRichText={isRichText}>
