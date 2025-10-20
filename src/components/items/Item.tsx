@@ -163,7 +163,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
         className={`item-${item.id}`}
         style={{
           opacity: (keyframes.length !== 0 && !layout) ? 0 : 1,
-          top: sticky ?getAnchoredItemTop(stickyTop, sectionHeight, anchorSide) : 0,
+          top: sticky ? getAnchoredItemTop(stickyTop, sectionHeight, anchorSide) : 0,
           height: isRichText && itemHeight !== undefined ? `${itemHeight * 100}vw` : 'unset'
         }}
       >
