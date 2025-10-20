@@ -13,7 +13,7 @@ export function useItemArea(
     KeyframeType.Position,
     (item, layoutId) => {
       if (!layoutId) return;
-      return item.area[layoutId]
+      return item.area[layoutId];
     },
     (animator, scroll, value) => value ? animator.getPositions(value, scroll) : undefined,
     sectionId,
