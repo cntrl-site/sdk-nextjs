@@ -24,7 +24,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
   const YT = useYouTubeIframeApi();
   const [div, setDiv] = useState<HTMLDivElement | null>(null);
   const [player, setPlayer] = useState<YTPlayer | undefined>(undefined);
-  const [isCoverVisible, setIsCoverVisible] = useState(false);
+  const [isCoverVisible, setIsCoverVisible] = useState(item.commonParams.coverUrl !== null);
   const [imgRef, setImgRef] = useState<HTMLImageElement | null>(null);
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const wrapperStateParams = interactionCtrl?.getState<number>(['angle', 'blur', 'opacity']);
@@ -114,7 +114,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
       <div
         className={`embed-youtube-video-wrapper-${item.id}`}
         onMouseEnter={() => {
-          if (!player || !layoutParams || layoutParams.play !== 'on-hover') return;
+          if (!player || !layoutParams || layoutParams.play !== 'on-hover' || isCoverVisible) return;
           player.playVideo();
         }}
         onMouseLeave={() => {
@@ -132,7 +132,12 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
         {item.commonParams.coverUrl && (
           <img
             ref={setImgRef}
-            onClick={() => onCoverClick()}
+            {...(layoutParams?.play === 'on-click' ? { onClick: () => onCoverClick() } : {})}
+            {...(layoutParams?.play === 'on-hover' ? { onMouseEnter: () => {
+              if (!player || !layoutParams || layoutParams.play !== 'on-hover') return;
+              setIsCoverVisible(false);
+              player.playVideo();
+            } } : {})}
             src={item.commonParams.coverUrl ?? ''}
             style={{
               display: isCoverVisible ? 'block' : 'none',

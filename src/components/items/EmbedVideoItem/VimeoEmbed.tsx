@@ -29,7 +29,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
   const layoutParams = layoutId ? item.layoutParams[layoutId] : null;
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const [imgRef, setImgRef] = useState<HTMLImageElement | null>(null);
-  const [isCoverVisible, setIsCoverVisible] = useState(false);
+  const [isCoverVisible, setIsCoverVisible] = useState(item.commonParams.coverUrl !== null);
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const wrapperStateParams = interactionCtrl?.getState<number>(['angle', 'blur', 'opacity']);
   const frameStateParams = interactionCtrl?.getState<number>(['radius']);
@@ -57,6 +57,9 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
     if (!vimeoPlayer || !imgRef || !layoutParams) return;
     if (layoutParams.play === 'on-click') {
       setIsCoverVisible(true);
+    }
+    if (layoutParams.play === 'auto') {
+      setIsCoverVisible(false);
     }
     vimeoPlayer.on('pause', (e) => {
       if (e.seconds === 0) {
@@ -121,7 +124,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
           transition: wrapperStateParams?.transition ?? 'none'
         }}
         onMouseEnter={() => {
-          if (!vimeoPlayer || !layoutParams || layoutParams.play !== 'on-hover') return;
+          if (!vimeoPlayer || !layoutParams || layoutParams.play !== 'on-hover' || isCoverVisible) return;
           vimeoPlayer.play();
         }}
         onMouseLeave={() => {
@@ -132,7 +135,12 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
         {item.commonParams.coverUrl && (
           <img
             ref={setImgRef}
-            onClick={() => onCoverClick()}
+            {...(layoutParams?.play === 'on-click' ? { onClick: () => onCoverClick() } : {})}
+            {...(layoutParams?.play === 'on-hover' ? { onMouseEnter: () => {
+              if (!vimeoPlayer || !layoutParams || layoutParams.play !== 'on-hover') return;
+              setIsCoverVisible(false);
+              vimeoPlayer.play();
+            } } : {})}
             src={item.commonParams.coverUrl ?? ''}
             style={{
               display: isCoverVisible ? 'block' : 'none',
