@@ -1,7 +1,6 @@
-import { FC, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { FC, useEffect, useId, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
-import { CntrlColor } from '@cntrl-site/color';
-import { getLayoutStyles, ImageItem as TImageItem, FillLayer } from '@cntrl-site/sdk';
+import { getLayoutStyles, ImageItem as TImageItem } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useFileItem } from './useFileItem';
@@ -40,11 +39,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const width = area && exemplary ? area.width * exemplary : 0;
   const height = area && exemplary ? area.height * exemplary : 0;
   const wrapperStateParams = interactionCtrl?.getState<number>(['angle', 'opacity', 'blur']);
-  const imgStateParams = interactionCtrl?.getState<number>(['strokeWidth', 'radius']);
-  const stateStrokeFillParams = interactionCtrl?.getState<FillLayer[]>(['strokeFill']);
-  const stateStrokeFillLayers = stateStrokeFillParams?.styles?.strokeFill;
-  const strokeSolidTransition = stateStrokeFillParams?.transition ?? 'none';
-
+  const imgStateParams = interactionCtrl?.getState<any>(['strokeWidth', 'radius', 'strokeFill']);
   useEffect(() => {
     isInitialRef.current = false;
   }, []);
@@ -64,19 +59,22 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const rectHeight = Math.floor(rect?.height ?? 0);
   const radius = getStyleFromItemStateAndParams(imgStateParams?.styles?.radius, itemRadius);
   const strokeWidth = getStyleFromItemStateAndParams(imgStateParams?.styles?.strokeWidth, itemStrokeWidth);
+  const strokeFill = getStyleFromItemStateAndParams(imgStateParams?.styles?.strokeFill?.[0], itemStrokeFill?.[0]) ?? itemStrokeFill?.[0];
   const angle = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.angle, itemAngle);
   const opacity = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.opacity, itemOpacity);
   const blur = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.blur, itemBlur);
 
-  const strokeValue = stateStrokeFillLayers
-    ? getStyleFromItemStateAndParams<FillLayer>(stateStrokeFillLayers[0], itemStrokeFill?.[0])
-    : itemStrokeFill?.[0];
-  const stroke = strokeValue
-    ? getFill(strokeValue) ?? 'transparent'
+  const stroke = strokeFill
+    ? getFill(strokeFill) ?? 'transparent'
     : 'transparent';
   const inlineStyles = {
     ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),
-    ...(strokeWidth !== undefined ? { borderWidth: `${strokeWidth * 100}vw` } : {}),
+    ...(strokeWidth !== undefined ? {
+      borderColor: stroke,
+      borderWidth: `${strokeWidth * 100}vw`,
+      borderRadius: radius !== undefined ? `${radius * 100}vw` : 'inherit',
+      borderStyle: 'solid',
+    } : {}),
     transition: imgStateParams?.transition ?? 'none'
   };
   const isInteractive = opacity !== 0;
@@ -93,14 +91,6 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
             ...(opacity !== undefined ? { opacity } : {}),
             ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
             ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
-            ...(strokeValue ? {
-              '--stroke-background': stroke,
-              ...(strokeValue.type === 'image' ? {
-                '--stroke-background-position': 'center',
-                '--stroke-background-size': strokeValue.behavior === 'repeat' ? `${strokeValue.backgroundSize}%` : strokeValue.behavior,
-                '--stroke-background-repeat': strokeValue.behavior === 'repeat' ? 'repeat' : 'no-repeat'
-              } : {})
-            } : {}),
             willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
             transition: wrapperStateParams?.transition ?? 'none'
           }}
@@ -123,30 +113,6 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
                   src={item.commonParams.url}
                 />
               )}
-          {strokeWidth !== 0 && strokeValue && (
-            <div
-              className={`image-border-${item.id}`}
-              style={{
-                position: 'absolute',
-                inset: 0,
-                borderRadius: 'inherit',
-                pointerEvents: 'none',
-                zIndex: 2,
-                WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                WebkitMaskComposite: 'xor',
-                maskComposite: 'exclude',
-                ...(strokeWidth !== 0 && strokeValue ? {
-                  ...(strokeWidth ? { padding: `${strokeWidth * 100}vw` } : {}),
-                  ...(strokeValue.type === 'solid' ? { transition: strokeSolidTransition, background: stroke } : {}),
-                  ...(strokeValue.type === 'image' ? {
-                    backgroundPosition: 'center',
-                    backgroundSize: strokeValue.behavior === 'repeat' ? `${strokeValue.backgroundSize}%` : strokeValue.behavior,
-                    backgroundRepeat: strokeValue.behavior === 'repeat' ? 'repeat' : 'no-repeat'
-                  } : { background: stroke })
-                } : {}),
-              }}
-            />
-          )}
         </div>
         <JSXStyle id={id}>{`
         .image-wrapper-${item.id} {
@@ -184,21 +150,9 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
             }
             .image-${item.id} {
               border: solid;
-              border-color: transparent;
-              border-width: ${layoutParams.strokeWidth * 100}vw;
+              border-color: ${stroke};
               border-radius: ${layoutParams.radius * 100}vw;
-            }
-            .image-border-${item.id} {
-              position: absolute;
-              inset: 0;
-              border-radius: inherit;
-              pointer-events: none;
-              z-index: 2;
-              -webkit-mask:
-                linear-gradient(#fff 0 0) content-box,
-                linear-gradient(#fff 0 0);
-              -webkit-mask-composite: xor;
-              mask-composite: exclude;
+              border-width: ${layoutParams.strokeWidth * 100}vw;
             }
           `);
     })}
