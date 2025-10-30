@@ -1,6 +1,7 @@
 import { FC, useEffect, useId, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { RectangleItem as TRectangleItem, getLayoutStyles, FillLayer } from '@cntrl-site/sdk';
+import { CntrlColor } from '@cntrl-site/color';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useRectangleItem } from './useRectangleItem';
@@ -38,7 +39,8 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
   const angle = getStyleFromItemStateAndParams(styles?.angle, itemAngle);
   const blur = getStyleFromItemStateAndParams(styles?.blur, itemBlur);
   const backdropFilterValue = backdropBlur ? `blur(${backdropBlur * 100}vw)` : undefined;
-  const isInteractive = areFillsVisible(stateFillLayers ?? itemFill ?? []) || (strokeWidth !== 0 && areFillsVisible(strokeFill ?? itemStrokeFill ?? []));
+  const isInteractive = areFillsVisible(stateFillLayers ?? itemFill ?? [])
+    || (strokeWidth !== 0 && strokeFill && strokeFill.value && CntrlColor.parse(strokeFill.value).getAlpha() !== 0);
   useEffect(() => {
     onVisibilityChange?.(isInteractive);
   }, [isInteractive, onVisibilityChange]);
