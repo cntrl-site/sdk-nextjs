@@ -1,5 +1,6 @@
 import { CustomItemRegistry } from './CustomItemRegistry';
-import { Article, Section, Layout, Project, SectionHeight, components, Component as TComponent } from '@cntrl-site/sdk';
+import { Article, Section, Layout, Project, SectionHeight } from '@cntrl-site/sdk';
+import { components, Component as TComponent } from '@cntrl-site/components';
 import { CustomSectionRegistry } from './CustomSectionRegistry';
 import { Component } from 'react';
 
