@@ -96,16 +96,16 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
     return itemStyles;
   }
 
-  getItemAvailableTriggers(itemId: string): Set<InteractionItemTrigger['type']> {
-    const available = new Set<InteractionItemTrigger['type']>();
+  getItemAvailableTriggers(itemId: string): Set<InteractionItemTrigger['triggerEvent']> {
+    const available = new Set<InteractionItemTrigger['triggerEvent']>();
     const activeStates = Object.values(this.interactionStateMap);
     for (const interaction of this.interactions) {
       const { triggers } = interaction;
       for (const trigger of triggers) {
-        if (!('itemId' in trigger)) continue;
+        if (!('triggerEvent' in trigger)) continue;
         if (trigger.itemId !== itemId) continue;
         if (activeStates.includes(trigger.from)) {
-          available.add(trigger.type);
+          available.add(trigger.triggerEvent);
         }
       }
     }
@@ -210,10 +210,10 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
     for (const interaction of this.interactions) {
       const currentStateId = this.getCurrentStateByInteractionId(interaction.id);
       const matchingTrigger = interaction.triggers.find((trigger) =>
-        'itemId' in trigger
+        'triggerEvent' in trigger
         && trigger.itemId === itemId
         && trigger.from === currentStateId
-        && trigger.type === triggerType
+        && trigger.triggerEvent === triggerType
       );
       if (!matchingTrigger) continue;
       const activeStateId = this.getActiveInteractionState(interaction.id);
@@ -366,7 +366,7 @@ type TransitioningStage = {
 type ActiveStage = { type: 'active'; itemId: string; interactionId: string; stateId?: string; isStartState: boolean; updated: number; };
 type InteractionStateMap = Record<InteractionId, StateId>;
 type StateItemsIdsMap = Record<StateId, ItemId[]>;
-type TriggerType = InteractionItemTrigger['type'];
+type TriggerType = InteractionItemTrigger['triggerEvent'];
 type InteractionId = string;
 type StateId = string;
 type ItemId = string;
