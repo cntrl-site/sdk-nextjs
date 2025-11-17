@@ -119,7 +119,8 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
     for (const interaction of this.interactions) {
       const currentStateId = this.getCurrentStateByInteractionId(interaction.id);
       const matchingTrigger = interaction.triggers.find(trigger =>
-        ('position' in trigger && trigger.position === 0 && trigger.from === currentStateId) || trigger.type === 'item-scroll-position'
+        ('position' in trigger && trigger.position === 0 && trigger.from === currentStateId)
+        || (trigger.type === 'item-scroll-position' && this.items.find((item) => item.id === trigger.itemId)!.area[this.layoutId].top * window.innerWidth === 0 && trigger.from === currentStateId)
       );
       if (!matchingTrigger) continue;
       const activeStateId = this.getActiveInteractionState(interaction.id);
@@ -170,8 +171,21 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
           triggerPosition = trigger.position * window.innerWidth;
         }
         if (trigger.type === 'item-scroll-position') {
-          const item = this.items.find((item) => item.id === trigger.itemId)!;
-          triggerPosition = item.area[this.layoutId].top * window.innerWidth;
+          const itemArea = this.items.find((item) => item.id === trigger.itemId)!.area[this.layoutId];
+          switch (trigger.itemPosition) {
+            case 'top':
+              triggerPosition = itemArea.top * window.innerWidth;
+              break;
+            case 'center':
+              triggerPosition = (itemArea.top + itemArea.height / 2) * window.innerWidth;
+              break;
+            case 'bottom':
+              triggerPosition = (itemArea.top + itemArea.height) * window.innerWidth;
+              break;
+            default:
+              triggerPosition = itemArea.top * window.innerWidth;
+              break;
+          }
         }
         if (!triggerPosition) return false;
         const isScrolledPastTrigger = triggerPosition < position;
@@ -185,8 +199,21 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
         triggerPosition = matchingTrigger.position * window.innerWidth;
       }
       if (matchingTrigger.type === 'item-scroll-position') {
-        const item = this.items.find((item) => item.id === matchingTrigger.itemId)!;
-        triggerPosition = item.area[this.layoutId].top * window.innerWidth;
+        const itemArea = this.items.find((item) => item.id === matchingTrigger.itemId)!.area[this.layoutId];
+        switch (matchingTrigger.itemPosition) {
+          case 'top':
+            triggerPosition = itemArea.top * window.innerWidth;
+            break;
+          case 'center':
+            triggerPosition = (itemArea.top + itemArea.height / 2) * window.innerWidth;
+            break;
+          case 'bottom':
+            triggerPosition = (itemArea.top + itemArea.height) * window.innerWidth;
+            break;
+          default:
+            triggerPosition = itemArea.top * window.innerWidth;
+            break;
+        }
       }
       if (!triggerPosition) continue;
       const isScrolledPastTrigger = triggerPosition < position;
