@@ -159,7 +159,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
 
   notifyScroll(position: number) {
     const timestamp = Date.now();
-    const item = this.items.find((item) => item.id === 'FYUIEGBF')!;
+    const item = this.items.find((item) => item.id === this.items[0].id)!;
     const testtop = item.area[this.layoutId].top;
     for (const interaction of this.interactions) {
       const currentStateId = this.getCurrentStateByInteractionId(interaction.id);
