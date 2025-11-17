@@ -119,7 +119,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
     for (const interaction of this.interactions) {
       const currentStateId = this.getCurrentStateByInteractionId(interaction.id);
       const matchingTrigger = interaction.triggers.find(trigger =>
-        'position' in trigger && trigger.position === 0 && trigger.from === currentStateId
+        ('position' in trigger && trigger.position === 0 && trigger.from === currentStateId) || trigger.type === 'item-scroll-position'
       );
       if (!matchingTrigger) continue;
       const activeStateId = this.getActiveInteractionState(interaction.id);
@@ -159,21 +159,36 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
 
   notifyScroll(position: number) {
     const timestamp = Date.now();
-    const item = this.items.find((item) => item.id === this.items[0].id)!;
-    const testtop = item.area[this.layoutId].top;
     for (const interaction of this.interactions) {
       const currentStateId = this.getCurrentStateByInteractionId(interaction.id);
       const activeStateId = interaction.states.find((state) => state.id !== interaction.startStateId)?.id;
       const matchingTrigger = interaction.triggers.find((trigger) => {
-        if (!('position' in trigger) || testtop === 0) return false;
-        const triggerPosition = testtop * window.innerWidth;
+        if (trigger.type !== 'scroll-position' && trigger.type !== 'item-scroll-position') return false;
+        let triggerPosition;
+        if (trigger.type === 'scroll-position') {
+          if (trigger.position === 0) return false;
+          triggerPosition = trigger.position * window.innerWidth;
+        }
+        if (trigger.type === 'item-scroll-position') {
+          const item = this.items.find((item) => item.id === trigger.itemId)!;
+          triggerPosition = item.area[this.layoutId].top;
+        }
+        if (!triggerPosition) return false;
         const isScrolledPastTrigger = triggerPosition < position;
         if (!isScrolledPastTrigger && !trigger.isReverse) return false;
         const stateId = isScrolledPastTrigger ? trigger.from : trigger.to;
         return stateId === currentStateId;
       });
-      if (!matchingTrigger || !('position' in matchingTrigger) || !activeStateId) continue;
-      const triggerPosition = testtop * window.innerWidth;
+      if (!matchingTrigger || (matchingTrigger.type !== 'scroll-position' && matchingTrigger.type !== 'item-scroll-position') || !activeStateId) continue;
+      let triggerPosition;
+      if (matchingTrigger.type === 'scroll-position') {
+        triggerPosition = matchingTrigger.position * window.innerWidth;
+      }
+      if (matchingTrigger.type === 'item-scroll-position') {
+        const item = this.items.find((item) => item.id === matchingTrigger.itemId)!;
+        triggerPosition = item.area[this.layoutId].top;
+      }
+      if (!triggerPosition) continue;
       const isScrolledPastTrigger = triggerPosition < position;
       const targetStateId = isScrolledPastTrigger ? matchingTrigger.to : matchingTrigger.from;
       this.setCurrentStateForInteraction(interaction.id, targetStateId);
