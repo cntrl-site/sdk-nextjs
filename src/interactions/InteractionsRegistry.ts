@@ -171,7 +171,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
         }
         if (trigger.type === 'item-scroll-position') {
           const item = this.items.find((item) => item.id === trigger.itemId)!;
-          triggerPosition = item.area[this.layoutId].top;
+          triggerPosition = item.area[this.layoutId].top * window.innerWidth;
         }
         if (!triggerPosition) return false;
         const isScrolledPastTrigger = triggerPosition < position;
@@ -186,7 +186,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
       }
       if (matchingTrigger.type === 'item-scroll-position') {
         const item = this.items.find((item) => item.id === matchingTrigger.itemId)!;
-        triggerPosition = item.area[this.layoutId].top;
+        triggerPosition = item.area[this.layoutId].top * window.innerWidth;
       }
       if (!triggerPosition) continue;
       const isScrolledPastTrigger = triggerPosition < position;
