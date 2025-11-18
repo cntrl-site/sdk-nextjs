@@ -213,36 +213,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
           triggerPosition = trigger.position * window.innerWidth;
         }
         if (trigger.type === 'item-scroll-position') {
-          const itemArea = this.items.find((item) => item.id === trigger.itemId)!.area[this.layoutId];
-          switch (trigger.itemPosition) {
-            case 'top':
-              triggerPosition = itemArea.top * window.innerWidth;
-              break;
-            case 'center':
-              triggerPosition = itemArea.top * window.innerWidth - window.innerHeight / 2;
-              break;
-            case 'bottom':
-              triggerPosition = itemArea.top * window.innerWidth - window.innerHeight;
-              break;
-            default:
-              triggerPosition = itemArea.top * window.innerWidth;
-              break;
-          }
-          switch (trigger.screenPosition) {
-            case 'top':
-              triggerPosition += 0;
-              break;
-            case 'center':
-              triggerPosition += (itemArea.height * window.innerWidth) / 2;
-              break;
-            case 'bottom':
-              triggerPosition += itemArea.height * window.innerWidth;
-              break;
-            default:
-              triggerPosition += 0;
-              break;
-          }
-          triggerPosition += trigger.offset;
+          this.getTriggerPositionForItemScrollTrigger(trigger);
         }
         if (!triggerPosition) return false;
         const isScrolledPastTrigger = triggerPosition < position;
@@ -256,36 +227,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
         triggerPosition = matchingTrigger.position * window.innerWidth;
       }
       if (matchingTrigger.type === 'item-scroll-position') {
-        const itemArea = this.items.find((item) => item.id === matchingTrigger.itemId)!.area[this.layoutId];
-        switch (matchingTrigger.itemPosition) {
-          case 'top':
-            triggerPosition = itemArea.top * window.innerWidth;
-            break;
-          case 'center':
-            triggerPosition = itemArea.top * window.innerWidth - window.innerHeight / 2;
-            break;
-          case 'bottom':
-            triggerPosition = itemArea.top * window.innerWidth - window.innerHeight;
-            break;
-          default:
-            triggerPosition = itemArea.top * window.innerWidth;
-            break;
-        }
-        switch (matchingTrigger.screenPosition) {
-          case 'top':
-            triggerPosition += 0;
-            break;
-          case 'center':
-            triggerPosition += (itemArea.height * window.innerWidth) / 2;
-            break;
-          case 'bottom':
-            triggerPosition += itemArea.height * window.innerWidth;
-            break;
-          default:
-            triggerPosition += 0;
-            break;
-        }
-        triggerPosition += matchingTrigger.offset;
+        this.getTriggerPositionForItemScrollTrigger(matchingTrigger);
       }
       if (!triggerPosition) continue;
       const isScrolledPastTrigger = triggerPosition < position;
