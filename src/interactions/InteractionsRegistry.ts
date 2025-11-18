@@ -152,9 +152,8 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
   }
 
   isItemScrollTriggerOnStartScreen(trigger: InteractionItemScrollTrigger): boolean {
-    const screenHeight = window.innerHeight;
     const triggerPosition = this.getTriggerPositionForItemScrollTrigger(trigger);
-    return triggerPosition < screenHeight;
+    return triggerPosition < 0;
   }
 
   notifyLoad() {
