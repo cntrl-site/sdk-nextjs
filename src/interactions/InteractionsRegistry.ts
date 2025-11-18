@@ -120,7 +120,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
       const currentStateId = this.getCurrentStateByInteractionId(interaction.id);
       const matchingTrigger = interaction.triggers.find(trigger =>
         ('position' in trigger && trigger.position === 0 && trigger.from === currentStateId)
-        || (trigger.type === 'item-scroll-position' && this.items.find((item) => item.id === trigger.itemId)!.area[this.layoutId].top * window.innerWidth === 0 && trigger.from === currentStateId)
+        || (trigger.type === 'item-scroll-position' && this.items.find((item) => item.id === trigger.itemId) && trigger.from === currentStateId)
       );
       if (!matchingTrigger) continue;
       const activeStateId = this.getActiveInteractionState(interaction.id);
