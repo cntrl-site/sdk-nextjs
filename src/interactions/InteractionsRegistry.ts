@@ -177,10 +177,10 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
               triggerPosition = itemArea.top * window.innerWidth;
               break;
             case 'center':
-              triggerPosition = itemArea.top * window.innerWidth + window.innerHeight / 2;
+              triggerPosition = itemArea.top * window.innerWidth - window.innerHeight / 2;
               break;
             case 'bottom':
-              triggerPosition = itemArea.top * window.innerWidth + window.innerHeight;
+              triggerPosition = itemArea.top * window.innerWidth - window.innerHeight;
               break;
             default:
               triggerPosition = itemArea.top * window.innerWidth;
