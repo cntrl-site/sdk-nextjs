@@ -3,6 +3,7 @@ import { InteractionsRegistry } from '../interactions/InteractionsRegistry';
 import { Article } from '@cntrl-site/sdk';
 import { useCurrentLayout } from '../common/useCurrentLayout';
 import { ArticleRectContext } from './ArticleRectContext';
+import { ItemGeometryRegisterContext } from '../interactions/ItemGeometryRegisterContext';
 
 export const InteractionsContext = createContext<InteractionsRegistry | undefined>(undefined);
 
@@ -13,9 +14,10 @@ interface Props {
 export const InteractionsProvider: FC<PropsWithChildren<Props>> = ({ article, children }) => {
   const { layoutId } = useCurrentLayout();
   const articleRectObserver = useContext(ArticleRectContext);
+  const itemGeometry = useContext(ItemGeometryRegisterContext);
   const registry = useMemo(() => {
     if (!layoutId) return;
-    return new InteractionsRegistry(article, layoutId);
+    return new InteractionsRegistry(article, layoutId, itemGeometry);
   }, [layoutId]);
 
   useEffect(() => {

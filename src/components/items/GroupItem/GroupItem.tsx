@@ -9,6 +9,7 @@ import { useItemAngle } from '../useItemAngle';
 import { useGroupItem } from './useGroupItem';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
 import { CompoundChild } from '../CompoundItem/CompoundChild';
+import { useRegisterItemGeometry } from '../../../interactions/useRegisterItemGeometry';
 
 export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange, isInCompound }) => {
   const id = useId();
@@ -19,6 +20,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
+  useRegisterItemGeometry(item.id, ref);
   const stateParams = interactionCtrl?.getState<number>(['opacity', 'angle', 'blur']);
   const angle = getStyleFromItemStateAndParams(stateParams?.styles?.angle, itemAngle);
   const opacity = getStyleFromItemStateAndParams(stateParams?.styles?.opacity, itemOpacity);

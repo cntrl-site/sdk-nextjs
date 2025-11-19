@@ -11,6 +11,7 @@ import { useRegisterResize } from '../../../common/useRegisterResize';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
 import { getFill } from '../../../utils/getFill';
 import { areFillsVisible } from '../../../utils/areFillsVisible/areFillsVisible';
+import { useRegisterItemGeometry } from '../../../interactions/useRegisterItemGeometry';
 
 export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
@@ -32,6 +33,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
+  useRegisterItemGeometry(item.id, ref);
   const backdropBlur = getStyleFromItemStateAndParams(styles?.backdropBlur, itemBackdropBlur);
   const radius = getStyleFromItemStateAndParams(styles?.radius, itemRadius);
   const strokeWidth = getStyleFromItemStateAndParams(styles?.strokeWidth, itemStrokeWidth);

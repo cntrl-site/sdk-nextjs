@@ -12,6 +12,7 @@ import { useExemplary } from '../../../common/useExemplary';
 import { useItemAngle } from '../useItemAngle';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
 import { useCurrentLayout } from '../../../common/useCurrentLayout';
+import { useRegisterItemGeometry } from '../../../interactions/useRegisterItemGeometry';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
@@ -30,6 +31,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   const exemplary = useExemplary();
   const { layoutId } = useCurrentLayout();
   useRegisterResize(ref, onResize);
+  useRegisterItemGeometry(item.id, ref);
   const stateParams = interactionCtrl?.getState<number | string>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color']);
   const stateStyles = stateParams?.styles ?? {};
   const transition = stateParams?.transition ?? 'none';

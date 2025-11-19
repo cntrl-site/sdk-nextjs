@@ -4,25 +4,27 @@ import {
   ArticleItemType,
   Interaction,
   InteractionItemTrigger,
-  InteractionScrollTrigger,
   ItemAny,
 } from '@cntrl-site/sdk';
 import { isItemType } from '../utils/isItemType';
 import { InteractionItemScrollTrigger } from '@cntrl-site/sdk/lib/types/article/Interaction';
+import { ItemGeometryRegister } from './ItemGeometryRegister';
 
 export class InteractionsRegistry implements InteractionsRegistryPort {
   private ctrls: Map<ItemId, ItemInteractionCtrl> = new Map();
   private items: ItemAny[];
   private layoutId: string;
+  private itemGeometry: ItemGeometryRegister;
   private interactions: Interaction[];
   private stateItemsIdsMap: StateItemsIdsMap;
   private interactionStateMap: InteractionStateMap;
   private itemsStages: ItemStages;
   private activeStateIdInteractionIdMap: Record<StateId, InteractionId>;
 
-  constructor(article: Article, layoutId: string) {
+  constructor(article: Article, layoutId: string, itemGeometry: ItemGeometryRegister) {
     this.items = this.unpackItems(article);
     this.layoutId = layoutId;
+    this.itemGeometry = itemGeometry;
     const interactions = article.interactions[layoutId] ?? [];
     const activeStatesIds = interactions.reduce<StateId[]>((map, inter) => {
       const activeStateId = inter.states.find((state) => state.id !== inter.startStateId)?.id;
@@ -208,87 +210,93 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
       const matchingTrigger = interaction.triggers.find((trigger) => {
         if (trigger.type !== 'scroll-position' && trigger.type !== 'item-scroll-position') return false;
         let triggerPosition;
+        let isScrolledPastTrigger = false;
         if (trigger.type === 'scroll-position') {
           if (trigger.position === 0) return false;
           triggerPosition = trigger.position * window.innerWidth;
+          isScrolledPastTrigger = triggerPosition < position;
         }
         if (trigger.type === 'item-scroll-position') {
-          const itemArea = this.items.find((item) => item.id === trigger.itemId)!.area[this.layoutId];
+          const itemArea = this.itemGeometry.getBoundary(trigger.itemId);
+          if (!itemArea) return false;
           switch (trigger.itemPosition) {
             case 'top':
-              triggerPosition = itemArea.top * window.innerWidth;
+              triggerPosition = 0;
               break;
             case 'center':
-              triggerPosition = itemArea.top * window.innerWidth - window.innerHeight / 2;
+              triggerPosition = window.innerHeight / 2;
               break;
             case 'bottom':
-              triggerPosition = itemArea.top * window.innerWidth - window.innerHeight;
+              triggerPosition = window.innerHeight;
               break;
             default:
-              triggerPosition = itemArea.top * window.innerWidth;
+              triggerPosition = 0;
               break;
           }
           switch (trigger.screenPosition) {
             case 'top':
-              triggerPosition += 0;
+              triggerPosition -= 0;
               break;
             case 'center':
-              triggerPosition += (itemArea.height * window.innerWidth) / 2;
+              triggerPosition -= itemArea.height / 2;
               break;
             case 'bottom':
-              triggerPosition += itemArea.height * window.innerWidth;
+              triggerPosition -= itemArea.height;
               break;
             default:
-              triggerPosition += 0;
+              triggerPosition -= 0;
               break;
           }
-          triggerPosition += trigger.offset;
+          triggerPosition -= trigger.offset;
+          console.log('open', itemArea.y, '<', triggerPosition);
+          isScrolledPastTrigger = itemArea.y < triggerPosition;
         }
-        if (!triggerPosition) return false;
-        const isScrolledPastTrigger = triggerPosition < position;
         if (!isScrolledPastTrigger && !trigger.isReverse) return false;
         const stateId = isScrolledPastTrigger ? trigger.from : trigger.to;
         return stateId === currentStateId;
       });
       if (!matchingTrigger || (matchingTrigger.type !== 'scroll-position' && matchingTrigger.type !== 'item-scroll-position') || !activeStateId) continue;
       let triggerPosition;
+      let isScrolledPastTrigger = false;
       if (matchingTrigger.type === 'scroll-position') {
         triggerPosition = matchingTrigger.position * window.innerWidth;
+        isScrolledPastTrigger = triggerPosition < position;
       }
       if (matchingTrigger.type === 'item-scroll-position') {
-        const itemArea = this.items.find((item) => item.id === matchingTrigger.itemId)!.area[this.layoutId];
+        const itemArea = this.itemGeometry.getBoundary(matchingTrigger.itemId);
+        if (!itemArea) return false;
         switch (matchingTrigger.itemPosition) {
           case 'top':
-            triggerPosition = itemArea.top * window.innerWidth;
+            triggerPosition = 0;
             break;
           case 'center':
-            triggerPosition = itemArea.top * window.innerWidth - window.innerHeight / 2;
+            triggerPosition = window.innerHeight / 2;
             break;
           case 'bottom':
-            triggerPosition = itemArea.top * window.innerWidth - window.innerHeight;
+            triggerPosition = window.innerHeight;
             break;
           default:
-            triggerPosition = itemArea.top * window.innerWidth;
+            triggerPosition = 0;
             break;
         }
         switch (matchingTrigger.screenPosition) {
           case 'top':
-            triggerPosition += 0;
+            triggerPosition -= 0;
             break;
           case 'center':
-            triggerPosition += (itemArea.height * window.innerWidth) / 2;
+            triggerPosition -= itemArea.height / 2;
             break;
           case 'bottom':
-            triggerPosition += itemArea.height * window.innerWidth;
+            triggerPosition -= itemArea.height;
             break;
           default:
-            triggerPosition += 0;
+            triggerPosition -= 0;
             break;
         }
-        triggerPosition += matchingTrigger.offset;
+        triggerPosition -= matchingTrigger.offset;
+        console.log('close', itemArea.y, '<', triggerPosition);
+        isScrolledPastTrigger = itemArea.y < triggerPosition;
       }
-      if (!triggerPosition) continue;
-      const isScrolledPastTrigger = triggerPosition < position;
       const targetStateId = isScrolledPastTrigger ? matchingTrigger.to : matchingTrigger.from;
       this.setCurrentStateForInteraction(interaction.id, targetStateId);
       const transitioningItems = this.stateItemsIdsMap[activeStateId] ?? [];

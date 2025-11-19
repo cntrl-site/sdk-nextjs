@@ -5,6 +5,8 @@ import { Article } from './Article';
 import { KeyframesContext } from '../provider/KeyframesContext';
 import { CNTRLHead } from './Head';
 import { Keyframes } from '../provider/Keyframes';
+import { ItemGeometryRegisterContext } from '../interactions/ItemGeometryRegisterContext';
+import { ItemGeometryRegister } from '../interactions/ItemGeometryRegister';
 
 export interface PageProps {
   article: TArticle;
@@ -18,13 +20,16 @@ export const Page: FC<PageProps> = ({ article, project, meta, keyframes, section
   const afterBodyOpen = HTMLReactParser(project.html.afterBodyOpen);
   const beforeBodyClose = HTMLReactParser(project.html.beforeBodyClose);
   const keyframesRepo = useMemo(() => new Keyframes(keyframes), [keyframes]);
+  const itemGeometryRepo = useMemo(() => new ItemGeometryRegister(), []);
   return (
     <>
       <CNTRLHead project={project} meta={meta} />
       {afterBodyOpen}
-      <KeyframesContext.Provider value={keyframesRepo}>
-        <Article article={article} sectionData={sectionData} />
-      </KeyframesContext.Provider>
+      <ItemGeometryRegisterContext.Provider value={itemGeometryRepo}>
+        <KeyframesContext.Provider value={keyframesRepo}>
+          <Article article={article} sectionData={sectionData} />
+        </KeyframesContext.Provider>
+      </ItemGeometryRegisterContext.Provider>
       {beforeBodyClose}
     </>
   );
