@@ -12,7 +12,8 @@ import { useExemplary } from '../../../common/useExemplary';
 import { useItemAngle } from '../useItemAngle';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
 import { useCurrentLayout } from '../../../common/useCurrentLayout';
-import { useRegisterItemGeometry } from '../../../interactions/useRegisterItemGeometry';
+import { useItemGeometry } from '../../../interactions/useItemGeometry';
+import { RichTextGeometryController } from '../../../interactions/RichTextGeometryController';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
@@ -31,7 +32,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   const exemplary = useExemplary();
   const { layoutId } = useCurrentLayout();
   useRegisterResize(ref, onResize);
-  useRegisterItemGeometry(item.id, ref);
+  useItemGeometry(item.id, ref, RichTextGeometryController, {}); // add xSizing insted {}
   const stateParams = interactionCtrl?.getState<number | string>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color']);
   const stateStyles = stateParams?.styles ?? {};
   const transition = stateParams?.transition ?? 'none';

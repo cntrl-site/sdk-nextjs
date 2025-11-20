@@ -8,23 +8,23 @@ import {
 } from '@cntrl-site/sdk';
 import { isItemType } from '../utils/isItemType';
 import { InteractionItemScrollTrigger } from '@cntrl-site/sdk/lib/types/article/Interaction';
-import { ItemGeometryRegister } from './ItemGeometryRegister';
+import { ItemGeometryService } from './ItemGeometryService';
 
 export class InteractionsRegistry implements InteractionsRegistryPort {
   private ctrls: Map<ItemId, ItemInteractionCtrl> = new Map();
   private items: ItemAny[];
   private layoutId: string;
-  private itemGeometry: ItemGeometryRegister;
+  private itemGeometryService: ItemGeometryService;
   private interactions: Interaction[];
   private stateItemsIdsMap: StateItemsIdsMap;
   private interactionStateMap: InteractionStateMap;
   private itemsStages: ItemStages;
   private activeStateIdInteractionIdMap: Record<StateId, InteractionId>;
 
-  constructor(article: Article, layoutId: string, itemGeometry: ItemGeometryRegister) {
+  constructor(article: Article, layoutId: string, itemGeometryService: ItemGeometryService) {
     this.items = this.unpackItems(article);
     this.layoutId = layoutId;
-    this.itemGeometry = itemGeometry;
+    this.itemGeometryService = itemGeometryService;
     const interactions = article.interactions[layoutId] ?? [];
     const activeStatesIds = interactions.reduce<StateId[]>((map, inter) => {
       const activeStateId = inter.states.find((state) => state.id !== inter.startStateId)?.id;
@@ -217,7 +217,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
           isScrolledPastTrigger = triggerPosition < position;
         }
         if (trigger.type === 'item-scroll-position') {
-          const itemArea = this.itemGeometry.getBoundary(trigger.itemId);
+          const itemArea = this.itemGeometryService.getItemBoundary(trigger.itemId);
           if (!itemArea) return false;
           switch (trigger.itemPosition) {
             case 'top':
@@ -248,7 +248,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
               break;
           }
           triggerPosition -= trigger.offset;
-          console.log('open', itemArea.y, '<', triggerPosition);
+          // console.log('open', itemArea.y, '<', triggerPosition);
           isScrolledPastTrigger = itemArea.y < triggerPosition;
         }
         if (!isScrolledPastTrigger && !trigger.isReverse) return false;
@@ -263,7 +263,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
         isScrolledPastTrigger = triggerPosition < position;
       }
       if (matchingTrigger.type === 'item-scroll-position') {
-        const itemArea = this.itemGeometry.getBoundary(matchingTrigger.itemId);
+        const itemArea = this.itemGeometryService.getItemBoundary(matchingTrigger.itemId);
         if (!itemArea) return false;
         switch (matchingTrigger.itemPosition) {
           case 'top':
@@ -294,7 +294,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
             break;
         }
         triggerPosition -= matchingTrigger.offset;
-        console.log('close', itemArea.y, '<', triggerPosition);
+        // console.log('close', itemArea.y, '<', triggerPosition);
         isScrolledPastTrigger = itemArea.y < triggerPosition;
       }
       const targetStateId = isScrolledPastTrigger ? matchingTrigger.to : matchingTrigger.from;

@@ -5,8 +5,8 @@ import { Article } from './Article';
 import { KeyframesContext } from '../provider/KeyframesContext';
 import { CNTRLHead } from './Head';
 import { Keyframes } from '../provider/Keyframes';
-import { ItemGeometryRegisterContext } from '../interactions/ItemGeometryRegisterContext';
-import { ItemGeometryRegister } from '../interactions/ItemGeometryRegister';
+import { ItemGeometryContext } from '../interactions/ItemGeometryContext';
+import { ItemGeometryService } from '../interactions/ItemGeometryService';
 
 export interface PageProps {
   article: TArticle;
@@ -20,16 +20,16 @@ export const Page: FC<PageProps> = ({ article, project, meta, keyframes, section
   const afterBodyOpen = HTMLReactParser(project.html.afterBodyOpen);
   const beforeBodyClose = HTMLReactParser(project.html.beforeBodyClose);
   const keyframesRepo = useMemo(() => new Keyframes(keyframes), [keyframes]);
-  const itemGeometryRepo = useMemo(() => new ItemGeometryRegister(), []);
+  const itemGeometryService = useMemo(() => new ItemGeometryService(), []);
   return (
     <>
       <CNTRLHead project={project} meta={meta} />
       {afterBodyOpen}
-      <ItemGeometryRegisterContext.Provider value={itemGeometryRepo}>
+      <ItemGeometryContext.Provider value={itemGeometryService}>
         <KeyframesContext.Provider value={keyframesRepo}>
           <Article article={article} sectionData={sectionData} />
         </KeyframesContext.Provider>
-      </ItemGeometryRegisterContext.Provider>
+      </ItemGeometryContext.Provider>
       {beforeBodyClose}
     </>
   );

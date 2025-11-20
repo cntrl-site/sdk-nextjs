@@ -35,6 +35,7 @@ import { parseSizing, useSizing } from './useSizing';
 import { useItemPointerEvents } from './useItemPointerEvents';
 import { useItemArea } from './useItemArea';
 import { useDraggable } from './useDraggable';
+import { ItemGeometryContext } from '../../interactions/ItemGeometryContext';
 
 export interface ItemProps<I extends ItemAny> {
   item: I;
@@ -142,7 +143,11 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const isScreenBasedBottom = positionType === PositionType.ScreenBased && anchorSide === AnchorSide.Bottom;
   const scale = innerStateProps?.styles?.scale ?? itemScale;
   const hasClickTriggers = interactionCtrl?.getHasTrigger(item.id, 'click') ?? false;
+  const itemGeometryService = useContext(ItemGeometryContext);
+  const triggerZone = itemGeometryService.getItemBoundary(item.id);
   return (
+    <>
+    <div style={{ position: 'absolute', top: triggerZone.y, left: triggerZone.x, width: triggerZone.width, height: triggerZone.height, zIndex: 999, border: '1px solid red' }}></div>
     <div
       className={`item-wrapper-${item.id}`}
       ref={itemWrapperRef}
@@ -176,13 +181,13 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
               left: `${position.x}px`,
               ...((width !== undefined && height !== undefined)
                 ? {
-                    width: `${sizingAxis.x === 'manual'
-                      ? isRichText
-                        ? `${width * exemplary}px`
-                        : `${width * 100}vw`
-                      : 'max-content'}`,
-                    height: `${sizingAxis.y === 'manual' ? `${height * 100}vw` : 'unset'}`
-                  }
+                  width: `${sizingAxis.x === 'manual'
+                    ? isRichText
+                      ? `${width * exemplary}px`
+                      : `${width * 100}vw`
+                    : 'max-content'}`,
+                  height: `${sizingAxis.y === 'manual' ? `${height * 100}vw` : 'unset'}`
+                }
                 : {}),
               ...(scale !== undefined ? { transform: `scale(${scale})`, WebkitTransform: `scale(${scale})` } : {}),
               transition: innerStateProps?.transition ?? 'none',
@@ -214,10 +219,10 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
       </div>
       <JSXStyle id={id}>{`
         ${getLayoutStyles(layouts, layoutValues, ([area, hidden, sticky, sectionHeight, layoutParams]) => {
-      const sizingAxis = parseSizing(layoutParams.sizing);
-      const isScreenBasedBottom = area.positionType === PositionType.ScreenBased && area.anchorSide === AnchorSide.Bottom;
-      const scaleAnchor = area.scaleAnchor as AreaAnchor;
-      return (`
+        const sizingAxis = parseSizing(layoutParams.sizing);
+        const isScreenBasedBottom = area.positionType === PositionType.ScreenBased && area.anchorSide === AnchorSide.Bottom;
+        const scaleAnchor = area.scaleAnchor as AreaAnchor;
+        return (`
             .item-${item.id} {
               position: ${sticky ? 'sticky' : 'absolute'};
               top: ${sticky ? `${getAnchoredItemTop(area.top - sticky.from, sectionHeight, area.anchorSide)}` : 0};
@@ -228,8 +233,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
             }
             .item-${item.id}-inner {
               width: ${sizingAxis.x === 'manual'
-                ? `${area.width * 100}vw`
-                : 'max-content'};
+            ? `${area.width * 100}vw`
+            : 'max-content'};
               height: ${sizingAxis.y === 'manual' ? `${area.height * 100}vw` : 'unset'};
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
               transform: scale(${area.scale});
@@ -249,5 +254,6 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
       `}
       </JSXStyle>
     </div>
+    </>
   );
 };
