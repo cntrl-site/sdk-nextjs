@@ -60,6 +60,7 @@ export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => 
 
   const fontSize = layoutId ? item.layoutParams[layoutId].fontSize : undefined;
   const lineHeight = layoutId ? item.layoutParams[layoutId].lineHeight : undefined;
+  const xSizing = layoutId ? item.layoutParams[layoutId].sizing : undefined;
 
-  return { blur, letterSpacing, wordSpacing, color, fontSize, lineHeight };
+  return { blur, letterSpacing, wordSpacing, color, fontSize, lineHeight, xSizing };
 };

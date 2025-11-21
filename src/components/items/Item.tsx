@@ -35,7 +35,6 @@ import { parseSizing, useSizing } from './useSizing';
 import { useItemPointerEvents } from './useItemPointerEvents';
 import { useItemArea } from './useItemArea';
 import { useDraggable } from './useDraggable';
-import { ItemGeometryContext } from '../../interactions/ItemGeometryContext';
 
 export interface ItemProps<I extends ItemAny> {
   item: I;
@@ -143,11 +142,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const isScreenBasedBottom = positionType === PositionType.ScreenBased && anchorSide === AnchorSide.Bottom;
   const scale = innerStateProps?.styles?.scale ?? itemScale;
   const hasClickTriggers = interactionCtrl?.getHasTrigger(item.id, 'click') ?? false;
-  const itemGeometryService = useContext(ItemGeometryContext);
-  const triggerZone = itemGeometryService.getItemBoundary(item.id);
   return (
-    <>
-    <div style={{ position: 'absolute', top: triggerZone.y, left: triggerZone.x, width: triggerZone.width, height: triggerZone.height, zIndex: 999, border: '1px solid red' }}></div>
     <div
       className={`item-wrapper-${item.id}`}
       ref={itemWrapperRef}
@@ -254,6 +249,5 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
       `}
       </JSXStyle>
     </div>
-    </>
   );
 };

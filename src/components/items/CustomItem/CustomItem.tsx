@@ -5,6 +5,7 @@ import { ItemProps } from '../Item';
 import JSXStyle from 'styled-jsx/style';
 import { useRegisterResize } from '../../../common/useRegisterResize';
 import { useItemAngle } from '../useItemAngle';
+import { useItemGeometry } from '../../../interactions/useItemGeometry';
 
 export const CustomItem: FC<ItemProps<TCustomItem>> = ({ item, onResize, sectionId, interactionCtrl }) => {
   const sdk = useCntrlContext();
@@ -14,6 +15,7 @@ export const CustomItem: FC<ItemProps<TCustomItem>> = ({ item, onResize, section
   const layoutValues: Record<string, any>[] = [item.area];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
+  useItemGeometry(item.id, ref);
   const stateParams = interactionCtrl?.getState<number>(['angle']);
   const angle = stateParams?.styles?.angle ?? itemAngle;
   if (!component) return null;

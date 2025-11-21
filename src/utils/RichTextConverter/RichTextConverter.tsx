@@ -103,12 +103,20 @@ export class RichTextConverter {
         for (const entity of entitiesGroups) {
           const entityKids: ReactNode[] = [];
           if (offset < entity.start) {
-            kids.push(sliceSymbols(content, offset, entity.start));
+            kids.push(
+              <span>
+                {sliceSymbols(content, offset, entity.start)}
+              </span>
+            );
             offset = entity.start;
           }
           for (const style of entity.stylesGroup) {
             if (offset < style.start) {
-              entityKids.push(sliceSymbols(content, offset, style.start));
+              entityKids.push(
+                <span>
+                  {sliceSymbols(content, offset, style.start)}
+                </span>
+              );
             }
             entityKids.push(
               <span key={style.start} className={`s-${style.start}-${style.end}`}>
@@ -118,7 +126,11 @@ export class RichTextConverter {
             offset = style.end;
           }
           if (offset < entity.end) {
-            entityKids.push(sliceSymbols(content, offset, entity.end));
+            entityKids.push(
+              <span>
+                {sliceSymbols(content, offset, entity.end)}
+              </span>
+            );
             offset = entity.end;
           }
           if (entity.link) {
@@ -128,7 +140,11 @@ export class RichTextConverter {
           kids.push(...entityKids);
         }
         if (offset < getSymbolsCount(content)) {
-          kids.push(sliceSymbols(content, offset));
+          kids.push(
+            <span>
+              {sliceSymbols(content, offset)}
+            </span>
+          );
         }
         for (const item of group) {
           const { exemplary } = layouts.find(l => l.id === item.layout)!;

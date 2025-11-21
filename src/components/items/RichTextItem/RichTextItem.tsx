@@ -26,13 +26,15 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
     letterSpacing: itemLetterSpacing,
     color: itemColor,
     fontSize,
-    lineHeight
+    lineHeight,
+    xSizing
   } = useRichTextItemValues(item, sectionId);
+  const geometryOptions = useMemo(() => ({ xSizing }), [xSizing]);
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const exemplary = useExemplary();
   const { layoutId } = useCurrentLayout();
   useRegisterResize(ref, onResize);
-  useItemGeometry(item.id, ref, RichTextGeometryController, {}); // add xSizing insted {}
+  useItemGeometry(item.id, ref, RichTextGeometryController, geometryOptions); // add xSizing insted {}
   const stateParams = interactionCtrl?.getState<number | string>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color']);
   const stateStyles = stateParams?.styles ?? {};
   const transition = stateParams?.transition ?? 'none';
