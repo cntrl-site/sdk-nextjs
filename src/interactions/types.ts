@@ -2,7 +2,7 @@ import { ArticleItemType, FillLayer, InteractionItemTrigger, ItemState } from '@
 
 export interface ItemInteractionCtrl {
   getState<T>(keys: string[]): StateCSSInfo<T>;
-  getHasTrigger(itemId: string, triggerType: InteractionItemTrigger['type']): boolean;
+  getHasTrigger(itemId: string, triggerType: InteractionItemTrigger['triggerEvent']): boolean;
   sendTrigger(type: 'click' | 'hover-in' | 'hover-out'): void;
   handleTransitionEnd?: (styleKey: string) => void;
   handleTransitionStart?: (styleKeys: string[]) => void;
@@ -14,7 +14,7 @@ export interface ItemInteractionCtrl {
 export interface InteractionsRegistryPort {
   register(itemId: string, ctrl: ItemInteractionCtrl): void;
   getStatePropsForItem(itemId: string): StateProps<unknown>;
-  getItemAvailableTriggers(itemId: string): Set<InteractionItemTrigger['type']>;
+  getItemAvailableTriggers(itemId: string): Set<InteractionItemTrigger['triggerEvent']>;
   notifyItemTrigger(itemId: string, type: TriggerType): void;
   notifyTransitionEnd(itemId: string): void;
 }

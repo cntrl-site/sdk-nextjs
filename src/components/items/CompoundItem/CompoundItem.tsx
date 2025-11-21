@@ -9,6 +9,7 @@ import JSXStyle from 'styled-jsx/style';
 import { getLayoutStyles, CompoundItem as TCompoundItem } from '@cntrl-site/sdk';
 import { CompoundChild } from './CompoundChild';
 import { useCompoundItem } from './useCompoundItem';
+import { useItemGeometry } from '../../../interactions/useItemGeometry';
 
 export const CompoundItem: FC<ItemProps<TCompoundItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
@@ -19,6 +20,7 @@ export const CompoundItem: FC<ItemProps<TCompoundItem>> = ({ item, sectionId, on
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
+  useItemGeometry(item.id, ref);
   const stateParams = interactionCtrl?.getState<number>(['opacity', 'angle']);
   const angle = getStyleFromItemStateAndParams(stateParams?.styles?.angle, itemAngle);
   const opacity = getStyleFromItemStateAndParams(stateParams?.styles?.opacity, itemOpacity);

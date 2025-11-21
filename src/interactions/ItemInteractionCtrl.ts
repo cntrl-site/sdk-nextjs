@@ -30,7 +30,7 @@ export class ItemInteractionController implements ItemInteractionCtrl {
     };
   }
 
-  getHasTrigger(itemId: string, triggerType: InteractionItemTrigger['type']): boolean {
+  getHasTrigger(itemId: string, triggerType: InteractionItemTrigger['triggerEvent']): boolean {
     const triggers = this.registry.getItemAvailableTriggers(itemId);
     return triggers.has(triggerType);
   }

@@ -7,6 +7,7 @@ import { useRegisterResize } from '../../../common/useRegisterResize';
 import { useItemAngle } from '../useItemAngle';
 import { LinkWrapper } from '../LinkWrapper';
 import { useCodeEmbedItem } from './useCodeEmbedItem';
+import { useItemGeometry } from '../../../interactions/useItemGeometry';
 
 const stylesMap = {
   [AreaAnchor.TopLeft]: {},
@@ -31,6 +32,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
   const html = decodeBase64(item.commonParams.html);
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
+  useItemGeometry(item.id, ref);
   const pos = stylesMap[anchor];
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const stateParams = interactionCtrl?.getState<number>(['angle', 'blur', 'opacity']);

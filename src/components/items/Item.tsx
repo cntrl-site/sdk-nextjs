@@ -176,13 +176,13 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
               left: `${position.x}px`,
               ...((width !== undefined && height !== undefined)
                 ? {
-                    width: `${sizingAxis.x === 'manual'
-                      ? isRichText
-                        ? `${width * exemplary}px`
-                        : `${width * 100}vw`
-                      : 'max-content'}`,
-                    height: `${sizingAxis.y === 'manual' ? `${height * 100}vw` : 'unset'}`
-                  }
+                  width: `${sizingAxis.x === 'manual'
+                    ? isRichText
+                      ? `${width * exemplary}px`
+                      : `${width * 100}vw`
+                    : 'max-content'}`,
+                  height: `${sizingAxis.y === 'manual' ? `${height * 100}vw` : 'unset'}`
+                }
                 : {}),
               ...(scale !== undefined ? { transform: `scale(${scale})`, WebkitTransform: `scale(${scale})` } : {}),
               transition: innerStateProps?.transition ?? 'none',
@@ -214,10 +214,10 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
       </div>
       <JSXStyle id={id}>{`
         ${getLayoutStyles(layouts, layoutValues, ([area, hidden, sticky, sectionHeight, layoutParams]) => {
-      const sizingAxis = parseSizing(layoutParams.sizing);
-      const isScreenBasedBottom = area.positionType === PositionType.ScreenBased && area.anchorSide === AnchorSide.Bottom;
-      const scaleAnchor = area.scaleAnchor as AreaAnchor;
-      return (`
+        const sizingAxis = parseSizing(layoutParams.sizing);
+        const isScreenBasedBottom = area.positionType === PositionType.ScreenBased && area.anchorSide === AnchorSide.Bottom;
+        const scaleAnchor = area.scaleAnchor as AreaAnchor;
+        return (`
             .item-${item.id} {
               position: ${sticky ? 'sticky' : 'absolute'};
               top: ${sticky ? `${getAnchoredItemTop(area.top - sticky.from, sectionHeight, area.anchorSide)}` : 0};
@@ -228,8 +228,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
             }
             .item-${item.id}-inner {
               width: ${sizingAxis.x === 'manual'
-                ? `${area.width * 100}vw`
-                : 'max-content'};
+            ? `${area.width * 100}vw`
+            : 'max-content'};
               height: ${sizingAxis.y === 'manual' ? `${area.height * 100}vw` : 'unset'};
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
               transform: scale(${area.scale});
