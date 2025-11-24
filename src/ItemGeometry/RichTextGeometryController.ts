@@ -1,7 +1,6 @@
-import { Rect } from '@cntrl-site/sdk';
+import { measureFont, Rect } from '@cntrl-site/sdk';
 import { ItemGeometryController } from './ItemGeometryController';
 import { domDfs } from '../utils/domDfs';
-import { measureFont } from '../utils/RichText/measureFont';
 import { formatCSSNumber, parseCSSNumber } from '../utils/CSSNumeric';
 
 export enum SizingType {
@@ -53,19 +52,6 @@ export class RichTextGeometryController implements ItemGeometryController {
     return Rect.getOriginRectFromBoundary(rect, angle, ratio);
   }
 
-  getGuides(): [boundary: Rect, xs: number[], ys: number[]] {
-    const angle = this.getAngle();
-    if (angle !== 0) {
-      const boundary = this.getBoundary(true);
-      return [
-        boundary,
-        [0, boundary.width / 2, boundary.width],
-        [0, boundary.height / 2, boundary.height]
-      ];
-    }
-    return this.getContentGuides();
-  }
-
   getContentGuides(): [boundary: Rect, xs: number[], ys: number[]] {
     const boundary = this.getBoundary();
     const contentXs: Set<number> = new Set();
@@ -109,12 +95,6 @@ export class RichTextGeometryController implements ItemGeometryController {
     ];
   }
 
-  getHoverGuides(): [boundary: Rect, yLines: Baseline[]] {
-    const baselines = this.getBaselines();
-    const contentBoundary = this.getContentBoundary();
-    return [contentBoundary, baselines];
-  }
-
   setParentId(parentId?: string) {
     this.parentId = parentId;
   }
@@ -148,13 +128,6 @@ export class RichTextGeometryController implements ItemGeometryController {
       bottom - top
     );
     return content;
-  }
-
-  isVisible(): boolean {
-    const boundary = this.getBoundary();
-    const viewport = new Rect(0, 0, window.innerWidth, window.innerHeight);
-    const intersection = Rect.intersection(boundary, viewport);
-    return intersection.width > 0 && intersection.height > 0;
   }
 
   private getBaselines(): Baseline[] {

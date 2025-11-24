@@ -1,5 +1,4 @@
-import { Rect } from "@cntrl-site/sdk";
-
+import { Rect } from '@cntrl-site/sdk';
 
 export interface GeometryControllerCtor {
   new (element: HTMLElement): ItemGeometryController;
@@ -11,9 +10,7 @@ interface Registry {
 
 export interface ItemGeometryController {
   getBoundary(isRotatedBoundary?: boolean): Rect;
-  getGuides(): [boundary: Rect, xs: number[], ys: number[]];
   getContentBoundary(isRotatedBoundary?: boolean): Rect;
-  isVisible(): boolean;
   getScale(): number;
   setScale(scale: number): void;
   setAngle(angle: number): void;
@@ -22,5 +19,4 @@ export interface ItemGeometryController {
   setParentId(parentId?: string): void;
   getParentId(): string | undefined;
   getAngle(): number;
-  getHoverGuides(): [boundary: Rect, yLines?: { y: number, xEnd: number }[]];
 }

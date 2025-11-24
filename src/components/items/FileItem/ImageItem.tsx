@@ -13,7 +13,7 @@ import { useLayoutContext } from '../../useLayoutContext';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
 import { useItemFXData } from '../../../common/useItemFXData';
 import { getFill } from '../../../utils/getFill';
-import { useItemGeometry } from '../../../interactions/useItemGeometry';
+import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 
 export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();

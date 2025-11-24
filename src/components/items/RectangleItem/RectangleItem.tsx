@@ -11,8 +11,7 @@ import { useRegisterResize } from '../../../common/useRegisterResize';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
 import { getFill } from '../../../utils/getFill';
 import { areFillsVisible } from '../../../utils/areFillsVisible/areFillsVisible';
-import { useItemGeometry } from '../../../interactions/useItemGeometry';
-import { ItemGeometryContext } from '../../../interactions/ItemGeometryContext';
+import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 
 export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();

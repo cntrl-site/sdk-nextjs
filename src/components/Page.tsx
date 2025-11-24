@@ -5,8 +5,8 @@ import { Article } from './Article';
 import { KeyframesContext } from '../provider/KeyframesContext';
 import { CNTRLHead } from './Head';
 import { Keyframes } from '../provider/Keyframes';
-import { ItemGeometryContext } from '../interactions/ItemGeometryContext';
-import { ItemGeometryService } from '../interactions/ItemGeometryService';
+import { ItemGeometryContext } from '../ItemGeometry/ItemGeometryContext';
+import { ItemGeometryService } from '../ItemGeometry/ItemGeometryService';
 
 export interface PageProps {
   article: TArticle;

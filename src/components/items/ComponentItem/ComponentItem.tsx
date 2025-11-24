@@ -8,7 +8,7 @@ import { useItemAngle } from '../useItemAngle';
 import { useRegisterResize } from '../../../common/useRegisterResize';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
 import { useLayoutContext } from '../../useLayoutContext';
-import { useItemGeometry } from '../../../interactions/useItemGeometry';
+import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 
 export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
   const sdk = useCntrlContext();

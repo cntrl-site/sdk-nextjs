@@ -1,3 +1,4 @@
+import { Rect } from '@cntrl-site/sdk';
 import { ItemGeometryController } from './ItemGeometryController';
 
 export class ItemGeometryService {
@@ -14,7 +15,7 @@ export class ItemGeometryService {
   getItemBoundary(itemId: string) {
     const controller = this.registry.get(itemId);
     if (!controller) {
-      return { x: 0, y: 0, width: 0, height: 0 };
+      return new Rect(0, 0, 0, 0);
     }
     return controller.getContentBoundary();
   }
@@ -25,5 +26,9 @@ export class ItemGeometryService {
       throw new ReferenceError(`There is no registred contoller for item w/ id ${itemId}`);
     }
     return controller;
+  }
+
+  hasItem(itemId: string): boolean {
+    return this.registry.has(itemId);
   }
 }

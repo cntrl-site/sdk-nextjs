@@ -14,7 +14,7 @@ import { useVideoFx } from '../../../utils/effects/useVideoFx';
 import { useElementRect } from '../../../utils/useElementRect';
 import { useItemFXData } from '../../../common/useItemFXData';
 import { getFill } from '../../../utils/getFill';
-import { useItemGeometry } from '../../../interactions/useItemGeometry';
+import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 
 export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();

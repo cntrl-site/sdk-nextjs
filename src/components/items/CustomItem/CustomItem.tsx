@@ -5,7 +5,7 @@ import { ItemProps } from '../Item';
 import JSXStyle from 'styled-jsx/style';
 import { useRegisterResize } from '../../../common/useRegisterResize';
 import { useItemAngle } from '../useItemAngle';
-import { useItemGeometry } from '../../../interactions/useItemGeometry';
+import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 
 export const CustomItem: FC<ItemProps<TCustomItem>> = ({ item, onResize, sectionId, interactionCtrl }) => {
   const sdk = useCntrlContext();

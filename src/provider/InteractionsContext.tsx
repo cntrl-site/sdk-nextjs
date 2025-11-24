@@ -3,7 +3,7 @@ import { InteractionsRegistry } from '../interactions/InteractionsRegistry';
 import { Article } from '@cntrl-site/sdk';
 import { useCurrentLayout } from '../common/useCurrentLayout';
 import { ArticleRectContext } from './ArticleRectContext';
-import { ItemGeometryContext } from '../interactions/ItemGeometryContext';
+import { ItemGeometryContext } from '../ItemGeometry/ItemGeometryContext';
 
 export const InteractionsContext = createContext<InteractionsRegistry | undefined>(undefined);
 
@@ -18,7 +18,7 @@ export const InteractionsProvider: FC<PropsWithChildren<Props>> = ({ article, ch
   const registry = useMemo(() => {
     if (!layoutId) return;
     return new InteractionsRegistry(article, layoutId, itemGeometryService);
-  }, [layoutId]);
+  }, [layoutId, itemGeometryService]);
 
   useEffect(() => {
     if (!registry || !articleRectObserver) return;

@@ -12,7 +12,7 @@ import { YTPlayer } from '../../../utils/Youtube/YoutubeIframeApi';
 import { useRegisterResize } from '../../../common/useRegisterResize';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
 import { useLayoutContext } from '../../useLayoutContext';
-import { useItemGeometry } from '../../../interactions/useItemGeometry';
+import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 
 export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();

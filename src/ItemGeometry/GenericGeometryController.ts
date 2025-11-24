@@ -14,9 +14,7 @@ export class GenericGeometryController implements ItemGeometryController {
 
   constructor(
     private container: HTMLElement
-  ) {
-    this.setOffsetParent();
-  }
+  ) { }
 
   setRegistry(registry: GeomtryRegistry) {
     this.registry = registry;
@@ -30,48 +28,13 @@ export class GenericGeometryController implements ItemGeometryController {
     return this.parentId;
   }
 
-  getBoundary(isRotatedBoundary?: boolean): Rect {
-    const rect = this.container.getBoundingClientRect();
-    if (isRotatedBoundary) {
-      return Rect.fromObject(rect);
-    }
-    const angle = this.getAngle();
-    if (angle === 0) return Rect.fromObject(rect);
-    const computedStyles = getComputedStyle(this.container);
-    const ratio = Number.parseInt(computedStyles.width) / Number.parseInt(computedStyles.height);
-    return Rect.getOriginRectFromBoundary(rect, angle, ratio);
-  }
-
-  getRotatedBoundary() {
+  getBoundary(): Rect {
     const rect = this.container.getBoundingClientRect();
     return Rect.fromObject(rect);
   }
 
-  getRotatedContentBoundary() {
-    return this.getRotatedBoundary();
-  }
-
-  getGuides(): [boundary: Rect, xs: number[], ys: number[]] {
-    const boundary = this.getBoundary(true);
-    const xs: number[] = [
-      0,
-      boundary.width / 2,
-      boundary.width
-    ];
-    const ys: number[] = [
-      0,
-      boundary.height / 2,
-      boundary.height
-    ];
-    return [boundary, xs, ys];
-  }
-
-  getHoverGuides(): [boundary: Rect, yLines?: { y: number, xEnd: number }[]] {
-    return [this.getBoundary()];
-  }
-
-  getContentBoundary(isRotatedBoundary?: boolean): Rect {
-    return this.getBoundary(isRotatedBoundary);
+  getContentBoundary(): Rect {
+    return this.getBoundary();
   }
 
   setScale(scale: number): void {
@@ -80,17 +43,6 @@ export class GenericGeometryController implements ItemGeometryController {
 
   setAngle(angle: number) {
     this.angle = angle;
-  }
-
-  setOffsetParent() {
-    // this.offsetParent = castObject(this.container.offsetParent, HTMLElement);
-  }
-
-  isVisible(): boolean {
-    const boundary = this.getBoundary();
-    const viewport = new Rect(0, 0, window.innerWidth, window.innerHeight);
-    const intersection = Rect.intersection(boundary, viewport);
-    return intersection.width > 0 && intersection.height > 0;
   }
 
   setOptions(options?: unknown) {

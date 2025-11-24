@@ -7,7 +7,7 @@ import { useRegisterResize } from '../../../common/useRegisterResize';
 import { useItemAngle } from '../useItemAngle';
 import { LinkWrapper } from '../LinkWrapper';
 import { useCodeEmbedItem } from './useCodeEmbedItem';
-import { useItemGeometry } from '../../../interactions/useItemGeometry';
+import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 
 const stylesMap = {
   [AreaAnchor.TopLeft]: {},

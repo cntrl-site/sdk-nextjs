@@ -7,13 +7,12 @@ import {
   ItemAny,
 } from '@cntrl-site/sdk';
 import { isItemType } from '../utils/isItemType';
-import { InteractionItemScrollTrigger } from '@cntrl-site/sdk/lib/types/article/Interaction';
-import { ItemGeometryService } from './ItemGeometryService';
+import { InteractionItemScrollTrigger, InteractionScrollTrigger } from '@cntrl-site/sdk/lib/types/article/Interaction';
+import { ItemGeometryService } from '../ItemGeometry/ItemGeometryService';
 
 export class InteractionsRegistry implements InteractionsRegistryPort {
   private ctrls: Map<ItemId, ItemInteractionCtrl> = new Map();
   private items: ItemAny[];
-  private layoutId: string;
   private itemGeometryService: ItemGeometryService;
   private interactions: Interaction[];
   private stateItemsIdsMap: StateItemsIdsMap;
@@ -24,7 +23,6 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
 
   constructor(article: Article, layoutId: string, itemGeometryService: ItemGeometryService) {
     this.items = this.unpackItems(article);
-    this.layoutId = layoutId;
     this.itemGeometryService = itemGeometryService;
     const interactions = article.interactions[layoutId] ?? [];
     const activeStatesIds = interactions.reduce<StateId[]>((map, inter) => {
@@ -121,20 +119,20 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
   }
 
   getTriggerPositionForItemScrollTrigger(trigger: InteractionItemScrollTrigger): number {
-    const itemArea = this.items.find((item) => item.id === trigger.itemId)!.area[this.layoutId];
+    const itemRect = this.itemGeometryService.getItemBoundary(trigger.itemId);
     let triggerPosition = 0;
     switch (trigger.itemPosition) {
       case 'top':
-        triggerPosition = itemArea.top * window.innerWidth;
+        triggerPosition = itemRect.top;
         break;
       case 'center':
-        triggerPosition = itemArea.top * window.innerWidth - window.innerHeight / 2;
+        triggerPosition = itemRect.top - window.innerHeight / 2;
         break;
       case 'bottom':
-        triggerPosition = itemArea.top * window.innerWidth - window.innerHeight;
+        triggerPosition = itemRect.top - window.innerHeight;
         break;
       default:
-        triggerPosition = itemArea.top * window.innerWidth;
+        triggerPosition = itemRect.top;
         break;
     }
     switch (trigger.screenPosition) {
@@ -142,10 +140,10 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
         triggerPosition += 0;
         break;
       case 'center':
-        triggerPosition += (itemArea.height * window.innerWidth) / 2;
+        triggerPosition += itemRect.height / 2;
         break;
       case 'bottom':
-        triggerPosition += itemArea.height * window.innerWidth;
+        triggerPosition += itemRect.height;
         break;
       default:
         triggerPosition += 0;
@@ -157,6 +155,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
 
   isItemScrollTriggerOnStartScreen(trigger: InteractionItemScrollTrigger): boolean {
     const triggerPosition = this.getTriggerPositionForItemScrollTrigger(trigger);
+    console.log(triggerPosition, triggerPosition < 0);
     return triggerPosition < 0;
   }
 
@@ -204,6 +203,53 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
     }
   }
 
+  scrollPositionNotifyScroll(trigger: InteractionScrollTrigger, position: number): boolean {
+    if (trigger.position === 0) return false;
+    const triggerPosition = trigger.position * window.innerWidth;
+    return triggerPosition < position;
+  }
+
+  scrollItemPositionNotifyScroll(trigger: InteractionItemScrollTrigger, position: number, interaction: Interaction): boolean {
+    let triggerPosition;
+    let isScrolledPastTrigger = false;
+    const itemRect = this.itemGeometryService.getItemBoundary(trigger.itemId);
+    if (!itemRect) return false;
+    switch (trigger.itemPosition) {
+      case 'top':
+        triggerPosition = 0;
+        break;
+      case 'center':
+        triggerPosition = window.innerHeight / 2;
+        break;
+      case 'bottom':
+        triggerPosition = window.innerHeight;
+        break;
+      default:
+        triggerPosition = 0;
+        break;
+    }
+    triggerPosition -= trigger.offset;
+    switch (trigger.screenPosition) {
+      case 'top':
+        isScrolledPastTrigger = itemRect.y < triggerPosition;
+        break;
+      case 'center':
+        isScrolledPastTrigger = itemRect.y + itemRect.height / 2 < triggerPosition;
+        break;
+      case 'bottom':
+        isScrolledPastTrigger = itemRect.bottom < triggerPosition;
+        break;
+      default:
+        isScrolledPastTrigger = itemRect.y < triggerPosition;
+        break;
+    }
+    if (isScrolledPastTrigger && !this.itemScrollPositionAnimationMap.get(interaction.id)) {
+      this.itemScrollPositionAnimationMap.set(interaction.id, position + itemRect.y - triggerPosition);
+    }
+    if (this.itemScrollPositionAnimationMap.get(interaction.id)! >= position) isScrolledPastTrigger = false;
+    return isScrolledPastTrigger;
+  }
+
   notifyScroll(position: number) {
     const timestamp = Date.now();
     for (const interaction of this.interactions) {
@@ -211,61 +257,21 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
       const activeStateId = interaction.states.find((state) => state.id !== interaction.startStateId)?.id;
       const matchingTrigger = interaction.triggers.find((trigger) => {
         if (trigger.type !== 'scroll-position' && trigger.type !== 'item-scroll-position') return false;
-        let triggerPosition;
         let isScrolledPastTrigger = false;
         if (trigger.type === 'scroll-position') {
-          if (trigger.position === 0) return false;
-          triggerPosition = trigger.position * window.innerWidth;
-          isScrolledPastTrigger = triggerPosition < position;
+          isScrolledPastTrigger = this.scrollPositionNotifyScroll(trigger, position);
         }
         if (trigger.type === 'item-scroll-position') {
-          const itemArea = this.itemGeometryService.getItemBoundary(trigger.itemId);
-          if (!itemArea) return false;
-          switch (trigger.itemPosition) {
-            case 'top':
-              triggerPosition = 0;
-              break;
-            case 'center':
-              triggerPosition = window.innerHeight / 2;
-              break;
-            case 'bottom':
-              triggerPosition = window.innerHeight;
-              break;
-            default:
-              triggerPosition = 0;
-              break;
-          }
-          switch (trigger.screenPosition) {
-            case 'top':
-              triggerPosition -= 0;
-              break;
-            case 'center':
-              triggerPosition -= itemArea.height / 2;
-              break;
-            case 'bottom':
-              triggerPosition -= itemArea.height;
-              break;
-            default:
-              triggerPosition -= 0;
-              break;
-          }
-          triggerPosition -= trigger.offset;
-          isScrolledPastTrigger = itemArea.y < triggerPosition;
-          if (isScrolledPastTrigger && !this.itemScrollPositionAnimationMap.get(interaction.id)) {
-            this.itemScrollPositionAnimationMap.set(interaction.id, position + itemArea.y - triggerPosition);
-          }
-          if(this.itemScrollPositionAnimationMap.get(interaction.id)! >= position) isScrolledPastTrigger = false;
+          isScrolledPastTrigger = this.scrollItemPositionNotifyScroll(trigger, position, interaction);
         }
         if (!isScrolledPastTrigger && !trigger.isReverse) return false;
         const stateId = isScrolledPastTrigger ? trigger.from : trigger.to;
         return stateId === currentStateId;
       });
-      console.log(matchingTrigger);
       if (!matchingTrigger || (matchingTrigger.type !== 'scroll-position' && matchingTrigger.type !== 'item-scroll-position') || !activeStateId) continue;
-      let triggerPosition;
       let isScrolledPastTrigger = false;
       if (matchingTrigger.type === 'scroll-position') {
-        triggerPosition = matchingTrigger.position * window.innerWidth;
+        const triggerPosition = matchingTrigger.position * window.innerWidth;
         isScrolledPastTrigger = triggerPosition < position;
       }
       if (matchingTrigger.type === 'item-scroll-position') {

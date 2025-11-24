@@ -12,7 +12,7 @@ import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemS
 import { useEmbedVideoItem } from './useEmbedVideoItem';
 import { LinkWrapper } from '../LinkWrapper';
 import { useLayoutContext } from '../../useLayoutContext';
-import { useItemGeometry } from '../../../interactions/useItemGeometry';
+import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 
 export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
