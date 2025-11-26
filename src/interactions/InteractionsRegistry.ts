@@ -121,7 +121,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
   getTriggerPositionForItemScrollTrigger(trigger: InteractionItemScrollTrigger): number {
     const itemRect = this.itemGeometryService.getItemBoundary(trigger.itemId);
     let triggerPosition = 0;
-    switch (trigger.itemPosition) {
+    switch (trigger.screenPosition) {
       case 'top':
         triggerPosition = itemRect.top;
         break;
@@ -135,7 +135,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
         triggerPosition = itemRect.top;
         break;
     }
-    switch (trigger.screenPosition) {
+    switch (trigger.itemPosition) {
       case 'top':
         triggerPosition += 0;
         break;
@@ -155,7 +155,6 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
 
   isItemScrollTriggerOnStartScreen(trigger: InteractionItemScrollTrigger): boolean {
     const triggerPosition = this.getTriggerPositionForItemScrollTrigger(trigger);
-    console.log(triggerPosition, triggerPosition < 0);
     return triggerPosition < 0;
   }
 
@@ -214,7 +213,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
     let isScrolledPastTrigger = false;
     const itemRect = this.itemGeometryService.getItemBoundary(trigger.itemId);
     if (!itemRect) return false;
-    switch (trigger.itemPosition) {
+    switch (trigger.screenPosition) {
       case 'top':
         triggerPosition = 0;
         break;
@@ -229,7 +228,7 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
         break;
     }
     triggerPosition -= trigger.offset;
-    switch (trigger.screenPosition) {
+    switch (trigger.itemPosition) {
       case 'top':
         isScrolledPastTrigger = itemRect.y < triggerPosition;
         break;
