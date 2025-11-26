@@ -12,11 +12,6 @@ interface RichTextGeometryOptions {
   xSizing: SizingType;
 }
 
-interface Baseline {
-  y: number;
-  xEnd: number;
-}
-
 type GeomtryRegistry = {
   getControllerById: (itemId: string) => ItemGeometryController;
 };
@@ -128,31 +123,6 @@ export class RichTextGeometryController implements ItemGeometryController {
       bottom - top
     );
     return content;
-  }
-
-  private getBaselines(): Baseline[] {
-    const boundary = this.getBoundary();
-    const contentBoundary = this.getContentBoundary();
-    const offsetY = contentBoundary.top - boundary.top;
-    const baselines: Baseline[] = [];
-    domDfs(Array.from(this.container.children), (el) => {
-      if (el.children.length !== 0) return;
-      const rects = el.getClientRects();
-      const styles = window.getComputedStyle(el);
-      const isTextCentered = styles.textAlign === 'center';
-      const ls = RichTextGeometryController.parseCssValue(styles.letterSpacing);
-      const metrics = measureFont(this.getFontStr(styles), el.textContent?.trim() ?? '');
-      const { baseline, fontBoxHeight, rightMargin } = metrics;
-      for (let i = 0; i <= rects.length - 1; i += 1) {
-        const rect = rects[i];
-        const halfLead = (rect.height - fontBoxHeight) / 2;
-        baselines.push({
-          xEnd: isTextCentered ? boundary.width : rect.right - rightMargin - ls - boundary.left,
-          y: rect.top + halfLead + baseline - boundary.top - offsetY
-        });
-      }
-    });
-    return baselines;
   }
 
   private getFontStr(styles: CSSStyleDeclaration) {

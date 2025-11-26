@@ -46,26 +46,14 @@ export class GenericGeometryController implements ItemGeometryController {
   }
 
   setOptions(options?: unknown) {
-    // no options
+
   }
 
   getAngle(): number {
-    return this.angle + this.getParentAngle();
+    return 0;
   }
 
   getScale() {
-    return this.scale * this.getParentScale();
-  }
-
-  private getParentAngle() {
-    if (!this.registry || !this.parentId) return 0;
-    const parentController = this.registry.getControllerById(this.parentId);
-    return parentController.getAngle();
-  }
-
-  getParentScale(): number {
-    if (!this.registry || !this.parentId) return 1;
-    const parentController = this.registry.getControllerById(this.parentId);
-    return parentController.getScale();
+    return 1;
   }
 }
