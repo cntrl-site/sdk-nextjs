@@ -111,9 +111,9 @@ export class RichTextGeometryController implements ItemGeometryController {
     this.angle = angle;
   }
 
-  getContentBoundary(isRotatedBoundary?: boolean): Rect {
+  getContentBoundary(): Rect {
     if (this.getAngle() !== 0) {
-      return this.getBoundary(isRotatedBoundary);
+      return this.getBoundary(true);
     }
     const [boundary, xs, ys] = this.getContentGuides();
     const left = Math.min(...xs);
@@ -170,7 +170,7 @@ export class RichTextGeometryController implements ItemGeometryController {
   }
 
   setOptions(options?: RichTextGeometryOptions) {
-    if(!options) return;
+    if (!options) return;
     this.options = options;
   }
 
