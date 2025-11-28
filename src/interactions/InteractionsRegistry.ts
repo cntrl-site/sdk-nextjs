@@ -314,14 +314,14 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
     const timestamp = Date.now();
     for (const interaction of this.interactions) {
       const currentStateId = this.getCurrentStateByInteractionId(interaction.id);
-      const hasInteractionScrollTrigger = interaction.triggers.find((tr): tr is InteractionScrollTrigger => tr.type === 'item-scroll-position') !== undefined;
+      const hasInteractionScrollBasedTrigger = interaction.triggers.find((tr) => tr.type === 'item-scroll-position' || tr.type === 'scroll-position') !== undefined;
       const matchingTrigger = interaction.triggers.find((trigger) =>
         'triggerEvent' in trigger
         && trigger.itemId === itemId
         && trigger.from === currentStateId
         && trigger.triggerEvent === triggerType
       );
-      if (!matchingTrigger || hasInteractionScrollTrigger) continue;
+      if (!matchingTrigger || hasInteractionScrollBasedTrigger) continue;
       const activeStateId = this.getActiveInteractionState(interaction.id);
       const isNewStateActive = matchingTrigger.to === activeStateId;
       this.setCurrentStateForInteraction(interaction.id, matchingTrigger.to);
