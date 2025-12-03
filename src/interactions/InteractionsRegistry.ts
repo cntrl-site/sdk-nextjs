@@ -102,9 +102,30 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
     return itemStyles;
   }
 
+  isItemScrollBasedTrigger(itemId: string): boolean {
+    let isElementHasScrollBasedTrigger = false;
+    for (const interaction of this.interactions) {
+      const hasInteractionItemScrollBasedTrigger = interaction.triggers.find((tr) => (tr.type === 'item-scroll-position' && tr.itemId === itemId)) !== undefined;
+      const hasInteractionScrollBasedTrigger = interaction.triggers.find((tr) => tr.type === 'scroll-position') !== undefined;
+      if (hasInteractionScrollBasedTrigger) {
+        for (const trigger of interaction.triggers) {
+          if (trigger.type === 'item' && trigger.itemId === itemId) {
+            isElementHasScrollBasedTrigger = true;
+            return true;
+          }
+        }
+      }
+      if (hasInteractionItemScrollBasedTrigger) {
+        isElementHasScrollBasedTrigger = true;
+      }
+    }
+    return isElementHasScrollBasedTrigger;
+  }
+
   getItemAvailableTriggers(itemId: string): Set<InteractionItemTrigger['triggerEvent']> {
     const available = new Set<InteractionItemTrigger['triggerEvent']>();
     const activeStates = Object.values(this.interactionStateMap);
+    if (this.isItemScrollBasedTrigger(itemId)) return available;
     for (const interaction of this.interactions) {
       const { triggers } = interaction;
       for (const trigger of triggers) {
@@ -312,16 +333,16 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
 
   notifyItemTrigger(itemId: string, triggerType: TriggerType): void {
     const timestamp = Date.now();
+    if (this.isItemScrollBasedTrigger(itemId)) return;
     for (const interaction of this.interactions) {
       const currentStateId = this.getCurrentStateByInteractionId(interaction.id);
-      const hasInteractionScrollBasedTrigger = interaction.triggers.find((tr) => tr.type === 'item-scroll-position' || tr.type === 'scroll-position') !== undefined;
       const matchingTrigger = interaction.triggers.find((trigger) =>
         'triggerEvent' in trigger
         && trigger.itemId === itemId
         && trigger.from === currentStateId
         && trigger.triggerEvent === triggerType
       );
-      if (!matchingTrigger || hasInteractionScrollBasedTrigger) continue;
+      if (!matchingTrigger) continue;
       const activeStateId = this.getActiveInteractionState(interaction.id);
       const isNewStateActive = matchingTrigger.to === activeStateId;
       this.setCurrentStateForInteraction(interaction.id, matchingTrigger.to);
