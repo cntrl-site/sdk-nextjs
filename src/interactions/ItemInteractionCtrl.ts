@@ -1,6 +1,6 @@
 import { InteractionsRegistryPort, ItemInteractionCtrl } from './types';
 import { getTransition } from './getTransition';
-import { getStyleKeysFromCSSProperty } from './CSSPropertyNameMap';
+import { getStyleKeysFromCSSProperty } from '../ItemGeometry/CSSPropertyNameMap';
 import { FillLayer, InteractionItemTrigger } from '@cntrl-site/sdk';
 
 export class ItemInteractionController implements ItemInteractionCtrl {
@@ -30,7 +30,7 @@ export class ItemInteractionController implements ItemInteractionCtrl {
     };
   }
 
-  getHasTrigger(itemId: string, triggerType: InteractionItemTrigger['type']): boolean {
+  getHasTrigger(itemId: string, triggerType: InteractionItemTrigger['triggerEvent']): boolean {
     const triggers = this.registry.getItemAvailableTriggers(itemId);
     return triggers.has(triggerType);
   }

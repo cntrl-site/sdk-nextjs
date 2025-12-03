@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useId, useState } from 'react';
+import React, { FC, useContext, useEffect, useId, useState } from 'react';
 import { useItemAngle } from '../useItemAngle';
 import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { useRegisterResize } from '../../../common/useRegisterResize';
@@ -9,16 +9,21 @@ import JSXStyle from 'styled-jsx/style';
 import { getLayoutStyles, CompoundItem as TCompoundItem } from '@cntrl-site/sdk';
 import { CompoundChild } from './CompoundChild';
 import { useCompoundItem } from './useCompoundItem';
+import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
+import { ItemGeometryContext } from '../../../ItemGeometry/ItemGeometryContext';
 
 export const CompoundItem: FC<ItemProps<TCompoundItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
   const { items } = item;
+  const itemIds = items ? items.map(item => item.id) : [];
   const itemAngle = useItemAngle(item, sectionId);
   const { layouts } = useCntrlContext();
   const { opacity: itemOpacity } = useCompoundItem(item, sectionId);
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
+  useItemGeometry(item.id, ref);
+  const itemGeometryService = useContext(ItemGeometryContext);
   const stateParams = interactionCtrl?.getState<number>(['opacity', 'angle']);
   const angle = getStyleFromItemStateAndParams(stateParams?.styles?.angle, itemAngle);
   const opacity = getStyleFromItemStateAndParams(stateParams?.styles?.opacity, itemOpacity);
@@ -26,6 +31,18 @@ export const CompoundItem: FC<ItemProps<TCompoundItem>> = ({ item, sectionId, on
   useEffect(() => {
     onVisibilityChange?.(isInteractive);
   }, [isInteractive, onVisibilityChange]);
+  useEffect(() => {
+    // because on first render controllers not yet initialized
+    setTimeout(() => {
+      for (const id of itemIds) {
+        const hasItem = itemGeometryService.hasItem(id);
+        if (hasItem) {
+          const cntrl = itemGeometryService.getControllerById(id);
+          cntrl.setParentId(item.id);
+        }
+      }
+    }, 0);
+  }, [itemIds, item.id]);
   return (
     <LinkWrapper url={item.link?.url} target={item.link?.target}>
       <>

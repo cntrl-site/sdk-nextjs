@@ -35,6 +35,7 @@ import { parseSizing, useSizing } from './useSizing';
 import { useItemPointerEvents } from './useItemPointerEvents';
 import { useItemArea } from './useItemArea';
 import { useDraggable } from './useDraggable';
+import { ItemGeometryContext } from '../../ItemGeometry/ItemGeometryContext';
 
 export interface ItemProps<I extends ItemAny> {
   item: I;
@@ -84,6 +85,13 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const [isDraggingActive, setIsDraggingActive] = useState(false);
   const wrapperStateProps = interactionCtrl?.getState<number>(['top', 'left']);
   const innerStateProps = interactionCtrl?.getState<number>(['width', 'height', 'scale']);
+  const geometryService = useContext(ItemGeometryContext);
+  const triggerZone = geometryService.getItemBoundary(item.id);
+  const hasItem = geometryService.hasItem(item.id);
+  const geometryController = useMemo(() => hasItem ? geometryService.getControllerById(item.id) : undefined, [hasItem]);
+  if (geometryController) {
+    geometryController.setScale(itemScale!);
+  }
   const { width, height, top, left } = useItemArea(item, sectionId, {
     top: wrapperStateProps?.styles?.top as number,
     left: wrapperStateProps?.styles?.left as number,
@@ -228,8 +236,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
             }
             .item-${item.id}-inner {
               width: ${sizingAxis.x === 'manual'
-                ? `${area.width * 100}vw`
-                : 'max-content'};
+          ? `${area.width * 100}vw`
+          : 'max-content'};
               height: ${sizingAxis.y === 'manual' ? `${area.height * 100}vw` : 'unset'};
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
               transform: scale(${area.scale});
@@ -245,7 +253,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
               left: ${area.left * 100}vw;
             }
           `);
-      })}
+    })}
       `}
       </JSXStyle>
     </div>

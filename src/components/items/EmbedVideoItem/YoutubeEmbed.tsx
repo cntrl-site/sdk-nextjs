@@ -12,6 +12,7 @@ import { YTPlayer } from '../../../utils/Youtube/YoutubeIframeApi';
 import { useRegisterResize } from '../../../common/useRegisterResize';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
 import { useLayoutContext } from '../../useLayoutContext';
+import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 
 export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const id = useId();
@@ -38,6 +39,7 @@ export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, secti
     onVisibilityChange?.(isInteractive);
   }, [isInteractive, onVisibilityChange]);
   useRegisterResize(div, onResize);
+  useItemGeometry(item.id, div);
   useEffect(() => {
     const newUrl = new URL(url);
     const videoId = getYoutubeId(newUrl);

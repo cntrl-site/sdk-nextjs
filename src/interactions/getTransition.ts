@@ -1,4 +1,4 @@
-import { CSSPropertyNameMap } from './CSSPropertyNameMap';
+import { CSSPropertyNameMap } from '../ItemGeometry/CSSPropertyNameMap';
 
 export function getTransition(
   state: Record<string, StateInfo>,
