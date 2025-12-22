@@ -86,7 +86,6 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const wrapperStateProps = interactionCtrl?.getState<number>(['top', 'left']);
   const innerStateProps = interactionCtrl?.getState<number>(['width', 'height', 'scale']);
   const geometryService = useContext(ItemGeometryContext);
-  const triggerZone = geometryService.getItemBoundary(item.id);
   const hasItem = geometryService.hasItem(item.id);
   const geometryController = useMemo(() => hasItem ? geometryService.getControllerById(item.id) : undefined, [hasItem]);
   if (geometryController) {
