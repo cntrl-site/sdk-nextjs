@@ -109,6 +109,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
           transform-origin: center center;
           z-index: 1;
           background-position: center;
+          background-origin: border-box;
         },
         ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
       return (`
@@ -128,7 +129,16 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
   );
 };
 
-function Fill({ fill, itemId, background, solidTransition, radius, strokeWidth, isHighest, borderColor }: { fill: FillLayer; itemId: string; background: string; solidTransition: string; radius: number; strokeWidth: number; isHighest: boolean; borderColor: string; }) {
+function Fill({ fill, itemId, background, solidTransition, radius, strokeWidth, isHighest, borderColor }: {
+  fill: FillLayer;
+  itemId: string;
+  background: string;
+  solidTransition: string;
+  radius: number;
+  strokeWidth: number;
+  isHighest: boolean;
+  borderColor: string;
+}) {
   const isRotatedImage = fill.type === 'image' && fill.rotation && fill.rotation !== 0;
 
   return (
