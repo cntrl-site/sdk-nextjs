@@ -58,17 +58,6 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
           className={`rectangle-${item.id}`}
           ref={setRef}
           style={{
-            ...(strokeFill ? {
-              borderColor: stroke,
-              borderWidth: strokeWidth !== undefined ? `${strokeWidth * 100}vw` : 0,
-              borderRadius: radius !== undefined ? `${radius * 100}vw` : 'inherit',
-              borderStyle: 'solid',
-              ...(strokeFill.type === 'image' ? {
-                backgroundPosition: 'center',
-                backgroundSize: strokeFill.behavior === 'repeat' ? `${strokeFill.backgroundSize}%` : strokeFill.behavior,
-                backgroundRepeat: strokeFill.behavior === 'repeat' ? 'repeat' : 'no-repeat'
-              } : {})
-            } : {}),
             ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),
             ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
             ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
@@ -80,7 +69,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
             transition: stateParams?.transition ?? 'none'
           }}
         >
-          {itemFill && itemFill.map((fill) => {
+          {itemFill && itemFill.map((fill, index) => {
             const stateFillLayer = stateFillLayers?.find((layer) => layer.id === fill.id);
             const value = stateFillLayer
               ? (getStyleFromItemStateAndParams<FillLayer>(stateFillLayer, fill) ?? fill)
@@ -91,12 +80,15 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
 
             return (
               <Fill
+                key={fill.id}
                 fill={value}
                 itemId={item.id}
                 background={background}
                 solidTransition={solidTransition}
                 radius={radius}
                 strokeWidth={strokeWidth}
+                isHighest={index === itemFill.length - 1}
+                borderColor={stroke}
               />
             );
           })}
@@ -136,12 +128,11 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
   );
 };
 
-function Fill({ fill, itemId, background, solidTransition, radius, strokeWidth }: { fill: FillLayer; itemId: string; background: string; solidTransition: string; radius: number; strokeWidth: number; }) {
+function Fill({ fill, itemId, background, solidTransition, radius, strokeWidth, isHighest, borderColor }: { fill: FillLayer; itemId: string; background: string; solidTransition: string; radius: number; strokeWidth: number; isHighest: boolean; borderColor: string; }) {
   const isRotatedImage = fill.type === 'image' && fill.rotation && fill.rotation !== 0;
 
   return (
     <div
-      key={fill.id}
       className={fill.type === 'image' ? `image-fill-${itemId}` : `fill-${itemId}`}
       style={{
         ...(fill.type === 'solid' ? { background, transition: solidTransition } : {}),
@@ -156,12 +147,18 @@ function Fill({ fill, itemId, background, solidTransition, radius, strokeWidth }
           : { background }),
         position: 'absolute',
         mixBlendMode: fill.blendMode as any,
-        borderRadius: `calc(${radius * 100}vw - ${strokeWidth * 100}vw)`,
+        borderRadius: `${radius * 100}vw`,
         top: 0,
         left: 0,
         width: '100%',
         height: '100%',
         pointerEvents: 'none',
+        ...(isHighest ? {
+          borderColor,
+          borderWidth: `${strokeWidth * 100}vw`,
+          borderStyle: 'solid',
+          boxSizing: 'border-box'
+        } : {}),
         ...(isRotatedImage ? { overflow: 'hidden' } : {})
       }}
     >
