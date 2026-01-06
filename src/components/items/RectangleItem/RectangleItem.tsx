@@ -109,7 +109,6 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
           transform-origin: center center;
           z-index: 1;
           background-position: center;
-          background-origin: border-box;
         },
         ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
       return (`
@@ -152,6 +151,7 @@ function Fill({ fill, itemId, background, solidTransition, radius, strokeWidth, 
               backgroundImage: `url(${fill.src})`,
               backgroundSize: fill.behavior === 'repeat' ? `${fill.backgroundSize}%` : fill.behavior,
               backgroundRepeat: fill.behavior === 'repeat' ? 'repeat' : 'no-repeat',
+              backgroundOrigin: 'border-box',
               opacity: fill.opacity
             }
           : { background }),
