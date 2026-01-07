@@ -58,7 +58,6 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
           className={`rectangle-${item.id}`}
           ref={setRef}
           style={{
-            ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),
             ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
             ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
             willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
@@ -85,6 +84,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
                 itemId={item.id}
                 background={background}
                 solidTransition={solidTransition}
+                transition={stateParams?.transition || ''}
                 radius={radius}
                 strokeWidth={strokeWidth}
                 isHighest={index === itemFill.length - 1}
@@ -128,11 +128,12 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
   );
 };
 
-function Fill({ fill, itemId, background, solidTransition, radius, strokeWidth, isHighest, borderColor }: {
+function Fill({ fill, itemId, background, solidTransition, transition, radius, strokeWidth, isHighest, borderColor }: {
   fill: FillLayer;
   itemId: string;
   background: string;
   solidTransition: string;
+  transition: string;
   radius: number;
   strokeWidth: number;
   isHighest: boolean;
@@ -144,7 +145,12 @@ function Fill({ fill, itemId, background, solidTransition, radius, strokeWidth, 
     <div
       className={fill.type === 'image' ? `image-fill-${itemId}` : `fill-${itemId}`}
       style={{
-        ...(fill.type === 'solid' ? { background, transition: solidTransition } : {}),
+        ...(fill.type === 'solid' ? {
+          background,
+          transition: transition && transition !== 'none' && transition.trim()
+            ? `${solidTransition}, ${transition}`
+            : solidTransition
+        } : {}),
         ...(fill.type === 'image'
           ? {
               transform: `rotate(${fill.rotation}deg)`,
@@ -169,7 +175,8 @@ function Fill({ fill, itemId, background, solidTransition, radius, strokeWidth, 
           borderStyle: 'solid',
           boxSizing: 'border-box'
         } : {}),
-        ...(isRotatedImage ? { overflow: 'hidden' } : {})
+        ...(isRotatedImage ? { overflow: 'hidden' } : {}),
+        ...(fill.type !== 'solid' ? { transition } : {})
       }}
     >
     </div>
