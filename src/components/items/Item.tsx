@@ -165,7 +165,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
         ...(top !== undefined ? { bottom: isScreenBasedBottom ? `${-top * 100}vw` : 'unset' } : {}),
         ...(wrapperHeight !== undefined ? { height: `${wrapperHeight * 100}vw` } : {}),
         transition: wrapperStateProps?.transition ?? 'none',
-        mixBlendMode: blendMode as any
+        ...(blendMode && { mixBlendMode: blendMode as React.CSSProperties['mixBlendMode'] })
       }}
     >
       <div
