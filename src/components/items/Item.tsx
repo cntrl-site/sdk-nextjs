@@ -113,6 +113,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const sectionTop = rectObserver ? rectObserver.getSectionTop(sectionId) : 0;
   const layoutParams = layout ? item.layoutParams[layout] : undefined;
   const isDraggable = layoutParams && 'isDraggable' in layoutParams ? layoutParams.isDraggable : undefined;
+  const blendMode = layoutParams && 'blendMode' in layoutParams ? layoutParams.blendMode : undefined;
   useDraggable({ draggableRef: itemInnerRef.current, isEnabled: isDraggable ?? false }, ({ startX, startY, currentX, currentY, lastX, lastY, drag }) => {
     const item = itemInnerRef.current;
     if (!item) return;
@@ -163,7 +164,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
         ...(left !== undefined ? { left: `${left * 100}vw` } : {}),
         ...(top !== undefined ? { bottom: isScreenBasedBottom ? `${-top * 100}vw` : 'unset' } : {}),
         ...(wrapperHeight !== undefined ? { height: `${wrapperHeight * 100}vw` } : {}),
-        transition: wrapperStateProps?.transition ?? 'none'
+        transition: wrapperStateProps?.transition ?? 'none',
+        mixBlendMode: blendMode as any
       }}
     >
       <div
