@@ -39,6 +39,17 @@ export const InteractionsProvider: FC<PropsWithChildren<Props>> = ({ article, ch
   }, [registry]);
 
   useEffect(() => {
+    const handlePageOverlay = () => {
+      if (!registry) return;
+      registry.notifyPageOverlay();
+    };
+    window.addEventListener('page-overlay', handlePageOverlay);
+    return () => {
+      window.removeEventListener('page-overlay', handlePageOverlay);
+    };
+  }, [registry]);
+
+  useEffect(() => {
     if (document.readyState === 'complete') {
       notifyLoad();
     } else {

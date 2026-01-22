@@ -1,7 +1,7 @@
 import JSXStyle from 'styled-jsx/style';
 import { ItemProps } from '../Item';
 import { ComponentItem as TComponentItem, getLayoutStyles } from '@cntrl-site/sdk';
-import { FC, useId, useState } from 'react';
+import { FC, useState } from 'react';
 import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { useComponentItem } from './useComponentItem';
 import { useItemAngle } from '../useItemAngle';
@@ -27,6 +27,7 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
   const blur = getStyleFromItemStateAndParams(stateParams?.styles?.blur, itemBlur);
   const Element = component ? component.element : undefined;
   const parameters = layout ? item.layoutParams[layout].parameters : undefined;
+
   return (
     <>
       <div

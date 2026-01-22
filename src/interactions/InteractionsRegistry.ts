@@ -402,6 +402,29 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
     this.ctrls.get(itemId)?.receiveChange();
   }
 
+  notifyPageOverlay(): void {
+    for (const interaction of this.interactions) {
+      const currentStateId = this.getCurrentStateByInteractionId(interaction.id);
+      const startStateId = interaction.startStateId;
+      if (currentStateId === startStateId) continue;
+      const hasScrollTriggers = interaction.triggers.find((trigger) => trigger.type === 'item-scroll-position' || trigger.type === 'scroll-position');
+      if (hasScrollTriggers) continue;
+      const hoverOutTriggers = interaction.triggers.filter((trigger) => {
+        if (!('triggerEvent' in trigger)) return false;
+        if (trigger.triggerEvent !== 'hover-out') return false;
+        if (trigger.from !== currentStateId) return false;
+        if (trigger.to !== startStateId) return false;
+        return true;
+      });
+      for (const trigger of hoverOutTriggers) {
+        if (!('itemId' in trigger)) continue;
+        const itemId = trigger.itemId;
+        if (this.isItemScrollBasedTrigger(itemId)) continue;
+        this.notifyItemTrigger(itemId, 'hover-out');
+      }
+    }
+  }
+
   private getCurrentStateByInteractionId(id: InteractionId): string {
     let state;
     for (const interactionId of Object.keys(this.interactionStateMap)) {
