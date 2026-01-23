@@ -402,6 +402,10 @@ export class InteractionsRegistry implements InteractionsRegistryPort {
     this.ctrls.get(itemId)?.receiveChange();
   }
 
+  notifyPageOverlay(itemId: string): void {
+    this.notifyItemTrigger(itemId, 'hover-out');
+  }
+
   private getCurrentStateByInteractionId(id: InteractionId): string {
     let state;
     for (const interactionId of Object.keys(this.interactionStateMap)) {

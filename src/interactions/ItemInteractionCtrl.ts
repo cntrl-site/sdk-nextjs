@@ -1,7 +1,7 @@
 import { InteractionsRegistryPort, ItemInteractionCtrl } from './types';
 import { getTransition } from './getTransition';
 import { getStyleKeysFromCSSProperty } from '../ItemGeometry/CSSPropertyNameMap';
-import { FillLayer, InteractionItemTrigger } from '@cntrl-site/sdk';
+import { InteractionItemTrigger } from '@cntrl-site/sdk';
 
 export class ItemInteractionController implements ItemInteractionCtrl {
   private transitionsInProgress: Set<string> = new Set();
