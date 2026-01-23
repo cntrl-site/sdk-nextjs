@@ -43,6 +43,7 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
       >
         {parameters && Element && (
           <Element
+            metadata={{ itemId: item.id }}
             portalId="component-portal"
             content={item.commonParams.content}
             {...parameters}
