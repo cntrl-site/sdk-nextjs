@@ -40,10 +40,12 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
           transition: stateParams?.transition ?? 'none'
         }}
       >
-        {parameters && Element && (
+        {parameters && layout && Element && (
           <Element
             portalId="component-portal"
             content={item.commonParams.content}
+            layoutId={layout}
+            layouts={layouts}
             {...parameters}
           />
         )}
