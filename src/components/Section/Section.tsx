@@ -21,10 +21,11 @@ const DEFAULT_COLOR = 'rgba(0, 0, 0, 0)';
 interface Props {
   section: TSection;
   children: SectionChild[];
+  zIndex: number;
   data?: any;
 }
 
-export const Section: FC<Props> = ({ section, data, children }) => {
+export const Section: FC<Props> = ({ section, data, children, zIndex }) => {
   const id = useId();
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const { layouts, customSections } = useCntrlContext();
@@ -68,6 +69,7 @@ export const Section: FC<Props> = ({ section, data, children }) => {
         className={`section-${section.id}`}
         id={section.name}
         ref={sectionRef}
+        style={{ zIndex }}
       >
         {media && media.size !== 'none' && sectionRef.current && (
           <div className={`section-background-overlay-${section.id}`}>
