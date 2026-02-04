@@ -29,6 +29,7 @@ export const Article: FC<Props> = ({ article, sectionData }) => {
   }, [articleRectObserver]);
 
   const webglContextManager = useMemo(() => new WebGLContextManager(), []);
+  const sectionsLength = article.sections.length;
 
   return (
     <ArticleRectContext.Provider value={articleRectObserver}>
@@ -43,6 +44,7 @@ export const Article: FC<Props> = ({ article, sectionData }) => {
                     section={section}
                     key={section.id}
                     data={data}
+                    zIndex={sectionsLength - i}
                   >
                     {article.sections[i].items.map(item => (
                       <Item
