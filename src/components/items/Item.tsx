@@ -36,6 +36,7 @@ import { useItemPointerEvents } from './useItemPointerEvents';
 import { useItemArea } from './useItemArea';
 import { useDraggable } from './useDraggable';
 import { ItemGeometryContext } from '../../ItemGeometry/ItemGeometryContext';
+import { DimensionsType } from '@cntrl-site/sdk/lib/types/article/ItemArea';
 
 export interface ItemProps<I extends ItemAny> {
   item: I;
@@ -146,6 +147,9 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
 
   const isRichText = isItemType(item, ArticleItemType.RichText);
   const anchorSide = layout ? item.area[layout].anchorSide : AnchorSide.Top;
+  const dimensionsType = layout ? item.area[layout].dimensionsType : DimensionsType.PixelsBased;
+  const itemInnerHeight = dimensionsType === DimensionsType.PercentageBased ? `${height}vh` : `${height! * 100}vw`;
+  const itemInnerWidth = dimensionsType === DimensionsType.PercentageBased ? `${width}vw` : isRichText ? `${width! * exemplary}px` : `${width! * 100}vw`;
   const positionType = layout ? item.area[layout].positionType : PositionType.ScreenBased;
   const isScreenBasedBottom = positionType === PositionType.ScreenBased && anchorSide === AnchorSide.Bottom;
   const scale = innerStateProps?.styles?.scale ?? itemScale;
@@ -185,12 +189,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
               left: `${position.x}px`,
               ...((width !== undefined && height !== undefined)
                 ? {
-                    width: `${sizingAxis.x === 'manual'
-                      ? isRichText
-                        ? `${width * exemplary}px`
-                        : `${width * 100}vw`
-                      : 'max-content'}`,
-                    height: `${sizingAxis.y === 'manual' ? `${height * 100}vw` : 'unset'}`
+                    width: `${sizingAxis.x === 'manual' ? itemInnerWidth : 'max-content'}`,
+                    height: `${sizingAxis.y === 'manual' ? itemInnerHeight : 'unset'}` // here
                   }
                 : {}),
               ...(scale !== undefined ? { transform: `scale(${scale})`, WebkitTransform: `scale(${scale})` } : {}),
@@ -226,6 +226,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
       const sizingAxis = parseSizing(layoutParams.sizing);
       const isScreenBasedBottom = area.positionType === PositionType.ScreenBased && area.anchorSide === AnchorSide.Bottom;
       const scaleAnchor = area.scaleAnchor as AreaAnchor;
+      const innerHeight = area?.dimensionsType && area?.dimensionsType === DimensionsType.PercentageBased ? `${area.height}vh` : `${area.height * 100}vw`;
       return (`
             .item-${item.id} {
               position: ${sticky ? 'sticky' : 'absolute'};
@@ -239,7 +240,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
               width: ${sizingAxis.x === 'manual'
           ? `${area.width * 100}vw`
           : 'max-content'};
-              height: ${sizingAxis.y === 'manual' ? `${area.height * 100}vw` : 'unset'};
+              height: ${sizingAxis.y === 'manual' ? innerHeight : 'unset'};
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
               transform: scale(${area.scale});
               position: relative;
