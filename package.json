@@ -32,7 +32,7 @@
     "@cntrl-site/color": "^1.0.0",
     "@cntrl-site/components": "^0.1.28",
     "@cntrl-site/effects": "^1.4.0",
-    "@cntrl-site/sdk": "H:/mom/sdk/cntrl-site-sdk-1.25.7-0.tgz",
+    "@cntrl-site/sdk": "^1.25.7",
     "@types/vimeo__player": "^2.18.0",
     "@vimeo/player": "^2.25.0",
     "html-react-parser": "^3.0.1",
