@@ -1,7 +1,6 @@
 import { AnchorSide } from '@cntrl-site/sdk';
 
 export function getItemTopStyle(top: number, anchorSide?: AnchorSide) {
-  console.log('getItemTopStyle', top);
   const defaultValue = `${top * 100}vw`;
   if (!anchorSide) return defaultValue;
   switch (anchorSide) {

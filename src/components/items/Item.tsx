@@ -149,7 +149,6 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const anchorSide = layout ? item.area[layout].anchorSide : AnchorSide.Top;
   const dimensionsType = layout ? item.area[layout].dimensionsType : DimensionsType.PixelsBased;
   const itemInnerHeight = dimensionsType === DimensionsType.PercentageBased ? `${height}vh` : `${height! * 100}vw`;
-  const itemInnerWidth = dimensionsType === DimensionsType.PercentageBased ? `${width}vw` : isRichText ? `${width! * exemplary}px` : `${width! * 100}vw`;
   const positionType = layout ? item.area[layout].positionType : PositionType.ScreenBased;
   const isScreenBasedBottom = positionType === PositionType.ScreenBased && anchorSide === AnchorSide.Bottom;
   const scale = innerStateProps?.styles?.scale ?? itemScale;
@@ -189,8 +188,12 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
               left: `${position.x}px`,
               ...((width !== undefined && height !== undefined)
                 ? {
-                    width: `${sizingAxis.x === 'manual' ? itemInnerWidth : 'max-content'}`,
-                    height: `${sizingAxis.y === 'manual' ? itemInnerHeight : 'unset'}` // here
+                    width: `${sizingAxis.x === 'manual'
+                      ? isRichText
+                        ? `${width * exemplary}px`
+                        : `${width * 100}vw`
+                      : 'max-content'}`,
+                    height: `${sizingAxis.y === 'manual' ? itemInnerHeight : 'unset'}`
                   }
                 : {}),
               ...(scale !== undefined ? { transform: `scale(${scale})`, WebkitTransform: `scale(${scale})` } : {}),
