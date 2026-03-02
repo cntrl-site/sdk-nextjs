@@ -13,13 +13,14 @@ import {
   getLayoutStyles,
   ItemAny,
   AreaAnchor,
-  PositionType
+  PositionType,
+  DimensionsType
 } from '@cntrl-site/sdk';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useItemScale } from './useItemScale';
 import { ScaleAnchorMap } from '../../utils/ScaleAnchorMap';
 import { useSectionHeightData } from '../Section/useSectionHeightMap';
-import { getItemTopStyle } from '../../utils/getItemTopStyle';
+import { getItemTopStyle, getPercentageBasedTopStyle } from '../../utils/getItemTopStyle';
 import { useStickyItemTop } from './useStickyItemTop';
 import { getAnchoredItemTop } from '../../utils/getAnchoredItemTop';
 import { useLayoutContext } from '../useLayoutContext';
@@ -146,6 +147,9 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
 
   const isRichText = isItemType(item, ArticleItemType.RichText);
   const anchorSide = layout ? item.area[layout].anchorSide : AnchorSide.Top;
+  const dimensionsType = layout ? item.area[layout].dimensionsType : DimensionsType.PixelsBased;
+  const isContainItem = dimensionsType === DimensionsType.PercentageBased;
+  const itemInnerHeight = isContainItem ? `${height}vh` : `${height! * 100}vw`;
   const positionType = layout ? item.area[layout].positionType : PositionType.ScreenBased;
   const isScreenBasedBottom = positionType === PositionType.ScreenBased && anchorSide === AnchorSide.Bottom;
   const scale = innerStateProps?.styles?.scale ?? itemScale;
@@ -159,7 +163,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
         interactionCtrl?.handleTransitionEnd?.(e.propertyName);
       }}
       style={{
-        ...(top !== undefined ? { top: isScreenBasedBottom ? 'unset' : getItemTopStyle(top, anchorSide) } : {}),
+        ...(top !== undefined ? { top: isScreenBasedBottom ? 'unset' : isContainItem ? getPercentageBasedTopStyle(top, height, anchorSide) : getItemTopStyle(top, anchorSide) } : {}),
         ...(left !== undefined ? { left: `${left * 100}vw` } : {}),
         ...(top !== undefined ? { bottom: isScreenBasedBottom ? `${-top * 100}vw` : 'unset' } : {}),
         ...(wrapperHeight !== undefined ? { height: `${wrapperHeight * 100}vw` } : {}),
@@ -190,7 +194,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
                         ? `${width * exemplary}px`
                         : `${width * 100}vw`
                       : 'max-content'}`,
-                    height: `${sizingAxis.y === 'manual' ? `${height * 100}vw` : 'unset'}`
+                    height: `${sizingAxis.y === 'manual' ? itemInnerHeight : 'unset'}`
                   }
                 : {}),
               ...(scale !== undefined ? { transform: `scale(${scale})`, WebkitTransform: `scale(${scale})` } : {}),
@@ -226,6 +230,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
       const sizingAxis = parseSizing(layoutParams.sizing);
       const isScreenBasedBottom = area.positionType === PositionType.ScreenBased && area.anchorSide === AnchorSide.Bottom;
       const scaleAnchor = area.scaleAnchor as AreaAnchor;
+      const innerHeight = area?.dimensionsType && area?.dimensionsType === DimensionsType.PercentageBased ? `${area.height}vh` : `${area.height * 100}vw`;
       return (`
             .item-${item.id} {
               position: ${sticky ? 'sticky' : 'absolute'};
@@ -239,7 +244,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
               width: ${sizingAxis.x === 'manual'
           ? `${area.width * 100}vw`
           : 'max-content'};
-              height: ${sizingAxis.y === 'manual' ? `${area.height * 100}vw` : 'unset'};
+              height: ${sizingAxis.y === 'manual' ? innerHeight : 'unset'};
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
               transform: scale(${area.scale});
               position: relative;
@@ -250,7 +255,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
               ${!isInGroup && stickyFix}
               pointer-events: none;
               bottom: ${isScreenBasedBottom ? `${-area.top * 100}vw` : 'unset'};
-              top: ${isScreenBasedBottom ? 'unset' : getItemTopStyle(area.top, area.anchorSide)};
+              top: ${isScreenBasedBottom ? 'unset' : isContainItem ? getPercentageBasedTopStyle(area.top, area.height, area.anchorSide) : getItemTopStyle(area.top, area.anchorSide)};
               left: ${area.left * 100}vw;
             }
           `);
