@@ -1,4 +1,4 @@
-import { FC, useContext, useEffect, useId, useState } from 'react';
+import { FC, useEffect, useId, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { RectangleItem as TRectangleItem, getLayoutStyles, FillLayer } from '@cntrl-site/sdk';
 import { CntrlColor } from '@cntrl-site/color';
@@ -26,17 +26,17 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
   } = useRectangleItem(item, sectionId);
   const itemAngle = useItemAngle(item, sectionId);
   const stateParams = interactionCtrl?.getState<any>(['angle', 'blur', 'backdropBlur', 'strokeFill']);
-  const stateFillParams = interactionCtrl?.getState<FillLayer[]>(['fill', 'strokeWidth', 'radius']);
+  const stateFillParams = interactionCtrl?.getState<any>(['fill', 'strokeWidth', 'radius']);
   const stateFillLayers = stateFillParams?.styles?.fill;
-  const solidTransition = stateFillParams?.transition ?? 'none';
+  const fillTransition = stateFillParams?.transition ?? 'none';
   const styles = stateParams?.styles ?? {};
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(ref, onResize);
   useItemGeometry(item.id, ref);
   const backdropBlur = getStyleFromItemStateAndParams(styles?.backdropBlur, itemBackdropBlur);
-  const radius = getStyleFromItemStateAndParams(styles?.radius, itemRadius);
-  const strokeWidth = getStyleFromItemStateAndParams(styles?.strokeWidth, itemStrokeWidth);
+  const radius = getStyleFromItemStateAndParams(stateFillParams?.styles?.radius, itemRadius);
+  const strokeWidth = getStyleFromItemStateAndParams(stateFillParams?.styles?.strokeWidth, itemStrokeWidth);
   const strokeFill = getStyleFromItemStateAndParams(styles?.strokeFill?.[0], itemStrokeFill?.[0]) ?? itemStrokeFill?.[0];
   const angle = getStyleFromItemStateAndParams(styles?.angle, itemAngle);
   const blur = getStyleFromItemStateAndParams(styles?.blur, itemBlur);
@@ -69,7 +69,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
           }}
         >
           {itemFill && itemFill.map((fill, index) => {
-            const stateFillLayer = stateFillLayers?.find((layer) => layer.id === fill.id);
+            const stateFillLayer = stateFillLayers?.find((layer: FillLayer) => layer.id === fill.id);
             const value = stateFillLayer
               ? (getStyleFromItemStateAndParams<FillLayer>(stateFillLayer, fill) ?? fill)
               : fill;
@@ -83,7 +83,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
                 fill={value}
                 itemId={item.id}
                 background={background}
-                solidTransition={solidTransition}
+                fillTransition={fillTransition}
                 transition={stateParams?.transition || ''}
                 radius={radius}
                 strokeWidth={strokeWidth}
@@ -128,11 +128,11 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
   );
 };
 
-function Fill({ fill, itemId, background, solidTransition, transition, radius, strokeWidth, isHighest, borderColor }: {
+function Fill({ fill, itemId, background, fillTransition, transition, radius, strokeWidth, isHighest, borderColor }: {
   fill: FillLayer;
   itemId: string;
   background: string;
-  solidTransition: string;
+  fillTransition: string;
   transition: string;
   radius: number;
   strokeWidth: number;
@@ -147,9 +147,9 @@ function Fill({ fill, itemId, background, solidTransition, transition, radius, s
       style={{
         ...(fill.type === 'solid' ? {
           background,
-          transition: transition && transition !== 'none' && transition.trim()
-            ? `${solidTransition}, ${transition}`
-            : solidTransition
+          transition: fillTransition && fillTransition !== 'none' && fillTransition.trim()
+            ? `${fillTransition}, ${transition}`
+            : fillTransition
         } : {}),
         ...(fill.type === 'image'
           ? {
