@@ -25,8 +25,8 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
     backdropBlur: itemBackdropBlur
   } = useRectangleItem(item, sectionId);
   const itemAngle = useItemAngle(item, sectionId);
-  const stateParams = interactionCtrl?.getState<any>(['angle', 'strokeWidth', 'radius', 'blur', 'backdropBlur', 'strokeFill']);
-  const stateFillParams = interactionCtrl?.getState<FillLayer[]>(['fill']);
+  const stateParams = interactionCtrl?.getState<any>(['angle', 'blur', 'backdropBlur', 'strokeFill']);
+  const stateFillParams = interactionCtrl?.getState<FillLayer[]>(['fill', 'strokeWidth', 'radius']);
   const stateFillLayers = stateFillParams?.styles?.fill;
   const solidTransition = stateFillParams?.transition ?? 'none';
   const styles = stateParams?.styles ?? {};
