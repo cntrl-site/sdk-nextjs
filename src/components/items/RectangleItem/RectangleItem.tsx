@@ -25,8 +25,8 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
     backdropBlur: itemBackdropBlur
   } = useRectangleItem(item, sectionId);
   const itemAngle = useItemAngle(item, sectionId);
-  const stateParams = interactionCtrl?.getState<any>(['angle', 'blur', 'backdropBlur', 'strokeFill']);
-  const stateFillParams = interactionCtrl?.getState<any>(['fill', 'strokeWidth', 'radius']);
+  const stateParams = interactionCtrl?.getState<any>(['angle', 'blur', 'backdropBlur']);
+  const stateFillParams = interactionCtrl?.getState<any>(['fill', 'strokeWidth', 'radius', 'strokeFill']);
   const stateFillLayers = stateFillParams?.styles?.fill;
   const fillTransition = stateFillParams?.transition ?? 'none';
   const styles = stateParams?.styles ?? {};
@@ -37,7 +37,7 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
   const backdropBlur = getStyleFromItemStateAndParams(styles?.backdropBlur, itemBackdropBlur);
   const radius = getStyleFromItemStateAndParams(stateFillParams?.styles?.radius, itemRadius);
   const strokeWidth = getStyleFromItemStateAndParams(stateFillParams?.styles?.strokeWidth, itemStrokeWidth);
-  const strokeFill = getStyleFromItemStateAndParams(styles?.strokeFill?.[0], itemStrokeFill?.[0]) ?? itemStrokeFill?.[0];
+  const strokeFill = getStyleFromItemStateAndParams(stateFillParams?.styles?.strokeFill?.[0], itemStrokeFill?.[0]) ?? itemStrokeFill?.[0];
   const angle = getStyleFromItemStateAndParams(styles?.angle, itemAngle);
   const blur = getStyleFromItemStateAndParams(styles?.blur, itemBlur);
   const backdropFilterValue = backdropBlur ? `blur(${backdropBlur * 100}vw)` : undefined;
@@ -84,7 +84,6 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
                 itemId={item.id}
                 background={background}
                 fillTransition={fillTransition}
-                transition={stateParams?.transition || ''}
                 radius={radius}
                 strokeWidth={strokeWidth}
                 isHighest={index === itemFill.length - 1}
@@ -113,10 +112,10 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
         ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
       return (`
             .rectangle-${item.id} {
-              border-radius: ${layoutParams.radius * 100}vw
+              border-radius: ${layoutParams.radius * 100}vw;
               transform: rotate(${area.angle}deg);
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
-              ${layoutParams.blur !== 0 ? 'will-change: transform;' : ''}
+              ${layoutParams.blur !== 0 ? 'will-change: transform;' : ''};
               backdrop-filter: ${layoutParams.backdropBlur !== 0 ? `blur(${layoutParams.backdropBlur * 100}vw)` : 'unset'};
               -webkit-backdrop-filter: ${layoutParams.backdropBlur !== 0 ? `blur(${layoutParams.backdropBlur * 100}vw)` : 'unset'};
             }
@@ -128,12 +127,11 @@ export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, 
   );
 };
 
-function Fill({ fill, itemId, background, fillTransition, transition, radius, strokeWidth, isHighest, borderColor }: {
+function Fill({ fill, itemId, background, fillTransition, radius, strokeWidth, isHighest, borderColor }: {
   fill: FillLayer;
   itemId: string;
   background: string;
   fillTransition: string;
-  transition: string;
   radius: number;
   strokeWidth: number;
   isHighest: boolean;
@@ -145,15 +143,10 @@ function Fill({ fill, itemId, background, fillTransition, transition, radius, st
     <div
       className={fill.type === 'image' ? `image-fill-${itemId}` : `fill-${itemId}`}
       style={{
-        ...(fill.type === 'solid' ? {
-          background,
-          transition: fillTransition && fillTransition !== 'none' && fillTransition.trim()
-            ? `${fillTransition}, ${transition}`
-            : fillTransition
-        } : {}),
+        ...(fill.type === 'solid' ? { background } : {}),
         ...(fill.type === 'image'
           ? {
-              transform: `rotate(${fill.rotation}deg)`,
+              transform: `rotate(${fill.rotation ?? 0}deg)`,
               backgroundImage: `url(${fill.src})`,
               backgroundSize: fill.behavior === 'repeat' ? `${fill.backgroundSize}%` : fill.behavior,
               backgroundRepeat: fill.behavior === 'repeat' ? 'repeat' : 'no-repeat',
@@ -169,6 +162,7 @@ function Fill({ fill, itemId, background, fillTransition, transition, radius, st
         width: '100%',
         height: '100%',
         pointerEvents: 'none',
+        transition: fillTransition,
         ...(isHighest ? {
           borderColor,
           borderWidth: `${strokeWidth * 100}vw`,
@@ -176,7 +170,6 @@ function Fill({ fill, itemId, background, fillTransition, transition, radius, st
           boxSizing: 'border-box'
         } : {}),
         ...(isRotatedImage ? { overflow: 'hidden' } : {}),
-        ...(fill.type !== 'solid' ? { transition } : {})
       }}
     >
     </div>
