@@ -155,7 +155,6 @@ function Fill({ fill, itemId, background, fillTransition, radius, strokeWidth, i
             }
           : { background }),
         position: 'absolute',
-        mixBlendMode: fill.blendMode as any,
         borderRadius: `${radius * 100}vw`,
         top: 0,
         left: 0,
