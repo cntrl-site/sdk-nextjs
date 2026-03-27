@@ -15,6 +15,8 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
   const { layouts } = sdk;
   const itemAngle = useItemAngle(item, sectionId);
   const layout = useLayoutContext();
+  const fallbackLayout = layouts[0]?.id;
+  const effectiveLayout = layout ?? fallbackLayout;
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const component = sdk.getComponent(item.commonParams.componentId);
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
@@ -26,7 +28,12 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
   const opacity = getStyleFromItemStateAndParams(stateParams?.styles?.opacity, itemOpacity);
   const blur = getStyleFromItemStateAndParams(stateParams?.styles?.blur, itemBlur);
   const Element = component ? component.element : undefined;
-  const parameters = layout ? item.layoutParams[layout].parameters : undefined;
+  const layoutParameters = effectiveLayout ? item.layoutParams[effectiveLayout]?.parameters : undefined;
+  const commonParameters = (item.commonParams as any).parameters;
+  const parameters = layoutParameters ? {
+    ...layoutParameters,
+    settings: { ...layoutParameters.settings, ...commonParameters?.settings }
+  } : undefined;
 
   return (
     <>

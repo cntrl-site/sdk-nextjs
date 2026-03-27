@@ -8,12 +8,18 @@ import { Keyframes } from '../provider/Keyframes';
 import { ItemGeometryContext } from '../ItemGeometry/ItemGeometryContext';
 import { ItemGeometryService } from '../ItemGeometry/ItemGeometryService';
 
+export interface CustomComponentBundlesData {
+  bundles: Record<string, string>;
+  schemas: Record<string, Record<string, unknown>>;
+}
+
 export interface PageProps {
   article: TArticle;
   project: Project;
   meta: Meta;
   keyframes: KeyframeAny[];
   sectionData: Record<SectionName, any>;
+  customComponentBundles?: CustomComponentBundlesData;
 }
 
 export const Page: FC<PageProps> = ({ article, project, meta, keyframes, sectionData }) => {

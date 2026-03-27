@@ -2,11 +2,11 @@ import { CustomItemRegistry } from './CustomItemRegistry';
 import { Article, Section, Layout, Project, SectionHeight } from '@cntrl-site/sdk';
 import { components, Component as TComponent } from '@cntrl-site/components';
 import { CustomSectionRegistry } from './CustomSectionRegistry';
-import { Component } from 'react';
 
 interface SdkContextInitProps {
   project: Project;
   article: Article;
+  customComponents?: Map<string, TComponent>;
 }
 
 export class CntrlSdkContext {
@@ -34,9 +34,12 @@ export class CntrlSdkContext {
     );
   }
 
-  init({ project, article }: SdkContextInitProps) {
+  init({ project, article, customComponents }: SdkContextInitProps) {
     this.setLayouts(project.layouts);
     this.setComponents(components);
+    if (customComponents) {
+      this.setCustomComponents(customComponents);
+    }
     this.setFonts(project.fonts);
     this.setSectionsHeight(article.sections);
   }
@@ -48,6 +51,12 @@ export class CntrlSdkContext {
   private setComponents(components: TComponent[]) {
     for (const component of components) {
       this.components.set(component.id, component);
+    }
+  }
+
+  setCustomComponents(customComponents: Map<string, TComponent>) {
+    for (const [id, component] of customComponents) {
+      this.components.set(id, component);
     }
   }
 
