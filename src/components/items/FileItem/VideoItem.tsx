@@ -48,7 +48,8 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
   const rectHeight = Math.floor(rect?.height ?? 0);
   const scrollPlayback = layoutParams ? layoutParams.scrollPlayback : null;
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
-  const hasScrollPlayback = scrollPlayback !== null;
+  const isHiddenOnLayout = layoutId ? (item.hidden[layoutId] ?? false) : false;
+  const hasScrollPlayback = scrollPlayback !== null && !isHiddenOnLayout;
   const wrapperStateParams = interactionCtrl?.getState<number>(['angle', 'opacity', 'blur']);
   const videoStateParams = interactionCtrl?.getState<any>(['strokeWidth', 'radius', 'strokeFill']);
   const angle = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.angle, itemAngle);
