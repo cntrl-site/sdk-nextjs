@@ -129,6 +129,8 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
             playbackParams={scrollPlayback}
             style={inlineStyles}
             className={`video video-playback-wrapper video-${item.id}`}
+            scrollPlaybackFrameData={item.commonParams.scrollPlaybackFrameData}
+            frameBaseUrl={item.commonParams.scrollPlaybackFrameData?.framesUrl}
           />
         )}
         {hasGLEffect && isFXAllowed && (
