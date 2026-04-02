@@ -68,7 +68,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const itemInnerRef = useRef<HTMLDivElement | null>(null);
   const rectObserver = useContext(ArticleRectContext);
   const keyframesRepo = useContext(KeyframesContext);
-  const id = useId();
+  const reactId = useId();
+  const id = `${reactId}-item-${item.id}`;
   const keyframes = useMemo(() => keyframesRepo.getItemKeyframes(item.id), [keyframesRepo, item.id]);
   const { layouts } = useCntrlContext();
   const layout = useLayoutContext();

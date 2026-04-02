@@ -15,7 +15,8 @@ import { useLayoutContext } from '../../useLayoutContext';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 
 export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
-  const id = useId();
+  const reactId = useId();
+  const id = `${reactId}-vimeo-${item.id}`;
   const { layouts } = useCntrlContext();
   const {
     radius: itemRadius,

@@ -14,7 +14,8 @@ import { areFillsVisible } from '../../../utils/areFillsVisible/areFillsVisible'
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 
 export const RectangleItem: FC<ItemProps<TRectangleItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
-  const id = useId();
+  const reactId = useId();
+  const id = `${reactId}-rect-${item.id}`;
   const { layouts } = useCntrlContext();
   const {
     fill: itemFill,

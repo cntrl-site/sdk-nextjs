@@ -1,7 +1,7 @@
 import React, { FC, useContext, useEffect, useMemo, useState } from 'react';
 import { rangeMap } from '../utils/rangeMap';
 import { ArticleRectContext } from '../provider/ArticleRectContext';
-import { ScrollPlaybackVideoManager } from '@cntrl-site/sdk';
+import { ScrollPlaybackVideoManager, ScrollPlaybackFrameData } from '@cntrl-site/sdk';
 
 type PlaybackParams = { from: number, to: number };
 
@@ -11,12 +11,20 @@ interface Props {
   playbackParams: PlaybackParams | null;
   style?: React.CSSProperties;
   className: string;
+  scrollPlaybackFrameData?: ScrollPlaybackFrameData | null;
+  frameBaseUrl?: string;
 }
 
-export const ScrollPlaybackVideo: FC<Props> = ({ sectionId, src, playbackParams, style, className }) => {
+export const ScrollPlaybackVideo: FC<Props> = ({ sectionId, src, playbackParams, style, className, scrollPlaybackFrameData, frameBaseUrl }) => {
   const [containerElement, setContainerElement] = useState<HTMLDivElement | null>(null);
   const [time, setTime] = useState(0);
   const articleRectObserver = useContext(ArticleRectContext);
+  const hasServerFrames = scrollPlaybackFrameData?.status === 'ready'
+    && scrollPlaybackFrameData.batchId
+    && scrollPlaybackFrameData.frameCount
+    && scrollPlaybackFrameData.frameRate
+    && scrollPlaybackFrameData.frameFormat
+    && frameBaseUrl;
 
   useEffect(() => {
     if (!playbackParams || !articleRectObserver) return;
@@ -31,10 +39,19 @@ export const ScrollPlaybackVideo: FC<Props> = ({ sectionId, src, playbackParams,
     if (!containerElement) return null;
     const manager = new ScrollPlaybackVideoManager({
       src,
-      videoContainer: containerElement
+      videoContainer: containerElement,
+      ...(hasServerFrames ? {
+        frameData: {
+          batchId: scrollPlaybackFrameData.batchId!,
+          frameCount: scrollPlaybackFrameData.frameCount!,
+          frameRate: scrollPlaybackFrameData.frameRate!,
+          frameFormat: scrollPlaybackFrameData.frameFormat!
+        },
+        frameBaseUrl
+      } : {})
     });
     return manager;
-  }, [containerElement, src]);
+  }, [containerElement, src, hasServerFrames, frameBaseUrl]);
 
   useEffect(() => {
     return () => {
