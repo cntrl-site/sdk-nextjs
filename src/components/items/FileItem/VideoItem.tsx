@@ -17,7 +17,8 @@ import { getFill } from '../../../utils/getFill';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 
 export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
-  const id = useId();
+  const reactId = useId();
+  const id = `${reactId}-video-${item.id}`;
   const { layouts } = useCntrlContext();
   const layoutId = useLayoutContext();
   const {

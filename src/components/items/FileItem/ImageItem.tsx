@@ -16,7 +16,8 @@ import { getFill } from '../../../utils/getFill';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 
 export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
-  const id = useId();
+  const reactId = useId();
+  const id = `${reactId}-image-${item.id}`;
   const { layouts } = useCntrlContext();
   const layoutId = useLayoutContext();
   const {

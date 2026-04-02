@@ -36,7 +36,8 @@ interface ChildItemProps {
 const noop = () => null;
 
 export const CompoundChild: FC<ChildItemProps> = ({ item, sectionId, isParentVisible = true }) => {
-  const id = useId();
+  const reactId = useId();
+  const id = `${reactId}-compound-${item.id}`;
   const { layouts } = useCntrlContext();
   const layout = useLayoutContext();
   const exemplary = useExemplary();

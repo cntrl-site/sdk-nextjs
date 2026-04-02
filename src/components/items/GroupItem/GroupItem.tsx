@@ -13,7 +13,8 @@ import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 import { ItemGeometryContext } from '../../../ItemGeometry/ItemGeometryContext';
 
 export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange, isInCompound }) => {
-  const id = useId();
+  const reactId = useId();
+  const id = `${reactId}-group-${item.id}`;
   const { items } = item;
   const itemIds = items ? items.map(item => item.id) : [];
   const itemAngle = useItemAngle(item, sectionId);
