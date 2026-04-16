@@ -15,7 +15,8 @@ import { useLayoutContext } from '../../useLayoutContext';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 
 export const YoutubeEmbedItem: FC<ItemProps<TYoutubeEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
-  const id = useId();
+  const reactId = useId();
+  const id = `${reactId}-youtube-${item.id}`;
   const { layouts } = useCntrlContext();
   const { url } = item.commonParams;
   const layoutId = useLayoutContext();

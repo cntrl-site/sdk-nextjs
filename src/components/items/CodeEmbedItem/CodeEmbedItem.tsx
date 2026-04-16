@@ -22,7 +22,8 @@ const stylesMap = {
 };
 
 export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
-  const id = useId();
+  const reactId = useId();
+  const id = `${reactId}-codeembed-${item.id}`;
   const { layouts, fonts } = useCntrlContext();
   const fontGoogleTags = fonts?.google;
   const fontAdobeTags = fonts?.adobe;

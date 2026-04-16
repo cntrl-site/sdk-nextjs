@@ -26,7 +26,8 @@ interface Props {
 }
 
 export const Section: FC<Props> = ({ section, data, children, zIndex }) => {
-  const id = useId();
+  const reactId = useId();
+  const id = `${reactId}-section-${section.id}`;
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const { layouts, customSections } = useCntrlContext();
   const layout = useLayoutContext();

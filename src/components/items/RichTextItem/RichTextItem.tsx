@@ -16,7 +16,8 @@ import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 import { RichTextGeometryController } from '../../../ItemGeometry/RichTextGeometryController';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
-  const id = useId();
+  const reactId = useId();
+  const id = `${reactId}-richtext-${item.id}`;
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const { layouts } = useCntrlContext();
   const itemAngle = useItemAngle(item, sectionId);

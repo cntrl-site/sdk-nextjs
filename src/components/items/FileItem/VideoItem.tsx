@@ -17,7 +17,8 @@ import { getFill } from '../../../utils/getFill';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 
 export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
-  const id = useId();
+  const reactId = useId();
+  const id = `${reactId}-video-${item.id}`;
   const { layouts } = useCntrlContext();
   const layoutId = useLayoutContext();
   const {
@@ -48,7 +49,8 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
   const rectHeight = Math.floor(rect?.height ?? 0);
   const scrollPlayback = layoutParams ? layoutParams.scrollPlayback : null;
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
-  const hasScrollPlayback = scrollPlayback !== null;
+  const isHiddenOnLayout = layoutId ? (item.hidden[layoutId] ?? false) : false;
+  const hasScrollPlayback = scrollPlayback !== null && !isHiddenOnLayout;
   const wrapperStateParams = interactionCtrl?.getState<number>(['angle', 'opacity', 'blur']);
   const videoStateParams = interactionCtrl?.getState<any>(['strokeWidth', 'radius', 'strokeFill']);
   const angle = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.angle, itemAngle);
@@ -129,6 +131,8 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
             playbackParams={scrollPlayback}
             style={inlineStyles}
             className={`video video-playback-wrapper video-${item.id}`}
+            scrollPlaybackFrameData={item.commonParams.scrollPlaybackFrameData}
+            frameBaseUrl={item.commonParams.scrollPlaybackFrameData?.framesUrl}
           />
         )}
         {hasGLEffect && isFXAllowed && (
