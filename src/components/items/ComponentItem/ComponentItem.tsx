@@ -41,7 +41,10 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
         className={`custom-component-${item.id}`}
         ref={setRef}
         style={{
-          ...(opacity !== undefined ? { opacity } : {}),
+          // preventing layout shift while supporting SSG for proper SEO
+          ...(opacity !== undefined
+            ? { opacity: layout == null ? 0 : opacity }
+            : layout == null ? { opacity: 0 } : {}),
           ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
           willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',

@@ -6,6 +6,7 @@ import { CustomSectionRegistry } from './CustomSectionRegistry';
 interface SdkContextInitProps {
   project: Project;
   article: Article;
+  publicApiBase?: string;
   customComponents?: Map<string, TComponent>;
 }
 
@@ -25,7 +26,7 @@ export class CntrlSdkContext {
   async resolveSectionData(sections: Section[]): Promise<Record<string, any>> {
     const resolvers = sections.map(section => {
       const resolver = section.name ? this.customSections.getResolver(section.name) : undefined;
-      if (!resolver) return;
+      if (!resolver) return undefined;
       return {
         name: section.name,
         resolver
@@ -36,8 +37,11 @@ export class CntrlSdkContext {
     );
   }
 
-  init({ project, article, customComponents }: SdkContextInitProps) {
+  init({ project, article, publicApiBase, customComponents }: SdkContextInitProps) {
     this._projectId = project.id;
+    if (publicApiBase) {
+      this._publicApiBase = publicApiBase;
+    }
     this.setLayouts(project.layouts);
     this.setComponents(components);
     if (customComponents) {
@@ -53,10 +57,6 @@ export class CntrlSdkContext {
 
   get projectId(): string | undefined {
     return this._projectId;
-  }
-
-  get publicApiBase(): string | undefined {
-    return this._publicApiBase;
   }
 
   getSubmitUrl(pluginConfigId: string | undefined): string | undefined {

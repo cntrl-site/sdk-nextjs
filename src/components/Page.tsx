@@ -19,6 +19,7 @@ export interface PageProps {
   meta: Meta;
   keyframes: KeyframeAny[];
   sectionData: Record<SectionName, any>;
+  publicApiBase?: string;
   customComponentBundles?: CustomComponentBundlesData;
 }
 
