@@ -50,7 +50,10 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
       >
         {parameters && Element && (
           <Element
-            metadata={{ itemId: item.id }}
+            metadata={{
+              itemId: item.id,
+              submitUrl: sdk.getSubmitUrl(commonParameters?.pluginConfigId)
+            }}
             portalId="component-portal"
             content={item.commonParams.content}
             {...parameters}

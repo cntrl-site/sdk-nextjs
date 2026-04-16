@@ -12,6 +12,8 @@ interface SdkContextInitProps {
 export class CntrlSdkContext {
   private _layouts: Layout[] = [];
   private _fonts?: Project['fonts'] = undefined;
+  private _projectId?: string = undefined;
+  private _publicApiBase?: string = undefined;
   private sectionHeightMap: Map<string, Record<string, SectionHeight>> = new Map();
   private components: Map<string, TComponent> = new Map();
 
@@ -35,6 +37,7 @@ export class CntrlSdkContext {
   }
 
   init({ project, article, customComponents }: SdkContextInitProps) {
+    this._projectId = project.id;
     this.setLayouts(project.layouts);
     this.setComponents(components);
     if (customComponents) {
@@ -42,6 +45,23 @@ export class CntrlSdkContext {
     }
     this.setFonts(project.fonts);
     this.setSectionsHeight(article.sections);
+  }
+
+  setPublicApiBase(url: string) {
+    this._publicApiBase = url;
+  }
+
+  get projectId(): string | undefined {
+    return this._projectId;
+  }
+
+  get publicApiBase(): string | undefined {
+    return this._publicApiBase;
+  }
+
+  getSubmitUrl(pluginConfigId: string | undefined): string | undefined {
+    if (!this._publicApiBase || !this._projectId || !pluginConfigId) return undefined;
+    return `${this._publicApiBase}/projects/${this._projectId}/forms/${pluginConfigId}/submit`;
   }
 
   setLayouts(layouts: Layout[]) {
