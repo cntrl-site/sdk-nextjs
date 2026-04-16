@@ -29,7 +29,7 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
   const blur = getStyleFromItemStateAndParams(stateParams?.styles?.blur, itemBlur);
   const Element = component ? component.element : undefined;
   const layoutParameters = effectiveLayout ? item.layoutParams[effectiveLayout]?.parameters : undefined;
-  const commonParameters = (item.commonParams as any).parameters;
+  const commonParameters = item.commonParams.parameters;
   const parameters = layoutParameters ? {
     ...layoutParameters,
     settings: { ...layoutParameters.settings, ...commonParameters?.settings }
