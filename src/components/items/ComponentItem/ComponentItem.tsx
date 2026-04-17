@@ -15,6 +15,8 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
   const { layouts } = sdk;
   const itemAngle = useItemAngle(item, sectionId);
   const layout = useLayoutContext();
+  const fallbackLayout = layouts[0]?.id;
+  const effectiveLayout = layout ?? fallbackLayout;
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const component = sdk.getComponent(item.commonParams.componentId);
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
@@ -26,7 +28,12 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
   const opacity = getStyleFromItemStateAndParams(stateParams?.styles?.opacity, itemOpacity);
   const blur = getStyleFromItemStateAndParams(stateParams?.styles?.blur, itemBlur);
   const Element = component ? component.element : undefined;
-  const parameters = layout ? item.layoutParams[layout].parameters : undefined;
+  const layoutParameters = effectiveLayout ? item.layoutParams[effectiveLayout]?.parameters : undefined;
+  const commonParameters = item.commonParams.parameters;
+  const parameters = layoutParameters ? {
+    ...layoutParameters,
+    settings: { ...layoutParameters.settings, ...commonParameters?.settings }
+  } : undefined;
 
   return (
     <>
@@ -34,7 +41,10 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
         className={`custom-component-${item.id}`}
         ref={setRef}
         style={{
-          ...(opacity !== undefined ? { opacity } : {}),
+          // preventing layout shift while supporting SSG for proper SEO
+          ...(opacity !== undefined
+            ? { opacity: layout == null ? 0 : opacity }
+            : layout == null ? { opacity: 0 } : {}),
           ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
           ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
           willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
@@ -43,7 +53,10 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
       >
         {parameters && Element && (
           <Element
-            metadata={{ itemId: item.id }}
+            metadata={{
+              itemId: item.id,
+              submitUrl: sdk.getSubmitUrl(commonParameters?.pluginConfigId)
+            }}
             portalId="component-portal"
             content={item.commonParams.content}
             {...parameters}

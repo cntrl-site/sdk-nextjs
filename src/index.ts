@@ -3,7 +3,7 @@ import { cntrlSdkContext as sdk } from './provider/defaultContext';
 export * from '@cntrl-site/sdk';
 export { RichTextConverter } from './utils/RichTextConverter/RichTextConverter';
 export { Page } from './components/Page';
-export type { PageProps } from './components/Page';
+export type { PageProps, CustomComponentBundlesData } from './components/Page';
 export { CNTRLHead as Head } from './components/Head';
 export { Article } from './components/Article';
 export { Section } from './components/Section/Section';
@@ -19,6 +19,7 @@ export { YoutubeEmbedItem } from './components/items/EmbedVideoItem/YoutubeEmbed
 export { CntrlProvider } from './provider/CntrlProvider';
 export type { CustomItemComponent } from './provider/CustomItemTypes';
 export { useCntrlContext } from './provider/useCntrlContext';
+export { evaluateComponentBundle, resolveCustomComponents } from './utils/evaluateComponentBundle';
 export const customItems = sdk.customItems;
 export const customSections = sdk.customSections;
 export const cntrlSdkContext = sdk;

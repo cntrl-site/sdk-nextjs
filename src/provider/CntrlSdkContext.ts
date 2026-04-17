@@ -2,16 +2,19 @@ import { CustomItemRegistry } from './CustomItemRegistry';
 import { Article, Section, Layout, Project, SectionHeight } from '@cntrl-site/sdk';
 import { components, Component as TComponent } from '@cntrl-site/components';
 import { CustomSectionRegistry } from './CustomSectionRegistry';
-import { Component } from 'react';
 
 interface SdkContextInitProps {
   project: Project;
   article: Article;
+  publicApiBase?: string;
+  customComponents?: Map<string, TComponent>;
 }
 
 export class CntrlSdkContext {
   private _layouts: Layout[] = [];
   private _fonts?: Project['fonts'] = undefined;
+  private _projectId?: string = undefined;
+  private _publicApiBase?: string = undefined;
   private sectionHeightMap: Map<string, Record<string, SectionHeight>> = new Map();
   private components: Map<string, TComponent> = new Map();
 
@@ -23,7 +26,7 @@ export class CntrlSdkContext {
   async resolveSectionData(sections: Section[]): Promise<Record<string, any>> {
     const resolvers = sections.map(section => {
       const resolver = section.name ? this.customSections.getResolver(section.name) : undefined;
-      if (!resolver) return;
+      if (!resolver) return undefined;
       return {
         name: section.name,
         resolver
@@ -34,11 +37,31 @@ export class CntrlSdkContext {
     );
   }
 
-  init({ project, article }: SdkContextInitProps) {
+  init({ project, article, publicApiBase, customComponents }: SdkContextInitProps) {
+    this._projectId = project.id;
+    if (publicApiBase) {
+      this._publicApiBase = publicApiBase;
+    }
     this.setLayouts(project.layouts);
     this.setComponents(components);
+    if (customComponents) {
+      this.setCustomComponents(customComponents);
+    }
     this.setFonts(project.fonts);
     this.setSectionsHeight(article.sections);
+  }
+
+  setPublicApiBase(url: string) {
+    this._publicApiBase = url;
+  }
+
+  get projectId(): string | undefined {
+    return this._projectId;
+  }
+
+  getSubmitUrl(pluginConfigId: string | undefined): string | undefined {
+    if (!this._publicApiBase || !this._projectId || !pluginConfigId) return undefined;
+    return `${this._publicApiBase}/projects/${this._projectId}/forms/${pluginConfigId}/submit`;
   }
 
   setLayouts(layouts: Layout[]) {
@@ -48,6 +71,12 @@ export class CntrlSdkContext {
   private setComponents(components: TComponent[]) {
     for (const component of components) {
       this.components.set(component.id, component);
+    }
+  }
+
+  setCustomComponents(customComponents: Map<string, TComponent>) {
+    for (const [id, component] of customComponents) {
+      this.components.set(id, component);
     }
   }
 
