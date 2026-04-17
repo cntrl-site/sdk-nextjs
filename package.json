@@ -31,7 +31,7 @@
   "dependencies": {
     "@antfu/eslint-config": "^3.8.0",
     "@cntrl-site/color": "^1.0.0",
-    "@cntrl-site/components": "^1.0.2",
+    "@cntrl-site/components": "^1.0.3",
     "@cntrl-site/effects": "^1.4.0",
     "@cntrl-site/sdk": "^1.26.2",
     "@types/vimeo__player": "^2.18.0",
