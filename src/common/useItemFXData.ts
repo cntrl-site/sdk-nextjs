@@ -1,21 +1,24 @@
 import { ImageItem, KeyframeType, VideoItem } from '@cntrl-site/sdk';
 import { useKeyframeValue } from './useKeyframeValue';
+import { useMemo } from 'react';
 
 const baseVariables = `precision mediump float;
 uniform sampler2D u_image;
-uniform sampler2D u_pattern;
 uniform vec2 u_imgDimensions;
-uniform vec2 u_patternDimensions;
 uniform float u_time;
 uniform vec2 u_cursor;
 varying vec2 v_texCoord;`;
 
 export function useItemFXData(item: ImageItem | VideoItem, sectionId: string): FXData {
-  const { fragmentShader: shaderBody, FXControls } = item.commonParams;
+  const { fragmentShader: shaderBody, FXControls, FXPatterns } = item.commonParams;
   const controls = FXControls ?? [];
+  const patternsUrls: string[] = useMemo(() => (FXPatterns ?? []), [FXPatterns]);
   const controlsVariables = controls.map((c) => `uniform ${c.type} ${c.shaderParam};`)
     .join('\n');
-  const fragmentShader = `${baseVariables}\n${controlsVariables}\n${shaderBody}`;
+  const patternsVariables = patternsUrls
+    .map((_, i) => `uniform sampler2D ${mediaEffectPatternUniformNames(i).tex};\nuniform vec2 ${mediaEffectPatternUniformNames(i).dim};`)
+    .join('\n');
+  const fragmentShader = `${baseVariables}\n${controlsVariables}\n${patternsVariables}\n${shaderBody}`;
   const controlsValues = useKeyframeValue(
     item,
     KeyframeType.FXParams,
@@ -35,13 +38,26 @@ export function useItemFXData(item: ImageItem | VideoItem, sectionId: string): F
   );
   return {
     fragmentShader,
-    controlsValues
+    controlsValues,
+    patternsUrls
   };
+}
+
+function mediaEffectPatternUniformNames(slotIndex: number): {
+  tex: string;
+  dim: string;
+} {
+  if (slotIndex === 0) {
+    return { tex: 'u_pattern', dim: 'u_patternDimensions' };
+  }
+  const n = slotIndex + 1;
+  return { tex: `u_pattern${n}`, dim: `u_pattern${n}Dimensions` };
 }
 
 type FXData = {
   fragmentShader: string;
   controlsValues: Record<string, ControlValue>;
+  patternsUrls: string[];
 }
 
 type ControlValue = number;
