@@ -35,7 +35,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const fxCanvas = useRef<HTMLCanvasElement | null>(null);
   const isInitialRef = useRef(true);
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
-  const { controlsValues, fragmentShader, patternsUrls } = useItemFXData(item, sectionId);
+  const { controlsValues, fragmentShader, texturesUrls } = useItemFXData(item, sectionId);
   const area = layoutId ? item.area[layoutId] : null;
   const exemplary = layouts?.find(l => l.id === layoutId)?.exemplary;
   const width = area && exemplary ? area.width * exemplary : 0;
@@ -52,7 +52,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
       imageUrl: url,
       fragmentShader,
       controlsValues,
-      patternsUrls
+      texturesUrls
     },
     width,
     height

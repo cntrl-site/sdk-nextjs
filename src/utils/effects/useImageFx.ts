@@ -7,7 +7,7 @@ interface FxParams {
   imageUrl?: string;
   fragmentShader: string | null;
   controlsValues?: Record<string, number | [number, number]>;
-  patternsUrls: string[];
+  texturesUrls: string[];
 }
 
 export function useImageFx(
@@ -17,7 +17,7 @@ export function useImageFx(
     imageUrl,
     fragmentShader,
     controlsValues,
-    patternsUrls
+    texturesUrls
   }: FxParams,
   width: number,
   height: number
@@ -35,7 +35,7 @@ export function useImageFx(
     if (!imageTextureManager) return;
     return new MediaEffect(
       imageTextureManager,
-      patternsUrls,
+      texturesUrls,
       fragmentShader!,
       {
         time: 0,
@@ -45,7 +45,7 @@ export function useImageFx(
       width,
       height
     );
-  }, [imageTextureManager, fragmentShader, width, height, patternsUrls]);
+  }, [imageTextureManager, fragmentShader, width, height, texturesUrls]);
 
   useEffect(() => {
     if (!imageFx || !controlsValues) return;

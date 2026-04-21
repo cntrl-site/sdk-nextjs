@@ -10,12 +10,12 @@ uniform vec2 u_cursor;
 varying vec2 v_texCoord;`;
 
 export function useItemFXData(item: ImageItem | VideoItem, sectionId: string): FXData {
-  const { fragmentShader: shaderBody, FXControls, FXPatterns } = item.commonParams;
+  const { fragmentShader: shaderBody, FXControls, FXTextures } = item.commonParams;
   const controls = FXControls ?? [];
-  const patternsUrls: string[] = useMemo(() => (FXPatterns ?? []), [FXPatterns]);
+  const texturesUrls: string[] = useMemo(() => (FXTextures ?? []), [FXTextures]);
   const controlsVariables = controls.map((c) => `uniform ${c.type} ${c.shaderParam};`)
     .join('\n');
-  const patternsVariables = patternsUrls
+  const patternsVariables = texturesUrls
     .map((_, i) => `uniform sampler2D ${mediaEffectPatternUniformNames(i).tex};\nuniform vec2 ${mediaEffectPatternUniformNames(i).dim};`)
     .join('\n');
   const fragmentShader = `${baseVariables}\n${controlsVariables}\n${patternsVariables}\n${shaderBody}`;
@@ -39,7 +39,7 @@ export function useItemFXData(item: ImageItem | VideoItem, sectionId: string): F
   return {
     fragmentShader,
     controlsValues,
-    patternsUrls
+    texturesUrls
   };
 }
 
@@ -57,7 +57,7 @@ function mediaEffectPatternUniformNames(slotIndex: number): {
 type FXData = {
   fragmentShader: string;
   controlsValues: Record<string, ControlValue>;
-  patternsUrls: string[];
+  texturesUrls: string[];
 }
 
 type ControlValue = number;

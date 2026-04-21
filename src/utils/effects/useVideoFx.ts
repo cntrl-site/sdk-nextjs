@@ -7,7 +7,7 @@ interface FxParams {
   videoUrl?: string;
   fragmentShader: string | null;
   controls?: Record<string, number | [number, number]>;
-  patternsUrls: string[];
+  texturesUrls: string[];
 }
 
 export function useVideoFx(
@@ -17,7 +17,7 @@ export function useVideoFx(
     videoUrl,
     fragmentShader,
     controls,
-    patternsUrls
+    texturesUrls
   }: FxParams,
   width: number,
   height: number
@@ -40,7 +40,7 @@ export function useVideoFx(
     if (!videoTextureManager) return;
     return new MediaEffect(
       videoTextureManager,
-      patternsUrls,
+      texturesUrls,
       fragmentShader!,
       {
         time: 0,
@@ -50,7 +50,7 @@ export function useVideoFx(
       width,
       height
     );
-  }, [videoTextureManager, fragmentShader, width, height, patternsUrls]);
+  }, [videoTextureManager, fragmentShader, width, height, texturesUrls]);
 
   useEffect(() => {
     if (!videoTextureManager) return;

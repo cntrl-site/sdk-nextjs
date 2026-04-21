@@ -43,7 +43,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
   const exemplary = layouts?.find(l => l.id === layoutId)?.exemplary;
   const width = area && exemplary ? area.width * exemplary : 0;
   const height = area && exemplary ? area.height * exemplary : 0;
-  const { controlsValues, fragmentShader, patternsUrls } = useItemFXData(item, sectionId);
+  const { controlsValues, fragmentShader, texturesUrls } = useItemFXData(item, sectionId);
   const rect = useElementRect(ref);
   const rectWidth = Math.floor(rect?.width ?? 0);
   const rectHeight = Math.floor(rect?.height ?? 0);
@@ -72,7 +72,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
       videoUrl: url,
       fragmentShader,
       controls: controlsValues,
-      patternsUrls
+      texturesUrls
     },
     width,
     height
