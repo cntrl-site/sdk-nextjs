@@ -7,10 +7,8 @@ interface FxParams {
   videoUrl?: string;
   fragmentShader: string | null;
   controls?: Record<string, number | [number, number]>;
+  texturesUrls: string[];
 }
-
-const PATTERN_URL = 'https://cdn.cntrl.site/client-app-files/texture2.png';
-const PATTERN_2_URL = 'https://cdn.cntrl.site/client-app-files/bayer16.png';
 
 export function useVideoFx(
   canvas: HTMLCanvasElement | null | undefined,
@@ -18,7 +16,8 @@ export function useVideoFx(
   {
     videoUrl,
     fragmentShader,
-    controls
+    controls,
+    texturesUrls
   }: FxParams,
   width: number,
   height: number
@@ -41,8 +40,7 @@ export function useVideoFx(
     if (!videoTextureManager) return;
     return new MediaEffect(
       videoTextureManager,
-      PATTERN_URL,
-      PATTERN_2_URL,
+      texturesUrls,
       fragmentShader!,
       {
         time: 0,
@@ -52,7 +50,7 @@ export function useVideoFx(
       width,
       height
     );
-  }, [videoTextureManager, fragmentShader, width, height]);
+  }, [videoTextureManager, fragmentShader, width, height, texturesUrls]);
 
   useEffect(() => {
     if (!videoTextureManager) return;

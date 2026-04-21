@@ -7,10 +7,8 @@ interface FxParams {
   imageUrl?: string;
   fragmentShader: string | null;
   controlsValues?: Record<string, number | [number, number]>;
+  texturesUrls: string[];
 }
-
-const PATTERN_URL = 'https://cdn.cntrl.site/client-app-files/texture2.png';
-const PATTERN_2_URL = 'https://cdn.cntrl.site/client-app-files/bayer16.png';
 
 export function useImageFx(
   canvas: HTMLCanvasElement | null | undefined,
@@ -18,7 +16,8 @@ export function useImageFx(
   {
     imageUrl,
     fragmentShader,
-    controlsValues
+    controlsValues,
+    texturesUrls
   }: FxParams,
   width: number,
   height: number
@@ -36,8 +35,7 @@ export function useImageFx(
     if (!imageTextureManager) return;
     return new MediaEffect(
       imageTextureManager,
-      PATTERN_URL,
-      PATTERN_2_URL,
+      texturesUrls,
       fragmentShader!,
       {
         time: 0,
@@ -47,7 +45,7 @@ export function useImageFx(
       width,
       height
     );
-  }, [imageTextureManager, fragmentShader, width, height]);
+  }, [imageTextureManager, fragmentShader, width, height, texturesUrls]);
 
   useEffect(() => {
     if (!imageFx || !controlsValues) return;

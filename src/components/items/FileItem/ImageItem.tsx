@@ -1,4 +1,4 @@
-import { FC, useEffect, useId, useRef, useState } from 'react';
+import { FC, useEffect, useId, useMemo, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { getLayoutStyles, ImageItem as TImageItem } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
@@ -34,9 +34,8 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const { url, hasGLEffect } = item.commonParams;
   const fxCanvas = useRef<HTMLCanvasElement | null>(null);
   const isInitialRef = useRef(true);
-
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
-  const { controlsValues, fragmentShader } = useItemFXData(item, sectionId);
+  const { controlsValues, fragmentShader, texturesUrls } = useItemFXData(item, sectionId);
   const area = layoutId ? item.area[layoutId] : null;
   const exemplary = layouts?.find(l => l.id === layoutId)?.exemplary;
   const width = area && exemplary ? area.width * exemplary : 0;
@@ -52,7 +51,8 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
     {
       imageUrl: url,
       fragmentShader,
-      controlsValues
+      controlsValues,
+      texturesUrls
     },
     width,
     height
