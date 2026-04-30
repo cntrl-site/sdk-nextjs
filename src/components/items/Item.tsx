@@ -253,7 +253,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
             .item-wrapper-${item.id} {
               position: ${area.positionType === PositionType.ScreenBased ? 'fixed' : 'absolute'};
               z-index: ${area.zIndex};
-              ${!isInGroup && stickyFix}
+              ${!isInGroup && sticky ? stickyFix : ''}
               pointer-events: none;
               bottom: ${isScreenBasedBottom ? `${-area.top * 100}vw` : 'unset'};
               top: ${isScreenBasedBottom ? 'unset' : isContainItem ? getPercentageBasedTopStyle(area.top, area.height, area.anchorSide) : getItemTopStyle(area.top, area.anchorSide)};
