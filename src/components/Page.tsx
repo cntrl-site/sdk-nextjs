@@ -21,16 +21,18 @@ export interface PageProps {
   sectionData: Record<SectionName, any>;
   publicApiBase?: string;
   customComponentBundles?: CustomComponentBundlesData;
+  siteUrl?: string;
 }
 
-export const Page: FC<PageProps> = ({ article, project, meta, keyframes, sectionData }) => {
+export const Page: FC<PageProps> = ({ article, project, meta, keyframes, sectionData, siteUrl }) => {
   const afterBodyOpen = HTMLReactParser(project.html.afterBodyOpen);
   const beforeBodyClose = HTMLReactParser(project.html.beforeBodyClose);
   const keyframesRepo = useMemo(() => new Keyframes(keyframes), [keyframes]);
   const itemGeometryService = useMemo(() => new ItemGeometryService(), []);
+  const currentSlug = project.pages.find(p => p.articleId === article.id)?.slug;
   return (
     <>
-      <CNTRLHead project={project} meta={meta} />
+      <CNTRLHead project={project} meta={meta} slug={currentSlug} siteUrl={siteUrl} />
       {afterBodyOpen}
       <ItemGeometryContext.Provider value={itemGeometryService}>
         <KeyframesContext.Provider value={keyframesRepo}>
