@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useId, useRef, useMemo } from 'react';
+import React, { FC, ReactElement, useId, useRef, useMemo, useState, useEffect, PropsWithChildren } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import {
   getLayoutMediaQuery,
@@ -14,27 +14,32 @@ import { useLayoutContext } from '../useLayoutContext';
 import { SectionVideo } from './SectionVideo';
 import { SectionImage } from './SectionImage';
 import { isOverflowClipSupported } from '../../utils/checkOverflowClipSupport';
+import { StructuredContent } from '../StructuredContent/StructuredContent';
+import { Item } from '../items/Item';
 
-type SectionChild = ReactElement<any, any>;
 const DEFAULT_COLOR = 'rgba(0, 0, 0, 0)';
 
 interface Props {
   section: TSection;
-  children: SectionChild[];
   zIndex: number;
   data?: any;
+  articleHeight: number;
 }
 
-export const Section: FC<Props> = ({ section, data, children, zIndex }) => {
+export const Section: FC<PropsWithChildren<Props>> = ({ section, data, zIndex, articleHeight }) => {
   const reactId = useId();
   const id = `${reactId}-section-${section.id}`;
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const { layouts, customSections } = useCntrlContext();
   const layout = useLayoutContext();
-  const layoutValues: Record<string, any>[] = [section.height, section.color, section.media ?? {}];
+  const [sectionHeight, setSectionHeight] = useState(0);
+  const layoutValues: Record<string, any>[] = [
+    section.type === 'freehand' ? section.height : section.minHeight,
+    section.color,
+    section.media ?? {}
+  ];
   const SectionComponent = section.name ? customSections.getComponent(section.name) : undefined;
   useSectionRegistry(section.id, sectionRef.current);
-  const sectionHeight = layout && section.height[layout] ? section.height[layout] : undefined;
   const layoutMedia = layout && section.media && section.media[layout] ? section.media[layout] : undefined;
 
   const media = useMemo(() => {
@@ -62,6 +67,34 @@ export const Section: FC<Props> = ({ section, data, children, zIndex }) => {
       }, '');
   };
 
+  useEffect(() => {
+    if (!sectionRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      const [entry] = entries;
+      const height = entry.contentRect.height;
+      setSectionHeight(height);
+    });
+    observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const children = (
+    <>
+      {section.type !== 'freehand' && (
+        <StructuredContent section={section} />
+      )}
+      {section.items.map(item => (
+        <Item
+          sectionHeight={sectionHeight}
+          item={item}
+          key={item.id}
+          sectionId={section.id}
+          articleHeight={articleHeight}
+        />
+      ))}
+    </>
+  );
+
   if (SectionComponent) return <div ref={sectionRef}><SectionComponent data={data}>{children}</SectionComponent></div>;
 
   return (
@@ -79,7 +112,7 @@ export const Section: FC<Props> = ({ section, data, children, zIndex }) => {
               className={`section-background-wrapper-${section.id}`}
               style={{
                 transform: media.position === 'fixed' ? 'translateY(-100vh)' : 'unset',
-                ...(sectionHeight && { height: media.position === 'fixed' ? `calc(${getSectionHeight(sectionHeight)} + 200vh)` : getSectionHeight(sectionHeight) })
+                ...(sectionHeight && { height: media.position === 'fixed' ? `calc(${sectionHeight}px + 200vh)` : `${sectionHeight}px` })
               }}
             >
               {media.type === 'video' && (
@@ -97,14 +130,15 @@ export const Section: FC<Props> = ({ section, data, children, zIndex }) => {
       ${
     getLayoutStyles(layouts, layoutValues, ([height, color, media]) => (`
          .section-${section.id} {
-            height: ${getSectionHeight(height)};
+            height: ${section.type === 'freehand' ? getSectionHeight(height) : 'auto'};
+            min-height: ${section.type !== 'freehand' ? getSectionHeight(height) : 'unset'};
             position: relative;
             background-color: ${CntrlColor.parse(color ?? DEFAULT_COLOR).fmt('rgba')};
          }
          .section-background-overlay-${section.id} {
-            height: ${getSectionHeight(height)};
+            height: 100%;
             width: 100%;
-            position: relative;
+            position: absolute;
             overflow: clip;
          }
          .section-background-wrapper-${section.id} {
