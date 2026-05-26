@@ -28,7 +28,7 @@ export const StructuredBlockItem: FC<Props> = ({ block, maxWidthMap }) => {
   const reactId = useId();
   const id = `${reactId}-item-${block.id}`;
   const { layouts } = useCntrlContext();
-  const layoutValues: Record<string, any>[] = [block.area, block.layoutParams, maxWidthMap];
+  const layoutValues: Record<string, any>[] = [block.area, block.layoutParams, block.hidden ?? {}, maxWidthMap];
   const ItemComponent = itemsMap[block.type] || noop;
   return (
     <div
@@ -36,10 +36,11 @@ export const StructuredBlockItem: FC<Props> = ({ block, maxWidthMap }) => {
     >
       <ItemComponent block={block} />
       <JSXStyle id={id}>{`
-        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, maxWidth]) => {
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams, hidden, maxWidth]) => {
           const sizingAxis = parseSizing(layoutParams.sizing);
           return (`
                 .structured-block-item-${block.id} {
+                  display: ${hidden ? 'none' : 'block'};
                   width: ${sizingAxis.x === 'manual' && area.width ? `${area.width * 100}vw` : maxWidth ?? 'max-content'};
                   height: ${sizingAxis.y === 'manual' && area.height ? `${area.height * 100}vw` : 'unset'};
                   padding-top: ${area.paddingTop ? `${area.paddingTop * 100}vw` : 'unset'};
