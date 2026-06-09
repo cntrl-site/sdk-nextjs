@@ -52,6 +52,7 @@ export const Article: FC<Props> = ({ article, sectionData }) => {
               })}
             </WebglContextManagerContext.Provider>
             <div id="component-portal" />
+            <div id="grid-component-lightbox-portal" />
           </div>
         </ArticleWrapper>
         <JSXStyle id={id}>{`
