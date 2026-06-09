@@ -34,10 +34,11 @@ export const Section: FC<PropsWithChildren<Props>> = ({ section, data, zIndex, a
   const layout = useLayoutContext();
   const [sectionHeight, setSectionHeight] = useState(0);
   const layoutValues: Record<string, any>[] = [
-    section.type === 'freehand' ? section.height : section.minHeight,
+    section.minHeight,
     section.color,
     section.media ?? {}
   ];
+
   const SectionComponent = section.name ? customSections.getComponent(section.name) : undefined;
   useSectionRegistry(section.id, sectionRef.current);
   const layoutMedia = layout && section.media && section.media[layout] ? section.media[layout] : undefined;
@@ -80,9 +81,7 @@ export const Section: FC<PropsWithChildren<Props>> = ({ section, data, zIndex, a
 
   const children = (
     <>
-      {section.type !== 'freehand' && (
-        <StructuredContent section={section} />
-      )}
+      <StructuredContent section={section} />
       {section.items.map(item => (
         <Item
           sectionHeight={sectionHeight}
@@ -130,8 +129,7 @@ export const Section: FC<PropsWithChildren<Props>> = ({ section, data, zIndex, a
       ${
     getLayoutStyles(layouts, layoutValues, ([height, color, media]) => (`
          .section-${section.id} {
-            height: ${section.type === 'freehand' ? getSectionHeight(height) : 'auto'};
-            min-height: ${section.type !== 'freehand' ? getSectionHeight(height) : 'unset'};
+            min-height: ${getSectionHeight(height)};
             position: relative;
             background-color: ${CntrlColor.parse(color ?? DEFAULT_COLOR).fmt('rgba')};
          }

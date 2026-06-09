@@ -86,7 +86,7 @@ export class CntrlSdkContext {
 
   setSectionsHeight(sections: Section[]) {
     for (const section of sections) {
-      this.sectionHeightMap.set(section.id, section.type === 'freehand' ? section.height : section.minHeight);
+      this.sectionHeightMap.set(section.id, section.minHeight);
     }
   }
 

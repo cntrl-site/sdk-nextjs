@@ -3,7 +3,6 @@ import { FC, useId } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { StructuredBlockItem } from '../StructuredBlockItem/StructuredBlockItem';
-import { useLayoutContext } from '../useLayoutContext';
 
 interface Props {
   section: Section;
@@ -13,10 +12,10 @@ export const StructuredContent: FC<Props> = ({ section }) => {
   const reactId = useId();
   const id = `${reactId}-structured-content-${section.id}`;
   const { layouts } = useCntrlContext();
-  const paddingBottomRecord = section.type !== 'freehand' ? section.structuredContentSettings.paddingBottom : {};
+  const structuredContentLength = section.structuredContent.length;
   const defaultWidthRecord = section.type === 'content-based' ? section.structuredContentSettings.defaultWidth : {};
-  const layoutValues: Record<string, any>[] = [paddingBottomRecord, defaultWidthRecord];
-  if (section.type === 'freehand') return null;
+  const layoutValues: Record<string, any>[] = [section.structuredContentSettings.paddingBottom, defaultWidthRecord];
+  if (structuredContentLength === 0) return null;
   return (
     <div className={`structured-content-${section.id}`}>
       {section.structuredContent.map(block => (
