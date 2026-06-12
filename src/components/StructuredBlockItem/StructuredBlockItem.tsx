@@ -41,11 +41,12 @@ export const StructuredBlockItem: FC<Props> = ({ block, maxWidthMap }) => {
           return (`
                 .structured-block-item-${block.id} {
                   display: ${hidden ? 'none' : 'block'};
+                  align-self: ${getAlignSelf(area.alignment ?? 'center')};
                   width: ${sizingAxis.x === 'manual' && area.width ? `${area.width * 100}vw` : maxWidth ?? 'max-content'};
                   height: ${sizingAxis.y === 'manual' && area.height ? `${area.height * 100}vw` : 'unset'};
                   padding-top: ${area.paddingTop ? `${area.paddingTop * 100}vw` : 'unset'};
-                  margin: 0 auto;
                   outline: none;
+                  left: ${(area.horizontalOffset ?? 0) * 100}vw;
                   position: relative;
                 }
               `);
@@ -55,3 +56,14 @@ export const StructuredBlockItem: FC<Props> = ({ block, maxWidthMap }) => {
     </div>
   );
 };
+
+function getAlignSelf(alignment: 'left' | 'center' | 'right') {
+  switch (alignment) {
+    case 'left':
+      return 'start';
+    case 'right':
+      return 'end';
+    default:
+      return 'center';
+  }
+}
