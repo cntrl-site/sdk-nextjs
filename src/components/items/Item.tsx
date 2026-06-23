@@ -52,6 +52,7 @@ export interface ItemWrapperProps {
   item: ItemAny;
   sectionId: string;
   articleHeight?: number;
+  sectionHeight?: number;
   isInGroup?: boolean;
   isParentVisible?: boolean;
 }
@@ -63,7 +64,7 @@ const stickyFix = `
 
 const noop = () => null;
 
-export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isParentVisible = true, isInGroup = false }) => {
+export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isParentVisible = true, isInGroup = false, sectionHeight = 0 }) => {
   const itemWrapperRef = useRef<HTMLDivElement | null>(null);
   const itemInnerRef = useRef<HTMLDivElement | null>(null);
   const rectObserver = useContext(ArticleRectContext);
@@ -100,7 +101,6 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
     height: innerStateProps?.styles?.height as number
   });
   const sectionHeightLayoutMap = useSectionHeightData(sectionId);
-  const sectionHeight = layout && sectionHeightLayoutMap[layout] ? sectionHeightLayoutMap[layout] : '0';
   const stickyTop = useStickyItemTop(item, sectionId, wrapperStateProps?.styles?.top as number);
   const layoutValues: Record<string, any>[] = [item.area, item.hidden];
   layoutValues.push(item.sticky);
@@ -177,7 +177,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
         className={`item-${item.id}`}
         style={{
           opacity: (keyframes.length !== 0 && !layout) ? 0 : 1,
-          top: sticky ? getAnchoredItemTop(stickyTop, sectionHeight, anchorSide) : 0,
+          top: sticky ? getAnchoredItemTop(stickyTop, `${sectionHeight}px`, anchorSide) : 0,
           height: isRichText && itemHeight !== undefined ? `${itemHeight * 100}vw` : 'unset'
         }}
       >

@@ -5,9 +5,10 @@ import {
   Interaction,
   InteractionItemTrigger,
   ItemAny,
+  InteractionItemScrollTrigger,
+  InteractionScrollTrigger,
 } from '@cntrl-site/sdk';
 import { isItemType } from '../utils/isItemType';
-import { InteractionItemScrollTrigger, InteractionScrollTrigger } from '@cntrl-site/sdk/lib/types/article/Interaction';
 import { ItemGeometryService } from '../ItemGeometry/ItemGeometryService';
 
 export class InteractionsRegistry implements InteractionsRegistryPort {

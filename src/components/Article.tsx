@@ -9,6 +9,7 @@ import { ArticleWrapper } from './ArticleWrapper';
 import { InteractionsProvider } from '../provider/InteractionsContext';
 import { WebglContextManagerContext } from '../provider/WebGLContextManagerContext';
 import { WebGLContextManager } from '@cntrl-site/effects';
+import { StructuredContent } from './StructuredContent/StructuredContent';
 
 interface Props {
   article: TArticle;
@@ -41,24 +42,17 @@ export const Article: FC<Props> = ({ article, sectionData }) => {
                 const data = section.name ? sectionData[section.name] : {};
                 return (
                   <Section
+                    articleHeight={articleHeight}
                     section={section}
                     key={section.id}
                     data={data}
                     zIndex={sectionsLength - i}
-                  >
-                    {article.sections[i].items.map(item => (
-                      <Item
-                        item={item}
-                        key={item.id}
-                        sectionId={section.id}
-                        articleHeight={articleHeight}
-                      />
-                    ))}
-                  </Section>
+                  />
                 );
               })}
             </WebglContextManagerContext.Provider>
             <div id="component-portal" />
+            <div id="grid-component-lightbox-portal" />
           </div>
         </ArticleWrapper>
         <JSXStyle id={id}>{`
