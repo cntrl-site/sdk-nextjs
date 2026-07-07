@@ -42,9 +42,10 @@ export function useCurrentLayout(): UseCurrentLayoutReturn {
     if (!articleRectObserver) return;
     return articleRectObserver.on('resize', () => {
       const articleWidth = articleRectObserver.width;
-      const { layoutId, exemplary } = getCurrentLayout(articleWidth)!;
-      setLayoutId(layoutId);
-      setDeviation(articleWidth / exemplary);
+      const layout = getCurrentLayout(articleWidth);
+      if (!layout) return;
+      setLayoutId(layout.layoutId);
+      setDeviation(articleWidth / layout.exemplary);
     });
   }, [articleRectObserver, getCurrentLayout]);
 
