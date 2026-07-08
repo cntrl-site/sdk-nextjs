@@ -32,6 +32,8 @@ export const StructuredComponent: FC<Props> = ({ block }) => {
       <div
         className={`custom-component-${block.id}`}
         ref={setRef}
+        // preventing layout shift while supporting SSG for proper SEO
+        style={{ opacity: layout == null ? 0 : undefined }}
       >
         {parameters && Element && (
           <Element
