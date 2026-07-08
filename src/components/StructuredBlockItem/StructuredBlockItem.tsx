@@ -48,6 +48,7 @@ export const StructuredBlockItem: FC<Props> = ({ block, maxWidthMap }) => {
                   outline: none;
                   left: ${(area.horizontalOffset ?? 0) * 100}vw;
                   position: relative;
+                  z-index: ${area.zIndex};
                 }
               `);
           })}

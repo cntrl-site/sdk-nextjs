@@ -1,11 +1,11 @@
-import { isItemType } from '../../utils/isItemType';
-import { ArticleItemType, ItemAny } from '@cntrl-site/sdk';
+import { ItemAny } from '@cntrl-site/sdk';
 import { useLayoutContext } from '../useLayoutContext';
 
 export function useSizing(item: ItemAny) {
   const layout = useLayoutContext();
-  const sizing = layout && isItemType(item, ArticleItemType.RichText)
-    ? item.layoutParams[layout].sizing
+  const layoutParams = layout ? item.layoutParams[layout] : undefined;
+  const sizing = layoutParams && 'sizing' in layoutParams
+    ? layoutParams.sizing
     : undefined;
   const sizingAxis = parseSizing(sizing);
   return sizingAxis;
