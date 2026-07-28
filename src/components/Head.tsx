@@ -1,16 +1,17 @@
 import React, { FC } from 'react';
 import HTMLReactParser, { domToReact } from 'html-react-parser';
 import Head from 'next/head';
-import { FontFaceGenerator, Meta, Project } from '@cntrl-site/sdk';
+import { FontFaceGenerator, Meta, Project, FontVault } from '@cntrl-site/sdk';
 
 interface Props {
   project: Project;
   meta: Meta;
   slug?: string;
   siteUrl?: string;
+  fontsVault: FontVault[];
 }
 
-export const CNTRLHead: FC<Props> = ({ meta, project, slug, siteUrl }) => {
+export const CNTRLHead: FC<Props> = ({ meta, project, slug, siteUrl, fontsVault }) => {
   const canonicalUrl = buildCanonicalUrl(siteUrl ?? project.primaryDomain, slug);
   const googleFonts: ReturnType<typeof domToReact> = HTMLReactParser(project.fonts.google);
   const adobeFonts: ReturnType<typeof domToReact> = HTMLReactParser(project.fonts.adobe);
@@ -20,7 +21,7 @@ export const CNTRLHead: FC<Props> = ({ meta, project, slug, siteUrl }) => {
   };
   const customFonts = project.fonts.custom;
   const htmlHead = HTMLReactParser(project.html.head);
-  const ffGenerator = new FontFaceGenerator(customFonts);
+  const ffGenerator = new FontFaceGenerator([...fontsVault, ...customFonts]);
   const links = Object.values(parsedFonts as ReturnType<typeof domToReact>).map((value) => {
     if (!value) return null;
     const rel = value?.rel || value.props?.rel;
@@ -47,13 +48,11 @@ export const CNTRLHead: FC<Props> = ({ meta, project, slug, siteUrl }) => {
       <meta name="twitter:description" content={meta.description} />
       <meta name="generator" content="https://cntrl.site" />
       <link rel="icon" href={meta.favicon} />
-      {customFonts.length > 0 && (
-        <style
-          dangerouslySetInnerHTML={{
-            __html: ffGenerator.generate()
-          }}
-        />
-      )}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: ffGenerator.generate()
+        }}
+      />
       {links}
       {htmlHead}
 
