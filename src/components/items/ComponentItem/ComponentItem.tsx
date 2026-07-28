@@ -70,6 +70,7 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
               portalId="component-portal"
               content={item.commonParams.content}
               {...parameters}
+              hasLink={hasLink}
             />
           )}
         </div>
