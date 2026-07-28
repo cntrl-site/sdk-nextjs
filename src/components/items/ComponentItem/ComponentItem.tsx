@@ -9,6 +9,7 @@ import { useRegisterResize } from '../../../common/useRegisterResize';
 import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemStateAndParams';
 import { useLayoutContext } from '../../useLayoutContext';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
+import { LinkWrapper } from '../LinkWrapper';
 
 export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
   const sdk = useCntrlContext();
@@ -35,51 +36,62 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
     settings: { ...layoutParameters.settings, ...commonParameters?.settings }
   } : undefined;
 
+  const hasLink = Boolean(item.link?.url);
+
   return (
-    <>
-      <div
-        className={`custom-component-${item.id}`}
-        ref={setRef}
-        style={{
-          // preventing layout shift while supporting SSG for proper SEO
-          ...(opacity !== undefined
-            ? { opacity: layout == null ? 0 : opacity }
-            : layout == null ? { opacity: 0 } : {}),
-          ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
-          ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
-          willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
-          transition: stateParams?.transition ?? 'none'
-        }}
-      >
-        {parameters && Element && (
-          <Element
-            metadata={{
-              itemId: item.id,
-              submitUrl: sdk.getSubmitUrl(commonParameters?.pluginConfigId)
-            }}
-            portalId="component-portal"
-            content={item.commonParams.content}
-            {...parameters}
-          />
-        )}
-      </div>
-      <JSXStyle id={item.id}>{`
-      .custom-component-${item.id} {
-        width: 100%;
-        height: 100%;
-        pointer-events: auto;
-      }
-      ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
-      return (`
-          .custom-component-${item.id} {
-            transform: rotate(${area.angle}deg);
-            opacity: ${layoutParams.opacity};
-            filter: blur(${layoutParams.blur}vw);
-            ${layoutParams.blur !== 0 ? 'will-change: transform;' : ''}
-          }
-        `);
-    })}`}
-      </JSXStyle>
-    </>
+    <LinkWrapper
+      url={item.link?.url}
+      target={item.link?.target}
+      // Let the component define its own hit area (e.g. rounded button),
+      // so empty space around it does not activate the link.
+      style={hasLink ? { pointerEvents: 'none' } : undefined}
+    >
+      <>
+        <div
+          className={`custom-component-${item.id}`}
+          ref={setRef}
+          style={{
+            // preventing layout shift while supporting SSG for proper SEO
+            ...(opacity !== undefined
+              ? { opacity: layout == null ? 0 : opacity }
+              : layout == null ? { opacity: 0 } : {}),
+            ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
+            ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
+            willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
+            transition: stateParams?.transition ?? 'none'
+          }}
+        >
+          {parameters && Element && (
+            <Element
+              metadata={{
+                itemId: item.id,
+                submitUrl: sdk.getSubmitUrl(commonParameters?.pluginConfigId)
+              }}
+              portalId="component-portal"
+              content={item.commonParams.content}
+              {...parameters}
+              hasLink={hasLink}
+            />
+          )}
+        </div>
+        <JSXStyle id={item.id}>{`
+        .custom-component-${item.id} {
+          width: 100%;
+          height: 100%;
+          pointer-events: ${hasLink ? 'none' : 'auto'};
+        }
+        ${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
+        return (`
+            .custom-component-${item.id} {
+              transform: rotate(${area.angle}deg);
+              opacity: ${layoutParams.opacity};
+              filter: blur(${layoutParams.blur}vw);
+              ${layoutParams.blur !== 0 ? 'will-change: transform;' : ''}
+            }
+          `);
+      })}`}
+        </JSXStyle>
+      </>
+    </LinkWrapper>
   );
 };
