@@ -37,6 +37,10 @@ export const FontStyles: Record<string, Record<string, string>> = {
   italic: { 'font-style': 'italic' }
 };
 
+export const RICH_TEXT_LAYOUT_PENDING_CLASS = 'rich-text-layout-pending';
+
+const SCALING_STYLES = new Set(['FONTSIZE', 'LINEHEIGHT', 'LETTERSPACING', 'WORDSPACING']);
+
 export class RichTextConverter {
   toHtml(
     richText: RichTextItem,
@@ -64,11 +68,11 @@ export class RichTextConverter {
         layouts.forEach(l => {
           const lhForLayout = currentLineHeight[l.id];
           if (lhForLayout === undefined) return;
-          const lh = RichTextConverter.fromRangeStylesToInline({
-            name: 'LINEHEIGHT',
-            value: lhForLayout
-          }, l.exemplary);
+          const lineHeightStyle = { name: 'LINEHEIGHT', value: lhForLayout };
+          const lh = RichTextConverter.fromRangeStylesToInline(lineHeightStyle, l.exemplary, true);
+          const lhPending = RichTextConverter.fromRangeStylesToInline(lineHeightStyle, l.exemplary, false);
           styleRules[l.id].push(`.rt_${richText.id}_br_${blockIndex} {${lh}}`);
+          styleRules[l.id].push(`.${RICH_TEXT_LAYOUT_PENDING_CLASS} .rt_${richText.id}_br_${blockIndex} {${lhPending}}`);
         });
         continue;
       }
@@ -159,9 +163,17 @@ export class RichTextConverter {
               }
               styleRules[item.layout].push(`
                 .${blockClass} .s-${styleGroup.start}-${styleGroup.end} {
-                  ${styleGroup.styles.map(s => RichTextConverter.fromRangeStylesToInline(s, exemplary)).join('\n')}
+                  ${styleGroup.styles.map(s => RichTextConverter.fromRangeStylesToInline(s, exemplary, true)).join('\n')}
                 }
               `);
+              const lengthStyles = styleGroup.styles.filter(s => SCALING_STYLES.has(s.name));
+              if (lengthStyles.length !== 0) {
+                styleRules[item.layout].push(`
+                .${RICH_TEXT_LAYOUT_PENDING_CLASS} .${blockClass} .s-${styleGroup.start}-${styleGroup.end} {
+                  ${lengthStyles.map(s => RichTextConverter.fromRangeStylesToInline(s, exemplary, false)).join('\n')}
+                }
+              `);
+              }
               if (color) {
                 styleRules[item.layout].push(`
                 @supports not (color: oklch(42% 0.3 90 / 1)) {
@@ -275,17 +287,17 @@ export class RichTextConverter {
     return entitiesGroups;
   }
 
-  private static fromRangeStylesToInline(draftStyle: Style, exemplary: number): string {
+  private static fromRangeStylesToInline(draftStyle: Style, exemplary: number, isLayoutDefined: boolean): string {
     const { value, name } = draftStyle;
     const map: Record<string, Record<string, string | undefined>> = {
       COLOR: { color: getResolvedValue(value, name) },
       TYPEFACE: { 'font-family': `${getFontFamilyValue(value!)}` },
       FONTSTYLE: value ? { ...FontStyles[value] } : {},
       FONTWEIGHT: { 'font-weight': value },
-      FONTSIZE: { 'font-size': `${Number.parseFloat(value!) * exemplary}px` },
-      LINEHEIGHT: { 'line-height': `${Number.parseFloat(value!) * exemplary}px` },
-      LETTERSPACING: { 'letter-spacing': `${Number.parseFloat(value!) * exemplary}px` },
-      WORDSPACING: { 'word-spacing': `${Number.parseFloat(value!) * exemplary}px` },
+      FONTSIZE: { 'font-size': getScaledValue(value, exemplary, isLayoutDefined) },
+      LINEHEIGHT: { 'line-height': getScaledValue(value, exemplary, isLayoutDefined) },
+      LETTERSPACING: { 'letter-spacing': getScaledValue(value, exemplary, isLayoutDefined) },
+      WORDSPACING: { 'word-spacing': getScaledValue(value, exemplary, isLayoutDefined) },
       TEXTTRANSFORM: value ? { 'text-transform': value as TextTransform } : { 'text-transform': TextTransform.None },
       VERTICALALIGN: value ? { 'vertical-align': value as VerticalAlign } : { 'vertical-align': VerticalAlign.Unset },
       TEXTDECORATION: { 'text-decoration': value },
@@ -309,6 +321,11 @@ function groupBy<I>(items: I[], getKey: (item: I) => PropertyKey): Record<Proper
     groups[key]!.push(item);
   }
   return groups;
+}
+
+function getScaledValue(value: string | undefined, exemplary: number, isLayoutDefined: boolean): string {
+  const ratio = Number.parseFloat(value!);
+  return !isLayoutDefined ? `${ratio * 100}vw` : `${ratio * exemplary}px`;
 }
 
 function getResolvedValue(value: string | undefined, name: string) {
