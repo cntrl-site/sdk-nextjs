@@ -14,6 +14,7 @@ import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemS
 import { useCurrentLayout } from '../../../common/useCurrentLayout';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 import { RichTextGeometryController } from '../../../ItemGeometry/RichTextGeometryController';
+import { RICH_TEXT_LAYOUT_PENDING_CLASS } from '../../../utils/RichTextConverter/RichTextConverter';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const reactId = useId();
@@ -64,7 +65,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
     <>
       <div
         ref={setRef}
-        className={`rich-text-wrapper-${item.id}`}
+        className={`rich-text-wrapper-${item.id}${layoutId ? '' : ` ${RICH_TEXT_LAYOUT_PENDING_CLASS}`}`}
         style={{
           ...(blur !== undefined ? { filter: `blur(${blur as number * 100}vw)` } : {}),
           ...(textColor ? { color: `${textColor.fmt('rgba')}` } : {}),
