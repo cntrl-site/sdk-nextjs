@@ -9,6 +9,7 @@ export type TSectionVideo = {
   position: string;
   coverUrl: string | null;
   offsetX: number | null;
+  opacity?: number;
 };
 
 interface Props {
@@ -21,7 +22,7 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
   const [video, setVideo] = useState<HTMLVideoElement | null>(null);
   const [videoWrapper, setVideoWrapper] = useState<HTMLDivElement | null>(null);
   const [isVideoWidthOverflow, setIsVideoWidthOverflow] = useState(false);
-  const { url, size, position, offsetX, coverUrl, play } = media;
+  const { url, size, position, offsetX, coverUrl, play, opacity } = media;
   const [isPlaying, setIsPlaying] = useState(false);
   const [userPaused, setUserPaused] = useState(false);
   const [isClickedOnCover, setIsClickedOnCover] = useState(false);
@@ -89,7 +90,7 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
           autoPlay={play === 'auto'}
           loop
           style={{
-            opacity: !isClickedOnCover && play === 'on-click' && coverUrl ? 0 : 1,
+            opacity: !isClickedOnCover && play === 'on-click' && coverUrl ? 0 : opacity,
             objectFit: isContainHeight ? 'cover' : (size ?? 'cover') as CSSProperties['objectFit'],
             width: isContainHeight && !isVideoWidthOverflow ? 'auto' : '100%',
             transform: isContainHeight ? 'translateX(-50%)' : 'none',
@@ -125,7 +126,7 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
                 alt="Video cover"
                 className={`video-background-${sectionId}-cover`}
                 style={{
-                  opacity: isPlaying ? 0 : 1,
+                  opacity: isPlaying ? 0 : opacity,
                   left: isContainHeight ? '50%' : (hasOffsetX ? `${offsetX * 100}vw` : '0'),
                   width: isContainHeight ? 'auto' : '100%',
                   objectFit: isContainHeight ? 'unset' : (size ?? 'cover') as CSSProperties['objectFit'],
