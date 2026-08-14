@@ -7,6 +7,8 @@ export type TSectionImage = {
   size: string;
   position: string;
   offsetX: number | null;
+  opacity?: number;
+  tileSize?: number;
 };
 
 interface Props {
@@ -15,8 +17,9 @@ interface Props {
 }
 
 export const SectionImage: FC<Props> = ({ media, sectionId }) => {
-  const { url, size, position, offsetX } = media;
+  const { url, size, position, offsetX, opacity, tileSize } = media;
   const isContainHeight = size === 'contain-height';
+  const isTile = size === 'tile';
   const hasOffsetX = offsetX !== null && size === 'contain';
   return (
     <>
@@ -30,18 +33,37 @@ export const SectionImage: FC<Props> = ({ media, sectionId }) => {
           overflow: 'hidden'
         }}
       >
-        <img
-          src={url}
-          className={`image-background-${sectionId}`}
-          style={{
-            objectFit: isContainHeight ? 'unset' : (size ?? 'cover') as CSSProperties['objectFit'],
-            width: isContainHeight || hasOffsetX ? 'auto' : '100%',
-            transform: isContainHeight ? 'translateX(-50%)' : 'none',
-            position: 'relative',
-            left: isContainHeight ? '50%' : (hasOffsetX ? `${offsetX * 100}vw` : '0'),
-            height: '100%'
-          }}
-        />
+        {isTile ? (
+          <div
+            className={`image-background-${sectionId}`}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              backgroundImage: `url(${url})`,
+              backgroundSize: `${tileSize}%`,
+              backgroundRepeat: 'repeat',
+              backgroundPosition: '0 0',
+              opacity
+            }}
+          />
+        ) : (
+          <img
+            src={url}
+            className={`image-background-${sectionId}`}
+            style={{
+              objectFit: isContainHeight ? 'unset' : (size ?? 'cover') as CSSProperties['objectFit'],
+              width: isContainHeight || hasOffsetX ? 'auto' : '100%',
+              transform: isContainHeight ? 'translateX(-50%)' : 'none',
+              position: 'relative',
+              left: isContainHeight ? '50%' : (hasOffsetX ? `${offsetX * 100}vw` : '0'),
+              height: '100%',
+              opacity
+            }}
+          />
+        )}
       </div>
     </>
   );
