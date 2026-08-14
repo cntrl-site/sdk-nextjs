@@ -129,6 +129,7 @@ export const Section: FC<PropsWithChildren<Props>> = ({ section, data, zIndex, a
       ${
     getLayoutStyles(layouts, layoutValues, ([height, color, media]) => (`
          .section-${section.id} {
+            min-height: ${getSectionHeightFallback(height)};
             min-height: ${getSectionHeight(height)};
             position: relative;
             background-color: ${CntrlColor.parse(color ?? DEFAULT_COLOR).fmt('rgba')};
@@ -142,6 +143,7 @@ export const Section: FC<PropsWithChildren<Props>> = ({ section, data, zIndex, a
          .section-background-wrapper-${section.id} {
             transform: ${media?.position === 'fixed' ? 'translateY(-100vh)' : 'unset'};
             position: relative;
+            height: ${media?.position === 'fixed' ? `calc(${getSectionHeightFallback(height)} + 200vh)` : getSectionHeightFallback(height)};
             height: ${media?.position === 'fixed' ? `calc(${getSectionHeight(height)} + 200vh)` : getSectionHeight(height)};
             width: 100%;
          }
@@ -154,9 +156,16 @@ export const Section: FC<PropsWithChildren<Props>> = ({ section, data, zIndex, a
   );
 };
 
-export function getSectionHeight(heightData: SectionHeight): string {
+export function getSectionHeightFallback(heightData: SectionHeight): string {
   const { units, vhUnits, mode } = heightData;
   if (mode === SectionHeightMode.ViewportHeightUnits) return `${vhUnits}vh`;
+  if (mode === SectionHeightMode.ControlUnits) return `${units * 100}vw`;
+  return '0';
+}
+
+export function getSectionHeight(heightData: SectionHeight): string {
+  const { units, vhUnits, mode } = heightData;
+  if (mode === SectionHeightMode.ViewportHeightUnits) return `${vhUnits}svh`;
   if (mode === SectionHeightMode.ControlUnits) return `${units * 100}vw`;
   return '0';
 }
