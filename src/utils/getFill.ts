@@ -1,9 +1,10 @@
+import { CntrlColor } from '@cntrl-site/color';
 import { FillLayer } from '@cntrl-site/sdk';
 
 export function getFill(fill: FillLayer) {
   if (fill.type === 'linear-gradient' && Array.isArray(fill.colors)) {
     return `linear-gradient(${fill.angle}deg, ${fill.colors
-      .map(c => `${c.value} ${c.position}%`)
+      .map(c => `${getParsedColor(c.value)} ${c.position}%`)
       .join(', ')})`;
   }
 
@@ -13,7 +14,7 @@ export function getFill(fill: FillLayer) {
       : '50% 50%';
     const diameter = fill.diameter;
     return `radial-gradient(circle ${diameter * 100} at ${center}, ${fill.colors
-      .map(c => `${c.value} ${c.position}%`)
+      .map(c => `${getParsedColor(c.value)} ${c.position}%`)
       .join(', ')})`;
   }
 
@@ -26,11 +27,11 @@ export function getFill(fill: FillLayer) {
     const lastStop = fill.colors[fill.colors.length - 1];
     const shouldAppendWrapStop = hasMultipleStops && typeof lastStop.position === 'number' && lastStop.position < 100;
     const colorsWithWrap = shouldAppendWrapStop
-      ? [...fill.colors, { value: fill.colors[0].value, position: 100 }]
+      ? [...fill.colors, { value: getParsedColor(fill.colors[0].value), position: 100 }]
       : fill.colors;
 
     return `conic-gradient(from ${angle + 90}deg at ${center}, ${colorsWithWrap
-      .map(c => `${c.value} ${c.position}%`)
+      .map(c => `${getParsedColor(c.value)} ${c.position}%`)
       .join(', ')})`;
   }
 
@@ -39,8 +40,13 @@ export function getFill(fill: FillLayer) {
   }
 
   if (fill.type === 'solid') {
-    return fill.value;
+    return getParsedColor(fill.value);
   }
 
   return 'transparent';
+}
+
+function getParsedColor(color?: string) {
+  if (!color) return color;
+  return CntrlColor.parse(color).fmt('rgba');
 }
