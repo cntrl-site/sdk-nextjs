@@ -58,7 +58,6 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   });
   const isInteractive = colorAlpha !== 0 || hasVisibleRangeColors;
   const [content, styles] = useRichTextItem(item);
-  // items with a heading assigned are rendered with the semantic tag, the rest stay plain blocks
   const Wrapper = (getHeadingTag(item) ?? 'div') as 'div';
   useEffect(() => {
     onVisibilityChange?.(isInteractive);
