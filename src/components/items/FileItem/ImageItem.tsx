@@ -31,7 +31,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
   useRegisterResize(wrapperRef, onResize);
   useItemGeometry(item.id, wrapperRef);
-  const { url, hasGLEffect } = item.commonParams;
+  const { url, hasGLEffect, altText } = item.commonParams;
   const fxCanvas = useRef<HTMLCanvasElement | null>(null);
   const isInitialRef = useRef(true);
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
@@ -106,11 +106,13 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
                   className={`img-canvas image-${item.id}`}
                   width={rectWidth}
                   height={rectHeight}
+                  role="img"
+                  aria-label={altText}
                 />
               )
             : (
                 <img
-                  alt=""
+                  alt={altText}
                   className={`image image-${item.id}`}
                   style={inlineStyles}
                   src={item.commonParams.url}

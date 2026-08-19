@@ -15,6 +15,7 @@ import { useCurrentLayout } from '../../../common/useCurrentLayout';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 import { RichTextGeometryController } from '../../../ItemGeometry/RichTextGeometryController';
 import { RICH_TEXT_LAYOUT_PENDING_CLASS } from '../../../utils/RichTextConverter/RichTextConverter';
+import { getHeadingTag } from '../../../utils/getHeadingTag';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const reactId = useId();
@@ -57,13 +58,15 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   });
   const isInteractive = colorAlpha !== 0 || hasVisibleRangeColors;
   const [content, styles] = useRichTextItem(item);
+  // items with a heading assigned are rendered with the semantic tag, the rest stay plain blocks
+  const Wrapper = (getHeadingTag(item) ?? 'div') as 'div';
   useEffect(() => {
     onVisibilityChange?.(isInteractive);
   }, [isInteractive, onVisibilityChange]);
 
   return (
     <>
-      <div
+      <Wrapper
         ref={setRef}
         className={`rich-text-wrapper-${item.id}${layoutId ? '' : ` ${RICH_TEXT_LAYOUT_PENDING_CLASS}`}`}
         style={{
@@ -79,13 +82,14 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
         }}
       >
         {content}
-      </div>
+      </Wrapper>
       <JSXStyle id={id}>
         {styles}
         {`${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
           const color = CntrlColor.parse(layoutParams.color);
           return (`
             .rich-text-wrapper-${item.id} {
+              margin: 0;
               font-size: ${layoutParams.fontSize * 100}vw;
               line-height: ${layoutParams.lineHeight * 100}vw;
               letter-spacing: ${layoutParams.letterSpacing * 100}vw;
