@@ -104,7 +104,7 @@ export const Section: FC<PropsWithChildren<Props>> = ({ section, data, zIndex, a
         ref={sectionRef}
         style={{ zIndex }}
       >
-        {media && media.size !== 'none' && sectionRef.current && (
+        {media && sectionRef.current && (
           <div className={`section-background-overlay-${section.id}`}>
             <div
               key={`section-background-wrapper-${section.id}`}
