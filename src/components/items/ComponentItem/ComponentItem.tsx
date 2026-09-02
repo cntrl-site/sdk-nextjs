@@ -56,7 +56,7 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
               ? { opacity: layout == null ? 0 : opacity }
               : layout == null ? { opacity: 0 } : {}),
             ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
-            ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
+            ...(blur !== undefined && blur !== 0 ? { filter: `blur(${blur * 100}vw)` } : {}),
             willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
             transition: stateParams?.transition ?? 'none'
           }}
@@ -85,7 +85,7 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
             .custom-component-${item.id} {
               transform: rotate(${area.angle}deg);
               opacity: ${layoutParams.opacity};
-              filter: blur(${layoutParams.blur}vw);
+              ${layoutParams.blur !== 0 ? `filter: blur(${layoutParams.blur}vw);` : ''}
               ${layoutParams.blur !== 0 ? 'will-change: transform;' : ''}
             }
           `);

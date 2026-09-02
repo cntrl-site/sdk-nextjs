@@ -57,7 +57,7 @@ export const StructuredComponent: FC<Props> = ({ block }) => {
       return (`
           .custom-component-${block.id} {
             opacity: ${layoutParams.opacity};
-            filter: blur(${layoutParams.blur}vw);
+            ${layoutParams.blur !== 0 ? `filter: blur(${layoutParams.blur}vw);` : ''}
             ${layoutParams.blur !== 0 ? 'will-change: transform;' : ''}
           }
         `);
