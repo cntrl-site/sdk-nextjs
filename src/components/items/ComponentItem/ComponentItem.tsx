@@ -10,6 +10,7 @@ import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemS
 import { useLayoutContext } from '../../useLayoutContext';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 import { LinkWrapper } from '../LinkWrapper';
+import { mergeComponentSettings } from '@cntrl-site/components/utils';
 
 export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
   const sdk = useCntrlContext();
@@ -33,7 +34,7 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
   const commonParameters = item.commonParams.parameters;
   const parameters = layoutParameters ? {
     ...layoutParameters,
-    settings: { ...layoutParameters.settings, ...commonParameters?.settings }
+    settings: mergeComponentSettings(layoutParameters.settings, commonParameters?.settings)
   } : undefined;
 
   const hasLink = Boolean(item.link?.url);
@@ -57,7 +58,7 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
               : layout == null ? { opacity: 0 } : {}),
             ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
             ...(blur !== undefined ? { filter: `blur(${blur * 100}vw)` } : {}),
-            willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
+          willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
             transition: stateParams?.transition ?? 'none'
           }}
         >
