@@ -12,16 +12,16 @@ function getAnchorSideShift(anchorSide: AnchorSide, height?: number) {
   }
 }
 
-export function getPercentageBasedTopStyle(top: number, height?: number, anchorSide?: AnchorSide) {
+export function getPercentageBasedTopStyle(top: number, height?: number, anchorSide?: AnchorSide, unit: 'vh' | 'svh' = 'svh') {
   const defaultValue = `${top * 100}vw`;
   if (!anchorSide) return defaultValue;
   switch (anchorSide) {
     case AnchorSide.Top:
       return defaultValue;
     case AnchorSide.Center:
-      return `calc(50% + ${top * 100}vw - ${getAnchorSideShift(anchorSide, height)}vh)`;
+      return `calc(50% + ${top * 100}vw - ${getAnchorSideShift(anchorSide, height)}${unit})`;
     case AnchorSide.Bottom:
-      return `calc(100% + ${top * 100}vw - ${getAnchorSideShift(anchorSide, height)}vh)`;
+      return `calc(100% + ${top * 100}vw - ${getAnchorSideShift(anchorSide, height)}${unit})`;
   }
 }
 
