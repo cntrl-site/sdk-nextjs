@@ -4,7 +4,7 @@ import { FC, useState } from 'react';
 import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { useLayoutContext } from '../../useLayoutContext';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
-import { mergeComponentSettings } from '@cntrl-site/components/utils';
+import { mergeComponentSettings } from '../../../utils/mergeComponentSettings';
 
 interface Props {
   block: StructuredBlock<StructuredBlockType.Component>;

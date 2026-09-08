@@ -10,7 +10,7 @@ import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemS
 import { useLayoutContext } from '../../useLayoutContext';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 import { LinkWrapper } from '../LinkWrapper';
-import { mergeComponentSettings } from '@cntrl-site/components/utils';
+import { mergeComponentSettings } from '../../../utils/mergeComponentSettings';
 
 export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
   const sdk = useCntrlContext();

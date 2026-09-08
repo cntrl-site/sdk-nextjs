@@ -1,22 +1,23 @@
 import { FC, useEffect, useId, useMemo, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
-import { Article as TArticle } from '@cntrl-site/sdk';
+import { Article as TArticle, ProjectNavigation } from '@cntrl-site/sdk';
 import { Section } from './Section/Section';
-import { Item } from './items/Item';
 import { useArticleRectObserver } from '../utils/ArticleRectManager/useArticleRectObserver';
 import { ArticleRectContext } from '../provider/ArticleRectContext';
 import { ArticleWrapper } from './ArticleWrapper';
 import { InteractionsProvider } from '../provider/InteractionsContext';
 import { WebglContextManagerContext } from '../provider/WebGLContextManagerContext';
 import { WebGLContextManager } from '@cntrl-site/effects';
-import { StructuredContent } from './StructuredContent/StructuredContent';
+import { Navigation } from './Navigation/Navigation';
 
 interface Props {
   article: TArticle;
   sectionData: Record<SectionName, any>;
+  navigation?: ProjectNavigation | null;
+  pages?: Array<{ id: string; slug: string }>;
 }
 
-export const Article: FC<Props> = ({ article, sectionData }) => {
+export const Article: FC<Props> = ({ article, sectionData, navigation, pages = [] }) => {
   const articleRef = useRef<HTMLDivElement | null>(null);
   const articleRectObserver = useArticleRectObserver(articleRef.current);
   const id = useId();
@@ -36,6 +37,7 @@ export const Article: FC<Props> = ({ article, sectionData }) => {
     <ArticleRectContext.Provider value={articleRectObserver}>
       <InteractionsProvider article={article}>
         <ArticleWrapper>
+          {navigation && <Navigation navigation={navigation} pages={pages} />}
           <div className="article" ref={articleRef}>
             <WebglContextManagerContext.Provider value={webglContextManager}>
               {article.sections.map((section, i) => {
