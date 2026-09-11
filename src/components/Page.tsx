@@ -1,6 +1,6 @@
 import React, { FC, useMemo } from 'react';
 import HTMLReactParser from 'html-react-parser';
-import { Article as TArticle, Project, Meta, KeyframeAny, FontVault } from '@cntrl-site/sdk';
+import { Article as TArticle, Project, Meta, KeyframeAny, FontVault, ProjectNavigation } from '@cntrl-site/sdk';
 import { Article } from './Article';
 import { KeyframesContext } from '../provider/KeyframesContext';
 import { CNTRLHead } from './Head';
@@ -19,13 +19,14 @@ export interface PageProps {
   meta: Meta;
   fontsVault: FontVault[];
   keyframes: KeyframeAny[];
+  navigation?: ProjectNavigation | null;
   sectionData: Record<SectionName, any>;
   publicApiBase?: string;
   customComponentBundles?: CustomComponentBundlesData;
   siteUrl?: string;
 }
 
-export const Page: FC<PageProps> = ({ article, project, meta, keyframes, sectionData, siteUrl, fontsVault }) => {
+export const Page: FC<PageProps> = ({ article, project, meta, keyframes, navigation, sectionData, siteUrl, fontsVault }) => {
   const afterBodyOpen = HTMLReactParser(project.html.afterBodyOpen);
   const beforeBodyClose = HTMLReactParser(project.html.beforeBodyClose);
   const keyframesRepo = useMemo(() => new Keyframes(keyframes), [keyframes]);
@@ -37,7 +38,7 @@ export const Page: FC<PageProps> = ({ article, project, meta, keyframes, section
       {afterBodyOpen}
       <ItemGeometryContext.Provider value={itemGeometryService}>
         <KeyframesContext.Provider value={keyframesRepo}>
-          <Article article={article} sectionData={sectionData} />
+          <Article article={article} sectionData={sectionData} navigation={navigation} pages={project.pages} />
         </KeyframesContext.Provider>
       </ItemGeometryContext.Provider>
       {beforeBodyClose}

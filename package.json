@@ -1,6 +1,6 @@
 {
   "name": "@cntrl-site/sdk-nextjs",
-  "version": "1.9.134",
+  "version": "1.9.135-alpha.1",
   "description": "SDK for Next.js",
   "author": "arsen@momdesign.nyc",
   "license": "MIT",
@@ -31,9 +31,9 @@
   "dependencies": {
     "@antfu/eslint-config": "^3.8.0",
     "@cntrl-site/color": "^1.0.0",
-    "@cntrl-site/components": "^1.0.78",
+    "@cntrl-site/components": "^1.0.79-alpha.0",
     "@cntrl-site/effects": "^1.4.2",
-    "@cntrl-site/sdk": "^1.28.7",
+    "@cntrl-site/sdk": "^1.28.9-alpha.0",
     "@types/vimeo__player": "^2.18.0",
     "@vimeo/player": "^2.25.0",
     "html-react-parser": "^3.0.1",

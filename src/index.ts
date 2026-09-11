@@ -6,6 +6,7 @@ export { Page } from './components/Page';
 export type { PageProps, CustomComponentBundlesData } from './components/Page';
 export { CNTRLHead as Head } from './components/Head';
 export { Article } from './components/Article';
+export { Navigation } from './components/Navigation/Navigation';
 export { Section } from './components/Section/Section';
 export { Item } from './components/items/Item';
 export { ImageItem } from './components/items/FileItem/ImageItem';

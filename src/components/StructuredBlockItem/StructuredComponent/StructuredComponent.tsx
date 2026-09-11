@@ -4,6 +4,7 @@ import { FC, useState } from 'react';
 import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { useLayoutContext } from '../../useLayoutContext';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
+import { mergeComponentSettings } from '../../../utils/mergeComponentSettings';
 
 interface Props {
   block: StructuredBlock<StructuredBlockType.Component>;
@@ -24,7 +25,7 @@ export const StructuredComponent: FC<Props> = ({ block }) => {
   const commonParameters = block.commonParams.parameters;
   const parameters = layoutParameters ? {
     ...layoutParameters,
-    settings: { ...layoutParameters.settings, ...commonParameters?.settings }
+    settings: mergeComponentSettings(layoutParameters.settings, commonParameters?.settings)
   } : undefined;
 
   return (
