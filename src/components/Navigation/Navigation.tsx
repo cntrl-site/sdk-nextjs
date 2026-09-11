@@ -1,100 +1,67 @@
-import { FC, useId, useMemo, useState } from 'react';
+import { FC, useId, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import {
   getLayoutStyles,
-  Layout,
   ProjectNavigation,
   ProjectNavigationPosition
 } from '@cntrl-site/sdk';
 import { useCntrlContext } from '../../provider/useCntrlContext';
-import { mergeComponentSettings } from '../../utils/mergeComponentSettings';
 import { useLayoutContext } from '../useLayoutContext';
+import { NavigationComponent } from './NavigationComponent';
 import { useNavigationSwitch } from './useNavigationSwitch';
 
 interface Props {
   navigation: ProjectNavigation;
   pages: Array<{ id: string; slug: string }>;
+  hidden?: Record<string, boolean>;
 }
 
 const DEFAULT_POSITION: ProjectNavigationPosition = 'default';
 
-export const Navigation: FC<Props> = ({ navigation, pages }) => {
-  const sdk = useCntrlContext();
-  const { layouts } = sdk;
+export const Navigation: FC<Props> = ({ navigation, pages, hidden }) => {
+  const { layouts } = useCntrlContext();
   const layout = useLayoutContext();
-  const fallbackLayout = layouts[0]?.id;
-  const effectiveLayout = layout ?? fallbackLayout;
-  const component = sdk.getComponent(navigation.component.componentId);
   const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
   const reactId = useId();
-  const styleId = `${reactId}-project-navigation-${navigation.id}`;
-  const Element = component ? component.element : undefined;
-  const layoutParams = effectiveLayout
-    ? getClosestLayoutValue(navigation.component.layoutParams, layouts, effectiveLayout)
-    : undefined;
-  const layoutParameters = layoutParams?.parameters;
-  const commonParameters = navigation.component.parameters;
-  const parameters = layoutParameters ? {
-    ...layoutParameters,
-    settings: mergeComponentSettings(layoutParameters.settings, commonParameters?.settings)
-  } : undefined;
-  const position = getNavigationPosition(navigation, layouts, effectiveLayout);
+  const id = `${reactId}-project-navigation-${navigation.id}`;
+  const position = (layout && navigation.settings?.[layout]?.position) ?? DEFAULT_POSITION;
   const isSwitch = position === 'switch';
   const isSwitchOnScroll = useNavigationSwitch(isSwitch, wrapperRef);
-  const burgerPages = useMemo(() => pages.map(page => ({ id: page.id, slug: page.slug })), [pages]);
-  const opacity = layoutParams && 'opacity' in layoutParams ? layoutParams.opacity : 1;
-  const layoutValues: Record<string, any>[] = [navigation.component.layoutParams];
-
-  if (!Element || !parameters) return null;
-
-  const componentProps = {
-    content: navigation.component.content,
-    ...parameters,
-    layoutId: effectiveLayout,
-    portalId: 'component-portal',
-    pages: burgerPages
-  };
+  const layoutValues: Record<string, any>[] = [navigation.settings ?? {}, hidden ?? {}];
 
   return (
     <>
       <div
         id={navigation.component.id}
         ref={setWrapperRef}
-        className={`project-navigation project-navigation-${navigation.id}${position === 'stickyTop' ? ` project-navigation-${navigation.id}-sticky` : ''}`}
-        style={{
-          opacity: layout == null ? 0 : opacity
-        }}
+        className={`project-navigation-${navigation.id}`}
       >
-        <Element
-          {...componentProps}
-          navigationState={isSwitch ? 'default' : undefined}
+        <NavigationComponent
+          component={navigation.component}
+          pages={pages}
+          currentState={isSwitch ? 'default' : undefined}
         />
       </div>
       {isSwitch && (
         <div
           aria-hidden={!isSwitchOnScroll}
-          className={`project-navigation-switch-clone project-navigation-switch-clone-${navigation.id}${isSwitchOnScroll ? ` project-navigation-switch-clone-${navigation.id}-visible` : ''}`}
-          style={{
-            opacity: layout == null ? 0 : opacity
-          }}
+          className={`project-navigation-switch-clone-${navigation.id}${isSwitchOnScroll ? ` project-navigation-switch-clone-${navigation.id}-visible` : ''}`}
         >
-          <Element
-            {...componentProps}
+          <NavigationComponent
+            component={navigation.component}
+            pages={pages}
+            currentState="compact"
             isPreviewMode={isSwitchOnScroll}
-            navigationState="onScroll"
           />
         </div>
       )}
-      <JSXStyle id={styleId}>{`
+      <JSXStyle id={id}>{`
         .project-navigation-${navigation.id} {
           position: absolute;
           top: 0;
           left: 0;
           width: 100%;
           z-index: 10000;
-        }
-        .project-navigation-${navigation.id}-sticky {
-          position: fixed;
         }
         .project-navigation-switch-clone-${navigation.id} {
           position: fixed;
@@ -110,43 +77,19 @@ export const Navigation: FC<Props> = ({ navigation, pages }) => {
           transform: translateY(0);
           pointer-events: auto;
         }
-        ${getLayoutStyles(layouts, layoutValues, ([params]) => (`
-          .project-navigation-${navigation.id},
-          .project-navigation-switch-clone-${navigation.id} {
-            opacity: ${params?.opacity ?? 1};
-          }
-        `))}
+        ${getLayoutStyles(layouts, layoutValues, ([settings, isHidden]) => {
+          const layoutPosition = settings?.position ?? DEFAULT_POSITION;
+          return (`
+            .project-navigation-${navigation.id} {
+              position: ${layoutPosition === 'stickyTop' ? 'fixed' : 'absolute'};
+              display: ${isHidden ? 'none' : 'block'};
+            }
+            .project-navigation-switch-clone-${navigation.id} {
+              display: ${isHidden || layoutPosition !== 'switch' ? 'none' : 'block'};
+            }
+          `);
+        })}
       `}</JSXStyle>
     </>
   );
 };
-
-function getNavigationPosition(
-  navigation: ProjectNavigation,
-  layouts: Layout[],
-  layoutId: string | undefined
-): ProjectNavigationPosition {
-  if (!navigation.settings || !layoutId) return DEFAULT_POSITION;
-  const settings = getClosestLayoutValue(navigation.settings, layouts, layoutId);
-  return settings?.position ?? DEFAULT_POSITION;
-}
-
-function getClosestLayoutValue<T>(
-  map: Record<string, T>,
-  layouts: Layout[],
-  layoutId: string
-): T | undefined {
-  if (Object.prototype.hasOwnProperty.call(map, layoutId)) {
-    return map[layoutId];
-  }
-  const sorted = layouts.slice().sort((a, b) => a.startsWith - b.startsWith);
-  const index = sorted.findIndex(layout => layout.id === layoutId);
-  if (index === -1) return undefined;
-  const order = [
-    sorted[index],
-    ...sorted.slice(index + 1),
-    ...sorted.slice(0, index).reverse()
-  ];
-  const found = order.find(layout => Object.prototype.hasOwnProperty.call(map, layout.id));
-  return found ? map[found.id] : undefined;
-}

@@ -37,7 +37,13 @@ export const Article: FC<Props> = ({ article, sectionData, navigation, pages = [
     <ArticleRectContext.Provider value={articleRectObserver}>
       <InteractionsProvider article={article}>
         <ArticleWrapper>
-          {navigation && <Navigation navigation={navigation} pages={pages} />}
+          {navigation && (
+            <Navigation
+              navigation={navigation}
+              pages={pages}
+              hidden={article.navigationHidden}
+            />
+          )}
           <div className="article" ref={articleRef}>
             <WebglContextManagerContext.Provider value={webglContextManager}>
               {article.sections.map((section, i) => {

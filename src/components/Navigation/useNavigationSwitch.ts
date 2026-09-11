@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+const COMPACT_SWITCH_SCROLL_OFFSET_PX = 10;
+
 function getArticleTop(element: HTMLElement): number {
   const raw = getComputedStyle(element).getPropertyValue('--cntrl-article-top');
   const parsed = parseFloat(raw);
@@ -16,7 +18,8 @@ export function useNavigationSwitch(isEnabled: boolean, element: HTMLElement | n
     }
 
     const sync = () => {
-      const next = element.getBoundingClientRect().bottom <= getArticleTop(element) + 0.5;
+      const next = element.getBoundingClientRect().bottom
+        <= getArticleTop(element) - COMPACT_SWITCH_SCROLL_OFFSET_PX + 0.5;
       setIsPinned(prev => (prev === next ? prev : next));
     };
 
