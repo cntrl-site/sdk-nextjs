@@ -44,7 +44,7 @@ export const StructuredBlockItem: FC<Props> = ({ block, maxWidthMap }) => {
                   align-self: ${getAlignSelf(area.alignment ?? 'center')};
                   width: ${sizingAxis.x === 'manual' && area.width ? `${area.width * 100}vw` : maxWidth ?? 'max-content'};
                   height: ${sizingAxis.y === 'manual' && area.height ? `${area.height * 100}vw` : 'unset'};
-                  padding-top: ${area.paddingTop ? `${area.paddingTop * 100}vw` : 'unset'};
+                  margin-top: ${area.paddingTop ? `${area.paddingTop * 100}vw` : 'unset'};
                   outline: none;
                   left: ${(area.horizontalOffset ?? 0) * 100}vw;
                   position: relative;

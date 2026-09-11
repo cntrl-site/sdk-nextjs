@@ -36,6 +36,7 @@ import { parseSizing, useSizing } from './useSizing';
 import { useItemPointerEvents } from './useItemPointerEvents';
 import { useItemArea } from './useItemArea';
 import { useDraggable } from './useDraggable';
+import { getViewportHeightUnit } from '../../utils/getViewportHeightUnit';
 import { ItemGeometryContext } from '../../ItemGeometry/ItemGeometryContext';
 
 export interface ItemProps<I extends ItemAny> {
@@ -150,7 +151,8 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
   const anchorSide = layout ? item.area[layout].anchorSide : AnchorSide.Top;
   const dimensionsType = layout ? item.area[layout].dimensionsType : DimensionsType.PixelsBased;
   const isContainItem = dimensionsType === DimensionsType.PercentageBased;
-  const itemInnerHeight = isContainItem ? `${height}vh` : `${height! * 100}vw`;
+  const vhUnit = getViewportHeightUnit();
+  const itemInnerHeight = isContainItem ? `${height}${vhUnit}` : `${height! * 100}vw`;
   const positionType = layout ? item.area[layout].positionType : PositionType.ScreenBased;
   const isScreenBasedBottom = positionType === PositionType.ScreenBased && anchorSide === AnchorSide.Bottom;
   const scale = innerStateProps?.styles?.scale ?? itemScale;
@@ -164,7 +166,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
         interactionCtrl?.handleTransitionEnd?.(e.propertyName);
       }}
       style={{
-        ...(top !== undefined ? { top: isScreenBasedBottom ? 'unset' : isContainItem ? getPercentageBasedTopStyle(top, height, anchorSide) : getItemTopStyle(top, anchorSide) } : {}),
+        ...(top !== undefined ? { top: isScreenBasedBottom ? 'unset' : isContainItem ? getPercentageBasedTopStyle(top, height, anchorSide, vhUnit) : getItemTopStyle(top, anchorSide) } : {}),
         ...(left !== undefined ? { left: `${left * 100}vw` } : {}),
         ...(top !== undefined ? { bottom: isScreenBasedBottom ? `${-top * 100}vw` : 'unset' } : {}),
         ...(wrapperHeight !== undefined ? { height: `${wrapperHeight * 100}vw` } : {}),
@@ -231,7 +233,9 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
       const sizingAxis = parseSizing(layoutParams.sizing);
       const isScreenBasedBottom = area.positionType === PositionType.ScreenBased && area.anchorSide === AnchorSide.Bottom;
       const scaleAnchor = area.scaleAnchor as AreaAnchor;
-      const innerHeight = area?.dimensionsType && area?.dimensionsType === DimensionsType.PercentageBased ? `${area.height}vh` : `${area.height * 100}vw`;
+      const isAreaContainItem = area?.dimensionsType === DimensionsType.PercentageBased;
+      const innerHeightFallback = isAreaContainItem ? `${area.height}vh` : `${area.height * 100}vw`;
+      const innerHeight = isAreaContainItem ? `${area.height}svh` : `${area.height * 100}vw`;
       return (`
             .item-${item.id} {
               position: ${sticky ? 'sticky' : 'absolute'};
@@ -245,6 +249,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
               width: ${sizingAxis.x === 'manual'
           ? `${area.width * 100}vw`
           : 'max-content'};
+              height: ${sizingAxis.y === 'manual' ? innerHeightFallback : 'unset'};
               height: ${sizingAxis.y === 'manual' ? innerHeight : 'unset'};
               transform-origin: ${ScaleAnchorMap[scaleAnchor]};
               transform: scale(${area.scale});
@@ -256,6 +261,7 @@ export const Item: FC<ItemWrapperProps> = ({ item, sectionId, articleHeight, isP
               ${!isInGroup && sticky ? stickyFix : ''}
               pointer-events: none;
               bottom: ${isScreenBasedBottom ? `${-area.top * 100}vw` : 'unset'};
+              top: ${isScreenBasedBottom ? 'unset' : isContainItem ? getPercentageBasedTopStyle(area.top, area.height, area.anchorSide, 'vh') : getItemTopStyle(area.top, area.anchorSide)};
               top: ${isScreenBasedBottom ? 'unset' : isContainItem ? getPercentageBasedTopStyle(area.top, area.height, area.anchorSide) : getItemTopStyle(area.top, area.anchorSide)};
               left: ${area.left * 100}vw;
             }
