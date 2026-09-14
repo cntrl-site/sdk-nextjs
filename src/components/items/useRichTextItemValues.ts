@@ -61,6 +61,9 @@ export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => 
   const fontSize = layoutId ? item.layoutParams[layoutId].fontSize : undefined;
   const lineHeight = layoutId ? item.layoutParams[layoutId].lineHeight : undefined;
   const xSizing = layoutId ? item.layoutParams[layoutId].sizing : undefined;
+  const columns = layoutId ? item.layoutParams[layoutId].columns : undefined;
+  const columnGutter = layoutId ? item.layoutParams[layoutId].columnGutter : undefined;
+  const hyphens = layoutId ? item.layoutParams[layoutId].hyphens : undefined;
 
-  return { blur, letterSpacing, wordSpacing, color, fontSize, lineHeight, xSizing };
+  return { blur, letterSpacing, wordSpacing, color, fontSize, lineHeight, xSizing, columns, columnGutter, hyphens };
 };
