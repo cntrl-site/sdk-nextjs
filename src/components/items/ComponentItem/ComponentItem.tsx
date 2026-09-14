@@ -58,7 +58,7 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
               : layout == null ? { opacity: 0 } : {}),
             ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
             ...(blur !== undefined && blur !== 0 ? { filter: `blur(${blur * 100}vw)` } : {}),
-          willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
+            willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
             transition: stateParams?.transition ?? 'none'
           }}
         >

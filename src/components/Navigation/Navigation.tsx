@@ -2,6 +2,7 @@ import { FC, useId, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import {
   getLayoutStyles,
+  Project,
   ProjectNavigation,
   ProjectNavigationPosition
 } from '@cntrl-site/sdk';
@@ -23,7 +24,7 @@ export const Navigation: FC<Props> = ({ navigation, pages, hidden }) => {
   const layout = useLayoutContext();
   const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
   const reactId = useId();
-  const id = `${reactId}-project-navigation-${navigation.id}`;
+  const id = `${reactId}-navigation-${navigation.id}`;
   const position = (layout && navigation.settings?.[layout]?.position) ?? DEFAULT_POSITION;
   const isSwitch = position === 'switch';
   const isSwitchOnScroll = useNavigationSwitch(isSwitch, wrapperRef);
@@ -34,7 +35,7 @@ export const Navigation: FC<Props> = ({ navigation, pages, hidden }) => {
       <div
         id={navigation.component.id}
         ref={setWrapperRef}
-        className={`project-navigation-${navigation.id}`}
+        className={`navigation-${navigation.id}`}
       >
         <NavigationComponent
           component={navigation.component}
@@ -45,46 +46,50 @@ export const Navigation: FC<Props> = ({ navigation, pages, hidden }) => {
       {isSwitch && (
         <div
           aria-hidden={!isSwitchOnScroll}
-          className={`project-navigation-switch-clone-${navigation.id}${isSwitchOnScroll ? ` project-navigation-switch-clone-${navigation.id}-visible` : ''}`}
+          className={`navigation-switch-clone-${navigation.id}${isSwitchOnScroll ? ` navigation-switch-clone-${navigation.id}-visible` : ''}`}
         >
           <NavigationComponent
             component={navigation.component}
             pages={pages}
             currentState="compact"
-            isPreviewMode={isSwitchOnScroll}
+            isSwitchClone
           />
         </div>
       )}
       <JSXStyle id={id}>{`
-        .project-navigation-${navigation.id} {
+        .navigation-${navigation.id} {
           position: absolute;
           top: 0;
           left: 0;
           width: 100%;
           z-index: 10000;
         }
-        .project-navigation-switch-clone-${navigation.id} {
+        .navigation-switch-clone-${navigation.id} {
           position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
+          top: var(--cntrl-article-top, 0px);
+          left: var(--cntrl-article-left, 0px);
+          width: var(--cntrl-article-width, 100%);
           z-index: 10001;
           transform: translateY(-100%);
           transition: transform 320ms ease;
           pointer-events: none;
         }
-        .project-navigation-switch-clone-${navigation.id}-visible {
+        .navigation-switch-clone-${navigation.id}-visible {
           transform: translateY(0);
           pointer-events: auto;
         }
         ${getLayoutStyles(layouts, layoutValues, ([settings, isHidden]) => {
           const layoutPosition = settings?.position ?? DEFAULT_POSITION;
+          const isSticky = layoutPosition === 'stickyTop' || layoutPosition === 'switch';
           return (`
-            .project-navigation-${navigation.id} {
+            .navigation-${navigation.id} {
               position: ${layoutPosition === 'stickyTop' ? 'fixed' : 'absolute'};
+              top: ${isSticky ? 'var(--cntrl-article-top, 0px)' : '0'};
+              left: ${isSticky ? 'var(--cntrl-article-left, 0px)' : '0'};
+              width: ${isSticky ? 'var(--cntrl-article-width, 100%)' : '100%'};
               display: ${isHidden ? 'none' : 'block'};
             }
-            .project-navigation-switch-clone-${navigation.id} {
+            .navigation-switch-clone-${navigation.id} {
               display: ${isHidden || layoutPosition !== 'switch' ? 'none' : 'block'};
             }
           `);

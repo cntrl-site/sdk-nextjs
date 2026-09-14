@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const COMPACT_SWITCH_SCROLL_OFFSET_PX = 10;
+const COMPACT_SWITCH_SCROLL_OFFSET_PX = 20;
 
 function getArticleTop(element: HTMLElement): number {
   const raw = getComputedStyle(element).getPropertyValue('--cntrl-article-top');
