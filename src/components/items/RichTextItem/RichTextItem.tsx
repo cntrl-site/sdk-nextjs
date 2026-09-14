@@ -1,6 +1,6 @@
 import { FC, useEffect, useId, useMemo, useState } from 'react';
 import { CntrlColor } from '@cntrl-site/color';
-import { getLayoutStyles, RichTextItem as TRichTextItem } from '@cntrl-site/sdk';
+import { getLayoutStyles, Hyphens, RichTextItem as TRichTextItem } from '@cntrl-site/sdk';
 import JSXStyle from 'styled-jsx/style';
 import { ItemProps } from '../Item';
 import { useRichTextItem } from './useRichTextItem';
@@ -67,6 +67,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
     <>
       <Wrapper
         ref={setRef}
+        lang="en"
         className={`rich-text-wrapper-${item.id}${layoutId ? '' : ` ${RICH_TEXT_LAYOUT_PENDING_CLASS}`}`}
         style={{
           ...(blur !== undefined ? { filter: `blur(${blur as number * 100}vw)` } : {}),
@@ -86,6 +87,9 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
         {styles}
         {`${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
           const color = CntrlColor.parse(layoutParams.color);
+          const columns = layoutParams.columns ?? 1;
+          const columnsEnabled = columns > 1;
+          const hyphens = layoutParams.hyphens ?? Hyphens.None;
           return (`
             .rich-text-wrapper-${item.id} {
               margin: 0;
@@ -102,6 +106,17 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
               transform: rotate(${area.angle}deg);
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
               text-transform: ${layoutParams.textTransform};
+              column-count: ${columnsEnabled ? columns : 'unset'};
+              column-gap: ${columnsEnabled ? `${(layoutParams.columnGutter ?? 0) * 100}vw` : 'unset'};
+              column-fill: ${columnsEnabled ? 'balance' : 'unset'};
+              hyphens: ${hyphens};
+              -webkit-hyphens: ${hyphens};
+              hyphenate-limit-chars: 6 3 2;
+              hyphenate-limit-lines: 2;
+              hyphenate-limit-last: always;
+              hyphenate-limit-zone: 8%;
+              -webkit-hyphenate-limit-before: 3;
+              -webkit-hyphenate-limit-after: 2;
               ${layoutParams.blur !== 0 ? 'will-change: transform;' : ''}
             }
             @supports not (color: oklch(42% 0.3 90 / 1)) {
