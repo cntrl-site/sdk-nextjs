@@ -35,7 +35,7 @@ export const Navigation: FC<Props> = ({ navigation, pages, hidden }) => {
       <div
         id={navigation.component.id}
         ref={setWrapperRef}
-        className={`navigation-${navigation.id}`}
+        className={`navigation-${navigation.id}${isSwitch && isSwitchOnScroll ? ` navigation-${navigation.id}-switch-inactive` : ''}`}
       >
         <NavigationComponent
           component={navigation.component}
@@ -64,19 +64,26 @@ export const Navigation: FC<Props> = ({ navigation, pages, hidden }) => {
           width: 100%;
           z-index: 10000;
         }
+        .navigation-${navigation.id}-switch-inactive {
+          visibility: hidden;
+          pointer-events: none;
+        }
         .navigation-switch-clone-${navigation.id} {
           position: fixed;
           top: var(--cntrl-article-top, 0px);
           left: var(--cntrl-article-left, 0px);
           width: var(--cntrl-article-width, 100%);
           z-index: 10001;
-          transform: translateY(-100%);
-          transition: transform 320ms ease;
           pointer-events: none;
+          visibility: hidden;
+          transition: visibility 0s linear 320ms;
+          --cntrl-nav-slide: -100%;
         }
         .navigation-switch-clone-${navigation.id}-visible {
-          transform: translateY(0);
           pointer-events: auto;
+          visibility: visible;
+          transition: visibility 0s;
+          --cntrl-nav-slide: 0%;
         }
         ${getLayoutStyles(layouts, layoutValues, ([settings, isHidden]) => {
           const layoutPosition = settings?.position ?? DEFAULT_POSITION;
