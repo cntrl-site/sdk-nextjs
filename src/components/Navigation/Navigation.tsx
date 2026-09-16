@@ -1,0 +1,107 @@
+import { FC, useId, useState } from 'react';
+import JSXStyle from 'styled-jsx/style';
+import {
+  getLayoutStyles,
+  Project,
+  ProjectNavigation,
+  ProjectNavigationPosition
+} from '@cntrl-site/sdk';
+import { useCntrlContext } from '../../provider/useCntrlContext';
+import { useLayoutContext } from '../useLayoutContext';
+import { NavigationComponent } from './NavigationComponent';
+import { useNavigationSwitch } from './useNavigationSwitch';
+
+interface Props {
+  navigation: ProjectNavigation;
+  pages: Array<{ id: string; slug: string }>;
+  hidden?: Record<string, boolean>;
+}
+
+const DEFAULT_POSITION: ProjectNavigationPosition = 'default';
+
+export const Navigation: FC<Props> = ({ navigation, pages, hidden }) => {
+  const { layouts } = useCntrlContext();
+  const layout = useLayoutContext();
+  const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
+  const reactId = useId();
+  const id = `${reactId}-navigation-${navigation.id}`;
+  const position = (layout && navigation.settings?.[layout]?.position) ?? DEFAULT_POSITION;
+  const isSwitch = position === 'switch';
+  const isSwitchOnScroll = useNavigationSwitch(isSwitch, wrapperRef);
+  const layoutValues: Record<string, any>[] = [navigation.settings ?? {}, hidden ?? {}];
+
+  return (
+    <>
+      <div
+        id={navigation.component.id}
+        ref={setWrapperRef}
+        className={`navigation-${navigation.id}${isSwitch && isSwitchOnScroll ? ` navigation-${navigation.id}-switch-inactive` : ''}`}
+      >
+        <NavigationComponent
+          component={navigation.component}
+          pages={pages}
+          currentState={isSwitch ? 'default' : undefined}
+        />
+      </div>
+      {isSwitch && (
+        <div
+          aria-hidden={!isSwitchOnScroll}
+          className={`navigation-switch-clone-${navigation.id}${isSwitchOnScroll ? ` navigation-switch-clone-${navigation.id}-visible` : ''}`}
+        >
+          <NavigationComponent
+            component={navigation.component}
+            pages={pages}
+            currentState="compact"
+            isSwitchClone
+          />
+        </div>
+      )}
+      <JSXStyle id={id}>{`
+        .navigation-${navigation.id} {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          z-index: 10000;
+        }
+        .navigation-${navigation.id}-switch-inactive {
+          visibility: hidden;
+          pointer-events: none;
+        }
+        .navigation-switch-clone-${navigation.id} {
+          position: fixed;
+          top: var(--cntrl-article-top, 0px);
+          left: var(--cntrl-article-left, 0px);
+          width: var(--cntrl-article-width, 100%);
+          z-index: 10001;
+          pointer-events: none;
+          visibility: hidden;
+          transition: visibility 0s linear 320ms;
+          --cntrl-nav-slide: -100%;
+        }
+        .navigation-switch-clone-${navigation.id}-visible {
+          pointer-events: auto;
+          visibility: visible;
+          transition: visibility 0s;
+          --cntrl-nav-slide: 0%;
+        }
+        ${getLayoutStyles(layouts, layoutValues, ([settings, isHidden]) => {
+          const layoutPosition = settings?.position ?? DEFAULT_POSITION;
+          const isSticky = layoutPosition === 'stickyTop' || layoutPosition === 'switch';
+          return (`
+            .navigation-${navigation.id} {
+              position: ${layoutPosition === 'stickyTop' ? 'fixed' : 'absolute'};
+              top: ${isSticky ? 'var(--cntrl-article-top, 0px)' : '0'};
+              left: ${isSticky ? 'var(--cntrl-article-left, 0px)' : '0'};
+              width: ${isSticky ? 'var(--cntrl-article-width, 100%)' : '100%'};
+              display: ${isHidden ? 'none' : 'block'};
+            }
+            .navigation-switch-clone-${navigation.id} {
+              display: ${isHidden || layoutPosition !== 'switch' ? 'none' : 'block'};
+            }
+          `);
+        })}
+      `}</JSXStyle>
+    </>
+  );
+};
