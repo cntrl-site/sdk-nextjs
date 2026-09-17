@@ -1,6 +1,6 @@
 import { FC, useEffect, useId, useMemo, useState } from 'react';
 import { CntrlColor } from '@cntrl-site/color';
-import { getLayoutStyles, RichTextItem as TRichTextItem } from '@cntrl-site/sdk';
+import { getLayoutStyles, Hyphens, RichTextItem as TRichTextItem } from '@cntrl-site/sdk';
 import JSXStyle from 'styled-jsx/style';
 import { ItemProps } from '../Item';
 import { useRichTextItem } from './useRichTextItem';
@@ -30,8 +30,12 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
     color: itemColor,
     fontSize,
     lineHeight,
-    xSizing
+    xSizing,
+    columns,
+    columnGutter,
+    hyphens
   } = useRichTextItemValues(item, sectionId);
+  const columnsEnabled = (columns ?? 1) > 1;
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
   const exemplary = useExemplary();
   const { layoutId } = useCurrentLayout();
@@ -76,6 +80,9 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
           ...(wordSpacing !== undefined ? { wordSpacing: `${wordSpacing as number * exemplary}px` } : {}),
           ...(fontSize !== undefined ? { fontSize: `${Math.round(fontSize * exemplary)}px` } : {}),
           ...(lineHeight !== undefined ? { lineHeight: `${lineHeight * exemplary}px` } : {}),
+          ...(columnsEnabled ? { columnCount: columns, columnFill: 'balance' as const } : {}),
+          ...(columnsEnabled && columnGutter !== undefined ? { columnGap: `${Math.round(columnGutter * exemplary)}px` } : {}),
+          ...(hyphens !== undefined ? { hyphens, WebkitHyphens: hyphens } : {}),
           willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
           transition
         }}
@@ -86,6 +93,9 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
         {styles}
         {`${getLayoutStyles(layouts, layoutValues, ([area, layoutParams]) => {
           const color = CntrlColor.parse(layoutParams.color);
+          const columns = layoutParams.columns ?? 1;
+          const columnsEnabled = columns > 1;
+          const hyphens = layoutParams.hyphens ?? Hyphens.None;
           return (`
             .rich-text-wrapper-${item.id} {
               margin: 0;
@@ -102,6 +112,17 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
               transform: rotate(${area.angle}deg);
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};
               text-transform: ${layoutParams.textTransform};
+              column-count: ${columnsEnabled ? columns : 'unset'};
+              column-gap: ${columnsEnabled ? `${(layoutParams.columnGutter ?? 0) * 100}vw` : 'unset'};
+              column-fill: ${columnsEnabled ? 'balance' : 'unset'};
+              hyphens: ${hyphens};
+              -webkit-hyphens: ${hyphens};
+              hyphenate-limit-chars: 6 3 2;
+              hyphenate-limit-lines: 2;
+              hyphenate-limit-last: always;
+              hyphenate-limit-zone: 8%;
+              -webkit-hyphenate-limit-before: 3;
+              -webkit-hyphenate-limit-after: 2;
               ${layoutParams.blur !== 0 ? 'will-change: transform;' : ''}
             }
             @supports not (color: oklch(42% 0.3 90 / 1)) {
