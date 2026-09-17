@@ -1,3 +1,9 @@
+// franc-min ships no types, and this package publishes raw .ts as its
+// "types" entry, so downstream projects type-check this file directly
+// out of node_modules rather than a compiled .d.ts. No local `declare
+// module` here on purpose — that would only cover this package's own
+// build and leave @ts-expect-error unused (and thus itself an error).
+// @ts-expect-error franc-min has no type declarations
 import franc from 'franc-min';
 
 // Maps the ISO 639-3 codes franc-min can detect to their ISO 639-1
