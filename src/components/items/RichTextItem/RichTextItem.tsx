@@ -71,7 +71,6 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
     <>
       <Wrapper
         ref={setRef}
-        lang="en"
         className={`rich-text-wrapper-${item.id}${layoutId ? '' : ` ${RICH_TEXT_LAYOUT_PENDING_CLASS}`}`}
         style={{
           ...(blur !== undefined ? { filter: `blur(${blur as number * 100}vw)` } : {}),
