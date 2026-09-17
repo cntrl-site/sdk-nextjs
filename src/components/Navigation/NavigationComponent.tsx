@@ -1,16 +1,23 @@
 import JSXStyle from 'styled-jsx/style';
-import { StructuredBlock, StructuredBlockType, getLayoutStyles } from '@cntrl-site/sdk';
-import { FC, useState } from 'react';
-import { useCntrlContext } from '../../../provider/useCntrlContext';
-import { useLayoutContext } from '../../useLayoutContext';
-import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
-import { mergeComponentSettings } from '../../../utils/mergeComponentSettings';
+import { NavigationComponent as TNavigationComponent, getLayoutStyles, Project } from '@cntrl-site/sdk';
+import { FC, useId } from 'react';
+import { useCntrlContext } from '../../provider/useCntrlContext';
+import { useLayoutContext } from '../useLayoutContext';
+import { mergeComponentSettings } from '../../utils/mergeComponentSettings';
 
 interface Props {
-  block: StructuredBlock<StructuredBlockType.Component>;
+  component: TNavigationComponent;
+  pages: Array<{ id: string; slug: string }>;
+  currentState?: string;
+  isSwitchClone?: boolean;
 }
 
-export const StructuredComponent: FC<Props> = ({ block }) => {
+export const NavigationComponent: FC<Props> = ({
+  component: block,
+  pages,
+  currentState,
+  isSwitchClone
+}) => {
   const sdk = useCntrlContext();
   const { layouts } = sdk;
   const layout = useLayoutContext();
@@ -18,8 +25,6 @@ export const StructuredComponent: FC<Props> = ({ block }) => {
   const effectiveLayout = layout ?? fallbackLayout;
   const layoutValues: Record<string, any>[] = [block.layoutParams];
   const component = sdk.getComponent(block.commonParams.componentId);
-  const [ref, setRef] = useState<HTMLDivElement | null>(null);
-  useItemGeometry(block.id, ref);
   const Element = component ? component.element : undefined;
   const layoutParameters = effectiveLayout ? block.layoutParams[effectiveLayout]?.parameters : undefined;
   const commonParameters = block.commonParams.parameters;
@@ -27,13 +32,13 @@ export const StructuredComponent: FC<Props> = ({ block }) => {
     ...layoutParameters,
     settings: mergeComponentSettings(layoutParameters.settings, commonParameters?.settings)
   } : undefined;
+  const reactId = useId();
+  const id = `${reactId}-custom-component-${block.id}`;
 
   return (
     <>
       <div
         className={`custom-component-${block.id}`}
-        ref={setRef}
-        // preventing layout shift while supporting SSG for proper SEO
         style={{ opacity: layout == null ? 0 : undefined }}
       >
         {parameters && Element && (
@@ -45,10 +50,14 @@ export const StructuredComponent: FC<Props> = ({ block }) => {
             portalId="component-portal"
             content={block.commonParams.content}
             {...parameters}
+            layoutId={effectiveLayout}
+            pages={pages}
+            currentState={currentState}
+            isSwitchClone={isSwitchClone}
           />
         )}
       </div>
-      <JSXStyle id={block.id}>{`
+      <JSXStyle id={id}>{`
       .custom-component-${block.id} {
         width: 100%;
         height: 100%;

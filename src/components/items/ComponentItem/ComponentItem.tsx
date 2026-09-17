@@ -10,6 +10,7 @@ import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemS
 import { useLayoutContext } from '../../useLayoutContext';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 import { LinkWrapper } from '../LinkWrapper';
+import { mergeComponentSettings } from '../../../utils/mergeComponentSettings';
 
 export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
   const sdk = useCntrlContext();
@@ -33,7 +34,7 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
   const commonParameters = item.commonParams.parameters;
   const parameters = layoutParameters ? {
     ...layoutParameters,
-    settings: { ...layoutParameters.settings, ...commonParameters?.settings }
+    settings: mergeComponentSettings(layoutParameters.settings, commonParameters?.settings)
   } : undefined;
 
   const hasLink = Boolean(item.link?.url);
