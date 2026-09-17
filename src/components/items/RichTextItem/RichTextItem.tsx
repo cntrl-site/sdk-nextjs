@@ -16,6 +16,7 @@ import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 import { RichTextGeometryController } from '../../../ItemGeometry/RichTextGeometryController';
 import { RICH_TEXT_LAYOUT_PENDING_CLASS } from '../../../utils/RichTextConverter/RichTextConverter';
 import { getHeadingTag } from '../../../utils/getHeadingTag';
+import { detectLang } from '../../../utils/detectLang';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const reactId = useId();
@@ -63,6 +64,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   const isInteractive = colorAlpha !== 0 || hasVisibleRangeColors;
   const [content, styles] = useRichTextItem(item);
   const Wrapper = (getHeadingTag(item) ?? 'div') as 'div';
+  const lang = useMemo(() => detectLang(item.commonParams.text), [item.commonParams.text]);
   useEffect(() => {
     onVisibilityChange?.(isInteractive);
   }, [isInteractive, onVisibilityChange]);
@@ -70,6 +72,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   return (
     <>
       <Wrapper
+        lang={lang}
         ref={setRef}
         className={`rich-text-wrapper-${item.id}${layoutId ? '' : ` ${RICH_TEXT_LAYOUT_PENDING_CLASS}`}`}
         style={{
