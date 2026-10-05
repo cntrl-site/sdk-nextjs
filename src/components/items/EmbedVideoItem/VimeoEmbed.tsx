@@ -13,6 +13,7 @@ import { useEmbedVideoItem } from './useEmbedVideoItem';
 import { LinkWrapper } from '../LinkWrapper';
 import { useLayoutContext } from '../../useLayoutContext';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
+import { getVimeoEmbedUrl } from '../../../utils/getVimeoEmbedUrl';
 
 export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const reactId = useId();
@@ -41,20 +42,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
   const radius = getStyleFromItemStateAndParams(frameStateParams?.styles?.radius, itemRadius);
   useRegisterResize(ref, onResize);
   useItemGeometry(item.id, ref);
-  const validUrl = useMemo(() => {
-    if (!layoutParams) return url;
-    const validURL = new URL(url);
-    validURL.searchParams.append('controls', String(layoutParams.controls));
-    validURL.searchParams.append('autoplay', String(layoutParams.play === 'auto'));
-    validURL.searchParams.append('muted', String(layoutParams.muted));
-    validURL.searchParams.append('loop', String(layoutParams.loop));
-    validURL.searchParams.append('pip', String(layoutParams.pictureInPicture));
-    validURL.searchParams.append('title', '0');
-    validURL.searchParams.append('byline', '0');
-    validURL.searchParams.append('portrait', '0');
-    validURL.searchParams.append('autopause', 'false');
-    return validURL.href;
-  }, [url, layoutParams]);
+  const validUrl = useMemo(() => (layoutParams ? getVimeoEmbedUrl(url, layoutParams) : url), [url, layoutParams]);
 
   useEffect(() => {
     if (!vimeoPlayer || !imgRef || !layoutParams) return;
