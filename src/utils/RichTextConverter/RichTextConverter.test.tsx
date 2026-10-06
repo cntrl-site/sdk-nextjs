@@ -52,6 +52,12 @@ describe('RichTextConverter', () => {
     expect(styles).toContain('content: \'•\'');
   });
 
+  it('draws a highlighted range on its colour, with an rgba fallback where oklch is not supported', () => {
+    const [, styles] = converter.toHtml(text([{ text: 'Read on' }], [{ start: 0, end: 4, style: 'HIGHLIGHT', value: '#FFFF00' }]), layouts);
+    expect(styles).toMatch(/\.s-0-4 \{\s*background-color: [^;]+;/);
+    expect(styles).toContain('background-color: rgba(255, 255, 0, 1)');
+  });
+
   it('leaves text without lists as it was', () => {
     const [content, styles] = converter.toHtml(text([{ text: 'Plain' }]), layouts);
     const { container } = render(<>{content}</>);

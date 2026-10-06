@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import { Layout, Section, StructuredBlockType } from '@cntrl-site/sdk';
 import { CntrlContext } from '../../provider/CntrlContext';
 import { CntrlSdkContext } from '../../provider/CntrlSdkContext';
@@ -165,8 +165,17 @@ describe('StructuredContent', () => {
     const images = [...container.querySelectorAll<HTMLImageElement>('.structured-gallery-image-gallery')];
     expect(images.map(image => image.alt)).toEqual(['Two views', 'Two views']);
     // equally wide until their own proportions are known
-    expect(images.map(image => image.style.flexGrow)).toEqual(['1', '1']);
+    expect(images.map(image => image.style.flexGrow)).toEqual(['0.5', '0.5']);
     expect(container.querySelector('.structured-caption-gallery')!.textContent).toBe('Seen from the hill');
+  });
+
+  it('fills a gallery\'s row whatever its images\' proportions, a lone portrait image as wide as the block', () => {
+    const portrait = block(StructuredBlockType.Image, 'portrait', { urls: ['https://cdn.cntrl.site/p.jpg'], altText: '', caption: '' }, { opacity: 1 });
+    const { container } = draw({ ...section(false), structuredContent: [portrait] } as Section);
+    const image = container.querySelector<HTMLImageElement>('.structured-gallery-image-portrait')!;
+    Object.defineProperties(image, { complete: { value: true }, naturalWidth: { value: 300 }, naturalHeight: { value: 400 } });
+    fireEvent.load(image);
+    expect(image.style.flexGrow).toBe('1');
   });
 
   it('draws code coloured as it comes, in its theme\'s box', () => {

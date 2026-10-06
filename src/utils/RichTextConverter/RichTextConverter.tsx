@@ -218,6 +218,7 @@ export class RichTextConverter {
             for (const styleGroup of entitiesGroup.stylesGroup) {
               const lineHeight = styleGroup.styles.find(s => s.name === 'LINEHEIGHT');
               const color = styleGroup.styles.find(s => s.name === 'COLOR');
+              const highlight = styleGroup.styles.find(s => s.name === 'HIGHLIGHT');
               if (lineHeight?.value) {
                 currentLineHeight[item.layout] = lineHeight.value;
               }
@@ -234,11 +235,12 @@ export class RichTextConverter {
                 }
               `);
               }
-              if (color) {
+              if (color?.value || highlight?.value) {
                 styleRules[item.layout].push(`
                 @supports not (color: oklch(42% 0.3 90 / 1)) {
                   .${blockClass} .s-${styleGroup.start}-${styleGroup.end} {
-                    color: ${CntrlColor.parse(getResolvedValue(color.value, 'COLOR')!).fmt('rgba')};
+                    ${color?.value ? `color: ${CntrlColor.parse(color.value).fmt('rgba')};` : ''}
+                    ${highlight?.value ? `background-color: ${CntrlColor.parse(highlight.value).fmt('rgba')};` : ''}
                   }
                 }
               `);
@@ -351,6 +353,7 @@ export class RichTextConverter {
     const { value, name } = draftStyle;
     const map: Record<string, Record<string, string | undefined>> = {
       COLOR: { color: getResolvedValue(value, name) },
+      HIGHLIGHT: { 'background-color': getResolvedValue(value, name) },
       TYPEFACE: { 'font-family': `${getFontFamilyValue(value!)}` },
       FONTSTYLE: value ? { ...FontStyles[value] } : {},
       FONTWEIGHT: { 'font-weight': value },
@@ -389,7 +392,7 @@ function getScaledValue(value: string | undefined, exemplary: number, isLayoutDe
 }
 
 function getResolvedValue(value: string | undefined, name: string) {
-  if (name !== 'COLOR') return value;
+  if (name !== 'COLOR' && name !== 'HIGHLIGHT') return value;
   return value ? CntrlColor.parse(value).toCss() : value;
 }
 
