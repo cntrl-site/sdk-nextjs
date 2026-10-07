@@ -1,7 +1,9 @@
+// the properties that, with the size, decide whether two neighbours share a font
+const SHAPING_KEYS = ['fontFamily', 'fontWeight', 'fontStyle', 'fontVariant', 'fontStretch', 'fontFeatureSettings'] as const;
+
 export type FontStyle = Pick<
   CSSStyleDeclaration,
-  'fontFamily' | 'fontSize' | 'fontWeight' | 'fontStyle' | 'fontVariant' | 'fontStretch'
-  | 'fontFeatureSettings' | 'letterSpacing' | 'wordSpacing' | 'textTransform'
+  typeof SHAPING_KEYS[number] | 'fontSize' | 'letterSpacing' | 'wordSpacing' | 'textTransform'
 >;
 
 /**
@@ -24,6 +26,12 @@ export interface KernCompensatorDeps {
 const NO_PAIR = /\s/;
 const MEASURE_SIZE = 100;
 const EM_PRECISION = 5;
+
+interface Margin {
+  value: string;
+  // the span whose text ends at the edge
+  before: HTMLElement;
+}
 
 /**
  * Puts a font's kerning pairs back where an element edge breaks them.
@@ -55,8 +63,7 @@ export class KernCompensator {
 
   apply(root: HTMLElement): void {
     const texts = getTextNodes(root);
-    const margins = new Map<HTMLElement, { left?: string; right?: string }>();
-    const edges: { target: HTMLElement; side: 'margin-left' | 'margin-right'; before: HTMLElement }[] = [];
+    const margins = new Map<HTMLElement, { left?: Margin; right?: Margin }>();
     for (let i = 1; i < texts.length; i += 1) {
       const prev = texts[i - 1];
       const next = texts[i];
@@ -69,23 +76,19 @@ export class KernCompensator {
       if (!a || !b || NO_PAIR.test(a) || NO_PAIR.test(b) || !isSameLine(prev, next)) continue;
       const em = this.pair(nextStyle, a, b);
       if (em === 0) continue;
-      const margin = `${em.toFixed(EM_PRECISION)}em`;
+      const margin: Margin = { value: `${em.toFixed(EM_PRECISION)}em`, before: prev.parentElement! };
       if (isLastTextOf(prev)) {
-        margins.set(prev.parentElement!, { ...margins.get(prev.parentElement!), right: margin });
-        edges.push({ target: prev.parentElement!, side: 'margin-right', before: prev.parentElement! });
+        margins.set(margin.before, { ...margins.get(margin.before), right: margin });
       } else {
         margins.set(next.parentElement!, { ...margins.get(next.parentElement!), left: margin });
-        edges.push({ target: next.parentElement!, side: 'margin-left', before: prev.parentElement! });
       }
     }
-    const added = edges.filter(({ target, side }) => target.style.getPropertyValue(side) === '');
     for (const text of texts) {
       const element = text.parentElement!;
-      const { left = '', right = '' } = margins.get(element) ?? {};
-      setStyle(element, 'margin-left', left);
-      setStyle(element, 'margin-right', right);
+      const { left, right } = margins.get(element) ?? {};
+      if (setStyle(element, 'margin-left', left?.value ?? '') && left) reshape(left.before);
+      if (setStyle(element, 'margin-right', right?.value ?? '') && right) reshape(right.before);
     }
-    for (const { before } of added) reshape(before);
   }
 
   private breaksRun(a: FontStyle, b: FontStyle): boolean {
@@ -97,8 +100,9 @@ export class KernCompensator {
     return a.wordSpacing !== b.wordSpacing;
   }
 
+  // pairs are measured at one size and kept in em, so the size is no part of the key
   private pair(font: FontStyle, a: string, b: string): number {
-    const key = [font.fontFamily, font.fontWeight, font.fontStyle, font.fontVariant, font.fontStretch, font.fontFeatureSettings, a, b].join('|');
+    const key = [...SHAPING_KEYS.map((property) => font[property]), a, b].join('|');
     let em = this.pairs.get(key);
     if (em === undefined) {
       em = this.deps.measurePair(font, a, b);
@@ -167,13 +171,16 @@ function reshape(element: HTMLElement): void {
   element.style.removeProperty('font-kerning');
 }
 
-function setStyle(element: HTMLElement, property: string, value: string): void {
-  if (element.style.getPropertyValue(property) === value) return;
+// returns whether the property just went from unset to a value
+function setStyle(element: HTMLElement, property: string, value: string): boolean {
+  const current = element.style.getPropertyValue(property);
+  if (current === value) return false;
   if (value) {
     element.style.setProperty(property, value);
   } else {
     element.style.removeProperty(property);
   }
+  return current === '' && value !== '';
 }
 
 function getTextNodes(root: HTMLElement): Text[] {
@@ -188,13 +195,7 @@ function getTextNodes(root: HTMLElement): Text[] {
 }
 
 function isSameFont(a: FontStyle, b: FontStyle): boolean {
-  return a.fontFamily === b.fontFamily
-    && a.fontSize === b.fontSize
-    && a.fontWeight === b.fontWeight
-    && a.fontStyle === b.fontStyle
-    && a.fontVariant === b.fontVariant
-    && a.fontStretch === b.fontStretch
-    && a.fontFeatureSettings === b.fontFeatureSettings;
+  return a.fontSize === b.fontSize && SHAPING_KEYS.every((property) => a[property] === b[property]);
 }
 
 function isZero(spacing: string): boolean {
