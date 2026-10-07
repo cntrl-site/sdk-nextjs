@@ -17,6 +17,7 @@ import { RichTextGeometryController } from '../../../ItemGeometry/RichTextGeomet
 import { RICH_TEXT_LAYOUT_PENDING_CLASS } from '../../../utils/RichTextConverter/RichTextConverter';
 import { getHeadingTag } from '../../../utils/getHeadingTag';
 import { detectLang } from '../../../utils/detectLang';
+import { useKernCompensation } from '../../../utils/KernCompensator/useKernCompensation';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const reactId = useId();
@@ -41,6 +42,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   const exemplary = useExemplary();
   const { layoutId } = useCurrentLayout();
   useRegisterResize(ref, onResize);
+  useKernCompensation(ref);
   const geometry = useItemGeometry(item.id, ref, RichTextGeometryController, { xSizing });
   geometry?.setAngle(itemAngle!);
   const stateParams = interactionCtrl?.getState<number | string>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color']);
