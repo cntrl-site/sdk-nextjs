@@ -41,6 +41,12 @@ export const RICH_TEXT_LAYOUT_PENDING_CLASS = 'rich-text-layout-pending';
 
 const SCALING_STYLES = new Set(['FONTSIZE', 'LINEHEIGHT', 'LETTERSPACING', 'WORDSPACING']);
 
+// Browsers shape adjacent spans as one run only while their letter-spacing computes to the
+// same value, so a range whose value equals the surrounding spacing keeps the font's kerning
+// pairs across its edges while every other value loses them. The sub-pixel offset keeps every
+// range in its own shaping run; the editor applies the same offset.
+const SHAPING_RUN_OFFSET = '0.001px';
+
 export class RichTextConverter {
   toHtml(
     richText: RichTextItem,
@@ -296,7 +302,7 @@ export class RichTextConverter {
       FONTWEIGHT: { 'font-weight': value },
       FONTSIZE: { 'font-size': getScaledValue(value, exemplary, isLayoutDefined) },
       LINEHEIGHT: { 'line-height': getScaledValue(value, exemplary, isLayoutDefined) },
-      LETTERSPACING: { 'letter-spacing': getScaledValue(value, exemplary, isLayoutDefined) },
+      LETTERSPACING: { 'letter-spacing': `calc(${getScaledValue(value, exemplary, isLayoutDefined)} + ${SHAPING_RUN_OFFSET})` },
       WORDSPACING: { 'word-spacing': getScaledValue(value, exemplary, isLayoutDefined) },
       TEXTTRANSFORM: value ? { 'text-transform': value as TextTransform } : { 'text-transform': TextTransform.None },
       VERTICALALIGN: value ? { 'vertical-align': value as VerticalAlign } : { 'vertical-align': VerticalAlign.Unset },
