@@ -39,25 +39,26 @@ describe('KernCompensator', () => {
     Range.prototype.getBoundingClientRect = () => ({ top: 0 } as DOMRect);
   });
 
-  it('puts the pair back as an em margin at the edge of a spacing override', () => {
-    const { margins } = render(
+  it('puts the pair back as an em margin on the trailing side of the span before the edge', () => {
+    const { root, margins } = render(
       '<span data-leaf="w">W</span><span data-leaf="a">A</span>',
       { w: { letterSpacing: '1px' } }
     );
-    expect(margins()).toEqual([['', ''], ['-0.03700em', '']]);
+    expect(margins()).toEqual([['', '-0.03700em'], ['', '']]);
+    expect(root.innerHTML).not.toContain('font-kerning');
   });
 
-  it('closes a span whose last glyph starts the pair when the next text is not first in its own parent', () => {
+  it('opens the span after the edge instead when the text before it is not last in its own parent', () => {
     const { margins } = render(
-      '<span data-leaf="x"><span data-leaf="w">W</span>A</span>',
-      { w: { letterSpacing: '1px' } }
+      '<span data-leaf="x">W<span data-leaf="a">A</span></span>',
+      { a: { letterSpacing: '1px' } }
     );
-    expect(margins()).toEqual([['', ''], ['', '-0.03700em']]);
+    expect(margins()).toEqual([['', ''], ['-0.03700em', '']]);
   });
 
   it('keeps the margin on an edge with equal spacing where a margin breaks the run by itself', () => {
     const { margins } = render('<span data-leaf="w">W</span><span data-leaf="a">A</span>', {});
-    expect(margins()).toEqual([['', ''], ['-0.03700em', '']]);
+    expect(margins()).toEqual([['', '-0.03700em'], ['', '']]);
   });
 
   it('leaves edges the browser kerns itself alone where only a spacing change breaks the run', () => {
@@ -75,7 +76,7 @@ describe('KernCompensator', () => {
       { w: { letterSpacing: '1px' } },
       onlySpacingBreaks
     );
-    expect(unspaced.margins()).toEqual([['', ''], ['-0.03700em', '']]);
+    expect(unspaced.margins()).toEqual([['', '-0.03700em'], ['', '']]);
   });
 
   it('leaves different fonts alone, as no pair exists between them', () => {
@@ -93,13 +94,13 @@ describe('KernCompensator', () => {
     );
     expect(measurePair).toHaveBeenCalledTimes(1);
     expect(measurePair).toHaveBeenCalledWith(expect.anything(), 'A', 'V');
-    expect(margins()).toEqual([['', ''], ['', ''], ['-0.07400em', '']]);
+    expect(margins()).toEqual([['', ''], ['', '-0.07400em'], ['', '']]);
   });
 
   it('clears a margin whose pair is gone when run again', () => {
     const styles: Record<string, Partial<FontStyle>> = {};
     const { root, compensator, margins } = render('<span data-leaf="w">W</span><span data-leaf="a">A</span>', styles);
-    expect(margins()).toEqual([['', ''], ['-0.03700em', '']]);
+    expect(margins()).toEqual([['', '-0.03700em'], ['', '']]);
     styles.a = { fontWeight: '700' };
     compensator.apply(root);
     expect(margins()).toEqual([['', ''], ['', '']]);

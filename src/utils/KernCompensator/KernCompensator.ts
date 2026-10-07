@@ -36,8 +36,9 @@ const EM_PRECISION = 5;
  *
  * The margin stays while the edge exists, whatever the spacing: a margin breaks the run too, and
  * a run broken then re-joined is not reshaped by Chrome until something else lays the text out
- * again, so an edge is never handed back to the browser's own kerning. The editor applies the same
- * compensation.
+ * again, so an edge is never handed back to the browser's own kerning. It sits on the trailing
+ * side of the earlier span where it can, as an editor rewrites the span after a change far more
+ * often than the one before it. The editor applies the same compensation.
  */
 export class KernCompensator {
   private readonly pairs = new Map<string, number>();
@@ -55,6 +56,7 @@ export class KernCompensator {
   apply(root: HTMLElement): void {
     const texts = getTextNodes(root);
     const margins = new Map<HTMLElement, { left?: string; right?: string }>();
+    const edges: { target: HTMLElement; side: 'margin-left' | 'margin-right'; before: HTMLElement }[] = [];
     for (let i = 1; i < texts.length; i += 1) {
       const prev = texts[i - 1];
       const next = texts[i];
@@ -68,18 +70,22 @@ export class KernCompensator {
       const em = this.pair(nextStyle, a, b);
       if (em === 0) continue;
       const margin = `${em.toFixed(EM_PRECISION)}em`;
-      if (isFirstTextOf(next)) {
-        margins.set(next.parentElement!, { ...margins.get(next.parentElement!), left: margin });
-      } else {
+      if (isLastTextOf(prev)) {
         margins.set(prev.parentElement!, { ...margins.get(prev.parentElement!), right: margin });
+        edges.push({ target: prev.parentElement!, side: 'margin-right', before: prev.parentElement! });
+      } else {
+        margins.set(next.parentElement!, { ...margins.get(next.parentElement!), left: margin });
+        edges.push({ target: next.parentElement!, side: 'margin-left', before: prev.parentElement! });
       }
     }
+    const added = edges.filter(({ target, side }) => target.style.getPropertyValue(side) === '');
     for (const text of texts) {
       const element = text.parentElement!;
       const { left = '', right = '' } = margins.get(element) ?? {};
       setStyle(element, 'margin-left', left);
       setStyle(element, 'margin-right', right);
     }
+    for (const { before } of added) reshape(before);
   }
 
   private breaksRun(a: FontStyle, b: FontStyle): boolean {
@@ -153,6 +159,14 @@ function probeRunBreaks(): RunBreaks {
   return runBreaks;
 }
 
+// Chrome keeps a run's kerned advances when only a neighbour's margin changed, so the span before
+// a new margin is pushed through a font change to be shaped on its own.
+function reshape(element: HTMLElement): void {
+  element.style.setProperty('font-kerning', 'none');
+  void element.offsetWidth;
+  element.style.removeProperty('font-kerning');
+}
+
 function setStyle(element: HTMLElement, property: string, value: string): void {
   if (element.style.getPropertyValue(property) === value) return;
   if (value) {
@@ -197,9 +211,15 @@ function isSameLine(prev: Text, next: Text): boolean {
   return Math.abs(a.getBoundingClientRect().top - b.getBoundingClientRect().top) < 1;
 }
 
-function isFirstTextOf(text: Text): boolean {
+function isLastTextOf(text: Text): boolean {
   const walker = document.createTreeWalker(text.parentElement!, NodeFilter.SHOW_TEXT);
-  return walker.nextNode() === text;
+  let last: Node | null = null;
+  let node = walker.nextNode();
+  while (node) {
+    last = node;
+    node = walker.nextNode();
+  }
+  return last === text;
 }
 
 function firstCodePoint(text: string): string {
