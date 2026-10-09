@@ -1,5 +1,5 @@
 import { CntrlColor } from '@cntrl-site/color';
-import { StructuredBlockTextStyles } from '@cntrl-site/sdk';
+import { Hyphens, StructuredBlockRichTextLayoutParams, StructuredBlockTextStyles } from '@cntrl-site/sdk';
 import { getFontFamilyValue } from '../../utils/getFontFamilyValue';
 
 /** A block's text styles as a CSS rule for `selector`, its lengths in viewport units as the block's own. */
@@ -24,6 +24,20 @@ export function textStylesRule(selector: string, styles: StructuredBlockTextStyl
       ${selector} {
         color: ${color.fmt('rgba')};
       }
+    }
+  `;
+}
+
+/** The columns a text block flows in, the gap between them in viewport units, and whether its lines hyphenate. */
+export function textColumnsRule(
+  selector: string,
+  { columns = 1, columnGap = 0, hyphens = Hyphens.None }: Pick<StructuredBlockRichTextLayoutParams, 'columns' | 'columnGap' | 'hyphens'>
+): string {
+  return `
+    ${selector} {
+      hyphens: ${hyphens};
+      -webkit-hyphens: ${hyphens};
+      ${columns > 1 ? `column-count: ${columns}; column-gap: ${columnGap * 100}vw; column-fill: balance;` : ''}
     }
   `;
 }

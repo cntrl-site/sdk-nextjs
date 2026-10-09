@@ -51,6 +51,9 @@ const title = block(StructuredBlockType.RichText, 'title', paragraph('The title'
 const headerImage = block(StructuredBlockType.HeaderImage, 'key-image', { url: 'https://cdn.cntrl.site/key.jpg', altText: 'Key', caption: 'Under the key image' }, { opacity: 1 });
 const text = block(StructuredBlockType.RichText, 'text', paragraph('Read the post'), {
   ...textStyles,
+  columns: 2,
+  columnGap: 0.01,
+  hyphens: 'auto',
   rangeStyles: [{ start: 0, end: 4, style: 'FONTSIZE', value: '0.04' }]
 });
 const quote = block(StructuredBlockType.Quote, 'quote', { ...paragraph('A quote'), kind: 'boxed' }, {
@@ -151,6 +154,13 @@ describe('StructuredContent', () => {
     expect(container.querySelector('.structured-text-text')!.textContent!.trim()).toBe('Read the post');
     expect(css()).toMatch(/\.structured-text-text \{[^}]*font-size: 2vw;[^}]*line-height: 3vw;/);
     expect(css()).toContain('font-size: 4vw');
+  });
+
+  it('flows a text block in its columns, the gap between them in viewport units, hyphenating as set; a quote keeps to its box', () => {
+    draw(section(false));
+    expect(css()).toMatch(/\.structured-text-text \{[^}]*hyphens: auto;[^}]*column-count: 2; column-gap: 1vw; column-fill: balance;/);
+    expect(css()).not.toMatch(/\.structured-text-quote \{[^}]*column-count/);
+    expect(css()).not.toMatch(/\.structured-text-quote \{[^}]*hyphens/);
   });
 
   it('draws a quote in its box and a date as the text it reads as', () => {

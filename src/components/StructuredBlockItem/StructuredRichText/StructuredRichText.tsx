@@ -6,7 +6,7 @@ import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 import { RichTextConverter } from '../../../utils/RichTextConverter/RichTextConverter';
 import { detectLang } from '../../../utils/detectLang';
 import { StructuredBlockItemProps } from '../StructuredBlockItem';
-import { colorRule, textStylesRule } from '../textStylesRule';
+import { colorRule, textColumnsRule, textStylesRule } from '../textStylesRule';
 
 type TextBlock = RichTextStructuredBlock | QuoteStructuredBlock | DateStructuredBlock;
 
@@ -28,6 +28,8 @@ export const StructuredRichText: FC<StructuredBlockItemProps<TextBlock>> = ({ bl
   );
   const lang = useMemo(() => detectLang(block.commonParams.text), [block.commonParams.text]);
   const isQuote = block.type === StructuredBlockType.Quote;
+  // only a text block of the stack flows in columns: a quote keeps to its box, a date to its line
+  const isText = block.type === StructuredBlockType.RichText;
   const layoutValues: Record<string, any>[] = [block.layoutParams];
   return (
     <>
@@ -38,6 +40,7 @@ export const StructuredRichText: FC<StructuredBlockItemProps<TextBlock>> = ({ bl
         {rangeStyles}
         {`${getLayoutStyles(layouts, layoutValues, ([layoutParams]) => (`
           ${textStylesRule(`.structured-text-${block.id}`, layoutParams)}
+          ${isText ? textColumnsRule(`.structured-text-${block.id}`, layoutParams) : ''}
           ${isQuote ? `
             .structured-quote-box-${block.id} {
               padding: ${(layoutParams.boxPadding ?? 0) * 100}vw;
