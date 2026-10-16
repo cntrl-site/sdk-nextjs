@@ -1,4 +1,4 @@
-import { getLayoutStyles, HeaderImageStructuredBlock } from '@cntrl-site/sdk';
+import { getLayoutStyles, getShownCaption, HeaderImageStructuredBlock } from '@cntrl-site/sdk';
 import { FC, useId, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { useCntrlContext } from '../../../provider/useCntrlContext';
@@ -15,7 +15,8 @@ export const StructuredHeaderImage: FC<StructuredBlockItemProps<HeaderImageStruc
   const { layouts } = useCntrlContext();
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useItemGeometry(block.id, ref);
-  const { url, altText, caption } = block.commonParams;
+  const { url, altText } = block.commonParams;
+  const caption = getShownCaption(block.commonParams);
   if (!url) return null;
   const layoutValues: Record<string, any>[] = [block.layoutParams];
   return (

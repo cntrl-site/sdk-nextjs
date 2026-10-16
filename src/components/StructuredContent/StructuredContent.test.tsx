@@ -179,6 +179,18 @@ describe('StructuredContent', () => {
     expect(container.querySelector('.structured-caption-gallery')!.textContent).toBe('Seen from the hill');
   });
 
+  it('draws no caption an image has switched off, nor one that says nothing', () => {
+    const switchedOff = block(StructuredBlockType.Image, 'off', { urls: ['https://cdn.cntrl.site/a.jpg'], altText: '', caption: 'Kept for later', showCaption: false }, { opacity: 1 });
+    const blank = block(StructuredBlockType.Image, 'blank', { urls: ['https://cdn.cntrl.site/b.jpg'], altText: '', caption: '  ' }, { opacity: 1 });
+    const keyImage = { ...headerImage, commonParams: { ...headerImage.commonParams, showCaption: false } };
+    const { container } = draw({ ...section(false), structuredContent: [switchedOff, blank, keyImage] } as Section);
+    expect(container.querySelector('.structured-caption-off')).toBeNull();
+    expect(container.querySelector('.structured-caption-blank')).toBeNull();
+    expect(container.querySelector(`.structured-caption-${keyImage.id}`)).toBeNull();
+    expect(container.querySelector('.structured-gallery-image-off')).not.toBeNull();
+    expect(container.querySelector(`.structured-header-picture-${keyImage.id}`)).not.toBeNull();
+  });
+
   it('fills a gallery\'s row whatever its images\' proportions, a lone portrait image as wide as the block', () => {
     const portrait = block(StructuredBlockType.Image, 'portrait', { urls: ['https://cdn.cntrl.site/p.jpg'], altText: '', caption: '' }, { opacity: 1 });
     const { container } = draw({ ...section(false), structuredContent: [portrait] } as Section);

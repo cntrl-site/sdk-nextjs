@@ -1,4 +1,4 @@
-import { getLayoutStyles, ImageStructuredBlock } from '@cntrl-site/sdk';
+import { getLayoutStyles, getShownCaption, ImageStructuredBlock } from '@cntrl-site/sdk';
 import { FC, useCallback, useId, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { useCntrlContext } from '../../../provider/useCntrlContext';
@@ -18,7 +18,8 @@ export const StructuredImage: FC<StructuredBlockItemProps<ImageStructuredBlock>>
   const { layouts } = useCntrlContext();
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useItemGeometry(block.id, ref);
-  const { urls, altText, caption } = block.commonParams;
+  const { urls, altText } = block.commonParams;
+  const caption = getShownCaption(block.commonParams);
   const [ratios, setRatios] = useState<Record<string, number>>({});
   // an image already loaded when the page hydrates fires no load event of its own
   const measure = useCallback((url: string, image: HTMLImageElement | null) => {
