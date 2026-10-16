@@ -149,6 +149,14 @@ describe('StructuredContent', () => {
     expect(css()).toMatch(/\.structured-block-item-component \{[^}]*align-self: flex-start;/);
   });
 
+  it('draws a text block served as a heading in its tag, without the tag\'s own margins, and other text plainly', () => {
+    const heading = block(StructuredBlockType.RichText, 'heading', { ...paragraph('The page'), heading: 'h1' }, { ...textStyles, rangeStyles: [] });
+    const { container } = draw({ ...section(false), structuredContent: [heading, text] } as Section);
+    expect(container.querySelector('.structured-text-heading')!.tagName).toBe('H1');
+    expect(container.querySelector('.structured-text-text')!.tagName).toBe('DIV');
+    expect(css()).toMatch(/\.structured-text-heading \{\s*margin: 0;/);
+  });
+
   it('sets text in its styles, its ranges in viewport units', () => {
     const { container } = draw(section(false));
     expect(container.querySelector('.structured-text-text')!.textContent!.trim()).toBe('Read the post');

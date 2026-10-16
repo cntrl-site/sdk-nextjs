@@ -5,6 +5,7 @@ import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 import { RichTextConverter } from '../../../utils/RichTextConverter/RichTextConverter';
 import { detectLang } from '../../../utils/detectLang';
+import { getHeadingTag } from '../../../utils/getHeadingTag';
 import { StructuredBlockItemProps } from '../StructuredBlockItem';
 import { colorRule, textColumnsRule, textStylesRule } from '../textStylesRule';
 
@@ -30,14 +31,20 @@ export const StructuredRichText: FC<StructuredBlockItemProps<TextBlock>> = ({ bl
   const isQuote = block.type === StructuredBlockType.Quote;
   // only a text block of the stack flows in columns: a quote keeps to its box, a date to its line
   const isText = block.type === StructuredBlockType.RichText;
+  const Wrapper = (getHeadingTag(block) ?? 'div') as 'div';
   const layoutValues: Record<string, any>[] = [block.layoutParams];
   return (
     <>
-      <div ref={setRef} lang={lang} className={`structured-text-${block.id}`}>
+      <Wrapper ref={setRef} lang={lang} className={`structured-text-${block.id}`}>
         {isQuote ? <div className={`structured-quote-box-${block.id}`}>{content}</div> : content}
-      </div>
+      </Wrapper>
       <JSXStyle id={id}>
         {rangeStyles}
+        {`
+          .structured-text-${block.id} {
+            margin: 0;
+          }
+        `}
         {`${getLayoutStyles(layouts, layoutValues, ([layoutParams]) => (`
           ${textStylesRule(`.structured-text-${block.id}`, layoutParams)}
           ${isText ? textColumnsRule(`.structured-text-${block.id}`, layoutParams) : ''}
