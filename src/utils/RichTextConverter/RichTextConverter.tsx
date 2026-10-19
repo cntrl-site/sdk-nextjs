@@ -69,6 +69,9 @@ const LIST_ITEM_CLASSES: Record<string, string> = {
   'ordered-list-item': 'rt-ordered-list-item'
 };
 
+/** The id the list styles are rendered under: one copy a page, however many texts have lists. */
+export const LIST_STYLES_ID = 'cntrl-rich-text-lists';
+
 // a list item's marker hangs before its first line; a numbered run restarts after anything else
 const LIST_STYLES = `
   .rt-unordered-list-item,
@@ -98,11 +101,12 @@ const LIST_STYLES = `
 `;
 
 export class RichTextConverter {
+  /** The text as elements, the styles of its ranges, and, where it has a list, the list styles every text shares, for the caller to render once. */
   toHtml(
     richText: RichTextSource,
     layouts: Layout[],
     { isScaledToViewport = true }: ToHtmlOptions = {}
-  ): [ReactNode[], string] {
+  ): [ReactNode[], string, string | undefined] {
     const { text, blocks = [] } = richText.commonParams;
     const hasLists = blocks.some(block => block.type in LIST_ITEM_CLASSES);
     const root: ReactElement[] = [];
@@ -119,7 +123,7 @@ export class RichTextConverter {
     for (let blockIndex = 0; blockIndex < blocks.length; blockIndex++) {
       const block = blocks[blockIndex];
       const content = text.slice(block.start, block.end + 1);
-      const entities = block.entities!.sort((a, b) => a.start - b.start) ?? [];
+      const entities = [...(block.entities ?? [])].sort((a, b) => a.start - b.start);
       const typeClass = hasLists ? ` ${LIST_ITEM_CLASSES[block.type] ?? 'rt-paragraph'}` : '';
       if (content.length === 1) {
         const id = `rt_${richText.id}_br_${blockIndex}`;
@@ -255,10 +259,11 @@ export class RichTextConverter {
       ${getLayoutMediaQuery(l.id, layouts)} {
         ${styleRules[l.id].join('\n')}
       }
-    `).join('\n') + (hasLists ? LIST_STYLES : '');
+    `).join('\n');
     return [
       root,
-      styles
+      styles,
+      hasLists ? LIST_STYLES : undefined
     ];
   }
 

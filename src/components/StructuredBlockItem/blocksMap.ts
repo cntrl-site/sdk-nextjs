@@ -1,4 +1,4 @@
-import { StructuredBlockType } from '@cntrl-site/sdk';
+import { StackBlockType, StructuredBlockType } from '@cntrl-site/sdk';
 import { ComponentType } from 'react';
 import type { StructuredBlockItemProps } from './StructuredBlockItem';
 import { StructuredComponent } from './StructuredComponent/StructuredComponent';
@@ -8,12 +8,11 @@ import { StructuredHeaderImage } from './StructuredHeaderImage/StructuredHeaderI
 import { StructuredVideo } from './StructuredVideo/StructuredVideo';
 import { StructuredDivider } from './StructuredDivider/StructuredDivider';
 import { StructuredCode } from './StructuredCode/StructuredCode';
+import { StructuredTable } from './StructuredTable/StructuredTable';
 import { StructuredVimeoEmbed } from './StructuredEmbed/StructuredVimeoEmbed';
 import { StructuredYoutubeEmbed } from './StructuredEmbed/StructuredYoutubeEmbed';
 
-const noop = () => null;
-
-export const blocksMap: Record<StructuredBlockType, ComponentType<StructuredBlockItemProps<any>>> = {
+export const blocksMap: Record<StackBlockType, ComponentType<StructuredBlockItemProps<any>>> = {
   [StructuredBlockType.Component]: StructuredComponent,
   [StructuredBlockType.RichText]: StructuredRichText,
   [StructuredBlockType.Quote]: StructuredRichText,
@@ -23,8 +22,7 @@ export const blocksMap: Record<StructuredBlockType, ComponentType<StructuredBloc
   [StructuredBlockType.Video]: StructuredVideo,
   [StructuredBlockType.Divider]: StructuredDivider,
   [StructuredBlockType.Code]: StructuredCode,
+  [StructuredBlockType.Table]: StructuredTable,
   [StructuredBlockType.VimeoEmbed]: StructuredVimeoEmbed,
-  [StructuredBlockType.YoutubeEmbed]: StructuredYoutubeEmbed,
-  // a section's header is drawn by its section, never in the stack
-  [StructuredBlockType.Header]: noop
+  [StructuredBlockType.YoutubeEmbed]: StructuredYoutubeEmbed
 };

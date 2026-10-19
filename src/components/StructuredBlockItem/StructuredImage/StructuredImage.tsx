@@ -18,7 +18,9 @@ export const StructuredImage: FC<StructuredBlockItemProps<ImageStructuredBlock>>
   const { layouts } = useCntrlContext();
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useItemGeometry(block.id, ref);
-  const { urls, altText } = block.commonParams;
+  const { altText } = block.commonParams;
+  // a file the API could not resolve comes as an empty url: nothing to draw for it
+  const urls = block.commonParams.urls.filter(url => url !== '');
   const caption = getShownCaption(block.commonParams);
   const [ratios, setRatios] = useState<Record<string, number>>({});
   // an image already loaded when the page hydrates fires no load event of its own

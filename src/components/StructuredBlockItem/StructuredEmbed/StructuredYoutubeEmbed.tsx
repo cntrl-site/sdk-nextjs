@@ -10,6 +10,15 @@ import { useLayoutContext } from '../../useLayoutContext';
 import { StructuredBlockItemProps } from '../StructuredBlockItem';
 import { embedFrameStyles } from './embedFrameStyles';
 
+// a link the id cannot be read from -- empty, or a host not whitelisted -- gives no player, not a failed page
+function youtubeIdOf(url: string): string | undefined {
+  try {
+    return getYoutubeId(new URL(url));
+  } catch {
+    return undefined;
+  }
+}
+
 /** A YouTube video playing as the YouTube item does, its cover over it until it plays. */
 export const StructuredYoutubeEmbed: FC<StructuredBlockItemProps<YoutubeEmbedStructuredBlock>> = ({ block }) => {
   const reactId = useId();
@@ -26,12 +35,14 @@ export const StructuredYoutubeEmbed: FC<StructuredBlockItemProps<YoutubeEmbedStr
 
   useEffect(() => {
     if (!YT || !frame || !layoutParams) return;
+    const videoId = youtubeIdOf(url);
+    if (videoId === undefined) return;
     const { play, controls } = layoutParams;
     setIsCoverVisible(play !== 'auto' && coverUrl !== null);
     const placeholder = document.createElement('div');
     frame.appendChild(placeholder);
     const created = new YT.Player(placeholder, {
-      videoId: getYoutubeId(new URL(url)),
+      videoId,
       playerVars: {
         autoplay: play === 'auto' ? '1' : '0',
         controls: controls ? '1' : '0'

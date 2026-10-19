@@ -14,13 +14,17 @@ const DEFAULT_COLORS = { background: '#FFFFFF', foreground: '#000000' };
 const FONT_STYLE_ITALIC = 1;
 const FONT_STYLE_BOLD = 2;
 const FONT_STYLE_UNDERLINE = 4;
+const FONT_STYLE_STRIKETHROUGH = 8;
 
 function tokenStyle({ color, fontStyle = 0 }: CodeToken): CSSProperties {
   return {
     color,
     fontStyle: fontStyle & FONT_STYLE_ITALIC ? 'italic' : undefined,
     fontWeight: fontStyle & FONT_STYLE_BOLD ? 'bold' : undefined,
-    textDecoration: fontStyle & FONT_STYLE_UNDERLINE ? 'underline' : undefined
+    textDecoration: [
+      fontStyle & FONT_STYLE_UNDERLINE ? 'underline' : '',
+      fontStyle & FONT_STYLE_STRIKETHROUGH ? 'line-through' : ''
+    ].filter(Boolean).join(' ') || undefined
   };
 }
 

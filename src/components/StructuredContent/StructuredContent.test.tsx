@@ -81,10 +81,19 @@ const code = block(StructuredBlockType.Code, 'code', {
   code: 'const a = 1;',
   language: 'typescript',
   theme: 'dracula',
-  lines: [[{ content: 'const', color: '#FF79C6', fontStyle: 2 }, { content: ' a = 1;', color: '#F8F8F2' }]],
+  lines: [[{ content: 'const', color: '#FF79C6', fontStyle: 2 }, { content: ' a = 1;', color: '#F8F8F2' }, { content: ' // gone', color: '#6272A4', fontStyle: 12 }]],
   colors: { background: '#282A36', foreground: '#F8F8F2' }
 }, {});
 const divider = block(StructuredBlockType.Divider, 'divider', {}, { color: '#C0C0C0' }, { ...onGrid, height: 0.001 });
+const table = block(StructuredBlockType.Table, 'table', { header: ['Name', 'Price'], rows: [['Tea', '3'], ['Coffee', '4']] }, {
+  ...textStyles,
+  cellPaddingTop: 0.005,
+  cellPaddingRight: 0.01,
+  cellPaddingBottom: 0.005,
+  cellPaddingLeft: 0.01,
+  borderColor: '#C0C0C0',
+  headingBackground: '#EEEEEE'
+});
 const vimeo = block(StructuredBlockType.VimeoEmbed, 'vimeo', {
   url: 'https://player.vimeo.com/video/1',
   coverUrl: null,
@@ -105,7 +114,7 @@ const header = {
   }
 };
 
-const stack = [text, quote, date, gallery, video, code, divider, vimeo, component];
+const stack = [text, quote, date, gallery, video, code, table, divider, vimeo, component];
 
 function section(withHeader: boolean) {
   return {
@@ -211,18 +220,46 @@ describe('StructuredContent', () => {
   it('draws code coloured as it comes, in its theme\'s box', () => {
     const { container } = draw(section(false));
     const tokens = [...container.querySelectorAll<HTMLSpanElement>('.structured-code-text-code span')];
-    expect(tokens.map(token => [token.textContent, token.style.color, token.style.fontWeight])).toEqual([
-      ['const', 'rgb(255, 121, 198)', 'bold'],
-      [' a = 1;', 'rgb(248, 248, 242)', '']
+    expect(tokens.map(token => [token.textContent, token.style.color, token.style.fontWeight, token.style.textDecoration])).toEqual([
+      ['const', 'rgb(255, 121, 198)', 'bold', ''],
+      [' a = 1;', 'rgb(248, 248, 242)', '', ''],
+      [' // gone', 'rgb(98, 114, 164)', '', 'underline line-through']
     ]);
     expect(css()).toContain('background: #282A36');
   });
 
-  it('covers a video played on click until it plays', () => {
+  it('draws a table\'s heading over its rows, the cells set in its text styles, spaced and lined as served, the heading behind its fill', () => {
+    const { container } = draw(section(false));
+    expect([...container.querySelectorAll('.structured-table-table th')].map(cell => cell.textContent)).toEqual(['Name', 'Price']);
+    expect([...container.querySelectorAll('.structured-table-table td')].map(cell => cell.textContent)).toEqual(['Tea', '3', 'Coffee', '4']);
+    expect(css()).toMatch(/\.structured-table-table \{[^}]*font-size: 2vw;[^}]*text-align: center;/);
+    expect(css()).toMatch(/\.structured-table-table th, \.structured-table-table td \{[^}]*padding: 0\.5vw 1vw 0\.5vw 1vw;/);
+    expect(css()).toMatch(/\.structured-table-table th, \.structured-table-table td \{\s*border-color: oklch/);
+    expect(css()).toMatch(/\.structured-table-heading-table \{\s*background-color: oklch/);
+    expect(css()).not.toMatch(/\.structured-table-body-table \{/);
+  });
+
+  it('covers a video played on click until it plays, and fetches no more than its metadata until then', () => {
     const { container } = draw(section(false));
     expect(container.querySelector('video')!.getAttribute('src')).toBe('https://cdn.cntrl.site/clip.mp4');
+    expect(container.querySelector('video')!.getAttribute('preload')).toBe('metadata');
     expect(container.querySelector('.structured-video-cover-video')).not.toBeNull();
     expect(container.querySelector('.structured-video-overlay-video')).not.toBeNull();
+  });
+
+  it('writes one column out too, so a smaller layout\'s columns stop at the layout set to one', () => {
+    const plain = block(StructuredBlockType.RichText, 'plain', paragraph('Plain'), { ...textStyles, rangeStyles: [] });
+    draw({ ...section(false), structuredContent: [plain] } as Section);
+    expect(css()).toMatch(/\.structured-text-plain \{[^}]*column-count: auto; column-gap: normal;/);
+  });
+
+  it('skips a block of a type it does not know, and an image the API could not resolve', () => {
+    const later = { ...code, id: 'later', type: 'chart-block' };
+    const missing = block(StructuredBlockType.Image, 'missing', { urls: ['https://cdn.cntrl.site/a.jpg', ''], altText: '' }, { opacity: 1 });
+    const { container } = draw({ ...section(false), structuredContent: [text, later, missing] } as Section);
+    const skipped = container.querySelector('.structured-block-item-later')!;
+    expect([...skipped.children].filter(child => child.tagName !== 'STYLE')).toHaveLength(0);
+    expect(container.querySelectorAll('.structured-gallery-image-missing')).toHaveLength(1);
   });
 
   it('draws the header first, with its elements left out of the stack', () => {
@@ -240,8 +277,17 @@ describe('StructuredContent', () => {
     expect(css()).toMatch(/@media \(min-width: 800px\) \{[\s\S]*\.structured-header-header \{[^}]*height: 80svh;/);
     expect(css()).toMatch(/\.structured-header-stack-header \{[^}]*position: absolute;/);
     expect(css()).toMatch(/\.structured-header-element-key-image \.structured-caption-key-image \{\s*display: none;/);
-    // mobile, variant B: the elements flow in its order, the image hidden there
+    // mobile, variant B: the elements flow in its order, the image hidden there; the caption and the
+    // cover sizing written back, so they end where the variant does
     expect(css()).toMatch(/\.structured-header-stack-header \{\s*display: contents;/);
     expect(css()).toMatch(/\.structured-header-element-key-image \{\s*display: none;/);
+    expect(css()).toMatch(/\.structured-header-element-key-image \.structured-caption-key-image \{\s*display: block;/);
+    expect(css()).toMatch(/\.structured-header-element-key-image \.structured-header-picture-key-image \{\s*object-fit: fill;/);
+  });
+
+  it('puts an element an older header never ordered last', () => {
+    const unordered = { ...header, layoutParams: { ...header.layoutParams, mobile: { ...header.layoutParams.mobile, order: ['image', 'subtitle', 'date'] } } };
+    draw({ ...section(true), header: unordered } as unknown as Section);
+    expect(css()).toMatch(/\.structured-header-element-title \{[^}]*order: 3;/);
   });
 });

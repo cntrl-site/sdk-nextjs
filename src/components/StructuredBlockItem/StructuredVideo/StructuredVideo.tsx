@@ -16,7 +16,6 @@ export const StructuredVideo: FC<StructuredBlockItemProps<VideoStructuredBlock>>
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const [video, setVideo] = useState<HTMLVideoElement | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [hasPlayed, setHasPlayed] = useState(false);
   useItemGeometry(block.id, ref);
   const { url, coverUrl } = block.commonParams;
@@ -25,11 +24,12 @@ export const StructuredVideo: FC<StructuredBlockItemProps<VideoStructuredBlock>>
   const start = () => {
     if (!video) return;
     setHasPlayed(true);
-    video.play();
+    // a play the browser refuses -- an unmuted hover, a pause before it began -- leaves the cover up
+    video.play().catch(() => setHasPlayed(false));
   };
   return (
     <div ref={setRef} className={`structured-video-${block.id}${isLoaded ? '' : ` structured-video-loading-${block.id}`}`}>
-      {layoutParams && (
+      {layoutParams && url && (
         <>
           <video
             key={layoutId}
@@ -41,13 +41,10 @@ export const StructuredVideo: FC<StructuredBlockItemProps<VideoStructuredBlock>>
             controls={layoutParams.controls}
             loop
             playsInline
-            preload="auto"
+            // a video behind its cover is fetched once it is asked for, not with the page
+            preload={play === 'auto' ? 'auto' : 'metadata'}
             onLoadedMetadata={() => setIsLoaded(true)}
-            onPlay={() => {
-              setIsPlaying(true);
-              setHasPlayed(true);
-            }}
-            onPause={() => setIsPlaying(false)}
+            onPlay={() => setHasPlayed(true)}
             onMouseEnter={() => {
               if (play === 'on-hover') start();
             }}
@@ -69,7 +66,7 @@ export const StructuredVideo: FC<StructuredBlockItemProps<VideoStructuredBlock>>
           {play === 'on-click' && !layoutParams.controls && (
             <div
               className={`structured-video-overlay-${block.id}`}
-              onClick={() => (isPlaying ? video?.pause() : start())}
+              onClick={() => (video && !video.paused ? video.pause() : start())}
             />
           )}
         </>

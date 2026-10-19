@@ -34,8 +34,8 @@ describe('RichTextConverter', () => {
     expect(styles).not.toContain(RICH_TEXT_LAYOUT_PENDING_CLASS);
   });
 
-  it('draws list items with their markers, a numbered run restarting after anything else', () => {
-    const [content, styles] = converter.toHtml(text([
+  it('draws list items with their markers, a numbered run restarting after anything else, the list styles apart for the page to hold once', () => {
+    const [content, styles, listStyles] = converter.toHtml(text([
       { text: 'Intro' },
       { text: 'One', type: 'ordered-list-item' },
       { text: 'Two', type: 'ordered-list-item' },
@@ -48,8 +48,10 @@ describe('RichTextConverter', () => {
       'rt-ordered-list-item',
       'rt-unordered-list-item'
     ]);
-    expect(styles).toContain('counter-increment: cntrl-list');
-    expect(styles).toContain('content: \'•\'');
+    expect(listStyles).toContain('counter-increment: cntrl-list');
+    expect(listStyles).toContain('content: \'•\'');
+    expect(styles).not.toContain('cntrl-list');
+    expect(converter.toHtml(text([{ text: 'Plain' }]), layouts)[2]).toBeUndefined();
   });
 
   it('draws a highlighted range on its colour, with an rgba fallback where oklch is not supported', () => {

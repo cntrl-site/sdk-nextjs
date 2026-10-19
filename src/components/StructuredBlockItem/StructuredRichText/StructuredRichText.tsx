@@ -3,7 +3,7 @@ import { FC, useId, useMemo, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
-import { RichTextConverter } from '../../../utils/RichTextConverter/RichTextConverter';
+import { LIST_STYLES_ID, RichTextConverter } from '../../../utils/RichTextConverter/RichTextConverter';
 import { detectLang } from '../../../utils/detectLang';
 import { getHeadingTag } from '../../../utils/getHeadingTag';
 import { StructuredBlockItemProps } from '../StructuredBlockItem';
@@ -23,7 +23,7 @@ export const StructuredRichText: FC<StructuredBlockItemProps<TextBlock>> = ({ bl
   const { layouts } = useCntrlContext();
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useItemGeometry(block.id, ref);
-  const [content, rangeStyles] = useMemo(
+  const [content, rangeStyles, listStyles] = useMemo(
     () => richTextConverter.toHtml(block, layouts, { isScaledToViewport: false }),
     [block, layouts]
   );
@@ -38,6 +38,7 @@ export const StructuredRichText: FC<StructuredBlockItemProps<TextBlock>> = ({ bl
       <Wrapper ref={setRef} lang={lang} className={`structured-text-${block.id}`}>
         {isQuote ? <div className={`structured-quote-box-${block.id}`}>{content}</div> : content}
       </Wrapper>
+      {listStyles && <JSXStyle id={LIST_STYLES_ID}>{listStyles}</JSXStyle>}
       <JSXStyle id={id}>
         {rangeStyles}
         {`

@@ -4,7 +4,6 @@ import { getFontFamilyValue } from '../../utils/getFontFamilyValue';
 
 /** A block's text styles as a CSS rule for `selector`, its lengths in viewport units as the block's own. */
 export function textStylesRule(selector: string, styles: StructuredBlockTextStyles): string {
-  const color = CntrlColor.parse(styles.color);
   return `
     ${selector} {
       font-family: ${getFontFamilyValue(styles.typeFace)};
@@ -18,17 +17,16 @@ export function textStylesRule(selector: string, styles: StructuredBlockTextStyl
       text-transform: ${styles.textTransform};
       vertical-align: ${styles.verticalAlign};
       text-align: ${styles.textAlign};
-      color: ${color.fmt('oklch')};
     }
-    @supports not (color: oklch(42% 0.3 90 / 1)) {
-      ${selector} {
-        color: ${color.fmt('rgba')};
-      }
-    }
+    ${colorRule(selector, 'color', styles.color)}
   `;
 }
 
-/** The columns a text block flows in, the gap between them in viewport units, and whether its lines hyphenate. */
+/**
+ * The columns a text block flows in, the gap between them in viewport units, and whether its lines
+ * hyphenate. One column is written out too: the layouts' media queries stack upward, so a smaller
+ * layout's columns would otherwise carry into a larger layout set to one.
+ */
 export function textColumnsRule(
   selector: string,
   { columns = 1, columnGap = 0, hyphens = Hyphens.None }: Pick<StructuredBlockRichTextLayoutParams, 'columns' | 'columnGap' | 'hyphens'>
@@ -37,7 +35,7 @@ export function textColumnsRule(
     ${selector} {
       hyphens: ${hyphens};
       -webkit-hyphens: ${hyphens};
-      ${columns > 1 ? `column-count: ${columns}; column-gap: ${columnGap * 100}vw; column-fill: balance;` : ''}
+      ${columns > 1 ? `column-count: ${columns}; column-gap: ${columnGap * 100}vw; column-fill: balance;` : 'column-count: auto; column-gap: normal;'}
     }
   `;
 }
