@@ -11,6 +11,7 @@ import { useLayoutContext } from '../../useLayoutContext';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 import { LinkWrapper } from '../LinkWrapper';
 import { mergeComponentSettings } from '../../../utils/mergeComponentSettings';
+import { pendingElementProps, useComponentElement } from '../../../common/useComponentElement';
 
 export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, onResize, interactionCtrl }) => {
   const sdk = useCntrlContext();
@@ -20,7 +21,7 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
   const fallbackLayout = layouts[0]?.id;
   const effectiveLayout = layout ?? fallbackLayout;
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
-  const component = sdk.getComponent(item.commonParams.componentId);
+  const { Element, isPending } = useComponentElement(item.commonParams.componentId);
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const { opacity: itemOpacity, blur: itemBlur } = useComponentItem(item, sectionId);
   useRegisterResize(ref, onResize);
@@ -29,7 +30,6 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
   const angle = getStyleFromItemStateAndParams(stateParams?.styles?.angle, itemAngle);
   const opacity = getStyleFromItemStateAndParams(stateParams?.styles?.opacity, itemOpacity);
   const blur = getStyleFromItemStateAndParams(stateParams?.styles?.blur, itemBlur);
-  const Element = component ? component.element : undefined;
   const layoutParameters = effectiveLayout ? item.layoutParams[effectiveLayout]?.parameters : undefined;
   const commonParameters = item.commonParams.parameters;
   const parameters = layoutParameters ? {
@@ -49,20 +49,22 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
     >
       <>
         <div
+          key={isPending ? 'pending' : 'ready'}
           className={`custom-component-${item.id}`}
           ref={setRef}
           style={{
             // preventing layout shift while supporting SSG for proper SEO
             ...(opacity !== undefined
-              ? { opacity: layout == null ? 0 : opacity }
-              : layout == null ? { opacity: 0 } : {}),
+              ? { opacity: layout == null || isPending ? 0 : opacity }
+              : layout == null || isPending ? { opacity: 0 } : {}),
             ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
             ...(blur !== undefined && blur !== 0 ? { filter: `blur(${blur * 100}vw)` } : {}),
             willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
             transition: stateParams?.transition ?? 'none'
           }}
+          {...(isPending ? pendingElementProps : {})}
         >
-          {parameters && Element && (
+          {isPending ? null : parameters && Element && (
             <Element
               metadata={{
                 itemId: item.id,

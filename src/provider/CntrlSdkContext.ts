@@ -1,6 +1,6 @@
 import { CustomItemRegistry } from './CustomItemRegistry';
 import { Article, Section, Layout, Project, SectionHeight } from '@cntrl-site/sdk';
-import { components, Component as TComponent } from '@cntrl-site/components';
+import type { Component as TComponent } from '@cntrl-site/components';
 import { CustomSectionRegistry } from './CustomSectionRegistry';
 
 interface SdkContextInitProps {
@@ -43,7 +43,6 @@ export class CntrlSdkContext {
       this._publicApiBase = publicApiBase;
     }
     this.setLayouts(project.layouts);
-    this.setComponents(components);
     if (customComponents) {
       this.setCustomComponents(customComponents);
     }
@@ -66,12 +65,6 @@ export class CntrlSdkContext {
 
   setLayouts(layouts: Layout[]) {
     this._layouts = layouts;
-  }
-
-  private setComponents(components: TComponent[]) {
-    for (const component of components) {
-      this.components.set(component.id, component);
-    }
   }
 
   setCustomComponents(customComponents: Map<string, TComponent>) {

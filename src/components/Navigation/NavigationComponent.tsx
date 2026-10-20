@@ -4,6 +4,7 @@ import { FC, useId } from 'react';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { useLayoutContext } from '../useLayoutContext';
 import { mergeComponentSettings } from '../../utils/mergeComponentSettings';
+import { pendingElementProps, useComponentElement } from '../../common/useComponentElement';
 
 interface Props {
   component: TNavigationComponent;
@@ -24,8 +25,7 @@ export const NavigationComponent: FC<Props> = ({
   const fallbackLayout = layouts[0]?.id;
   const effectiveLayout = layout ?? fallbackLayout;
   const layoutValues: Record<string, any>[] = [block.layoutParams];
-  const component = sdk.getComponent(block.commonParams.componentId);
-  const Element = component ? component.element : undefined;
+  const { Element, isPending } = useComponentElement(block.commonParams.componentId);
   const layoutParameters = effectiveLayout ? block.layoutParams[effectiveLayout]?.parameters : undefined;
   const commonParameters = block.commonParams.parameters;
   const parameters = layoutParameters ? {
@@ -38,10 +38,12 @@ export const NavigationComponent: FC<Props> = ({
   return (
     <>
       <div
+        key={isPending ? 'pending' : 'ready'}
         className={`custom-component-${block.id}`}
-        style={{ opacity: layout == null ? 0 : undefined }}
+        style={{ opacity: layout == null || isPending ? 0 : undefined }}
+        {...(isPending ? pendingElementProps : {})}
       >
-        {parameters && Element && (
+        {isPending ? null : parameters && Element && (
           <Element
             metadata={{
               itemId: block.id,
