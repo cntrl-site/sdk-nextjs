@@ -25,7 +25,8 @@ export const NavigationComponent: FC<Props> = ({
   const fallbackLayout = layouts[0]?.id;
   const effectiveLayout = layout ?? fallbackLayout;
   const layoutValues: Record<string, any>[] = [block.layoutParams];
-  const { Element, isPending } = useComponentElement(block.commonParams.componentId);
+  const { Element, isPending, isFailed } = useComponentElement(block.commonParams.componentId);
+  const keepsServerMarkup = isPending || isFailed;
   const layoutParameters = effectiveLayout ? block.layoutParams[effectiveLayout]?.parameters : undefined;
   const commonParameters = block.commonParams.parameters;
   const parameters = layoutParameters ? {
@@ -38,12 +39,12 @@ export const NavigationComponent: FC<Props> = ({
   return (
     <>
       <div
-        key={isPending ? 'pending' : 'ready'}
+        key={keepsServerMarkup ? 'pending' : 'ready'}
         className={`custom-component-${block.id}`}
         style={{ opacity: layout == null || isPending ? 0 : undefined }}
-        {...(isPending ? pendingElementProps : {})}
+        {...(keepsServerMarkup ? pendingElementProps : {})}
       >
-        {isPending ? null : parameters && Element && (
+        {keepsServerMarkup ? null : parameters && Element && (
           <Element
             metadata={{
               itemId: block.id,

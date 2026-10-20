@@ -18,7 +18,8 @@ export const StructuredComponent: FC<Props> = ({ block }) => {
   const fallbackLayout = layouts[0]?.id;
   const effectiveLayout = layout ?? fallbackLayout;
   const layoutValues: Record<string, any>[] = [block.layoutParams];
-  const { Element, isPending } = useComponentElement(block.commonParams.componentId);
+  const { Element, isPending, isFailed } = useComponentElement(block.commonParams.componentId);
+  const keepsServerMarkup = isPending || isFailed;
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useItemGeometry(block.id, ref);
   const layoutParameters = effectiveLayout ? block.layoutParams[effectiveLayout]?.parameters : undefined;
@@ -31,14 +32,14 @@ export const StructuredComponent: FC<Props> = ({ block }) => {
   return (
     <>
       <div
-        key={isPending ? 'pending' : 'ready'}
+        key={keepsServerMarkup ? 'pending' : 'ready'}
         className={`custom-component-${block.id}`}
         ref={setRef}
         // preventing layout shift while supporting SSG for proper SEO
         style={{ opacity: layout == null || isPending ? 0 : undefined }}
-        {...(isPending ? pendingElementProps : {})}
+        {...(keepsServerMarkup ? pendingElementProps : {})}
       >
-        {isPending ? null : parameters && Element && (
+        {keepsServerMarkup ? null : parameters && Element && (
           <Element
             metadata={{
               itemId: block.id,

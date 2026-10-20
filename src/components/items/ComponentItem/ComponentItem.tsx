@@ -21,7 +21,8 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
   const fallbackLayout = layouts[0]?.id;
   const effectiveLayout = layout ?? fallbackLayout;
   const layoutValues: Record<string, any>[] = [item.area, item.layoutParams];
-  const { Element, isPending } = useComponentElement(item.commonParams.componentId);
+  const { Element, isPending, isFailed } = useComponentElement(item.commonParams.componentId);
+  const keepsServerMarkup = isPending || isFailed;
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const { opacity: itemOpacity, blur: itemBlur } = useComponentItem(item, sectionId);
   useRegisterResize(ref, onResize);
@@ -49,7 +50,7 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
     >
       <>
         <div
-          key={isPending ? 'pending' : 'ready'}
+          key={keepsServerMarkup ? 'pending' : 'ready'}
           className={`custom-component-${item.id}`}
           ref={setRef}
           style={{
@@ -62,9 +63,9 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
             willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
             transition: stateParams?.transition ?? 'none'
           }}
-          {...(isPending ? pendingElementProps : {})}
+          {...(keepsServerMarkup ? pendingElementProps : {})}
         >
-          {isPending ? null : parameters && Element && (
+          {keepsServerMarkup ? null : parameters && Element && (
             <Element
               metadata={{
                 itemId: item.id,
