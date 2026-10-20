@@ -12,6 +12,9 @@ import { StructuredTable } from './StructuredTable/StructuredTable';
 import { StructuredVimeoEmbed } from './StructuredEmbed/StructuredVimeoEmbed';
 import { StructuredYoutubeEmbed } from './StructuredEmbed/StructuredYoutubeEmbed';
 
+/** Drawn for a block of a type this build does not know, should one reach it: nothing, rather than a failed page. */
+export const UnknownBlock = () => null;
+
 export const blocksMap: Record<StackBlockType, ComponentType<StructuredBlockItemProps<any>>> = {
   [StructuredBlockType.Component]: StructuredComponent,
   [StructuredBlockType.RichText]: StructuredRichText,

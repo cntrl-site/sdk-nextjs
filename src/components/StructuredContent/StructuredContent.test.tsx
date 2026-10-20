@@ -85,15 +85,24 @@ const code = block(StructuredBlockType.Code, 'code', {
   colors: { background: '#282A36', foreground: '#F8F8F2' }
 }, {});
 const divider = block(StructuredBlockType.Divider, 'divider', {}, { color: '#C0C0C0' }, { ...onGrid, height: 0.001 });
-const table = block(StructuredBlockType.Table, 'table', { header: ['Name', 'Price'], rows: [['Tea', '3'], ['Coffee', '4']] }, {
+const tableCells = {
   ...textStyles,
   cellPaddingTop: 0.005,
-  cellPaddingRight: 0.01,
   cellPaddingBottom: 0.005,
-  cellPaddingLeft: 0.01,
+  columns: [{ width: 0.6, paddingLeft: 0.01, paddingRight: 0.01 }, { width: 0.4, paddingLeft: 0.02, paddingRight: 0 }],
   borderColor: '#C0C0C0',
-  headingBackground: '#EEEEEE'
-});
+  headingBackground: '#EEEEEE',
+  bodyBackground: '#F8F8F8'
+};
+const cell = (id: string, text: string, styles: object = {}) => ({ id, ...paragraph(text), styles: { desktop: [], mobile: [], ...styles } });
+const bold = [{ start: 0, end: 4, style: 'FONTWEIGHT', value: '700' }];
+function tableContent(ids: string) {
+  return {
+    header: [cell(`${ids}-h0`, 'Name', { desktop: bold, mobile: bold }), cell(`${ids}-h1`, 'Price')],
+    rows: [[cell(`${ids}-r00`, 'Tea'), cell(`${ids}-r01`, '3')], [cell(`${ids}-r10`, 'Coffee'), cell(`${ids}-r11`, '4')]]
+  };
+}
+const table = block(StructuredBlockType.Table, 'table', { kind: 'cells', ...tableContent('t') }, tableCells);
 const vimeo = block(StructuredBlockType.VimeoEmbed, 'vimeo', {
   url: 'https://player.vimeo.com/video/1',
   coverUrl: null,
@@ -228,15 +237,54 @@ describe('StructuredContent', () => {
     expect(css()).toContain('background: #282A36');
   });
 
-  it('draws a table\'s heading over its rows, the cells set in its text styles, spaced and lined as served, the heading behind its fill', () => {
+  it('draws a table of cells: the heading over its rows, the cells set in its text styles, each column its share of the width and its own paddings', () => {
     const { container } = draw(section(false));
-    expect([...container.querySelectorAll('.structured-table-table th')].map(cell => cell.textContent)).toEqual(['Name', 'Price']);
-    expect([...container.querySelectorAll('.structured-table-table td')].map(cell => cell.textContent)).toEqual(['Tea', '3', 'Coffee', '4']);
+    expect([...container.querySelectorAll('.structured-table-table th')].map(cell => cell.textContent!.trim())).toEqual(['Name', 'Price']);
+    expect([...container.querySelectorAll('.structured-table-table td')].map(cell => cell.textContent!.trim())).toEqual(['Tea', '3', 'Coffee', '4']);
+    expect(container.querySelectorAll('.structured-table-table col')).toHaveLength(2);
     expect(css()).toMatch(/\.structured-table-table \{[^}]*font-size: 2vw;[^}]*text-align: center;/);
-    expect(css()).toMatch(/\.structured-table-table th, \.structured-table-table td \{[^}]*padding: 0\.5vw 1vw 0\.5vw 1vw;/);
+    expect(css()).toMatch(/\.structured-table-table th, \.structured-table-table td \{[^}]*padding-top: 0\.5vw;[^}]*padding-bottom: 0\.5vw;[^}]*border-width: /);
+    expect(css()).toMatch(/\.structured-table-table col:nth-child\(1\) \{\s*width: 60%;/);
+    expect(css()).toMatch(/\.structured-table-table th:nth-child\(2\), \.structured-table-table td:nth-child\(2\) \{\s*padding-left: 2vw;\s*padding-right: 0vw;/);
     expect(css()).toMatch(/\.structured-table-table th, \.structured-table-table td \{\s*border-color: oklch/);
     expect(css()).toMatch(/\.structured-table-heading-table \{\s*background-color: oklch/);
-    expect(css()).not.toMatch(/\.structured-table-body-table \{/);
+    expect(css()).toMatch(/\.structured-table-body-table \{\s*background-color: oklch/);
+  });
+
+  it('sets a cell\'s ranges in their styles, as a text block\'s, and draws a list in a cell with the list styles once', () => {
+    const listed = block(StructuredBlockType.Table, 'listed', {
+      kind: 'cells',
+      header: [cell('l-h0', 'Steps')],
+      rows: [[{
+        id: 'l-r00',
+        text: 'Boil\nPour\n',
+        blocks: [{ start: 0, end: 4, type: 'ordered-list-item', entities: [] }, { start: 5, end: 9, type: 'ordered-list-item', entities: [] }],
+        styles: { desktop: [], mobile: [] }
+      }]]
+    }, tableCells);
+    const { container } = draw({ ...section(false), structuredContent: [table, listed] } as Section);
+    const heading = container.querySelector('.structured-table-table th')!;
+    expect(heading.textContent!.trim()).toBe('Name');
+    expect(heading.querySelector('[class*="rt_table-t-h0"]')).not.toBeNull();
+    expect(css()).toMatch(/rt_table-t-h0[^{]*\{[^}]*font-weight: 700/);
+    expect([...container.querySelectorAll('.structured-table-listed td .rt-ordered-list-item')].map(item => item.textContent!.trim())).toEqual(['Boil', 'Pour']);
+    expect(css().match(/counter\(cntrl-list\) '\.'/g)).toHaveLength(1);
+  });
+
+  it('draws a table of rows with every row plain and the two fills alternating from the first, and one of lines with a line between the rows only', () => {
+    const rows = block(StructuredBlockType.Table, 'zebra', { kind: 'rows', ...tableContent('z') }, tableCells);
+    const lines = block(StructuredBlockType.Table, 'ruled', { kind: 'lines', ...tableContent('r') }, tableCells);
+    const { container } = draw({ ...section(false), structuredContent: [rows, lines] } as Section);
+    expect(container.querySelectorAll('.structured-table-zebra th')).toHaveLength(0);
+    expect(container.querySelectorAll('.structured-table-zebra td')).toHaveLength(6);
+    expect(css()).toMatch(/\.structured-table-zebra thead tr, \.structured-table-zebra tbody tr:nth-child\(even\) \{\s*background-color: oklch/);
+    expect(css()).toMatch(/\.structured-table-zebra tbody tr:nth-child\(odd\) \{\s*background-color: oklch/);
+    expect(css()).not.toMatch(/\.structured-table-heading-zebra \{/);
+
+    expect(container.querySelectorAll('.structured-table-ruled th')).toHaveLength(2);
+    expect(css()).toMatch(/\.structured-table-ruled th, \.structured-table-ruled td \{[^}]*border-width: 0;/);
+    expect(css()).toMatch(/\.structured-table-ruled tbody > tr > th, \.structured-table-ruled tbody > tr > td \{\s*border-top-width: /);
+    expect(css()).toMatch(/\.structured-table-heading-ruled \{\s*background-color: oklch/);
   });
 
   it('covers a video played on click until it plays, and fetches no more than its metadata until then', () => {

@@ -3,7 +3,7 @@ import { FC, useId } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { blockPlacement } from './blockPlacement';
-import { blocksMap } from './blocksMap';
+import { blocksMap, UnknownBlock } from './blocksMap';
 
 export interface StructuredBlockItemProps<I extends StructuredBlockAny> {
   block: I;
@@ -21,7 +21,7 @@ export const StructuredBlockItem: FC<Props> = ({ block, readingWidth }) => {
   const id = `${reactId}-item-${block.id}`;
   const { layouts } = useCntrlContext();
   const layoutValues: Record<string, any>[] = [block.area, block.layoutParams, block.hidden ?? {}];
-  const BlockComponent = blocksMap[block.type];
+  const BlockComponent = blocksMap[block.type] ?? UnknownBlock;
   return (
     <div className={`structured-block-item-${block.id}`}>
       <BlockComponent block={block} readingWidth={readingWidth} />
