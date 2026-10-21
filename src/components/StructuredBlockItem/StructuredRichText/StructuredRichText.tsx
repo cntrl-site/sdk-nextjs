@@ -51,7 +51,7 @@ export const StructuredRichText: FC<StructuredBlockItemProps<TextBlock>> = ({ bl
           ${isText ? textColumnsRule(`.structured-text-${block.id}`, layoutParams) : ''}
           ${isQuote ? `
             .structured-quote-box-${block.id} {
-              padding: ${(layoutParams.boxPadding ?? 0) * 100}vw;
+              padding: ${[layoutParams.boxPaddingTop, layoutParams.boxPaddingRight, layoutParams.boxPaddingBottom, layoutParams.boxPaddingLeft].map(side => `${(side ?? 0) * 100}vw`).join(' ')};
               border-radius: ${(layoutParams.boxRadius ?? 0) * 100}vw;
               background-color: transparent;
             }

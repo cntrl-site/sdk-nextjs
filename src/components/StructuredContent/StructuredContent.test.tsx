@@ -60,7 +60,10 @@ const quote = block(StructuredBlockType.Quote, 'quote', { ...paragraph('A quote'
   ...textStyles,
   rangeStyles: [],
   background: '#EEEEEE',
-  boxPadding: 0.02,
+  boxPaddingTop: 0.02,
+  boxPaddingRight: 0.03,
+  boxPaddingBottom: 0.02,
+  boxPaddingLeft: 0.01,
   boxRadius: 0.01
 });
 const date = block(StructuredBlockType.Date, 'date', { ...paragraph('23 Sep 2026'), date: '2026-09-23', format: 'D MMM YYYY' }, {
@@ -115,7 +118,7 @@ const header = {
   type: StructuredBlockType.Header,
   hidden: {},
   state: {},
-  area: { desktop: { zIndex: 2 }, mobile: { zIndex: 2 } },
+  area: { desktop: { zIndex: 2, paddingTop: 0.02 }, mobile: { zIndex: 2 } },
   commonParams: { title: 'title', subtitle: 'subtitle', date: 'header-date', image: 'key-image' },
   layoutParams: {
     desktop: { variant: 'A', order: ['image', 'title', 'subtitle', 'date'], hiddenElements: [], imageFit: 'cover', coverHeight: 0.8 },
@@ -192,7 +195,7 @@ describe('StructuredContent', () => {
   it('draws a quote in its box and a date as the text it reads as', () => {
     const { container } = draw(section(false));
     expect(container.querySelector('.structured-quote-box-quote')!.textContent!.trim()).toBe('A quote');
-    expect(css()).toMatch(/\.structured-quote-box-quote \{[^}]*padding: 2vw;[^}]*border-radius: 1vw;/);
+    expect(css()).toMatch(/\.structured-quote-box-quote \{[^}]*padding: 2vw 3vw 2vw 1vw;[^}]*border-radius: 1vw;/);
     expect(container.querySelector('.structured-text-date')!.textContent!.trim()).toBe('23 Sep 2026');
   });
 
@@ -331,6 +334,12 @@ describe('StructuredContent', () => {
     expect(css()).toMatch(/\.structured-header-element-key-image \{\s*display: none;/);
     expect(css()).toMatch(/\.structured-header-element-key-image \.structured-caption-key-image \{\s*display: block;/);
     expect(css()).toMatch(/\.structured-header-element-key-image \.structured-header-picture-key-image \{\s*object-fit: fill;/);
+  });
+
+  it('keeps the gap above the header a block of the stack has, on the layout that sets one', () => {
+    draw(section(true));
+    expect(css()).toMatch(/@media \(min-width: 800px\) \{[\s\S]*\.structured-header-header \{[^}]*margin-top: 2vw;/);
+    expect(css()).toMatch(/\.structured-header-header \{[^}]*margin-top: 0;/);
   });
 
   it('puts an element an older header never ordered last', () => {

@@ -22,10 +22,10 @@ interface Props {
 const TEXT_KINDS: HeaderElementKind[] = ['title', 'subtitle', 'date'];
 
 // an element a header stored before its kind was ordered goes last, not first
-const orderOf = (order: HeaderElementKind[], kind: HeaderElementKind) => {
+function orderOf(order: HeaderElementKind[], kind: HeaderElementKind): number {
   const index = order.indexOf(kind);
   return index === -1 ? order.length : index;
-};
+}
 
 /**
  * A content-based section's header, drawn first. Variant A draws the key image full width with the
@@ -104,6 +104,7 @@ export const StructuredHeader: FC<Props> = ({ header, blocks, readingWidth }) =>
               display: ${isA ? 'block' : 'flex'};
               flex-direction: column;
               z-index: ${area?.zIndex ?? 0};
+              margin-top: ${area?.paddingTop ? `${area.paddingTop * 100}vw` : 0};
               height: ${isCover ? `${layoutParams.coverHeight * 100}vh` : 'auto'};
               height: ${isCover ? `${layoutParams.coverHeight * 100}svh` : 'auto'};
             }
