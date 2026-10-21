@@ -1,5 +1,6 @@
 import { CSSProperties, FC, useEffect, useId, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
+import { useLazyVideo } from '../../common/useLazyVideo';
 
 export type TSectionVideo = {
   url: string;
@@ -26,6 +27,7 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [userPaused, setUserPaused] = useState(false);
   const [isClickedOnCover, setIsClickedOnCover] = useState(false);
+  useLazyVideo(video, play === 'auto');
 
   const handleCoverClick = () => {
     if (!video || play !== 'on-click') return;
@@ -87,7 +89,6 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
       >
         <video
           ref={setVideo}
-          autoPlay={play === 'auto'}
           loop
           style={{
             opacity: !isClickedOnCover && play === 'on-click' && coverUrl ? 0 : opacity,
@@ -101,7 +102,7 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
           controls={play === 'on-click'}
           muted={play === 'auto'}
           playsInline
-          preload="auto"
+          preload="none"
           className={`video-background-${sectionId}`}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
