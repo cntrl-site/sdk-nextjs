@@ -128,7 +128,7 @@ const header = {
 
 const stack = [text, quote, date, gallery, video, code, table, divider, vimeo, component];
 
-function section(withHeader: boolean) {
+function section(withHeader: boolean, type: Section['type'] = 'content-based') {
   return {
     id: 'content',
     items: [],
@@ -136,7 +136,7 @@ function section(withHeader: boolean) {
     minHeight: {},
     color: {},
     hidden: {},
-    type: 'content-based',
+    type,
     structuredContent: [title, headerImage, ...stack],
     structuredContentSettings: { paddingBottom: { desktop: 0.02, mobile: 0.02 }, defaultWidth: { desktop: 0.3, mobile: 0.8 } },
     ...(withHeader && { header })
@@ -164,9 +164,15 @@ describe('StructuredContent', () => {
     expect(items).toEqual(['title', 'key-image', ...stack.map(block => block.id)]);
   });
 
-  it('places a block drawn from a preset on the content grid, its inner paddings apart from the gap above it', () => {
+  it('places a block drawn from a preset on the content grid with its inner paddings, and no gap above it whatever its area holds', () => {
     draw(section(false));
-    expect(css()).toMatch(/\.structured-block-item-text \{[^}]*margin-top: 1vw;[^}]*left: 35vw;[^}]*width: 30vw;[^}]*padding-top: 0\.5vw;[^}]*padding-bottom: 0\.6vw;/);
+    expect(css()).toMatch(/\.structured-block-item-text \{[^}]*margin-top: 0;[^}]*left: 35vw;[^}]*width: 30vw;[^}]*padding-top: 0\.5vw;[^}]*padding-bottom: 0\.6vw;/);
+    expect(css()).not.toMatch(/\.structured-block-item-[\w-]+ \{[^}]*margin-top: [1-9]/);
+  });
+
+  it('keeps the gap above a block of a default section', () => {
+    draw(section(false, 'default'));
+    expect(css()).toMatch(/\.structured-block-item-text \{[^}]*margin-top: 1vw;/);
     expect(css()).toMatch(/\.structured-block-item-component \{[^}]*align-self: flex-start;/);
   });
 

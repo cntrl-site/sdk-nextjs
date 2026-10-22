@@ -14,9 +14,11 @@ export interface StructuredBlockItemProps<I extends StructuredBlockAny> {
 interface Props {
   block: StructuredBlockAny;
   readingWidth: Record<string, number>;
+  /** Whether the block keeps the gap above it its area holds: a default section's blocks do, a content-based section's never. */
+  hasGap: boolean;
 }
 
-export const StructuredBlockItem: FC<Props> = ({ block, readingWidth }) => {
+export const StructuredBlockItem: FC<Props> = ({ block, readingWidth, hasGap }) => {
   const reactId = useId();
   const id = `${reactId}-item-${block.id}`;
   const { layouts } = useCntrlContext();
@@ -31,7 +33,7 @@ export const StructuredBlockItem: FC<Props> = ({ block, readingWidth }) => {
             display: ${hidden ? 'none' : 'block'};
             position: relative;
             z-index: ${area.zIndex};
-            margin-top: ${area.paddingTop ? `${area.paddingTop * 100}vw` : 0};
+            margin-top: ${hasGap && area.paddingTop ? `${area.paddingTop * 100}vw` : 0};
             outline: none;
             ${blockPlacement(area, layoutParams)}
           }

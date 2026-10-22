@@ -12,7 +12,8 @@ interface Props {
 /**
  * A section's blocks, one under another across the section's whole width: a block drawn from a
  * preset is placed on the content grid by its own area. A content-based section's header comes
- * first, drawing the blocks it points at, which the stack leaves out.
+ * first, drawing the blocks it points at, which the stack leaves out; only the header keeps a gap
+ * above it there, where a default section's blocks keep theirs.
  */
 export const StructuredContent: FC<Props> = ({ section }) => {
   const reactId = useId();
@@ -28,7 +29,7 @@ export const StructuredContent: FC<Props> = ({ section }) => {
       {header && <StructuredHeader header={header} blocks={section.structuredContent} readingWidth={readingWidth} />}
       {section.structuredContent
         .filter(block => !headerElementIds.includes(block.id))
-        .map(block => <StructuredBlockItem block={block} key={block.id} readingWidth={readingWidth} />)}
+        .map(block => <StructuredBlockItem block={block} key={block.id} readingWidth={readingWidth} hasGap={section.type !== 'content-based'} />)}
       <JSXStyle id={id}>
         {`
           .structured-content-${section.id} {
