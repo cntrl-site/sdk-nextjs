@@ -342,6 +342,24 @@ describe('StructuredContent', () => {
     expect(css()).toMatch(/\.structured-header-element-key-image \.structured-header-picture-key-image \{\s*object-fit: fill;/);
   });
 
+  it('keeps a sticky key image still on the screen, as a fixed section background, on the layouts that stick it', () => {
+    const sticky = { ...header, layoutParams: { ...header.layoutParams, desktop: { ...header.layoutParams.desktop, stickyImage: true } } };
+    const { container } = draw({ ...section(true), header: sticky } as unknown as Section);
+    const frame = container.querySelector<HTMLElement>('.structured-header-pin-frame-key-image');
+    expect(frame?.style.backgroundImage).toContain('https://cdn.cntrl.site/key.jpg');
+    expect(css()).toMatch(/\.structured-header-pin-frame-key-image \{[^}]*position: sticky;[^}]*top: 100vh;[^}]*height: 100vh;/);
+    // desktop sticks its covering image, which only sizes the header now; mobile, in variant B, draws it as it is
+    expect(css()).toMatch(/@media \(min-width: 800px\) \{[\s\S]*\.structured-header-pin-key-image \{\s*display: block;[\s\S]*background-size: cover;/);
+    expect(css()).toMatch(/\.structured-header-picture-key-image \{[^}]*visibility: hidden;/);
+    expect(css()).toMatch(/\.structured-header-pin-key-image \{\s*display: none;/);
+  });
+
+  it('draws a key image no layout sticks as it is', () => {
+    draw(section(true));
+    expect(css()).not.toMatch(/\.structured-header-pin-key-image \{\s*display: block;/);
+    expect(css()).not.toMatch(/visibility: hidden;/);
+  });
+
   it('keeps the gap above the header a block of the stack has, on the layout that sets one', () => {
     draw(section(true));
     expect(css()).toMatch(/@media \(min-width: 800px\) \{[\s\S]*\.structured-header-header \{[^}]*margin-top: 2vw;/);

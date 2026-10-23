@@ -6,7 +6,7 @@ import {
   StructuredBlockAny,
   StructuredBlockType
 } from '@cntrl-site/sdk';
-import { FC, useId } from 'react';
+import { FC, ReactNode, useId } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { blockPlacement } from '../StructuredBlockItem/blockPlacement';
@@ -29,16 +29,18 @@ function orderOf(order: HeaderElementKind[], kind: HeaderElementKind): number {
 
 /**
  * A content-based section's header, drawn first. Variant A draws the key image full width with the
- * other elements on its bottom edge, the image covering a share of the viewport's height if set to;
- * variant B flows the shown elements in order, each placed as in the stack. The variant, the order
- * and what is shown are a layout's, so every element is drawn once and arranged per layout.
+ * other elements on its bottom edge, the image covering a share of the viewport's height if set to,
+ * and staying put on the screen while the header scrolls over it if set to; variant B flows the
+ * shown elements in order, each placed as in the stack. The variant, the order and what is shown
+ * are a layout's, so every element is drawn once and arranged per layout.
  */
 export const StructuredHeader: FC<Props> = ({ header, blocks, readingWidth }) => {
   const reactId = useId();
   const { layouts } = useCntrlContext();
   const elementOf = (kind: HeaderElementKind) => blocks.find(block => block.id === header.commonParams[kind]);
   const image = elementOf('image');
-  const hasImage = image?.type === StructuredBlockType.HeaderImage && Boolean((image as HeaderImageStructuredBlock).commonParams.url);
+  const imageUrl = image?.type === StructuredBlockType.HeaderImage ? (image as HeaderImageStructuredBlock).commonParams.url : '';
+  const hasImage = Boolean(imageUrl);
   const texts = TEXT_KINDS.flatMap((kind) => {
     const block = elementOf(kind);
     return block ? [{ kind, block }] : [];
@@ -46,14 +48,47 @@ export const StructuredHeader: FC<Props> = ({ header, blocks, readingWidth }) =>
   const headerClass = `structured-header-${header.id}`;
   const stackClass = `structured-header-stack-${header.id}`;
   const elementClass = (block: StructuredBlockAny) => `structured-header-element-${block.id}`;
-  const renderElement = (block: StructuredBlockAny) => {
+  const pinClass = (block: StructuredBlockAny, part = '') => `structured-header-pin${part}-${block.id}`;
+  const renderElement = (block: StructuredBlockAny, extra?: ReactNode) => {
     const BlockComponent = blocksMap[block.type] ?? UnknownBlock;
     return (
       <div key={block.id} className={elementClass(block)}>
         <BlockComponent block={block} readingWidth={readingWidth} />
+        {extra}
       </div>
     );
   };
+  // a sticky backdrop, the way a section's fixed background is drawn: a screen-tall frame stuck
+  // inside a track a screen longer at each end, clipped to the header; the picture itself only
+  // sizes the header then
+  const renderPin = (block: StructuredBlockAny) => (
+    <div className={pinClass(block)}>
+      <div className={pinClass(block, '-track')}>
+        <div className={pinClass(block, '-frame')} style={{ backgroundImage: `url(${imageUrl})` }} />
+      </div>
+    </div>
+  );
+  const pinStyles = (block: StructuredBlockAny) => `
+    .${pinClass(block)} {
+      position: absolute;
+      inset: 0;
+      overflow: clip;
+      pointer-events: none;
+    }
+    .${pinClass(block, '-track')} {
+      position: relative;
+      width: 100%;
+      height: calc(100% + 200vh);
+      transform: translateY(-100vh);
+    }
+    .${pinClass(block, '-frame')} {
+      position: sticky;
+      top: 100vh;
+      width: 100%;
+      height: 100vh;
+      background-repeat: no-repeat;
+    }
+  `;
   const elementStyles = (kind: HeaderElementKind, block: StructuredBlockAny) => getLayoutStyles(
     layouts,
     [header.layoutParams, block.area, block.layoutParams] as Record<string, any>[],
@@ -61,6 +96,7 @@ export const StructuredHeader: FC<Props> = ({ header, blocks, readingWidth }) =>
       const isBackdrop = kind === 'image' && layoutParams.variant === 'A';
       const isHidden = !isBackdrop && layoutParams.hiddenElements.includes(kind);
       const isCover = isBackdrop && layoutParams.imageFit === 'cover';
+      const isSticky = isBackdrop && Boolean(layoutParams.stickyImage);
       // every value is written on every layout: the media queries stack upward, so a layout's
       // backdrop or cover would otherwise carry into the larger layouts drawn another way
       return (`
@@ -81,13 +117,25 @@ export const StructuredHeader: FC<Props> = ({ header, blocks, readingWidth }) =>
         }
         .${elementClass(block)} .structured-header-picture-${block.id} {
           object-fit: ${isCover ? 'cover' : 'fill'};
+          visibility: ${isSticky ? 'hidden' : 'visible'};
         }
+        ${kind === 'image'
+          ? `
+        .${pinClass(block)} {
+          display: ${isSticky ? 'block' : 'none'};
+        }
+        .${pinClass(block, '-frame')} {
+          background-size: ${isCover ? 'cover' : '100% auto'};
+          background-position: ${isCover ? 'center' : 'top center'};
+          opacity: ${blockLayoutParams?.opacity ?? 1};
+        }`
+          : ''}
       `);
     }
   );
   return (
     <div className={headerClass}>
-      {image && renderElement(image)}
+      {image && renderElement(image, hasImage && renderPin(image))}
       <div className={stackClass}>
         {texts.map(({ block }) => renderElement(block))}
       </div>
@@ -96,6 +144,7 @@ export const StructuredHeader: FC<Props> = ({ header, blocks, readingWidth }) =>
           position: relative;
           width: 100%;
         }
+        ${image && hasImage ? pinStyles(image) : ''}
         ${getLayoutStyles(layouts, [header.layoutParams, header.area] as Record<string, any>[], ([layoutParams, area]) => {
       const isA = layoutParams.variant === 'A';
       const isCover = isA && layoutParams.imageFit === 'cover';
