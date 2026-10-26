@@ -125,7 +125,8 @@ export class RichTextConverter {
       const content = text.slice(block.start, block.end + 1);
       const entities = [...(block.entities ?? [])].sort((a, b) => a.start - b.start);
       const typeClass = hasLists ? ` ${LIST_ITEM_CLASSES[block.type] ?? 'rt-paragraph'}` : '';
-      if (content.length === 1) {
+      // an empty line keeps its height, as in the editor; a text never typed into comes without even its line break
+      if (content === '' || content === '\n') {
         const id = `rt_${richText.id}_br_${blockIndex}`;
         root.push(<div key={id} className={`${id}${typeClass}`}><br /></div>);
         layouts.forEach(l => {
