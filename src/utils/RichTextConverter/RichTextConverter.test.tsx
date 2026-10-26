@@ -60,6 +60,26 @@ describe('RichTextConverter', () => {
     expect(styles).toContain('background-color: rgba(255, 255, 0, 1)');
   });
 
+  it('keeps an empty line a line tall, in a text never typed into as well, and a one-letter last line its letter', () => {
+    const untyped: RichTextSource = {
+      id: 'text',
+      commonParams: { text: '', blocks: [{ start: 0, end: 0, type: 'unstyled', entities: [] }] },
+      layoutParams: { desktop: { rangeStyles: [], textAlign: TextAlign.Left } }
+    };
+    const emptied = text([{ text: '' }], []);
+    for (const source of [untyped, emptied]) {
+      const { container } = render(<>{converter.toHtml(source, layouts)[0]}</>);
+      expect(container.innerHTML).toBe('<div class="rt_text_br_0"><br></div>');
+    }
+    const unterminated: RichTextSource = {
+      id: 'text',
+      commonParams: { text: 'a', blocks: [{ start: 0, end: 1, type: 'unstyled', entities: [] }] },
+      layoutParams: { desktop: { rangeStyles: [], textAlign: TextAlign.Left } }
+    };
+    const { container } = render(<>{converter.toHtml(unterminated, layouts)[0]}</>);
+    expect(container.textContent).toBe('a');
+  });
+
   it('leaves text without lists as it was', () => {
     const [content, styles] = converter.toHtml(text([{ text: 'Plain' }]), layouts);
     const { container } = render(<>{content}</>);
