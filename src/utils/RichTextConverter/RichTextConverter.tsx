@@ -4,13 +4,36 @@ import {
   getLayoutMediaQuery,
   TextTransform,
   Layout,
-  RichTextItem,
   VerticalAlign,
   RichTextStyle,
-  RichTextEntity
+  RichTextEntity,
+  RichTextBlock,
+  TextAlign
 } from '@cntrl-site/sdk';
 import { LinkWrapper } from '../../components/items/LinkWrapper';
 import { getFontFamilyValue } from '../getFontFamilyValue';
+
+/** Rich text to draw: a rich text item, or a block of a section's structured content that holds text. */
+export interface RichTextSource {
+  id: string;
+  commonParams: {
+    text: string;
+    blocks?: RichTextBlock[];
+  };
+  layoutParams: Record<string, {
+    rangeStyles?: RichTextStyle[];
+    textAlign: TextAlign;
+  }>;
+}
+
+interface ToHtmlOptions {
+  /**
+   * An item is drawn at its layout's exemplary width and scaled to the viewport as a whole, so once
+   * the layout is known its lengths are pixels of the exemplary. Text in the page's flow, whose box a
+   * scale would leave at the unscaled size, takes viewport units throughout.
+   */
+  isScaledToViewport?: boolean;
+}
 
 interface StyleGroup {
   start: number;
@@ -41,12 +64,51 @@ export const RICH_TEXT_LAYOUT_PENDING_CLASS = 'rich-text-layout-pending';
 
 const SCALING_STYLES = new Set(['FONTSIZE', 'LINEHEIGHT', 'LETTERSPACING', 'WORDSPACING']);
 
+const LIST_ITEM_CLASSES: Record<string, string> = {
+  'unordered-list-item': 'rt-unordered-list-item',
+  'ordered-list-item': 'rt-ordered-list-item'
+};
+
+/** The id the list styles are rendered under: one copy a page, however many texts have lists. */
+export const LIST_STYLES_ID = 'cntrl-rich-text-lists';
+
+// a list item's marker hangs before its first line; a numbered run restarts after anything else
+const LIST_STYLES = `
+  .rt-unordered-list-item,
+  .rt-ordered-list-item {
+    padding-left: 1.5em;
+    text-indent: -1.5em;
+  }
+  .rt-unordered-list-item::before,
+  .rt-ordered-list-item::before {
+    display: inline-block;
+    width: 1.5em;
+    text-indent: 0;
+  }
+  .rt-unordered-list-item::before {
+    content: '•';
+  }
+  .rt-paragraph,
+  .rt-unordered-list-item {
+    counter-reset: cntrl-list;
+  }
+  .rt-ordered-list-item {
+    counter-increment: cntrl-list;
+  }
+  .rt-ordered-list-item::before {
+    content: counter(cntrl-list) '.';
+  }
+`;
+
 export class RichTextConverter {
+  /** The text as elements, the styles of its ranges, and, where it has a list, the list styles every text shares, for the caller to render once. */
   toHtml(
-    richText: RichTextItem,
-    layouts: Layout[]
-  ): [ReactNode[], string] {
+    richText: RichTextSource,
+    layouts: Layout[],
+    { isScaledToViewport = true }: ToHtmlOptions = {}
+  ): [ReactNode[], string, string | undefined] {
     const { text, blocks = [] } = richText.commonParams;
+    const hasLists = blocks.some(block => block.type in LIST_ITEM_CLASSES);
     const root: ReactElement[] = [];
     const styleRules = layouts.reduce<Record<string, string[]>>((rec, layout) => {
       rec[layout.id] = [];
@@ -61,17 +123,19 @@ export class RichTextConverter {
     for (let blockIndex = 0; blockIndex < blocks.length; blockIndex++) {
       const block = blocks[blockIndex];
       const content = text.slice(block.start, block.end + 1);
-      const entities = block.entities!.sort((a, b) => a.start - b.start) ?? [];
+      const entities = [...(block.entities ?? [])].sort((a, b) => a.start - b.start);
+      const typeClass = hasLists ? ` ${LIST_ITEM_CLASSES[block.type] ?? 'rt-paragraph'}` : '';
       if (content.length === 1) {
         const id = `rt_${richText.id}_br_${blockIndex}`;
-        root.push(<div key={id} className={id}><br /></div>);
+        root.push(<div key={id} className={`${id}${typeClass}`}><br /></div>);
         layouts.forEach(l => {
           const lhForLayout = currentLineHeight[l.id];
           if (lhForLayout === undefined) return;
           const lineHeightStyle = { name: 'LINEHEIGHT', value: lhForLayout };
-          const lh = RichTextConverter.fromRangeStylesToInline(lineHeightStyle, l.exemplary, true);
-          const lhPending = RichTextConverter.fromRangeStylesToInline(lineHeightStyle, l.exemplary, false);
+          const lh = RichTextConverter.fromRangeStylesToInline(lineHeightStyle, l.exemplary, isScaledToViewport);
           styleRules[l.id].push(`.rt_${richText.id}_br_${blockIndex} {${lh}}`);
+          if (!isScaledToViewport) return;
+          const lhPending = RichTextConverter.fromRangeStylesToInline(lineHeightStyle, l.exemplary, false);
           styleRules[l.id].push(`.${RICH_TEXT_LAYOUT_PENDING_CLASS} .rt_${richText.id}_br_${blockIndex} {${lhPending}}`);
         });
         continue;
@@ -158,27 +222,29 @@ export class RichTextConverter {
             for (const styleGroup of entitiesGroup.stylesGroup) {
               const lineHeight = styleGroup.styles.find(s => s.name === 'LINEHEIGHT');
               const color = styleGroup.styles.find(s => s.name === 'COLOR');
+              const highlight = styleGroup.styles.find(s => s.name === 'HIGHLIGHT');
               if (lineHeight?.value) {
                 currentLineHeight[item.layout] = lineHeight.value;
               }
               styleRules[item.layout].push(`
                 .${blockClass} .s-${styleGroup.start}-${styleGroup.end} {
-                  ${styleGroup.styles.map(s => RichTextConverter.fromRangeStylesToInline(s, exemplary, true)).join('\n')}
+                  ${styleGroup.styles.map(s => RichTextConverter.fromRangeStylesToInline(s, exemplary, isScaledToViewport)).join('\n')}
                 }
               `);
               const lengthStyles = styleGroup.styles.filter(s => SCALING_STYLES.has(s.name));
-              if (lengthStyles.length !== 0) {
+              if (isScaledToViewport && lengthStyles.length !== 0) {
                 styleRules[item.layout].push(`
                 .${RICH_TEXT_LAYOUT_PENDING_CLASS} .${blockClass} .s-${styleGroup.start}-${styleGroup.end} {
                   ${lengthStyles.map(s => RichTextConverter.fromRangeStylesToInline(s, exemplary, false)).join('\n')}
                 }
               `);
               }
-              if (color) {
+              if (color?.value || highlight?.value) {
                 styleRules[item.layout].push(`
                 @supports not (color: oklch(42% 0.3 90 / 1)) {
                   .${blockClass} .s-${styleGroup.start}-${styleGroup.end} {
-                    color: ${CntrlColor.parse(getResolvedValue(color.value, 'COLOR')!).fmt('rgba')};
+                    ${color?.value ? `color: ${CntrlColor.parse(color.value).fmt('rgba')};` : ''}
+                    ${highlight?.value ? `background-color: ${CntrlColor.parse(highlight.value).fmt('rgba')};` : ''}
                   }
                 }
               `);
@@ -186,7 +252,7 @@ export class RichTextConverter {
             }
           }
         }
-        root.push(<div key={blockClass} className={blockClass}>{kids}</div>);
+        root.push(<div key={blockClass} className={`${blockClass}${typeClass}`}>{kids}</div>);
       }
     }
     const styles = layouts.map(l => `
@@ -196,7 +262,8 @@ export class RichTextConverter {
     `).join('\n');
     return [
       root,
-      styles
+      styles,
+      hasLists ? LIST_STYLES : undefined
     ];
   }
 
@@ -291,6 +358,7 @@ export class RichTextConverter {
     const { value, name } = draftStyle;
     const map: Record<string, Record<string, string | undefined>> = {
       COLOR: { color: getResolvedValue(value, name) },
+      HIGHLIGHT: { 'background-color': getResolvedValue(value, name) },
       TYPEFACE: { 'font-family': `${getFontFamilyValue(value!)}` },
       FONTSTYLE: value ? { ...FontStyles[value] } : {},
       FONTWEIGHT: { 'font-weight': value },
@@ -329,7 +397,7 @@ function getScaledValue(value: string | undefined, exemplary: number, isLayoutDe
 }
 
 function getResolvedValue(value: string | undefined, name: string) {
-  if (name !== 'COLOR') return value;
+  if (name !== 'COLOR' && name !== 'HIGHLIGHT') return value;
   return value ? CntrlColor.parse(value).toCss() : value;
 }
 

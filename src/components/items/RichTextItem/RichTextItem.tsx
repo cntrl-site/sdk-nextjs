@@ -4,6 +4,7 @@ import { getLayoutStyles, Hyphens, RichTextItem as TRichTextItem } from '@cntrl-
 import JSXStyle from 'styled-jsx/style';
 import { ItemProps } from '../Item';
 import { useRichTextItem } from './useRichTextItem';
+import { LIST_STYLES_ID } from '../../../utils/RichTextConverter/RichTextConverter';
 import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { useRichTextItemValues } from '../useRichTextItemValues';
 import { useRegisterResize } from '../../../common/useRegisterResize';
