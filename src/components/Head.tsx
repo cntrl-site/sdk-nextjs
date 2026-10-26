@@ -21,7 +21,7 @@ export const CNTRLHead: FC<Props> = ({ meta, project, slug, siteUrl, fontsVault 
   };
   const customFonts = project.fonts.custom;
   const htmlHead = HTMLReactParser(project.html.head);
-  const ffGenerator = new FontFaceGenerator([...fontsVault, ...customFonts]);
+  const ffGenerator = new FontFaceGenerator([...customFonts, ...fontsVault]);
   const links = Object.values(parsedFonts as ReturnType<typeof domToReact>).map((value) => {
     if (!value) return null;
     const rel = value?.rel || value.props?.rel;
@@ -48,12 +48,12 @@ export const CNTRLHead: FC<Props> = ({ meta, project, slug, siteUrl, fontsVault 
       <meta name="twitter:description" content={meta.description} />
       <meta name="generator" content="https://cntrl.site" />
       <link rel="icon" href={meta.favicon} />
+      {links}
       <style
         dangerouslySetInnerHTML={{
           __html: ffGenerator.generate()
         }}
       />
-      {links}
       {htmlHead}
 
     </Head>
