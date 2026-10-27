@@ -115,7 +115,7 @@ export const VimeoEmbedItem: FC<ItemProps<TVimeoEmbedItem>> = ({ item, sectionId
   }, [interactionCtrl, vimeoPlayer]);
 
   return (
-    <LinkWrapper url={item.link?.url} target={item.link?.target}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target} download={item.link?.download}>
       <div
         className={`embed-video-wrapper-${item.id}`}
         ref={setRef}
