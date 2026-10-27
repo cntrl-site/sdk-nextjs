@@ -7,7 +7,7 @@ import { LIST_STYLES_ID, RichTextConverter } from '../../../utils/RichTextConver
 import { detectLang } from '../../../utils/detectLang';
 import { getHeadingTag } from '../../../utils/getHeadingTag';
 import { StructuredBlockItemProps } from '../StructuredBlockItem';
-import { colorRule, textColumnsRule, textStylesRule } from '../textStylesRule';
+import { boxRule, textColumnsRule, textStylesRule } from '../textStylesRule';
 
 type TextBlock = RichTextStructuredBlock | QuoteStructuredBlock | DateStructuredBlock;
 
@@ -49,14 +49,7 @@ export const StructuredRichText: FC<StructuredBlockItemProps<TextBlock>> = ({ bl
         {`${getLayoutStyles(layouts, layoutValues, ([layoutParams]) => (`
           ${textStylesRule(`.structured-text-${block.id}`, layoutParams)}
           ${isText ? textColumnsRule(`.structured-text-${block.id}`, layoutParams) : ''}
-          ${isQuote ? `
-            .structured-quote-box-${block.id} {
-              padding: ${[layoutParams.boxPaddingTop, layoutParams.boxPaddingRight, layoutParams.boxPaddingBottom, layoutParams.boxPaddingLeft].map(side => `${(side ?? 0) * 100}vw`).join(' ')};
-              border-radius: ${(layoutParams.boxRadius ?? 0) * 100}vw;
-              background-color: transparent;
-            }
-            ${layoutParams.background ? colorRule(`.structured-quote-box-${block.id}`, 'background-color', layoutParams.background) : ''}
-          ` : ''}
+          ${isQuote ? boxRule(`.structured-quote-box-${block.id}`, layoutParams) : ''}
         `))}`}
       </JSXStyle>
     </>

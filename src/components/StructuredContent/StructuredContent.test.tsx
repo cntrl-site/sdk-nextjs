@@ -201,7 +201,8 @@ describe('StructuredContent', () => {
   it('draws a quote in its box and a date as the text it reads as', () => {
     const { container } = draw(section(false));
     expect(container.querySelector('.structured-quote-box-quote')!.textContent!.trim()).toBe('A quote');
-    expect(css()).toMatch(/\.structured-quote-box-quote \{[^}]*padding: 2vw 3vw 2vw 1vw;[^}]*border-radius: 1vw;/);
+    // its sides grow out past the columns the text is placed on, which it stays on
+    expect(css()).toMatch(/\.structured-quote-box-quote \{[^}]*padding: 2vw 3vw 2vw 1vw;[^}]*margin: 0 -3vw 0 -1vw;[^}]*border-radius: 1vw;/);
     expect(container.querySelector('.structured-text-date')!.textContent!.trim()).toBe('23 Sep 2026');
   });
 
@@ -258,6 +259,22 @@ describe('StructuredContent', () => {
     expect(css()).toMatch(/\.structured-table-table th, \.structured-table-table td \{\s*border-color: oklch/);
     expect(css()).toMatch(/\.structured-table-heading-table \{\s*background-color: oklch/);
     expect(css()).toMatch(/\.structured-table-body-table \{\s*background-color: oklch/);
+  });
+
+  it('draws a table in its box, its sides grown out past the columns the table stays on, filled and rounded', () => {
+    const boxed = block(StructuredBlockType.Table, 'boxed', { kind: 'rows', ...tableContent('boxed') }, {
+      ...tableCells,
+      background: '#FAFAFA',
+      boxPaddingTop: 0.01,
+      boxPaddingRight: 0.02,
+      boxPaddingBottom: 0.01,
+      boxPaddingLeft: 0.02,
+      boxRadius: 0.005
+    });
+    const { container } = draw({ ...section(false), structuredContent: [boxed] } as Section);
+    expect(container.querySelector('.structured-table-box-boxed > .structured-table-boxed')).not.toBeNull();
+    expect(css()).toMatch(/\.structured-table-box-boxed \{[^}]*padding: 1vw 2vw 1vw 2vw;[^}]*margin: 0 -2vw 0 -2vw;[^}]*border-radius: 0\.5vw;/);
+    expect(css()).toMatch(/\.structured-table-box-boxed \{\s*background-color: oklch/);
   });
 
   it('sets a cell\'s ranges in their styles, as a text block\'s, and draws a list in a cell with the list styles once', () => {

@@ -1,5 +1,5 @@
 import { CntrlColor } from '@cntrl-site/color';
-import { Hyphens, StructuredBlockRichTextLayoutParams, StructuredBlockTextStyles } from '@cntrl-site/sdk';
+import { Hyphens, StructuredBlockBoxParams, StructuredBlockRichTextLayoutParams, StructuredBlockTextStyles } from '@cntrl-site/sdk';
 import { getFontFamilyValue } from '../../utils/getFontFamilyValue';
 
 /** A block's text styles as a CSS rule for `selector`, its lengths in viewport units as the block's own. */
@@ -37,6 +37,24 @@ export function textColumnsRule(
       -webkit-hyphens: ${hyphens};
       ${columns > 1 ? `column-count: ${columns}; column-gap: ${columnGap * 100}vw; column-fill: balance;` : 'column-count: auto; column-gap: normal;'}
     }
+  `;
+}
+
+/**
+ * The box a quote's text or a table is drawn in, as a CSS rule for `selector`: padded inside, its
+ * sides grown out past the columns the block is placed on by as much as they pad it, so what it
+ * holds stays on them; rounded, and filled where it has a fill.
+ */
+export function boxRule(selector: string, box: StructuredBlockBoxParams): string {
+  const vw = (value: number | undefined) => `${(value ?? 0) * 100}vw`;
+  return `
+    ${selector} {
+      padding: ${[box.boxPaddingTop, box.boxPaddingRight, box.boxPaddingBottom, box.boxPaddingLeft].map(vw).join(' ')};
+      margin: 0 -${vw(box.boxPaddingRight)} 0 -${vw(box.boxPaddingLeft)};
+      border-radius: ${vw(box.boxRadius)};
+      background-color: transparent;
+    }
+    ${box.background ? colorRule(selector, 'background-color', box.background) : ''}
   `;
 }
 
