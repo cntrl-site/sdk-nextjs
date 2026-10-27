@@ -9,6 +9,7 @@ export type TSectionImage = {
   offsetX: number | null;
   opacity?: number;
   tileSize?: number;
+  scale?: number;
 };
 
 interface Props {
@@ -17,7 +18,7 @@ interface Props {
 }
 
 export const SectionImage: FC<Props> = ({ media, sectionId }) => {
-  const { url, size, position, offsetX, opacity, tileSize } = media;
+  const { url, size, position, offsetX, opacity, tileSize, scale = 1 } = media;
   const isContainHeight = size === 'contain-height';
   const isTile = size === 'tile';
   const hasOffsetX = offsetX !== null && size === 'contain';
@@ -56,7 +57,7 @@ export const SectionImage: FC<Props> = ({ media, sectionId }) => {
             style={{
               objectFit: isContainHeight ? 'unset' : (size ?? 'cover') as CSSProperties['objectFit'],
               width: isContainHeight || hasOffsetX ? 'auto' : '100%',
-              transform: isContainHeight ? 'translateX(-50%)' : 'none',
+              transform: `${isContainHeight ? 'translateX(-50%) ' : ''}scale(${scale})`,
               position: 'relative',
               left: isContainHeight ? '50%' : (hasOffsetX ? `${offsetX * 100}vw` : '0'),
               height: '100%',

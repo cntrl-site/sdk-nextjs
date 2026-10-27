@@ -15,6 +15,7 @@ import { useElementRect } from '../../../utils/useElementRect';
 import { useItemFXData } from '../../../common/useItemFXData';
 import { getFill } from '../../../utils/getFill';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
+import { useLazyVideo } from '../../../common/useLazyVideo';
 
 export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const reactId = useId();
@@ -79,6 +80,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
   );
   useRegisterResize(ref, onResize);
   useItemGeometry(item.id, ref);
+  useLazyVideo(videoRef, layoutParams?.play === 'auto');
   const inlineStyles = {
     ...(radius !== undefined ? { borderRadius: `${radius * 100}vw` } : {}),
     ...(strokeWidth !== undefined ? {
@@ -150,8 +152,7 @@ export const VideoItem: FC<ItemProps<TVideoItem>> = ({ item, sectionId, onResize
             <video
               poster={item.commonParams.coverUrl ?? ''}
               ref={setVideoRef}
-              autoPlay={layoutParams.play === 'auto'}
-              preload="auto"
+              preload="none"
               onClick={() => {
                 setIsVideoInteracted(true);
               }}
