@@ -1,16 +1,17 @@
 import { CntrlColor } from '@cntrl-site/color';
 import { Hyphens, StructuredBlockBoxParams, StructuredBlockRichTextLayoutParams, StructuredBlockTextStyles } from '@cntrl-site/sdk';
 import { getFontFamilyValue } from '../../utils/getFontFamilyValue';
+import { vw } from './vw';
 
 /** A block's text styles as a CSS rule for `selector`, its lengths in viewport units as the block's own. */
 export function textStylesRule(selector: string, styles: StructuredBlockTextStyles): string {
   return `
     ${selector} {
       font-family: ${getFontFamilyValue(styles.typeFace)};
-      font-size: ${styles.fontSize * 100}vw;
-      line-height: ${styles.lineHeight * 100}vw;
-      letter-spacing: ${styles.letterSpacing * 100}vw;
-      word-spacing: ${styles.wordSpacing * 100}vw;
+      font-size: ${vw(styles.fontSize)};
+      line-height: ${vw(styles.lineHeight)};
+      letter-spacing: ${vw(styles.letterSpacing)};
+      word-spacing: ${vw(styles.wordSpacing)};
       font-weight: ${styles.fontWeight};
       font-style: ${styles.fontStyle || 'normal'};
       font-variant: ${styles.fontVariant};
@@ -35,7 +36,7 @@ export function textColumnsRule(
     ${selector} {
       hyphens: ${hyphens};
       -webkit-hyphens: ${hyphens};
-      ${columns > 1 ? `column-count: ${columns}; column-gap: ${columnGap * 100}vw; column-fill: balance;` : 'column-count: auto; column-gap: normal;'}
+      ${columns > 1 ? `column-count: ${columns}; column-gap: ${vw(columnGap)}; column-fill: balance;` : 'column-count: auto; column-gap: normal;'}
     }
   `;
 }
@@ -46,7 +47,6 @@ export function textColumnsRule(
  * holds stays on them; rounded, and filled where it has a fill.
  */
 export function boxRule(selector: string, box: StructuredBlockBoxParams): string {
-  const vw = (value: number | undefined) => `${(value ?? 0) * 100}vw`;
   return `
     ${selector} {
       padding: ${[box.boxPaddingTop, box.boxPaddingRight, box.boxPaddingBottom, box.boxPaddingLeft].map(vw).join(' ')};

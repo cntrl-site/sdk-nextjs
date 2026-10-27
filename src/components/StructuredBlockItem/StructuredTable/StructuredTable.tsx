@@ -6,6 +6,7 @@ import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 import { LIST_STYLES_ID, RichTextConverter } from '../../../utils/RichTextConverter/RichTextConverter';
 import { StructuredBlockItemProps } from '../StructuredBlockItem';
 import { boxRule, colorRule, textStylesRule } from '../textStylesRule';
+import { vw } from '../vw';
 
 // the lines between the cells, in pixels of the layout, scaled with it like everything drawn in it
 const BORDER_PX = 1;
@@ -86,7 +87,6 @@ export const StructuredTable: FC<StructuredBlockItemProps<TableStructuredBlock>>
           overflow-wrap: anywhere;
         }
         ${getLayoutStyles(layouts, [block.layoutParams], ([layoutParams], exemplary) => {
-      const vw = (value: number) => `${value * 100}vw`;
       const border = vw(BORDER_PX / exemplary);
       const fill = (selector: string, color: string | undefined) => (color ? colorRule(selector, 'background-color', color) : '');
       return (`
