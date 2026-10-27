@@ -11,6 +11,7 @@ export type TSectionVideo = {
   coverUrl: string | null;
   offsetX: number | null;
   opacity?: number;
+  scale?: number;
 };
 
 interface Props {
@@ -23,7 +24,7 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
   const [video, setVideo] = useState<HTMLVideoElement | null>(null);
   const [videoWrapper, setVideoWrapper] = useState<HTMLDivElement | null>(null);
   const [isVideoWidthOverflow, setIsVideoWidthOverflow] = useState(false);
-  const { url, size, position, offsetX, coverUrl, play, opacity } = media;
+  const { url, size, position, offsetX, coverUrl, play, opacity, scale = 1 } = media;
   const [isPlaying, setIsPlaying] = useState(false);
   const [userPaused, setUserPaused] = useState(false);
   const [isClickedOnCover, setIsClickedOnCover] = useState(false);
@@ -94,7 +95,7 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
             opacity: !isClickedOnCover && play === 'on-click' && coverUrl ? 0 : opacity,
             objectFit: isContainHeight ? 'cover' : (size ?? 'cover') as CSSProperties['objectFit'],
             width: isContainHeight && !isVideoWidthOverflow ? 'auto' : '100%',
-            transform: isContainHeight ? 'translateX(-50%)' : 'none',
+            transform: `${isContainHeight ? 'translateX(-50%) ' : ''}scale(${scale})`,
             left: isContainHeight ? '50%' : (hasOffsetX ? `${offsetX * 100}vw` : '0'),
             height: '100%',
             position: 'relative'
@@ -131,7 +132,7 @@ export const SectionVideo: FC<Props> = ({ container, sectionId, media }) => {
                   left: isContainHeight ? '50%' : (hasOffsetX ? `${offsetX * 100}vw` : '0'),
                   width: isContainHeight ? 'auto' : '100%',
                   objectFit: isContainHeight ? 'unset' : (size ?? 'cover') as CSSProperties['objectFit'],
-                  transform: isContainHeight ? 'translateX(-50%)' : 'none',
+                  transform: `${isContainHeight ? 'translateX(-50%) ' : ''}scale(${scale})`,
                   position: 'relative',
                   height: '100%',
                   transition: 'opacity 0.1s ease-in-out'
