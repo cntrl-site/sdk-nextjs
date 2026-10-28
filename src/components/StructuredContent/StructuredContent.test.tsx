@@ -74,7 +74,7 @@ const gallery = block(StructuredBlockType.Image, 'gallery', {
   urls: ['https://cdn.cntrl.site/a.jpg', 'https://cdn.cntrl.site/b.jpg'],
   altText: 'Two views',
   caption: 'Seen from the hill'
-}, { opacity: 0.8, captionStyles: { ...textStyles, fontSize: 0.01 } });
+}, { opacity: 0.8, captionStyles: { ...textStyles, fontSize: 0.01, width: 0.45, paddingTop: 0.02, paddingBottom: 0.01 } });
 const video = block(StructuredBlockType.Video, 'video', { url: 'https://cdn.cntrl.site/clip.mp4', coverUrl: 'https://cdn.cntrl.site/cover.jpg' }, {
   play: 'on-click',
   muted: true,
@@ -213,6 +213,7 @@ describe('StructuredContent', () => {
     // equally wide until their own proportions are known
     expect(images.map(image => image.style.flexGrow)).toEqual(['0.5', '0.5']);
     expect(container.querySelector('.structured-caption-gallery')!.textContent).toBe('Seen from the hill');
+    expect(css()).toMatch(/\.structured-caption-gallery \{[^}]*width: min\(45vw, 100%\);[^}]*padding-top: 2vw;[^}]*padding-bottom: 1vw;/);
   });
 
   it('draws no caption an image has switched off, nor one that says nothing', () => {
