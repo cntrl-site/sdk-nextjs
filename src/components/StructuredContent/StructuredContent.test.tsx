@@ -59,7 +59,7 @@ const text = block(StructuredBlockType.RichText, 'text', paragraph('Read the pos
 const quote = block(StructuredBlockType.Quote, 'quote', { ...paragraph('A quote'), kind: 'boxed' }, {
   ...textStyles,
   rangeStyles: [],
-  background: '#EEEEEE',
+  boxBackground: '#EEEEEE',
   boxPaddingTop: 0.02,
   boxPaddingRight: 0.03,
   boxPaddingBottom: 0.02,
@@ -74,7 +74,7 @@ const gallery = block(StructuredBlockType.Image, 'gallery', {
   urls: ['https://cdn.cntrl.site/a.jpg', 'https://cdn.cntrl.site/b.jpg'],
   altText: 'Two views',
   caption: 'Seen from the hill'
-}, { opacity: 0.8, captionStyles: { ...textStyles, fontSize: 0.01 } });
+}, { opacity: 0.8, captionStyles: { ...textStyles, fontSize: 0.01, maxWidth: 0.45, innerPaddingTop: 0.02, innerPaddingBottom: 0.01 } });
 const video = block(StructuredBlockType.Video, 'video', { url: 'https://cdn.cntrl.site/clip.mp4', coverUrl: 'https://cdn.cntrl.site/cover.jpg' }, {
   play: 'on-click',
   muted: true,
@@ -182,6 +182,9 @@ describe('StructuredContent', () => {
     expect(container.querySelector('.structured-text-heading')!.tagName).toBe('H1');
     expect(container.querySelector('.structured-text-text')!.tagName).toBe('DIV');
     expect(css()).toMatch(/\.structured-text-heading \{\s*margin: 0;/);
+    // a heading takes no paragraphs: its lines are spans drawn as blocks; other text's are paragraphs
+    expect([...container.querySelector('.structured-text-heading')!.children].map(line => line.tagName)).toEqual(['SPAN']);
+    expect([...container.querySelector('.structured-text-text')!.children].map(line => line.tagName)).toEqual(['P']);
   });
 
   it('sets text in its styles, its ranges in viewport units', () => {
@@ -201,8 +204,15 @@ describe('StructuredContent', () => {
   it('draws a quote in its box and a date as the text it reads as', () => {
     const { container } = draw(section(false));
     expect(container.querySelector('.structured-quote-box-quote')!.textContent!.trim()).toBe('A quote');
-    expect(css()).toMatch(/\.structured-quote-box-quote \{[^}]*padding: 2vw 3vw 2vw 1vw;[^}]*border-radius: 1vw;/);
+    // its sides grow out past the columns the text is placed on, which it stays on
+    expect(css()).toMatch(/\.structured-quote-box-quote \{[^}]*padding: 2vw 3vw 2vw 1vw;[^}]*margin: 0 -3vw 0 -1vw;[^}]*border-radius: 1vw;/);
+    expect(css()).toMatch(/\.structured-quote-box-quote \{\s*background-color: oklch/);
     expect(container.querySelector('.structured-text-date')!.textContent!.trim()).toBe('23 Sep 2026');
+    // a quote is a quotation of paragraphs, kept from the margins of both
+    expect(container.querySelector('.structured-text-quote')!.tagName).toBe('BLOCKQUOTE');
+    expect(container.querySelector('.structured-quote-box-quote > p')!.textContent!.trim()).toBe('A quote');
+    expect(css()).toMatch(/\.structured-text-quote \{\s*margin: 0;/);
+    expect(container.querySelector('.structured-text-date > p')!.textContent!.trim()).toBe('23 Sep 2026');
   });
 
   it('draws a gallery\'s images side by side, its caption under them', () => {
@@ -212,6 +222,7 @@ describe('StructuredContent', () => {
     // equally wide until their own proportions are known
     expect(images.map(image => image.style.flexGrow)).toEqual(['0.5', '0.5']);
     expect(container.querySelector('.structured-caption-gallery')!.textContent).toBe('Seen from the hill');
+    expect(css()).toMatch(/\.structured-caption-gallery \{[^}]*width: min\(45vw, 100%\);[^}]*padding-top: 2vw;[^}]*padding-bottom: 1vw;/);
   });
 
   it('draws no caption an image has switched off, nor one that says nothing', () => {
@@ -258,6 +269,22 @@ describe('StructuredContent', () => {
     expect(css()).toMatch(/\.structured-table-table th, \.structured-table-table td \{\s*border-color: oklch/);
     expect(css()).toMatch(/\.structured-table-heading-table \{\s*background-color: oklch/);
     expect(css()).toMatch(/\.structured-table-body-table \{\s*background-color: oklch/);
+  });
+
+  it('draws a table in its box, its sides grown out past the columns the table stays on, filled and rounded', () => {
+    const boxed = block(StructuredBlockType.Table, 'boxed', { kind: 'rows', ...tableContent('boxed') }, {
+      ...tableCells,
+      boxBackground: '#FAFAFA',
+      boxPaddingTop: 0.01,
+      boxPaddingRight: 0.02,
+      boxPaddingBottom: 0.01,
+      boxPaddingLeft: 0.02,
+      boxRadius: 0.005
+    });
+    const { container } = draw({ ...section(false), structuredContent: [boxed] } as Section);
+    expect(container.querySelector('.structured-table-box-boxed > .structured-table-boxed')).not.toBeNull();
+    expect(css()).toMatch(/\.structured-table-box-boxed \{[^}]*padding: 1vw 2vw 1vw 2vw;[^}]*margin: 0 -2vw 0 -2vw;[^}]*border-radius: 0\.5vw;/);
+    expect(css()).toMatch(/\.structured-table-box-boxed \{\s*background-color: oklch/);
   });
 
   it('sets a cell\'s ranges in their styles, as a text block\'s, and draws a list in a cell with the list styles once', () => {
