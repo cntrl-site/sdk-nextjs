@@ -37,7 +37,14 @@ function orderOf(order: HeaderElementKind[], kind: HeaderElementKind): number {
 export const StructuredHeader: FC<Props> = ({ header, blocks, readingWidth }) => {
   const reactId = useId();
   const { layouts } = useCntrlContext();
-  const elementOf = (kind: HeaderElementKind) => blocks.find(block => block.id === header.commonParams[kind]);
+  // an element every layout leaves out is not drawn at all; variant A's key image is always the backdrop
+  const isShownSomewhere = (kind: HeaderElementKind) => layouts.some(({ id }) => {
+    const { variant, hiddenElements } = header.layoutParams[id];
+    return (kind === 'image' && variant === 'A') || !hiddenElements.includes(kind);
+  });
+  const elementOf = (kind: HeaderElementKind) => (
+    isShownSomewhere(kind) ? blocks.find(block => block.id === header.commonParams[kind]) : undefined
+  );
   const image = elementOf('image');
   const imageUrl = image?.type === StructuredBlockType.HeaderImage ? (image as HeaderImageStructuredBlock).commonParams.url : '';
   const hasImage = Boolean(imageUrl);

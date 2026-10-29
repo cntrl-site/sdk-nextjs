@@ -182,6 +182,9 @@ describe('StructuredContent', () => {
     expect(container.querySelector('.structured-text-heading')!.tagName).toBe('H1');
     expect(container.querySelector('.structured-text-text')!.tagName).toBe('DIV');
     expect(css()).toMatch(/\.structured-text-heading \{\s*margin: 0;/);
+    // a heading takes no paragraphs: its lines are spans drawn as blocks; other text's are paragraphs
+    expect([...container.querySelector('.structured-text-heading')!.children].map(line => line.tagName)).toEqual(['SPAN']);
+    expect([...container.querySelector('.structured-text-text')!.children].map(line => line.tagName)).toEqual(['P']);
   });
 
   it('sets text in its styles, its ranges in viewport units', () => {
@@ -204,6 +207,31 @@ describe('StructuredContent', () => {
     // its sides grow out past the columns the text is placed on, which it stays on
     expect(css()).toMatch(/\.structured-quote-box-quote \{[^}]*padding: 2vw 3vw 2vw 1vw;[^}]*margin: 0 -3vw 0 -1vw;[^}]*border-radius: 1vw;/);
     expect(container.querySelector('.structured-text-date')!.textContent!.trim()).toBe('23 Sep 2026');
+    // a quote is a quotation of paragraphs, kept from the margins of both
+    expect(container.querySelector('.structured-text-quote')!.tagName).toBe('BLOCKQUOTE');
+    expect(container.querySelector('.structured-quote-box-quote > p')!.textContent!.trim()).toBe('A quote');
+    expect(css()).toMatch(/\.structured-text-quote \{\s*margin: 0;/);
+    expect(container.querySelector('.structured-text-date > p')!.textContent!.trim()).toBe('23 Sep 2026');
+  });
+
+  it('leaves a block hidden on every layout out of the page, and keeps one a layout shows', () => {
+    const everywhere = { ...text, id: 'gone', hidden: { desktop: true, mobile: true } };
+    const somewhere = { ...quote, hidden: { mobile: true } };
+    const { container } = draw({ ...section(false), structuredContent: [everywhere, somewhere] } as Section);
+    expect(container.querySelector('.structured-block-item-gone')).toBeNull();
+    expect(container.querySelector('.structured-block-item-quote')).not.toBeNull();
+    expect(css()).not.toContain('structured-block-item-gone');
+  });
+
+  it('leaves out a header element every layout hides, the key image only where no layout draws it as the backdrop', () => {
+    const hiding = (variant: string, hiddenElements: string[]) => ({ ...header.layoutParams.mobile, variant, hiddenElements });
+    const titleGone = { ...header, layoutParams: { desktop: hiding('A', ['title']), mobile: hiding('B', ['title', 'image']) } };
+    const { container, unmount } = draw({ ...section(true), header: titleGone } as unknown as Section);
+    expect(container.querySelector('.structured-text-title')).toBeNull();
+    expect(container.querySelector('.structured-header-element-key-image')).not.toBeNull();
+    unmount();
+    const imageGone = { ...header, layoutParams: { desktop: hiding('B', ['image']), mobile: hiding('B', ['image']) } };
+    expect(draw({ ...section(true), header: imageGone } as unknown as Section).container.querySelector('.structured-header-element-key-image')).toBeNull();
   });
 
   it('draws a gallery\'s images side by side, its caption under them', () => {

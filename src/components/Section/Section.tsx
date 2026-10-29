@@ -16,6 +16,7 @@ import { SectionImage } from './SectionImage';
 import { isOverflowClipSupported } from '../../utils/checkOverflowClipSupport';
 import { StructuredContent } from '../StructuredContent/StructuredContent';
 import { Item } from '../items/Item';
+import { isHiddenOnEveryLayout } from '../../utils/isHiddenOnEveryLayout';
 
 const DEFAULT_COLOR = 'rgba(0, 0, 0, 0)';
 
@@ -24,9 +25,11 @@ interface Props {
   zIndex: number;
   data?: any;
   articleHeight: number;
+  /** Whether it holds the page's main content: the article's first content-based section drawn does. */
+  isMain?: boolean;
 }
 
-export const Section: FC<PropsWithChildren<Props>> = ({ section, data, zIndex, articleHeight }) => {
+export const Section: FC<PropsWithChildren<Props>> = ({ section, data, zIndex, articleHeight, isMain = false }) => {
   const reactId = useId();
   const id = `${reactId}-section-${section.id}`;
   const sectionRef = useRef<HTMLDivElement | null>(null);
@@ -40,6 +43,8 @@ export const Section: FC<PropsWithChildren<Props>> = ({ section, data, zIndex, a
   ];
 
   const SectionComponent = section.name ? customSections.getComponent(section.name) : undefined;
+  // a content-based section holds a post's own content: the first is the page's main content, any other a section of it
+  const Tag = (section.type === 'content-based' ? (isMain ? 'main' : 'section') : 'div') as 'div';
   useSectionRegistry(section.id, sectionRef.current);
   const layoutMedia = layout && section.media && section.media[layout] ? section.media[layout] : undefined;
 
@@ -82,7 +87,7 @@ export const Section: FC<PropsWithChildren<Props>> = ({ section, data, zIndex, a
   const children = (
     <>
       <StructuredContent section={section} />
-      {section.items.map(item => (
+      {section.items.filter(item => !isHiddenOnEveryLayout(item.hidden, layouts)).map(item => (
         <Item
           sectionHeight={sectionHeight}
           item={item}
@@ -94,11 +99,11 @@ export const Section: FC<PropsWithChildren<Props>> = ({ section, data, zIndex, a
     </>
   );
 
-  if (SectionComponent) return <div ref={sectionRef}><SectionComponent data={data}>{children}</SectionComponent></div>;
+  if (SectionComponent) return <Tag ref={sectionRef}><SectionComponent data={data}>{children}</SectionComponent></Tag>;
 
   return (
     <>
-      <div
+      <Tag
         className={`section-${section.id}`}
         id={section.name}
         ref={sectionRef}
@@ -124,7 +129,7 @@ export const Section: FC<PropsWithChildren<Props>> = ({ section, data, zIndex, a
           </div>
         )}
         {children}
-      </div>
+      </Tag>
       <JSXStyle id={id}>{`
       ${
     getLayoutStyles(layouts, layoutValues, ([height, color, media]) => (`

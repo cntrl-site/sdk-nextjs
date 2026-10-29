@@ -15,7 +15,9 @@ const richTextConverter = new RichTextConverter();
 
 /**
  * A block of text: rich text, a quote, which is drawn in a box of its own, or a date, which comes as
- * the text it reads as. Its text is set in the styles it was drawn with, its ranges styled over them.
+ * the text it reads as. Its text is set in the styles it was drawn with, its ranges styled over them,
+ * and each paragraph is one of the page's; a quote is a quotation, and a heading, which takes no
+ * paragraphs, holds its lines in spans that look the same.
  */
 export const StructuredRichText: FC<StructuredBlockItemProps<TextBlock>> = ({ block }) => {
   const reactId = useId();
@@ -23,15 +25,17 @@ export const StructuredRichText: FC<StructuredBlockItemProps<TextBlock>> = ({ bl
   const { layouts } = useCntrlContext();
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useItemGeometry(block.id, ref);
+  const headingTag = getHeadingTag(block);
+  const isQuote = block.type === StructuredBlockType.Quote;
+  const paragraphTag = headingTag ? 'span' : 'p';
   const [content, rangeStyles, listStyles] = useMemo(
-    () => richTextConverter.toHtml(block, layouts, { isScaledToViewport: false }),
-    [block, layouts]
+    () => richTextConverter.toHtml(block, layouts, { isScaledToViewport: false, paragraphTag }),
+    [block, layouts, paragraphTag]
   );
   const lang = useMemo(() => detectLang(block.commonParams.text), [block.commonParams.text]);
-  const isQuote = block.type === StructuredBlockType.Quote;
   // only a text block of the stack flows in columns: a quote keeps to its box, a date to its line
   const isText = block.type === StructuredBlockType.RichText;
-  const Wrapper = (getHeadingTag(block) ?? 'div') as 'div';
+  const Wrapper = (headingTag ?? (isQuote ? 'blockquote' : 'div')) as 'div';
   const layoutValues: Record<string, any>[] = [block.layoutParams];
   return (
     <>

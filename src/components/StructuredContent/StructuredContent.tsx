@@ -2,6 +2,7 @@ import { getLayoutStyles, Section } from '@cntrl-site/sdk';
 import { FC, useId } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { useCntrlContext } from '../../provider/useCntrlContext';
+import { isHiddenOnEveryLayout } from '../../utils/isHiddenOnEveryLayout';
 import { StructuredBlockItem } from '../StructuredBlockItem/StructuredBlockItem';
 import { StructuredHeader } from './StructuredHeader';
 
@@ -28,7 +29,7 @@ export const StructuredContent: FC<Props> = ({ section }) => {
     <div className={`structured-content-${section.id}`}>
       {header && <StructuredHeader header={header} blocks={section.structuredContent} readingWidth={readingWidth} />}
       {section.structuredContent
-        .filter(block => !headerElementIds.includes(block.id))
+        .filter(block => !headerElementIds.includes(block.id) && !isHiddenOnEveryLayout(block.hidden, layouts))
         .map(block => <StructuredBlockItem block={block} key={block.id} readingWidth={readingWidth} hasGap={section.type !== 'content-based'} />)}
       <JSXStyle id={id}>
         {`

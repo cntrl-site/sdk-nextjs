@@ -11,6 +11,7 @@ import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemS
 import { CompoundChild } from '../CompoundItem/CompoundChild';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 import { ItemGeometryContext } from '../../../ItemGeometry/ItemGeometryContext';
+import { isHiddenOnEveryLayout } from '../../../utils/isHiddenOnEveryLayout';
 
 export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange, isInCompound }) => {
   const reactId = useId();
@@ -59,7 +60,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
             willChange: blur !== 0 && blur !== undefined ? 'transform' : 'unset',
           }}
         >
-          {items && items.map(item => isInCompound ? (
+          {items && items.filter(item => !isHiddenOnEveryLayout(item.hidden, layouts)).map(item => isInCompound ? (
             <CompoundChild
               item={item}
               key={item.id}
