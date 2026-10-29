@@ -54,7 +54,7 @@ export function boxRule(selector: string, box: StructuredBlockBoxParams): string
       border-radius: ${vw(box.boxRadius)};
       background-color: transparent;
     }
-    ${box.background ? colorRule(selector, 'background-color', box.background) : ''}
+    ${box.boxBackground ? colorRule(selector, 'background-color', box.boxBackground) : ''}
   `;
 }
 

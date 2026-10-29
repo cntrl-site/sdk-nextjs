@@ -11,7 +11,6 @@ import { CompoundChild } from './CompoundChild';
 import { useCompoundItem } from './useCompoundItem';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 import { ItemGeometryContext } from '../../../ItemGeometry/ItemGeometryContext';
-import { isHiddenOnEveryLayout } from '../../../utils/isHiddenOnEveryLayout';
 
 export const CompoundItem: FC<ItemProps<TCompoundItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const reactId = useId();
@@ -57,7 +56,7 @@ export const CompoundItem: FC<ItemProps<TCompoundItem>> = ({ item, sectionId, on
             transition: stateParams?.transition ?? 'none'
           }}
         >
-          {items && items.filter(item => !isHiddenOnEveryLayout(item.hidden, layouts)).map(item => (
+          {items && items.map(item => (
             <CompoundChild
               item={item}
               key={item.id}

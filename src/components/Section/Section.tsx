@@ -16,7 +16,6 @@ import { SectionImage } from './SectionImage';
 import { isOverflowClipSupported } from '../../utils/checkOverflowClipSupport';
 import { StructuredContent } from '../StructuredContent/StructuredContent';
 import { Item } from '../items/Item';
-import { isHiddenOnEveryLayout } from '../../utils/isHiddenOnEveryLayout';
 
 const DEFAULT_COLOR = 'rgba(0, 0, 0, 0)';
 
@@ -87,7 +86,7 @@ export const Section: FC<PropsWithChildren<Props>> = ({ section, data, zIndex, a
   const children = (
     <>
       <StructuredContent section={section} />
-      {section.items.filter(item => !isHiddenOnEveryLayout(item.hidden, layouts)).map(item => (
+      {section.items.map(item => (
         <Item
           sectionHeight={sectionHeight}
           item={item}

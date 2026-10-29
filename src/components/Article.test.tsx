@@ -15,14 +15,14 @@ const layouts: Layout[] = [
   { id: 'mobile', title: 'Mobile', startsWith: 0, exemplary: 375 }
 ];
 
-function section(id: string, type: Section['type'], hidden: Record<string, boolean> = {}): Section {
+function section(id: string, type: Section['type']): Section {
   return {
     id,
     type,
     items: [],
     minHeight: Object.fromEntries(layouts.map(layout => [layout.id, { mode: SectionHeightMode.ControlUnits, units: 0.5 }])),
     color: {},
-    hidden,
+    hidden: {},
     structuredContent: [],
     structuredContentSettings: { paddingBottom: {}, defaultWidth: {} }
   } as unknown as Section;
@@ -48,14 +48,5 @@ describe('Article', () => {
     expect(tagOf(container, 'post')).toBe('MAIN');
     expect(tagOf(container, 'more')).toBe('SECTION');
     expect(container.querySelectorAll('main')).toHaveLength(1);
-  });
-
-  it('leaves a section hidden on every layout out of the page, the main content passing to the next one drawn', () => {
-    const { container } = draw([
-      section('gone', 'content-based', { desktop: true, mobile: true }),
-      section('post', 'content-based', { mobile: true })
-    ]);
-    expect(tagOf(container, 'gone')).toBeUndefined();
-    expect(tagOf(container, 'post')).toBe('MAIN');
   });
 });

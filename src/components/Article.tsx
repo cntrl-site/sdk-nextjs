@@ -9,8 +9,6 @@ import { InteractionsProvider } from '../provider/InteractionsContext';
 import { WebglContextManagerContext } from '../provider/WebGLContextManagerContext';
 import { WebGLContextManager } from '@cntrl-site/effects';
 import { Navigation } from './Navigation/Navigation';
-import { useCntrlContext } from '../provider/useCntrlContext';
-import { isHiddenOnEveryLayout } from '../utils/isHiddenOnEveryLayout';
 
 interface Props {
   article: TArticle;
@@ -33,17 +31,15 @@ export const Article: FC<Props> = ({ article, sectionData, navigation, pages = [
   }, [articleRectObserver]);
 
   const webglContextManager = useMemo(() => new WebGLContextManager(), []);
-  const { layouts } = useCntrlContext();
   const sectionsLength = article.sections.length;
-  const isDrawn = (hidden: Record<string, boolean> | undefined) => !isHiddenOnEveryLayout(hidden, layouts);
-  // a page has one main content: its first content-based section drawn
-  const mainSectionId = article.sections.find(section => section.type === 'content-based' && isDrawn(section.hidden))?.id;
+  // a page has one main content: its first content-based section
+  const mainSectionId = article.sections.find(section => section.type === 'content-based')?.id;
 
   return (
     <ArticleRectContext.Provider value={articleRectObserver}>
       <InteractionsProvider article={article}>
         <ArticleWrapper>
-          {navigation && isDrawn(article.navigationHidden) && (
+          {navigation && (
             <Navigation
               navigation={navigation}
               pages={pages}
@@ -53,7 +49,6 @@ export const Article: FC<Props> = ({ article, sectionData, navigation, pages = [
           <div className="article" ref={articleRef}>
             <WebglContextManagerContext.Provider value={webglContextManager}>
               {article.sections.map((section, i) => {
-                if (!isDrawn(section.hidden)) return null;
                 const data = section.name ? sectionData[section.name] : {};
                 return (
                   <Section

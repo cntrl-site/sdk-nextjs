@@ -34,13 +34,13 @@ export const BlockCaption: FC<Props> = ({ blockId, caption, layoutParams, readin
         }
         ${getLayoutStyles(layouts, layoutValues, ([params, readingColumn], exemplary) => {
           const captionStyles = params?.captionStyles;
-          const width = captionStyles?.width ?? readingColumn;
+          const width = captionStyles?.maxWidth ?? readingColumn;
           return `
             .structured-caption-${blockId} {
               width: ${width !== undefined ? `min(${vw(width)}, 100%)` : '100%'};
               margin-top: ${CAPTION_GAP_PX / exemplary * 100}vw;
-              padding-top: ${vw(captionStyles?.paddingTop)};
-              padding-bottom: ${vw(captionStyles?.paddingBottom)};
+              padding-top: ${vw(captionStyles?.innerPaddingTop)};
+              padding-bottom: ${vw(captionStyles?.innerPaddingBottom)};
             }
             ${captionStyles ? textStylesRule(`.structured-caption-${blockId}`, captionStyles) : ''}
           `;

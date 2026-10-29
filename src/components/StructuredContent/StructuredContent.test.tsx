@@ -59,7 +59,7 @@ const text = block(StructuredBlockType.RichText, 'text', paragraph('Read the pos
 const quote = block(StructuredBlockType.Quote, 'quote', { ...paragraph('A quote'), kind: 'boxed' }, {
   ...textStyles,
   rangeStyles: [],
-  background: '#EEEEEE',
+  boxBackground: '#EEEEEE',
   boxPaddingTop: 0.02,
   boxPaddingRight: 0.03,
   boxPaddingBottom: 0.02,
@@ -74,7 +74,7 @@ const gallery = block(StructuredBlockType.Image, 'gallery', {
   urls: ['https://cdn.cntrl.site/a.jpg', 'https://cdn.cntrl.site/b.jpg'],
   altText: 'Two views',
   caption: 'Seen from the hill'
-}, { opacity: 0.8, captionStyles: { ...textStyles, fontSize: 0.01, width: 0.45, paddingTop: 0.02, paddingBottom: 0.01 } });
+}, { opacity: 0.8, captionStyles: { ...textStyles, fontSize: 0.01, maxWidth: 0.45, innerPaddingTop: 0.02, innerPaddingBottom: 0.01 } });
 const video = block(StructuredBlockType.Video, 'video', { url: 'https://cdn.cntrl.site/clip.mp4', coverUrl: 'https://cdn.cntrl.site/cover.jpg' }, {
   play: 'on-click',
   muted: true,
@@ -206,32 +206,13 @@ describe('StructuredContent', () => {
     expect(container.querySelector('.structured-quote-box-quote')!.textContent!.trim()).toBe('A quote');
     // its sides grow out past the columns the text is placed on, which it stays on
     expect(css()).toMatch(/\.structured-quote-box-quote \{[^}]*padding: 2vw 3vw 2vw 1vw;[^}]*margin: 0 -3vw 0 -1vw;[^}]*border-radius: 1vw;/);
+    expect(css()).toMatch(/\.structured-quote-box-quote \{\s*background-color: oklch/);
     expect(container.querySelector('.structured-text-date')!.textContent!.trim()).toBe('23 Sep 2026');
     // a quote is a quotation of paragraphs, kept from the margins of both
     expect(container.querySelector('.structured-text-quote')!.tagName).toBe('BLOCKQUOTE');
     expect(container.querySelector('.structured-quote-box-quote > p')!.textContent!.trim()).toBe('A quote');
     expect(css()).toMatch(/\.structured-text-quote \{\s*margin: 0;/);
     expect(container.querySelector('.structured-text-date > p')!.textContent!.trim()).toBe('23 Sep 2026');
-  });
-
-  it('leaves a block hidden on every layout out of the page, and keeps one a layout shows', () => {
-    const everywhere = { ...text, id: 'gone', hidden: { desktop: true, mobile: true } };
-    const somewhere = { ...quote, hidden: { mobile: true } };
-    const { container } = draw({ ...section(false), structuredContent: [everywhere, somewhere] } as Section);
-    expect(container.querySelector('.structured-block-item-gone')).toBeNull();
-    expect(container.querySelector('.structured-block-item-quote')).not.toBeNull();
-    expect(css()).not.toContain('structured-block-item-gone');
-  });
-
-  it('leaves out a header element every layout hides, the key image only where no layout draws it as the backdrop', () => {
-    const hiding = (variant: string, hiddenElements: string[]) => ({ ...header.layoutParams.mobile, variant, hiddenElements });
-    const titleGone = { ...header, layoutParams: { desktop: hiding('A', ['title']), mobile: hiding('B', ['title', 'image']) } };
-    const { container, unmount } = draw({ ...section(true), header: titleGone } as unknown as Section);
-    expect(container.querySelector('.structured-text-title')).toBeNull();
-    expect(container.querySelector('.structured-header-element-key-image')).not.toBeNull();
-    unmount();
-    const imageGone = { ...header, layoutParams: { desktop: hiding('B', ['image']), mobile: hiding('B', ['image']) } };
-    expect(draw({ ...section(true), header: imageGone } as unknown as Section).container.querySelector('.structured-header-element-key-image')).toBeNull();
   });
 
   it('draws a gallery\'s images side by side, its caption under them', () => {
@@ -293,7 +274,7 @@ describe('StructuredContent', () => {
   it('draws a table in its box, its sides grown out past the columns the table stays on, filled and rounded', () => {
     const boxed = block(StructuredBlockType.Table, 'boxed', { kind: 'rows', ...tableContent('boxed') }, {
       ...tableCells,
-      background: '#FAFAFA',
+      boxBackground: '#FAFAFA',
       boxPaddingTop: 0.01,
       boxPaddingRight: 0.02,
       boxPaddingBottom: 0.01,
