@@ -3,6 +3,7 @@ import { FC, useId } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { textStylesRule } from '../textStylesRule';
+import { vw } from '../vw';
 
 interface Props {
   blockId: string;
@@ -13,7 +14,10 @@ interface Props {
 
 const CAPTION_GAP_PX = 5;
 
-/** The caption under an image: as wide as the reading column, or as the image where it is narrower, and centered under it. */
+/**
+ * The caption under an image, centered under it: as wide as the caption preset says, else as the
+ * reading column, or as the image where that is narrower; with the preset's space above and below its text.
+ */
 export const BlockCaption: FC<Props> = ({ blockId, caption, layoutParams, readingWidth }) => {
   const reactId = useId();
   const { layouts } = useCntrlContext();
@@ -28,13 +32,19 @@ export const BlockCaption: FC<Props> = ({ blockId, caption, layoutParams, readin
           white-space: pre-wrap;
           overflow-wrap: break-word;
         }
-        ${getLayoutStyles(layouts, layoutValues, ([params, width], exemplary) => (`
-          .structured-caption-${blockId} {
-            width: ${width !== undefined ? `min(${width * 100}vw, 100%)` : '100%'};
-            margin-top: ${CAPTION_GAP_PX / exemplary * 100}vw;
-          }
-          ${params?.captionStyles ? textStylesRule(`.structured-caption-${blockId}`, params.captionStyles) : ''}
-        `))}
+        ${getLayoutStyles(layouts, layoutValues, ([params, readingColumn], exemplary) => {
+          const captionStyles = params?.captionStyles;
+          const width = captionStyles?.maxWidth ?? readingColumn;
+          return `
+            .structured-caption-${blockId} {
+              width: ${width !== undefined ? `min(${vw(width)}, 100%)` : '100%'};
+              margin-top: ${CAPTION_GAP_PX / exemplary * 100}vw;
+              padding-top: ${vw(captionStyles?.innerPaddingTop)};
+              padding-bottom: ${vw(captionStyles?.innerPaddingBottom)};
+            }
+            ${captionStyles ? textStylesRule(`.structured-caption-${blockId}`, captionStyles) : ''}
+          `;
+        })}
       `}
       </JSXStyle>
     </>

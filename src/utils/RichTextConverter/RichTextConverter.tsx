@@ -33,6 +33,12 @@ interface ToHtmlOptions {
    * scale would leave at the unscaled size, takes viewport units throughout.
    */
   isScaledToViewport?: boolean;
+  /**
+   * The element each paragraph is drawn in: a div unless said otherwise; a p for text read as
+   * paragraphs, or, inside a heading, which takes no paragraphs, a span drawn as a block. A p or a
+   * span keeps none of its own margins, so the text looks the same whichever it is drawn in.
+   */
+  paragraphTag?: 'div' | 'p' | 'span';
 }
 
 interface StyleGroup {
@@ -106,11 +112,13 @@ export class RichTextConverter {
   toHtml(
     richText: RichTextSource,
     layouts: Layout[],
-    { isScaledToViewport = true }: ToHtmlOptions = {}
+    { isScaledToViewport = true, paragraphTag: Paragraph = 'div' }: ToHtmlOptions = {}
   ): [ReactNode[], string, string | undefined] {
     const { text, blocks = [] } = richText.commonParams;
     const hasLists = blocks.some(block => block.type in LIST_ITEM_CLASSES);
     const root: ReactElement[] = [];
+    // what a div is of itself, a paragraph drawn in another element is told: a block, without margins
+    const paragraphRules: string[] = [];
     const styleRules = layouts.reduce<Record<string, string[]>>((rec, layout) => {
       rec[layout.id] = [];
       return rec;
@@ -129,7 +137,8 @@ export class RichTextConverter {
       // an empty line keeps its height, as in the editor; a text never typed into comes without even its line break
       if (content === '' || content === '\n') {
         const id = `rt_${richText.id}_br_${blockIndex}`;
-        root.push(<div key={id} className={`${id}${typeClass}`}><br /></div>);
+        root.push(<Paragraph key={id} className={`${id}${typeClass}`}><br /></Paragraph>);
+        if (Paragraph !== 'div') paragraphRules.push(`.${id} { display: block; margin: 0; }`);
         layouts.forEach(l => {
           const lhForLayout = currentLineHeight[l.id];
           if (lhForLayout === undefined) return;
@@ -254,14 +263,19 @@ export class RichTextConverter {
             }
           }
         }
-        root.push(<div key={blockClass} className={`${blockClass}${typeClass}`}>{kids}</div>);
+        root.push(<Paragraph key={blockClass} className={`${blockClass}${typeClass}`}>{kids}</Paragraph>);
+        // each layout shows or hides the paragraph itself
+        if (Paragraph !== 'div') paragraphRules.push(`.${blockClass} { margin: 0; }`);
       }
     }
-    const styles = layouts.map(l => `
+    const styles = [
+      ...paragraphRules,
+      ...layouts.map(l => `
       ${getLayoutMediaQuery(l.id, layouts)} {
         ${styleRules[l.id].join('\n')}
       }
-    `).join('\n');
+    `)
+    ].join('\n');
     return [
       root,
       styles,
