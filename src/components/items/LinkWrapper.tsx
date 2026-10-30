@@ -36,8 +36,6 @@ export const LinkWrapper: React.FC<Props> = ({ url, children, target, download, 
   );
 };
 
-// Browsers ignore the download attribute for a file on another origin, such as the CDN, and open the file instead,
-// so the file is fetched and saved from an object url. If fetching fails, the file is opened as a plain link would.
 function downloadFile(event: MouseEvent<HTMLAnchorElement>, url: string, name: string) {
   if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
   event.preventDefault();
