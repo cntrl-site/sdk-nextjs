@@ -1,6 +1,6 @@
 {
   "name": "@cntrl-site/sdk-nextjs",
-  "version": "1.11.3",
+  "version": "1.11.4-alpha.0",
   "description": "SDK for Next.js",
   "author": "arsen@momdesign.nyc",
   "license": "MIT",
@@ -30,9 +30,9 @@
   },
   "dependencies": {
     "@cntrl-site/color": "^1.0.0",
-    "@cntrl-site/components": "^1.0.106",
+    "@cntrl-site/components": "^1.0.107-alpha.0",
     "@cntrl-site/effects": "^1.4.2",
-    "@cntrl-site/sdk": "^1.29.5",
+    "@cntrl-site/sdk": "^1.29.6-alpha.0",
     "@types/vimeo__player": "^2.18.0",
     "@vimeo/player": "^2.25.0",
     "franc-min": "^5.0.0",

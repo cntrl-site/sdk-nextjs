@@ -46,7 +46,7 @@ export const GroupItem: FC<ItemProps<TGroupItem>> = ({ item, sectionId, onResize
     }, 0);
   }, [itemIds, item.id]);
   return (
-    <LinkWrapper url={item.link?.url} target={item.link?.target}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target} download={item.link?.download}>
       <>
         <div
           className={`group-${item.id}`}

@@ -50,6 +50,7 @@ interface StyleGroup {
 interface EntitiesGroup {
   link?: string;
   target?: string;
+  download?: string;
   stylesGroup: StyleGroup[];
   start: number;
   end: number;
@@ -212,7 +213,7 @@ export class RichTextConverter {
             offset = entity.end;
           }
           if (entity.link) {
-            kids.push(<LinkWrapper key={entity.start} url={entity.link} target={entity.target}>{entityKids}</LinkWrapper>);
+            kids.push(<LinkWrapper key={entity.start} url={entity.link} target={entity.target} download={entity.download}>{entityKids}</LinkWrapper>);
             continue;
           }
           kids.push(...entityKids);
@@ -331,7 +332,7 @@ export class RichTextConverter {
           stylesGroup: [],
           start,
           end,
-          ...(entity && { link: entity.data?.url ?? '', target: entity.data?.target ?? '_self' })
+          ...(entity && { link: entity.data?.url ?? '', target: entity.data?.target ?? '_self', download: entity.data?.download })
         });
       }
       return entitiesGroups;
@@ -362,7 +363,7 @@ export class RichTextConverter {
         stylesGroup: styleGroups.filter(s => s.start >= start && s.end <= end),
         start,
         end,
-        ...(entity && { link: entity.data?.url ?? '', target: entity.data?.target ?? '_self' })
+        ...(entity && { link: entity.data?.url ?? '', target: entity.data?.target ?? '_self', download: entity.data?.download })
       });
     }
 

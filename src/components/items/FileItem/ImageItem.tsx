@@ -85,7 +85,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
     onVisibilityChange?.(isInteractive);
   }, [isInteractive, onVisibilityChange]);
   return (
-    <LinkWrapper url={item.link?.url} target={item.link?.target}>
+    <LinkWrapper url={item.link?.url} target={item.link?.target} download={item.link?.download}>
       <>
         <div
           className={`image-wrapper-${item.id}`}
