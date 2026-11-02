@@ -1,6 +1,6 @@
 import { FC, useEffect, useId, useMemo, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
-import { getLayoutStyles, ImageItem as TImageItem } from '@cntrl-site/sdk';
+import { FillLayer, getLayoutStyles, ImageItem as TImageItem } from '@cntrl-site/sdk';
 import { ItemProps } from '../Item';
 import { LinkWrapper } from '../LinkWrapper';
 import { useFileItem } from './useFileItem';
@@ -14,6 +14,7 @@ import { getStyleFromItemStateAndParams } from '../../../utils/getStyleFromItemS
 import { useItemFXData } from '../../../common/useItemFXData';
 import { getFill } from '../../../utils/getFill';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
+import { getSvgFill, isSvgUrl } from '../../../utils/getSvgFill/getSvgFill';
 
 export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const reactId = useId();
@@ -25,7 +26,8 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
     strokeWidth: itemStrokeWidth,
     opacity: itemOpacity,
     strokeFill: itemStrokeFill,
-    blur: itemBlur
+    blur: itemBlur,
+    fill: itemFill
   } = useFileItem(item, sectionId);
   const itemAngle = useItemAngle(item, sectionId);
   const [wrapperRef, setWrapperRef] = useState<HTMLDivElement | null>(null);
@@ -41,7 +43,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const width = area && exemplary ? area.width * exemplary : 0;
   const height = area && exemplary ? area.height * exemplary : 0;
   const wrapperStateParams = interactionCtrl?.getState<number>(['angle', 'opacity', 'blur']);
-  const imgStateParams = interactionCtrl?.getState<any>(['strokeWidth', 'radius', 'strokeFill']);
+  const imgStateParams = interactionCtrl?.getState<any>(['strokeWidth', 'radius', 'strokeFill', 'fill']);
   useEffect(() => {
     isInitialRef.current = false;
   }, []);
@@ -66,6 +68,14 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
   const angle = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.angle, itemAngle);
   const opacity = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.opacity, itemOpacity);
   const blur = getStyleFromItemStateAndParams(wrapperStateParams?.styles?.blur, itemBlur);
+
+  const fill: FillLayer[] | undefined = getStyleFromItemStateAndParams(imgStateParams?.styles?.fill, itemFill);
+  // decided from the item data alone, so the server and the browser render the same element
+  const hasSvgFill = isSvgUrl(url) && (
+    Object.values(item.layoutParams).some(params => params.fill && params.fill.length > 0)
+    || Object.values(item.state).some(params => params.fill !== undefined)
+  );
+  const svgFill = fill ? getSvgFill(fill, url) : undefined;
 
   const stroke = strokeFill
     ? getFill(strokeFill) ?? 'transparent'
@@ -110,14 +120,31 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
                   aria-label={altText}
                 />
               )
-            : (
-                <img
-                  alt={altText}
-                  className={`image image-${item.id}`}
-                  style={inlineStyles}
-                  src={item.commonParams.url}
-                />
-              )}
+            : hasSvgFill
+              ? (
+                  <div
+                    role="img"
+                    aria-label={altText}
+                    className={`image image-${item.id}`}
+                    style={inlineStyles}
+                  >
+                    <div
+                      className={`image-svg-fill image-svg-fill-${item.id}`}
+                      style={{
+                        ...(svgFill ? { background: svgFill.background, WebkitMask: svgFill.mask, mask: svgFill.mask } : {}),
+                        transition: imgStateParams?.transition ?? 'none'
+                      }}
+                    />
+                  </div>
+                )
+              : (
+                  <img
+                    alt={altText}
+                    className={`image image-${item.id}`}
+                    style={inlineStyles}
+                    src={item.commonParams.url}
+                  />
+                )}
         </div>
         <JSXStyle id={id}>{`
         .image-wrapper-${item.id} {
@@ -136,6 +163,10 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
           border-style: solid;
           overflow: hidden;
           box-sizing: border-box;
+        }
+        .image-svg-fill {
+          width: 100%;
+          height: 100%;
         }
         .img-canvas {
           border: solid;
@@ -159,6 +190,7 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
               border-radius: ${layoutParams.radius * 100}vw;
               border-width: ${layoutParams.strokeWidth * 100}vw;
             }
+            ${hasSvgFill ? getSvgFillCss(item.id, getSvgFill(layoutParams.fill ?? [], url)) : ''}
           `);
     })}
       `}</JSXStyle>
@@ -166,3 +198,13 @@ export const ImageItem: FC<ItemProps<TImageItem>> = ({ item, sectionId, onResize
     </LinkWrapper>
   );
 };
+
+function getSvgFillCss(itemId: string, { background, mask }: { background: string; mask: string }) {
+  return `
+    .image-svg-fill-${itemId} {
+      background: ${background};
+      -webkit-mask: ${mask};
+      mask: ${mask};
+    }
+  `;
+}
