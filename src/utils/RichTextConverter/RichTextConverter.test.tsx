@@ -80,6 +80,23 @@ describe('RichTextConverter', () => {
     expect(container.textContent).toBe('a');
   });
 
+  it('draws each paragraph in the element asked for, without its margins, a span as a block; a div unless asked', () => {
+    const source = text([{ text: 'Read on' }, { text: '' }]);
+    const [paragraphs, paragraphStyles] = converter.toHtml(source, layouts, { paragraphTag: 'p' });
+    const { container } = render(<>{paragraphs}</>);
+    expect([...container.children].map(child => child.tagName)).toEqual(['P', 'P']);
+    expect(paragraphStyles).toMatch(/\.rt_text-b0_1 \{ margin: 0; \}/);
+    expect(paragraphStyles).toMatch(/\.rt_text_br_1 \{ display: block; margin: 0; \}/);
+
+    const [lines, lineStyles] = converter.toHtml(source, layouts, { paragraphTag: 'span' });
+    expect([...render(<>{lines}</>).container.children].map(child => child.tagName)).toEqual(['SPAN', 'SPAN']);
+    expect(lineStyles).toMatch(/\.rt_text_br_1 \{ display: block; margin: 0; \}/);
+
+    const [divs, divStyles] = converter.toHtml(source, layouts);
+    expect([...render(<>{divs}</>).container.children].map(child => child.tagName)).toEqual(['DIV', 'DIV']);
+    expect(divStyles).not.toContain('margin: 0');
+  });
+
   it('leaves text without lists as it was', () => {
     const [content, styles] = converter.toHtml(text([{ text: 'Plain' }]), layouts);
     const { container } = render(<>{content}</>);

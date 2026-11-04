@@ -32,6 +32,8 @@ export const Article: FC<Props> = ({ article, sectionData, navigation, pages = [
 
   const webglContextManager = useMemo(() => new WebGLContextManager(), []);
   const sectionsLength = article.sections.length;
+  // a page has one main content: its first content-based section
+  const mainSectionId = article.sections.find(section => section.type === 'content-based')?.id;
 
   return (
     <ArticleRectContext.Provider value={articleRectObserver}>
@@ -55,6 +57,7 @@ export const Article: FC<Props> = ({ article, sectionData, navigation, pages = [
                     key={section.id}
                     data={data}
                     zIndex={sectionsLength - i}
+                    isMain={section.id === mainSectionId}
                   />
                 );
               })}

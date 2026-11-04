@@ -5,7 +5,8 @@ import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
 import { LIST_STYLES_ID, RichTextConverter } from '../../../utils/RichTextConverter/RichTextConverter';
 import { StructuredBlockItemProps } from '../StructuredBlockItem';
-import { colorRule, textStylesRule } from '../textStylesRule';
+import { boxRule, colorRule, textStylesRule } from '../textStylesRule';
+import { vw } from '../vw';
 
 // the lines between the cells, in pixels of the layout, scaled with it like everything drawn in it
 const BORDER_PX = 1;
@@ -37,7 +38,7 @@ function convertCells(block: TableStructuredBlock, layouts: Layout[]): { cells: 
  * lined in the styles it comes with, their ranges styled over them, each column its share of the
  * width and padded on either side as its own values say. Cells draw a heading row over a grid; rows
  * draw every row plain, the two fills alternating from the first; lines draw the heading and a line
- * between each pair of rows only.
+ * between each pair of rows only. The table is drawn in a box, which grows out past its columns.
  */
 export const StructuredTable: FC<StructuredBlockItemProps<TableStructuredBlock>> = ({ block }) => {
   const reactId = useId();
@@ -49,21 +50,24 @@ export const StructuredTable: FC<StructuredBlockItemProps<TableStructuredBlock>>
   const headingAsRow = kind === 'rows';
   const Heading = headingAsRow ? 'td' : 'th';
   const table = `.structured-table-${block.id}`;
+  const box = `.structured-table-box-${block.id}`;
   const cells = `${table} th, ${table} td`;
   const cellContent = (cell: StructuredBlockTableCell) => content.get(cell.id);
   return (
     <>
-      <table ref={setRef} className={`structured-table-${block.id}`}>
-        <colgroup>
-          {header.map((_, col) => <col key={col} />)}
-        </colgroup>
-        <thead className={`structured-table-heading-${block.id}`}>
-          <tr>{header.map(cell => <Heading key={cell.id}>{cellContent(cell)}</Heading>)}</tr>
-        </thead>
-        <tbody className={`structured-table-body-${block.id}`}>
-          {rows.map((row, index) => <tr key={row[0]?.id ?? index}>{row.map(cell => <td key={cell.id}>{cellContent(cell)}</td>)}</tr>)}
-        </tbody>
-      </table>
+      <div className={`structured-table-box-${block.id}`}>
+        <table ref={setRef} className={`structured-table-${block.id}`}>
+          <colgroup>
+            {header.map((_, col) => <col key={col} />)}
+          </colgroup>
+          <thead className={`structured-table-heading-${block.id}`}>
+            <tr>{header.map(cell => <Heading key={cell.id}>{cellContent(cell)}</Heading>)}</tr>
+          </thead>
+          <tbody className={`structured-table-body-${block.id}`}>
+            {rows.map((row, index) => <tr key={row[0]?.id ?? index}>{row.map(cell => <td key={cell.id}>{cellContent(cell)}</td>)}</tr>)}
+          </tbody>
+        </table>
+      </div>
       {listStyles && <JSXStyle id={LIST_STYLES_ID}>{listStyles}</JSXStyle>}
       <JSXStyle id={`${reactId}-table-${block.id}`}>
         {rangeStyles}
@@ -83,10 +87,10 @@ export const StructuredTable: FC<StructuredBlockItemProps<TableStructuredBlock>>
           overflow-wrap: anywhere;
         }
         ${getLayoutStyles(layouts, [block.layoutParams], ([layoutParams], exemplary) => {
-      const vw = (value: number) => `${value * 100}vw`;
       const border = vw(BORDER_PX / exemplary);
       const fill = (selector: string, color: string | undefined) => (color ? colorRule(selector, 'background-color', color) : '');
       return (`
+            ${boxRule(box, layoutParams)}
             ${textStylesRule(table, layoutParams)}
             ${cells} {
               padding-top: ${vw(layoutParams.cellPaddingTop)};
