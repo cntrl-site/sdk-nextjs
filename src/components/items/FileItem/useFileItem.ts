@@ -77,5 +77,18 @@ export function useFileItem(item: ImageItem | VideoItem, sectionId: string) {
     [layoutId]
   );
 
-  return { radius, strokeWidth, opacity, strokeFill, blur };
+  const fill = useKeyframeValue(
+    item,
+    KeyframeType.Fill,
+    (item, layoutId) => {
+      if (!layoutId) return;
+      const layoutParams = item.layoutParams[layoutId];
+      return 'fill' in layoutParams ? layoutParams.fill ?? [] : [];
+    },
+    (animator, scroll, value) => value ? animator.getFill(value, scroll) : undefined,
+    sectionId,
+    [layoutId]
+  );
+
+  return { radius, strokeWidth, opacity, strokeFill, blur, fill };
 }
