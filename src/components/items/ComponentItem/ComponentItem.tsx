@@ -44,6 +44,7 @@ export const ComponentItem: FC<ItemProps<TComponentItem>> = ({ item, sectionId, 
     <LinkWrapper
       url={item.link?.url}
       target={item.link?.target}
+      download={item.link?.download}
       // Let the component define its own hit area (e.g. rounded button),
       // so empty space around it does not activate the link.
       style={hasLink ? { pointerEvents: 'none' } : undefined}
