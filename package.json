@@ -30,9 +30,9 @@
   },
   "dependencies": {
     "@cntrl-site/color": "^1.0.0",
-    "@cntrl-site/components": "^1.0.111",
+    "@cntrl-site/components": "^1.0.112",
     "@cntrl-site/effects": "^1.4.2",
-    "@cntrl-site/sdk": "^1.29.10",
+    "@cntrl-site/sdk": "^1.29.11",
     "@types/vimeo__player": "^2.18.0",
     "@vimeo/player": "^2.25.0",
     "franc-min": "^5.0.0",
