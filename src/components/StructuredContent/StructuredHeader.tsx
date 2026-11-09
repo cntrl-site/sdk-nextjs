@@ -34,7 +34,8 @@ function orderOf(order: HeaderElementKind[], kind: HeaderElementKind): number {
  * staying put on the screen while the header scrolls over it if set to, and zooming in a little and
  * fading out as it scrolls off the screen if set to; variant B flows the
  * shown elements in order, each placed as in the stack. The variant, the order and what is shown
- * are a layout's, so every element is drawn once and arranged per layout.
+ * are a layout's, so every element is drawn once and arranged per layout. The elements stack in the
+ * header by their own z-indexes, so the text can go under the image.
  */
 export const StructuredHeader: FC<Props> = ({ header, blocks, readingWidth }) => {
   const reactId = useId();
@@ -111,6 +112,7 @@ export const StructuredHeader: FC<Props> = ({ header, blocks, readingWidth }) =>
         .${elementClass(block)} {
           display: ${isHidden ? 'none' : 'block'};
           position: relative;
+          z-index: ${area?.zIndex ?? 0};
           order: ${orderOf(layoutParams.order, kind)};
           ${isBackdrop
           ? `width: 100%; left: 0; height: ${isCover ? '100%' : 'auto'}; padding: 0;`

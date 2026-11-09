@@ -373,6 +373,15 @@ describe('StructuredContent', () => {
     expect(css()).toMatch(/\.structured-header-element-key-image \.structured-header-picture-key-image \{\s*object-fit: fill;/);
   });
 
+  it('stacks the header\'s elements by their own z-indexes on each layout, so its text can go under its image', () => {
+    const under = { ...title, area: { desktop: { ...onGrid, zIndex: 3 }, mobile: { ...onGrid, zIndex: 7 } } };
+    const keyImage = { ...headerImage, area: { desktop: { ...onGrid, zIndex: 5 }, mobile: { ...onGrid, zIndex: 5 } } };
+    draw({ ...section(true), structuredContent: [under, keyImage, ...stack] } as unknown as Section);
+    expect(css()).toMatch(/@media \(min-width: 800px\) \{[\s\S]*\.structured-header-element-title \{[^}]*z-index: 3;/);
+    expect(css()).toMatch(/\.structured-header-element-title \{[^}]*z-index: 7;/);
+    expect(css()).toMatch(/\.structured-header-element-key-image \{[^}]*z-index: 5;/);
+  });
+
   it('keeps a sticky key image still on the screen, as a fixed section background, on the layouts that stick it', () => {
     const sticky = { ...header, layoutParams: { ...header.layoutParams, desktop: { ...header.layoutParams.desktop, stickyImage: true } } };
     const { container } = draw({ ...section(true), header: sticky } as unknown as Section);
