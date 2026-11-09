@@ -64,7 +64,8 @@ const quote = block(StructuredBlockType.Quote, 'quote', { ...paragraph('A quote'
   boxPaddingRight: 0.03,
   boxPaddingBottom: 0.02,
   boxPaddingLeft: 0.01,
-  boxRadius: 0.01
+  boxRadius: 0.01,
+  boxRotation: -4
 });
 const date = block(StructuredBlockType.Date, 'date', { ...paragraph('23 Sep 2026'), date: '2026-09-23', format: 'D MMM YYYY' }, {
   ...textStyles,
@@ -206,6 +207,7 @@ describe('StructuredContent', () => {
     expect(container.querySelector('.structured-quote-box-quote')!.textContent!.trim()).toBe('A quote');
     // its sides grow out past the columns the text is placed on, which it stays on
     expect(css()).toMatch(/\.structured-quote-box-quote \{[^}]*padding: 2vw 3vw 2vw 1vw;[^}]*margin: 0 -3vw 0 -1vw;[^}]*border-radius: 1vw;/);
+    expect(css()).toMatch(/\.structured-quote-box-quote \{[^}]*rotate: -4deg;/);
     expect(css()).toMatch(/\.structured-quote-box-quote \{\s*background-color: oklch/);
     expect(container.querySelector('.structured-text-date')!.textContent!.trim()).toBe('23 Sep 2026');
     // a quote is a quotation of paragraphs, kept from the margins of both
@@ -284,6 +286,8 @@ describe('StructuredContent', () => {
     const { container } = draw({ ...section(false), structuredContent: [boxed] } as Section);
     expect(container.querySelector('.structured-table-box-boxed > .structured-table-boxed')).not.toBeNull();
     expect(css()).toMatch(/\.structured-table-box-boxed \{[^}]*padding: 1vw 2vw 1vw 2vw;[^}]*margin: 0 -2vw 0 -2vw;[^}]*border-radius: 0\.5vw;/);
+    // a box with no turn of its own is drawn upright on every layout, whatever another layout turns it by
+    expect(css()).toMatch(/\.structured-table-box-boxed \{[^}]*rotate: none;/);
     expect(css()).toMatch(/\.structured-table-box-boxed \{\s*background-color: oklch/);
   });
 
