@@ -381,6 +381,57 @@ describe('StructuredContent', () => {
     expect(css()).toMatch(/\.structured-header-pin-key-image \{\s*display: none;/);
   });
 
+  describe('a key image fading on scroll', () => {
+    const fading = { ...header, layoutParams: { ...header.layoutParams, desktop: { ...header.layoutParams.desktop, fadeOnScroll: true } } };
+    let frames: FrameRequestCallback[];
+    const { requestAnimationFrame, cancelAnimationFrame } = window;
+
+    beforeEach(() => {
+      frames = [];
+      window.requestAnimationFrame = callback => frames.push(callback);
+      window.cancelAnimationFrame = () => {};
+      (window as { ResizeObserver?: unknown }).ResizeObserver = class { observe() {} disconnect() {} };
+    });
+
+    afterEach(() => {
+      Object.assign(window, { requestAnimationFrame, cancelAnimationFrame });
+      delete (window as { ResizeObserver?: unknown }).ResizeObserver;
+    });
+
+    const scrolled = (element: HTMLElement, top: number, bottom: number) => {
+      element.getBoundingClientRect = () => ({ top, bottom }) as DOMRect;
+      window.dispatchEvent(new Event('scroll'));
+      frames.splice(0).forEach(frame => frame(0));
+      return element.style.getPropertyValue('--cntrl-scroll-fade');
+    };
+
+    it('zooms it inside its box and fades it on the layouts that fade it, and draws it still on the others', () => {
+      draw({ ...section(true), header: fading } as unknown as Section);
+      // desktop, variant A: whichever picture shows, the image's own or its sticky copy
+      expect(css()).toMatch(/@media \(min-width: 800px\) \{[\s\S]*\.structured-header-element-key-image \{[^}]*overflow: clip; opacity: calc\(1 - var\(--cntrl-scroll-fade, 0\)\);/);
+      expect(css()).toMatch(/\.structured-header-element-key-image \.structured-header-image-key-image,\s*\.structured-header-pin-frame-key-image \{\s*transform: scale\(calc\(1 \+ 0\.15 \* var\(--cntrl-scroll-fade, 0\)\)\);/);
+      // mobile, variant B: written back, so the fade ends where the layout does
+      expect(css()).toMatch(/\.structured-header-element-key-image \{[^}]*overflow: visible; opacity: 1;/);
+      expect(css()).toMatch(/\.structured-header-pin-frame-key-image \{\s*transform: none;/);
+    });
+
+    it('fades it as its last third leaves the screen\'s top, all the way once it is gone, and back as the page scrolls back', () => {
+      const { container } = draw({ ...section(true), header: fading } as unknown as Section);
+      const element = container.querySelector<HTMLElement>('.structured-header-element-key-image')!;
+      expect(scrolled(element, -300, 300)).toBe('0');
+      expect(Number(scrolled(element, -500, 100))).toBeCloseTo(0.5);
+      expect(scrolled(element, -700, -100)).toBe('1');
+      expect(scrolled(element, 0, 600)).toBe('0');
+    });
+
+    it('leaves a key image no layout fades alone', () => {
+      const { container } = draw(section(true));
+      const element = container.querySelector<HTMLElement>('.structured-header-element-key-image')!;
+      expect(scrolled(element, -500, 100)).toBe('');
+      expect(css()).not.toMatch(/overflow: clip; opacity: calc/);
+    });
+  });
+
   it('draws a key image no layout sticks as it is', () => {
     draw(section(true));
     expect(css()).not.toMatch(/\.structured-header-pin-key-image \{\s*display: block;/);
