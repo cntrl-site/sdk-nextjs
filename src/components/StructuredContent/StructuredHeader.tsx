@@ -11,6 +11,7 @@ import JSXStyle from 'styled-jsx/style';
 import { useCntrlContext } from '../../provider/useCntrlContext';
 import { SCROLL_FADE_PROPERTY, SCROLL_FADE_ZOOM, useScrollFade } from '../../common/useScrollFade';
 import { blockPlacement } from '../StructuredBlockItem/blockPlacement';
+import { colorRule } from '../StructuredBlockItem/textStylesRule';
 import { blocksMap, UnknownBlock } from '../StructuredBlockItem/blocksMap';
 
 interface Props {
@@ -32,7 +33,7 @@ function orderOf(order: HeaderElementKind[], kind: HeaderElementKind): number {
  * A content-based section's header, drawn first. Variant A draws the key image full width with the
  * other elements on its bottom edge, the image covering a share of the viewport's height if set to,
  * staying put on the screen while the header scrolls over it if set to, and zooming in a little and
- * fading out as it scrolls off the screen if set to; variant B flows the
+ * fading out as it scrolls off the screen if set to, the header's fill showing as it fades; variant B flows the
  * shown elements in order, each placed as in the stack. The variant, the order and what is shown
  * are a layout's, so every element is drawn once and arranged per layout. The elements stack in the
  * header by their own z-indexes, so the text can go under the image.
@@ -163,6 +164,8 @@ export const StructuredHeader: FC<Props> = ({ header, blocks, readingWidth }) =>
         ${getLayoutStyles(layouts, [header.layoutParams, header.area] as Record<string, any>[], ([layoutParams, area]) => {
       const isA = layoutParams.variant === 'A';
       const isCover = isA && layoutParams.imageFit === 'cover';
+      // the fill is drawn only behind a fading image, and cleared on every other layout
+      const fill: string | undefined = isA && layoutParams.fadeOnScroll ? layoutParams.background : undefined;
       return (`
             .${headerClass} {
               display: ${isA ? 'block' : 'flex'};
@@ -171,7 +174,9 @@ export const StructuredHeader: FC<Props> = ({ header, blocks, readingWidth }) =>
               margin-top: ${area?.paddingTop ? `${area.paddingTop * 100}vw` : 0};
               height: ${isCover ? `${layoutParams.coverHeight * 100}vh` : 'auto'};
               height: ${isCover ? `${layoutParams.coverHeight * 100}svh` : 'auto'};
+              background-color: transparent;
             }
+            ${fill ? colorRule(`.${headerClass}`, 'background-color', fill) : ''}
             .${stackClass} {
               ${isA
           ? `display: flex; flex-direction: column; position: ${hasImage ? 'absolute' : 'relative'}; left: 0; right: 0; bottom: 0;`

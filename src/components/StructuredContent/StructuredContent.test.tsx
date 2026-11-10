@@ -428,6 +428,32 @@ describe('StructuredContent', () => {
       expect(css()).toMatch(/\.structured-header-pin-frame-key-image \{\s*transform: none;/);
     });
 
+    it('fills the header behind its key image on the layouts that fade it, and leaves it clear on the others', () => {
+      const fill = 'oklch(0.9 0.02 80 / 1)';
+      const layoutCss = (layoutParams: object) => {
+        const { unmount } = draw({ ...section(true), header: { ...header, layoutParams } } as unknown as Section);
+        // the header's own styles: the smallest layout's bare, each larger one's in a query of its own
+        const headerCss = [...document.body.querySelectorAll('style')].map(style => style.textContent ?? '').find(text => text.includes('.structured-header-stack-header')) ?? '';
+        const rules = headerCss.split('@media').filter(rule => rule.includes('.structured-header-header {'));
+        unmount();
+        return {
+          desktop: rules.find(rule => rule.startsWith(' (min-width: 800px)')) ?? '',
+          mobile: rules.find(rule => !rule.startsWith(' (min-width')) ?? ''
+        };
+      };
+      // desktop fades its variant A image, mobile draws variant B: the fill is desktop's alone
+      const fading = layoutCss({
+        desktop: { ...header.layoutParams.desktop, fadeOnScroll: true, background: fill },
+        mobile: { ...header.layoutParams.mobile, fadeOnScroll: true, background: fill }
+      });
+      expect(fading.desktop).toMatch(/\.structured-header-header \{\s*background-color: oklch\(/);
+      expect(fading.mobile).toMatch(/\.structured-header-header \{[^}]*background-color: transparent;/);
+      expect(fading.mobile).not.toMatch(/background-color: oklch/);
+      // a fill kept from before the image stopped fading is not drawn
+      const still = layoutCss({ ...header.layoutParams, desktop: { ...header.layoutParams.desktop, background: fill } });
+      expect(still.desktop).not.toMatch(/background-color: oklch/);
+    });
+
     it('fades it as its last third leaves the screen\'s top, all the way once it is gone, and back as the page scrolls back', () => {
       const { container } = draw({ ...section(true), header: fading } as unknown as Section);
       const element = container.querySelector<HTMLElement>('.structured-header-element-key-image')!;
