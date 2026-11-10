@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 
-// the share of an element left on the screen as it leaves the top at which it starts to fade
-const FADE_START = 1 / 3;
+// the share of an element left on the screen as it leaves the top at which it starts to fade: all
+// of it, so it fades from the first pixel scrolled, as the editor draws it
+const FADE_START = 1;
 
 /** The property `useScrollFade` writes the fade to, from 0 to 1, for the element's styles to draw it. */
 export const SCROLL_FADE_PROPERTY = '--cntrl-scroll-fade';
@@ -10,10 +11,11 @@ export const SCROLL_FADE_PROPERTY = '--cntrl-scroll-fade';
 export const SCROLL_FADE_ZOOM = 0.15;
 
 /**
- * How far an element leaving the screen's top has faded: nothing while a third of it or more is
- * left on the screen, all of it once it is gone. An element taller than the screen counts the
- * screen it fills instead, so it fades as it leaves only a third of the screen, not of itself.
- * An element yet to reach the screen's top, or entering from below, has not faded.
+ * How far an element leaving the screen's top has faded: nothing while all of it is on the screen,
+ * as much as has left it as it scrolls off, all of it once it is gone. An element taller than the
+ * screen counts the screen it fills instead, so it fades once its bottom is on the screen, over a
+ * screen's height of scrolling. An element yet to reach the screen's top, or entering from below,
+ * has not faded.
  */
 export function scrollFadeProgress(top: number, bottom: number, screenHeight: number): number {
   const full = Math.min(bottom - top, screenHeight);

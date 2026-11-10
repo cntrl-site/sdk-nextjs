@@ -454,11 +454,11 @@ describe('StructuredContent', () => {
       expect(still.desktop).not.toMatch(/background-color: oklch/);
     });
 
-    it('fades it as its last third leaves the screen\'s top, all the way once it is gone, and back as the page scrolls back', () => {
+    it('fades it from the first pixel scrolled off the screen\'s top, all the way once it is gone, and back as the page scrolls back', () => {
       const { container } = draw({ ...section(true), header: fading } as unknown as Section);
       const element = container.querySelector<HTMLElement>('.structured-header-element-key-image')!;
-      expect(scrolled(element, -300, 300)).toBe('0');
-      expect(Number(scrolled(element, -500, 100))).toBeCloseTo(0.5);
+      expect(scrolled(element, 0, 600)).toBe('0');
+      expect(Number(scrolled(element, -300, 300))).toBeCloseTo(0.5);
       expect(scrolled(element, -700, -100)).toBe('1');
       expect(scrolled(element, 0, 600)).toBe('0');
     });
