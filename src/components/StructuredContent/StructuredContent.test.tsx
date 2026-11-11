@@ -273,6 +273,25 @@ describe('StructuredContent', () => {
     expect(css()).toMatch(/\.structured-table-body-table \{\s*background-color: oklch/);
   });
 
+  it('draws a table filling its box on one layout and, on another, as wide as its columns and scrolling sideways inside its box, each column its share of that', () => {
+    const scrolled = {
+      ...block(StructuredBlockType.Table, 'scrolled', { kind: 'cells', ...tableContent('scrolled') }, tableCells),
+      layoutParams: {
+        desktop: tableCells,
+        mobile: { ...tableCells, sizing: 'scroll', tableWidth: 1.5 }
+      }
+    };
+    draw({ ...section(false), structuredContent: [scrolled] } as Section);
+    expect(css()).toMatch(/\.structured-table-scroller-scrolled \{\s*overflow-x: visible;\s*\}\s*\.structured-table-scrolled \{\s*width: 100%;/);
+    expect(css()).toMatch(/\.structured-table-scroller-scrolled \{\s*overflow-x: auto;\s*\}\s*\.structured-table-scrolled \{\s*width: 150vw;/);
+    expect(css()).toMatch(/\.structured-table-scrolled col:nth-child\(1\) \{\s*width: 60%;/);
+    expect(css()).toMatch(/\.structured-table-scrolled col:nth-child\(2\) \{\s*width: 40%;/);
+    // set to scroll with no width of its own, it fills its box
+    const unsized = { ...scrolled, id: 'unsized', layoutParams: { desktop: { ...tableCells, sizing: 'scroll' }, mobile: tableCells } };
+    draw({ ...section(false), structuredContent: [unsized] } as Section);
+    expect(css()).not.toMatch(/\.structured-table-scroller-unsized \{\s*overflow-x: auto;/);
+  });
+
   it('draws a table in its box, its sides grown out past the columns the table stays on, filled and rounded', () => {
     const boxed = block(StructuredBlockType.Table, 'boxed', { kind: 'rows', ...tableContent('boxed') }, {
       ...tableCells,
@@ -284,7 +303,7 @@ describe('StructuredContent', () => {
       boxRadius: 0.005
     });
     const { container } = draw({ ...section(false), structuredContent: [boxed] } as Section);
-    expect(container.querySelector('.structured-table-box-boxed > .structured-table-boxed')).not.toBeNull();
+    expect(container.querySelector('.structured-table-box-boxed > .structured-table-scroller-boxed > .structured-table-boxed')).not.toBeNull();
     expect(css()).toMatch(/\.structured-table-box-boxed \{[^}]*padding: 1vw 2vw 1vw 2vw;[^}]*margin: 0 -2vw 0 -2vw;[^}]*border-radius: 0\.5vw;/);
     // a box with no turn of its own is drawn upright on every layout, whatever another layout turns it by
     expect(css()).toMatch(/\.structured-table-box-boxed \{[^}]*rotate: none;/);
