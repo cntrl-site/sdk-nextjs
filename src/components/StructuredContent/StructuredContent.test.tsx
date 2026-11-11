@@ -64,7 +64,8 @@ const quote = block(StructuredBlockType.Quote, 'quote', { ...paragraph('A quote'
   boxPaddingRight: 0.03,
   boxPaddingBottom: 0.02,
   boxPaddingLeft: 0.01,
-  boxRadius: 0.01
+  boxRadius: 0.01,
+  boxRotation: -4
 });
 const date = block(StructuredBlockType.Date, 'date', { ...paragraph('23 Sep 2026'), date: '2026-09-23', format: 'D MMM YYYY' }, {
   ...textStyles,
@@ -206,6 +207,7 @@ describe('StructuredContent', () => {
     expect(container.querySelector('.structured-quote-box-quote')!.textContent!.trim()).toBe('A quote');
     // its sides grow out past the columns the text is placed on, which it stays on
     expect(css()).toMatch(/\.structured-quote-box-quote \{[^}]*padding: 2vw 3vw 2vw 1vw;[^}]*margin: 0 -3vw 0 -1vw;[^}]*border-radius: 1vw;/);
+    expect(css()).toMatch(/\.structured-quote-box-quote \{[^}]*rotate: -4deg;/);
     expect(css()).toMatch(/\.structured-quote-box-quote \{\s*background-color: oklch/);
     expect(container.querySelector('.structured-text-date')!.textContent!.trim()).toBe('23 Sep 2026');
     // a quote is a quotation of paragraphs, kept from the margins of both
@@ -284,6 +286,8 @@ describe('StructuredContent', () => {
     const { container } = draw({ ...section(false), structuredContent: [boxed] } as Section);
     expect(container.querySelector('.structured-table-box-boxed > .structured-table-boxed')).not.toBeNull();
     expect(css()).toMatch(/\.structured-table-box-boxed \{[^}]*padding: 1vw 2vw 1vw 2vw;[^}]*margin: 0 -2vw 0 -2vw;[^}]*border-radius: 0\.5vw;/);
+    // a box with no turn of its own is drawn upright on every layout, whatever another layout turns it by
+    expect(css()).toMatch(/\.structured-table-box-boxed \{[^}]*rotate: none;/);
     expect(css()).toMatch(/\.structured-table-box-boxed \{\s*background-color: oklch/);
   });
 
@@ -369,6 +373,15 @@ describe('StructuredContent', () => {
     expect(css()).toMatch(/\.structured-header-element-key-image \.structured-header-picture-key-image \{\s*object-fit: fill;/);
   });
 
+  it('stacks the header\'s elements by their own z-indexes on each layout, so its text can go under its image', () => {
+    const under = { ...title, area: { desktop: { ...onGrid, zIndex: 3 }, mobile: { ...onGrid, zIndex: 7 } } };
+    const keyImage = { ...headerImage, area: { desktop: { ...onGrid, zIndex: 5 }, mobile: { ...onGrid, zIndex: 5 } } };
+    draw({ ...section(true), structuredContent: [under, keyImage, ...stack] } as unknown as Section);
+    expect(css()).toMatch(/@media \(min-width: 800px\) \{[\s\S]*\.structured-header-element-title \{[^}]*z-index: 3;/);
+    expect(css()).toMatch(/\.structured-header-element-title \{[^}]*z-index: 7;/);
+    expect(css()).toMatch(/\.structured-header-element-key-image \{[^}]*z-index: 5;/);
+  });
+
   it('keeps a sticky key image still on the screen, as a fixed section background, on the layouts that stick it', () => {
     const sticky = { ...header, layoutParams: { ...header.layoutParams, desktop: { ...header.layoutParams.desktop, stickyImage: true } } };
     const { container } = draw({ ...section(true), header: sticky } as unknown as Section);
@@ -379,6 +392,83 @@ describe('StructuredContent', () => {
     expect(css()).toMatch(/@media \(min-width: 800px\) \{[\s\S]*\.structured-header-pin-key-image \{\s*display: block;[\s\S]*background-size: cover;/);
     expect(css()).toMatch(/\.structured-header-picture-key-image \{[^}]*visibility: hidden;/);
     expect(css()).toMatch(/\.structured-header-pin-key-image \{\s*display: none;/);
+  });
+
+  describe('a key image fading on scroll', () => {
+    const fading = { ...header, layoutParams: { ...header.layoutParams, desktop: { ...header.layoutParams.desktop, fadeOnScroll: true } } };
+    let frames: FrameRequestCallback[];
+    const { requestAnimationFrame, cancelAnimationFrame } = window;
+
+    beforeEach(() => {
+      frames = [];
+      window.requestAnimationFrame = callback => frames.push(callback);
+      window.cancelAnimationFrame = () => {};
+      (window as { ResizeObserver?: unknown }).ResizeObserver = class { observe() {} disconnect() {} };
+    });
+
+    afterEach(() => {
+      Object.assign(window, { requestAnimationFrame, cancelAnimationFrame });
+      delete (window as { ResizeObserver?: unknown }).ResizeObserver;
+    });
+
+    const scrolled = (element: HTMLElement, top: number, bottom: number) => {
+      element.getBoundingClientRect = () => ({ top, bottom }) as DOMRect;
+      window.dispatchEvent(new Event('scroll'));
+      frames.splice(0).forEach(frame => frame(0));
+      return element.style.getPropertyValue('--cntrl-scroll-fade');
+    };
+
+    it('zooms it inside its box and fades it on the layouts that fade it, and draws it still on the others', () => {
+      draw({ ...section(true), header: fading } as unknown as Section);
+      // desktop, variant A: whichever picture shows, the image's own or its sticky copy
+      expect(css()).toMatch(/@media \(min-width: 800px\) \{[\s\S]*\.structured-header-element-key-image \{[^}]*overflow: clip; opacity: calc\(1 - var\(--cntrl-scroll-fade, 0\)\);/);
+      expect(css()).toMatch(/\.structured-header-element-key-image \.structured-header-image-key-image,\s*\.structured-header-pin-frame-key-image \{\s*transform: scale\(calc\(1 \+ 0\.15 \* var\(--cntrl-scroll-fade, 0\)\)\);/);
+      // mobile, variant B: written back, so the fade ends where the layout does
+      expect(css()).toMatch(/\.structured-header-element-key-image \{[^}]*overflow: visible; opacity: 1;/);
+      expect(css()).toMatch(/\.structured-header-pin-frame-key-image \{\s*transform: none;/);
+    });
+
+    it('fills the header behind its key image on the layouts that fade it, and leaves it clear on the others', () => {
+      const fill = 'oklch(0.9 0.02 80 / 1)';
+      const layoutCss = (layoutParams: object) => {
+        const { unmount } = draw({ ...section(true), header: { ...header, layoutParams } } as unknown as Section);
+        // the header's own styles: the smallest layout's bare, each larger one's in a query of its own
+        const headerCss = [...document.body.querySelectorAll('style')].map(style => style.textContent ?? '').find(text => text.includes('.structured-header-stack-header')) ?? '';
+        const rules = headerCss.split('@media').filter(rule => rule.includes('.structured-header-header {'));
+        unmount();
+        return {
+          desktop: rules.find(rule => rule.startsWith(' (min-width: 800px)')) ?? '',
+          mobile: rules.find(rule => !rule.startsWith(' (min-width')) ?? ''
+        };
+      };
+      // desktop fades its variant A image, mobile draws variant B: the fill is desktop's alone
+      const fading = layoutCss({
+        desktop: { ...header.layoutParams.desktop, fadeOnScroll: true, background: fill },
+        mobile: { ...header.layoutParams.mobile, fadeOnScroll: true, background: fill }
+      });
+      expect(fading.desktop).toMatch(/\.structured-header-header \{\s*background-color: oklch\(/);
+      expect(fading.mobile).toMatch(/\.structured-header-header \{[^}]*background-color: transparent;/);
+      expect(fading.mobile).not.toMatch(/background-color: oklch/);
+      // a fill kept from before the image stopped fading is not drawn
+      const still = layoutCss({ ...header.layoutParams, desktop: { ...header.layoutParams.desktop, background: fill } });
+      expect(still.desktop).not.toMatch(/background-color: oklch/);
+    });
+
+    it('fades it from the first pixel scrolled off the screen\'s top, all the way once it is gone, and back as the page scrolls back', () => {
+      const { container } = draw({ ...section(true), header: fading } as unknown as Section);
+      const element = container.querySelector<HTMLElement>('.structured-header-element-key-image')!;
+      expect(scrolled(element, 0, 600)).toBe('0');
+      expect(Number(scrolled(element, -300, 300))).toBeCloseTo(0.5);
+      expect(scrolled(element, -700, -100)).toBe('1');
+      expect(scrolled(element, 0, 600)).toBe('0');
+    });
+
+    it('leaves a key image no layout fades alone', () => {
+      const { container } = draw(section(true));
+      const element = container.querySelector<HTMLElement>('.structured-header-element-key-image')!;
+      expect(scrolled(element, -500, 100)).toBe('');
+      expect(css()).not.toMatch(/overflow: clip; opacity: calc/);
+    });
   });
 
   it('draws a key image no layout sticks as it is', () => {

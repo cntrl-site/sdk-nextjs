@@ -6,10 +6,12 @@ import {
   StructuredBlockAny,
   StructuredBlockType
 } from '@cntrl-site/sdk';
-import { FC, ReactNode, useId } from 'react';
+import { FC, ReactNode, useId, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { useCntrlContext } from '../../provider/useCntrlContext';
+import { SCROLL_FADE_PROPERTY, SCROLL_FADE_ZOOM, useScrollFade } from '../../common/useScrollFade';
 import { blockPlacement } from '../StructuredBlockItem/blockPlacement';
+import { colorRule } from '../StructuredBlockItem/textStylesRule';
 import { blocksMap, UnknownBlock } from '../StructuredBlockItem/blocksMap';
 
 interface Props {
@@ -30,9 +32,11 @@ function orderOf(order: HeaderElementKind[], kind: HeaderElementKind): number {
 /**
  * A content-based section's header, drawn first. Variant A draws the key image full width with the
  * other elements on its bottom edge, the image covering a share of the viewport's height if set to,
- * and staying put on the screen while the header scrolls over it if set to; variant B flows the
+ * staying put on the screen while the header scrolls over it if set to, and zooming in a little and
+ * fading out as it scrolls off the screen if set to, the header's fill showing as it fades; variant B flows the
  * shown elements in order, each placed as in the stack. The variant, the order and what is shown
- * are a layout's, so every element is drawn once and arranged per layout.
+ * are a layout's, so every element is drawn once and arranged per layout. The elements stack in the
+ * header by their own z-indexes, so the text can go under the image.
  */
 export const StructuredHeader: FC<Props> = ({ header, blocks, readingWidth }) => {
   const reactId = useId();
@@ -41,6 +45,9 @@ export const StructuredHeader: FC<Props> = ({ header, blocks, readingWidth }) =>
   const image = elementOf('image');
   const imageUrl = image?.type === StructuredBlockType.HeaderImage ? (image as HeaderImageStructuredBlock).commonParams.url : '';
   const hasImage = Boolean(imageUrl);
+  const [imageElement, setImageElement] = useState<HTMLDivElement | null>(null);
+  const isFading = hasImage && Object.values(header.layoutParams).some(params => params.variant === 'A' && params.fadeOnScroll);
+  useScrollFade(imageElement, isFading);
   const texts = TEXT_KINDS.flatMap((kind) => {
     const block = elementOf(kind);
     return block ? [{ kind, block }] : [];
@@ -49,10 +56,10 @@ export const StructuredHeader: FC<Props> = ({ header, blocks, readingWidth }) =>
   const stackClass = `structured-header-stack-${header.id}`;
   const elementClass = (block: StructuredBlockAny) => `structured-header-element-${block.id}`;
   const pinClass = (block: StructuredBlockAny, part = '') => `structured-header-pin${part}-${block.id}`;
-  const renderElement = (block: StructuredBlockAny, extra?: ReactNode) => {
+  const renderElement = (block: StructuredBlockAny, extra?: ReactNode, ref?: (element: HTMLDivElement | null) => void) => {
     const BlockComponent = blocksMap[block.type] ?? UnknownBlock;
     return (
-      <div key={block.id} className={elementClass(block)}>
+      <div key={block.id} ref={ref} className={elementClass(block)}>
         <BlockComponent block={block} readingWidth={readingWidth} />
         {extra}
       </div>
@@ -97,16 +104,21 @@ export const StructuredHeader: FC<Props> = ({ header, blocks, readingWidth }) =>
       const isHidden = !isBackdrop && layoutParams.hiddenElements.includes(kind);
       const isCover = isBackdrop && layoutParams.imageFit === 'cover';
       const isSticky = isBackdrop && Boolean(layoutParams.stickyImage);
+      // the fading picture zooms inside the image's box, and whichever picture shows fades with the box
+      const isFaded = isBackdrop && Boolean(layoutParams.fadeOnScroll);
+      const fade = `var(${SCROLL_FADE_PROPERTY}, 0)`;
       // every value is written on every layout: the media queries stack upward, so a layout's
       // backdrop or cover would otherwise carry into the larger layouts drawn another way
       return (`
         .${elementClass(block)} {
           display: ${isHidden ? 'none' : 'block'};
           position: relative;
+          z-index: ${area?.zIndex ?? 0};
           order: ${orderOf(layoutParams.order, kind)};
           ${isBackdrop
           ? `width: 100%; left: 0; height: ${isCover ? '100%' : 'auto'}; padding: 0;`
           : blockPlacement(area, blockLayoutParams)}
+          ${kind === 'image' ? `overflow: ${isFaded ? 'clip' : 'visible'}; opacity: ${isFaded ? `calc(1 - ${fade})` : 1};` : ''}
         }
         .${elementClass(block)} .structured-caption-${block.id} {
           display: ${isBackdrop ? 'none' : 'block'};
@@ -128,6 +140,10 @@ export const StructuredHeader: FC<Props> = ({ header, blocks, readingWidth }) =>
           background-size: ${isCover ? 'cover' : '100% auto'};
           background-position: ${isCover ? 'center' : 'top center'};
           opacity: ${blockLayoutParams?.opacity ?? 1};
+        }
+        .${elementClass(block)} .structured-header-image-${block.id},
+        .${pinClass(block, '-frame')} {
+          transform: ${isFaded ? `scale(calc(1 + ${SCROLL_FADE_ZOOM} * ${fade}))` : 'none'};
         }`
           : ''}
       `);
@@ -135,7 +151,7 @@ export const StructuredHeader: FC<Props> = ({ header, blocks, readingWidth }) =>
   );
   return (
     <div className={headerClass}>
-      {image && renderElement(image, hasImage && renderPin(image))}
+      {image && renderElement(image, hasImage && renderPin(image), setImageElement)}
       <div className={stackClass}>
         {texts.map(({ block }) => renderElement(block))}
       </div>
@@ -148,6 +164,8 @@ export const StructuredHeader: FC<Props> = ({ header, blocks, readingWidth }) =>
         ${getLayoutStyles(layouts, [header.layoutParams, header.area] as Record<string, any>[], ([layoutParams, area]) => {
       const isA = layoutParams.variant === 'A';
       const isCover = isA && layoutParams.imageFit === 'cover';
+      // the fill is drawn only behind a fading image, and cleared on every other layout
+      const fill: string | undefined = isA && layoutParams.fadeOnScroll ? layoutParams.background : undefined;
       return (`
             .${headerClass} {
               display: ${isA ? 'block' : 'flex'};
@@ -156,7 +174,9 @@ export const StructuredHeader: FC<Props> = ({ header, blocks, readingWidth }) =>
               margin-top: ${area?.paddingTop ? `${area.paddingTop * 100}vw` : 0};
               height: ${isCover ? `${layoutParams.coverHeight * 100}vh` : 'auto'};
               height: ${isCover ? `${layoutParams.coverHeight * 100}svh` : 'auto'};
+              background-color: transparent;
             }
+            ${fill ? colorRule(`.${headerClass}`, 'background-color', fill) : ''}
             .${stackClass} {
               ${isA
           ? `display: flex; flex-direction: column; position: ${hasImage ? 'absolute' : 'relative'}; left: 0; right: 0; bottom: 0;`

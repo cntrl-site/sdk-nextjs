@@ -44,7 +44,7 @@ export function textColumnsRule(
 /**
  * The box a quote's text or a table is drawn in, as a CSS rule for `selector`: padded inside, its
  * sides grown out past the columns the block is placed on by as much as they pad it, so what it
- * holds stays on them; rounded, and filled where it has a fill.
+ * holds stays on them; rounded, turned, and filled where it has a fill.
  */
 export function boxRule(selector: string, box: StructuredBlockBoxParams): string {
   return `
@@ -52,6 +52,7 @@ export function boxRule(selector: string, box: StructuredBlockBoxParams): string
       padding: ${[box.boxPaddingTop, box.boxPaddingRight, box.boxPaddingBottom, box.boxPaddingLeft].map(vw).join(' ')};
       margin: 0 -${vw(box.boxPaddingRight)} 0 -${vw(box.boxPaddingLeft)};
       border-radius: ${vw(box.boxRadius)};
+      rotate: ${box.boxRotation ? `${box.boxRotation}deg` : 'none'};
       background-color: transparent;
     }
     ${box.boxBackground ? colorRule(selector, 'background-color', box.boxBackground) : ''}
