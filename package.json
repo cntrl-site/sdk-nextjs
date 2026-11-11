@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@cntrl-site/color": "^1.0.0",
-    "@cntrl-site/components": "^1.0.112",
+    "@cntrl-site/components": "^1.0.115",
     "@cntrl-site/effects": "^1.4.2",
     "@cntrl-site/sdk": "^1.29.11",
     "@types/vimeo__player": "^2.18.0",
