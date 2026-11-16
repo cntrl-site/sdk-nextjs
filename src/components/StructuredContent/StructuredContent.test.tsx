@@ -9,6 +9,13 @@ import { StructuredContent } from './StructuredContent';
 
 // the styles each component writes, drawn where it is for the test to read them
 jest.mock('styled-jsx/style', () => ({ __esModule: true, default: ({ children }: { children: string | string[] }) => <style>{children}</style> }));
+jest.mock('../ImageLightbox/ImageLightbox', () => ({
+  ImageLightbox: ({ images, initialIndex, onClose }: any) => (
+    <div data-testid="lightbox" data-index={initialIndex} data-images={images.map((image: any) => image.src).join(' ')} data-alt={images[0].alt}>
+      <button type="button" onClick={onClose}>close</button>
+    </div>
+  )
+}));
 jest.mock('@vimeo/player', () => jest.fn().mockImplementation(() => ({ on: jest.fn(), off: jest.fn(), play: jest.fn(), pause: jest.fn() })));
 
 const layouts: Layout[] = [
@@ -225,6 +232,52 @@ describe('StructuredContent', () => {
     expect(images.map(image => image.style.flexGrow)).toEqual(['0.5', '0.5']);
     expect(container.querySelector('.structured-caption-gallery')!.textContent).toBe('Seen from the hill');
     expect(css()).toMatch(/\.structured-caption-gallery \{[^}]*width: min\(45vw, 100%\);[^}]*padding-top: 2vw;[^}]*padding-bottom: 1vw;/);
+  });
+
+  it('leaves a gallery\'s images as they are while its lightbox is off', () => {
+    const { container } = draw(section(false));
+    expect(container.querySelector('.structured-gallery-row-gallery button')).toBeNull();
+    expect(css()).not.toMatch(/structured-gallery-open-/);
+  });
+
+  it('opens a gallery with its lightbox on at the image clicked, on its own images only', () => {
+    const withLightbox = { ...gallery, id: 'open', layoutParams: { ...gallery.layoutParams, desktop: { ...gallery.layoutParams.desktop, lightbox: true } } };
+    const { container, getByTestId, queryByTestId } = draw({ ...section(false), structuredContent: [gallery, withLightbox] } as Section);
+    const buttons = [...container.querySelectorAll<HTMLButtonElement>('.structured-gallery-row-open > button')];
+    expect(buttons.map(button => button.getAttribute('aria-label'))).toEqual(['Open image 1 of 2', 'Open image 2 of 2']);
+    expect(buttons.map(button => button.disabled)).toEqual([false, false]);
+    // the button takes the image's place in the row, and the image fills it
+    expect(buttons.map(button => button.style.flexGrow)).toEqual(['0.5', '0.5']);
+    expect(buttons.map(button => button.querySelector('img')!.style.flexGrow)).toEqual(['', '']);
+    expect(queryByTestId('lightbox')).toBeNull();
+
+    fireEvent.click(buttons[1]);
+    const lightbox = getByTestId('lightbox');
+    expect(lightbox.dataset).toMatchObject({
+      index: '1',
+      images: 'https://cdn.cntrl.site/a.jpg https://cdn.cntrl.site/b.jpg',
+      alt: 'Two views'
+    });
+
+    fireEvent.click(lightbox.querySelector('button')!);
+    expect(queryByTestId('lightbox')).toBeNull();
+  });
+
+  it('opens nothing on a layout where the gallery\'s size has no lightbox, its images kept as they are drawn', () => {
+    const onMobileOnly = { ...gallery, id: 'open', layoutParams: { ...gallery.layoutParams, mobile: { ...gallery.layoutParams.mobile, lightbox: true } } };
+    const { container, queryByTestId } = draw({ ...section(false), structuredContent: [onMobileOnly] } as Section);
+    const buttons = [...container.querySelectorAll<HTMLButtonElement>('.structured-gallery-row-open > button')];
+    expect(buttons.map(button => button.disabled)).toEqual([true, true]);
+    fireEvent.click(buttons[0]);
+    expect(queryByTestId('lightbox')).toBeNull();
+    expect(css()).toMatch(/\.structured-gallery-open-open:disabled \{\s*cursor: default;/);
+  });
+
+  it('zooms an image of a lightbox gallery under the pointer, within its place in the row', () => {
+    const withLightbox = { ...gallery, id: 'open', layoutParams: { ...gallery.layoutParams, desktop: { ...gallery.layoutParams.desktop, lightbox: true } } };
+    draw({ ...section(false), structuredContent: [withLightbox] } as Section);
+    expect(css()).toMatch(/\.structured-gallery-open-open \{[^}]*overflow: hidden;/);
+    expect(css()).toMatch(/@media \(hover: hover\) \{\s*\.structured-gallery-open-open:not\(:disabled\):hover > \.structured-gallery-image-open \{\s*transform: scale\(1\.03\);/);
   });
 
   it('draws no caption an image has switched off, nor one that says nothing', () => {
