@@ -11,7 +11,7 @@ import { StructuredContent } from './StructuredContent';
 jest.mock('styled-jsx/style', () => ({ __esModule: true, default: ({ children }: { children: string | string[] }) => <style>{children}</style> }));
 jest.mock('../ImageLightbox/ImageLightbox', () => ({
   ImageLightbox: ({ images, initialIndex, onClose }: any) => (
-    <div data-testid="lightbox" data-index={initialIndex} data-images={images.map((image: any) => image.src).join(' ')} data-alt={images[0].alt}>
+    <div data-testid="lightbox" data-index={initialIndex} data-images={images.map((image: any) => image.src).join(' ')} data-alt={images.map((image: any) => image.alt).join(' | ')}>
       <button type="button" onClick={onClose}>close</button>
     </div>
   )
@@ -78,9 +78,9 @@ const date = block(StructuredBlockType.Date, 'date', { ...paragraph('23 Sep 2026
   ...textStyles,
   rangeStyles: [{ start: 3, end: 6, style: 'FONTWEIGHT', value: '700' }]
 });
+const pictures = (urls: string[], altText = '') => urls.map(url => ({ url, altText }));
 const gallery = block(StructuredBlockType.Image, 'gallery', {
-  urls: ['https://cdn.cntrl.site/a.jpg', 'https://cdn.cntrl.site/b.jpg'],
-  altText: 'Two views',
+  images: pictures(['https://cdn.cntrl.site/a.jpg', 'https://cdn.cntrl.site/b.jpg'], 'Two views'),
   caption: 'Seen from the hill'
 }, { opacity: 0.8, captionStyles: { ...textStyles, fontSize: 0.01, maxWidth: 0.45, innerPaddingTop: 0.02, innerPaddingBottom: 0.01 } });
 const video = block(StructuredBlockType.Video, 'video', { url: 'https://cdn.cntrl.site/clip.mp4', coverUrl: 'https://cdn.cntrl.site/cover.jpg' }, {
@@ -256,7 +256,7 @@ describe('StructuredContent', () => {
     expect(lightbox.dataset).toMatchObject({
       index: '1',
       images: 'https://cdn.cntrl.site/a.jpg https://cdn.cntrl.site/b.jpg',
-      alt: 'Two views'
+      alt: 'Two views | Two views'
     });
 
     fireEvent.click(lightbox.querySelector('button')!);
@@ -281,8 +281,8 @@ describe('StructuredContent', () => {
   });
 
   it('draws no caption an image has switched off, nor one that says nothing', () => {
-    const switchedOff = block(StructuredBlockType.Image, 'off', { urls: ['https://cdn.cntrl.site/a.jpg'], altText: '', caption: 'Kept for later', showCaption: false }, { opacity: 1 });
-    const blank = block(StructuredBlockType.Image, 'blank', { urls: ['https://cdn.cntrl.site/b.jpg'], altText: '', caption: '  ' }, { opacity: 1 });
+    const switchedOff = block(StructuredBlockType.Image, 'off', { images: pictures(['https://cdn.cntrl.site/a.jpg']), caption: 'Kept for later', showCaption: false }, { opacity: 1 });
+    const blank = block(StructuredBlockType.Image, 'blank', { images: pictures(['https://cdn.cntrl.site/b.jpg']), caption: '  ' }, { opacity: 1 });
     const keyImage = { ...headerImage, commonParams: { ...headerImage.commonParams, showCaption: false } };
     const { container } = draw({ ...section(false), structuredContent: [switchedOff, blank, keyImage] } as Section);
     expect(container.querySelector('.structured-caption-off')).toBeNull();
@@ -293,7 +293,7 @@ describe('StructuredContent', () => {
   });
 
   it('fills a gallery\'s row whatever its images\' proportions, a lone portrait image as wide as the block', () => {
-    const portrait = block(StructuredBlockType.Image, 'portrait', { urls: ['https://cdn.cntrl.site/p.jpg'], altText: '', caption: '' }, { opacity: 1 });
+    const portrait = block(StructuredBlockType.Image, 'portrait', { images: pictures(['https://cdn.cntrl.site/p.jpg']), caption: '' }, { opacity: 1 });
     const { container } = draw({ ...section(false), structuredContent: [portrait] } as Section);
     const image = container.querySelector<HTMLImageElement>('.structured-gallery-image-portrait')!;
     Object.defineProperties(image, { complete: { value: true }, naturalWidth: { value: 300 }, naturalHeight: { value: 400 } });
@@ -394,9 +394,26 @@ describe('StructuredContent', () => {
     expect(css()).toMatch(/\.structured-text-plain \{[^}]*column-count: auto; column-gap: normal;/);
   });
 
+  it('gives each image of a gallery its own alt text, in the row and in the lightbox, an unresolved image\'s going with it', () => {
+    const described = block(StructuredBlockType.Image, 'described', {
+      images: [
+        { url: 'https://cdn.cntrl.site/a.jpg', altText: 'A hand' },
+        { url: '', altText: 'Never drawn' },
+        { url: 'https://cdn.cntrl.site/c.jpg', altText: 'A vase' }
+      ]
+    }, { opacity: 1, lightbox: true });
+    const { container, getByTestId } = draw({ ...section(false), structuredContent: [gallery, described] } as Section);
+    const alts = (id: string) => [...container.querySelectorAll<HTMLImageElement>(`.structured-gallery-image-${id}`)].map(image => image.alt);
+    expect(alts('described')).toEqual(['A hand', 'A vase']);
+    expect(alts('gallery')).toEqual(['Two views', 'Two views']);
+
+    fireEvent.click(container.querySelector('.structured-gallery-open-described')!);
+    expect(getByTestId('lightbox').dataset.alt).toBe('A hand | A vase');
+  });
+
   it('skips a block of a type it does not know, and an image the API could not resolve', () => {
     const later = { ...code, id: 'later', type: 'chart-block' };
-    const missing = block(StructuredBlockType.Image, 'missing', { urls: ['https://cdn.cntrl.site/a.jpg', ''], altText: '' }, { opacity: 1 });
+    const missing = block(StructuredBlockType.Image, 'missing', { images: pictures(['https://cdn.cntrl.site/a.jpg', '']) }, { opacity: 1 });
     const { container } = draw({ ...section(false), structuredContent: [text, later, missing] } as Section);
     const skipped = container.querySelector('.structured-block-item-later')!;
     expect([...skipped.children].filter(child => child.tagName !== 'STYLE')).toHaveLength(0);

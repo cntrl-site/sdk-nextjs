@@ -25,12 +25,11 @@ export const StructuredImage: FC<StructuredBlockItemProps<ImageStructuredBlock>>
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   useItemGeometry(block.id, ref);
   const layoutId = useLayoutContext();
-  const { altText } = block.commonParams;
   const hasLightbox = Object.values(block.layoutParams).some(params => params.lightbox);
   // the layout is known once the page is on screen: until then the images open nothing
   const opensLightbox = layoutId !== undefined && Boolean(block.layoutParams[layoutId]?.lightbox);
   // a file the API could not resolve comes as an empty url: nothing to draw for it
-  const urls = block.commonParams.urls.filter(url => url !== '');
+  const pictures = block.commonParams.images.filter(({ url }) => url !== '');
   const caption = getShownCaption(block.commonParams);
   const [ratios, setRatios] = useState<Record<string, number>>({});
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -42,9 +41,9 @@ export const StructuredImage: FC<StructuredBlockItemProps<ImageStructuredBlock>>
   }, []);
   // growth factors summing to less than one leave part of the row empty, so a lone portrait image
   // would fill only its ratio of the block: each image grows by its share of the total instead
-  const totalRatio = urls.reduce((sum, url) => sum + (ratios[url] ?? 1), 0);
+  const totalRatio = pictures.reduce((sum, { url }) => sum + (ratios[url] ?? 1), 0);
   const layoutValues: Record<string, any>[] = [block.layoutParams];
-  const images = urls.map((url, index) => {
+  const images = pictures.map(({ url, altText }, index) => {
     const flexGrow = (ratios[url] ?? 1) / totalRatio;
     const image = (
       <img
@@ -63,7 +62,7 @@ export const StructuredImage: FC<StructuredBlockItemProps<ImageStructuredBlock>>
         key={`${url}-${index}`}
         type="button"
         className={`structured-gallery-open-${block.id}`}
-        aria-label={`Open image ${index + 1} of ${urls.length}`}
+        aria-label={`Open image ${index + 1} of ${pictures.length}`}
         disabled={!opensLightbox}
         style={{ flexGrow }}
         onClick={() => setOpenIndex(index)}
@@ -78,7 +77,7 @@ export const StructuredImage: FC<StructuredBlockItemProps<ImageStructuredBlock>>
       {caption && <BlockCaption blockId={block.id} caption={caption} layoutParams={block.layoutParams} readingWidth={readingWidth} />}
       {opensLightbox && openIndex !== null && (
         <ImageLightbox
-          images={urls.map(url => ({ src: url, alt: altText }))}
+          images={pictures.map(({ url, altText }) => ({ src: url, alt: altText }))}
           initialIndex={openIndex}
           onClose={() => setOpenIndex(null)}
         />
