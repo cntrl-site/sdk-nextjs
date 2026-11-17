@@ -120,6 +120,75 @@ describe('ImageLightbox', () => {
     document.body.style.overflow = '';
   });
 
+  describe('told where its images are on the page', () => {
+    // the mocked screen fits a 2:1 image at 0,150 1000x500; each origin is a tenth of that size
+    const origins = IMAGES.map((_, index) => {
+      const origin = document.createElement('button');
+      const picture = document.createElement('img');
+      Object.defineProperty(picture, 'naturalWidth', { value: 200 });
+      Object.defineProperty(picture, 'naturalHeight', { value: 100 });
+      origin.append(picture);
+      const place = { top: 200, left: 100 + index * 110, width: 100, height: 50 };
+      origin.getBoundingClientRect = () => place as DOMRect;
+      return origin;
+    });
+    const originOf = (index: number) => origins[index] ?? null;
+    const picture = () => lightbox()!.querySelector('img')!;
+    const frames = (count: number) => act(() => {
+      jest.advanceTimersByTime(count * 16);
+    });
+
+    it('opens the image out of its place, which keeps its own image, and never fades it', () => {
+      open({ originOf, initialIndex: 1 });
+      expect(picture().style.transform).toBe('translate(210px, 50px) scale(0.1, 0.1)');
+      expect(picture().style.transition).toBe('none');
+      expect(picture().parentElement!.style.opacity).toBe('1');
+      expect(origins.map(origin => origin.style.opacity)).toEqual(['', '', '']);
+
+      frames(3);
+      expect(origins.map(origin => origin.style.opacity)).toEqual(['', '', '']);
+      expect(picture().style.transform).toBe('');
+      expect(picture().style.transition).toContain('transform');
+      expect(picture().parentElement!.style.opacity).toBe('1');
+    });
+
+    it('closes the image shown back into its own place', () => {
+      const onClose = jest.fn();
+      open({ originOf, onClose });
+      frames(3);
+      step('next');
+
+      fireEvent.keyDown(window, { key: 'Escape' });
+      // not yet loaded, the second image is fitted to the whole screen: 1000x800 at 0,0
+      expect(picture().style.transform).toBe('translate(210px, 200px) scale(0.1, 0.0625)');
+      expect(picture().parentElement!.style.opacity).toBe('1');
+      expect(onClose).not.toHaveBeenCalled();
+
+      act(() => {
+        jest.advanceTimersByTime(FADE_MS);
+      });
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('fades as it does without them for a reader who asked for less motion', () => {
+      window.matchMedia = jest.fn().mockReturnValue({ matches: true });
+      open({ originOf });
+      expect(picture().style.transform).toBe('');
+      fireEvent.keyDown(window, { key: 'Escape' });
+      expect(picture().parentElement!.style.opacity).toBe('0');
+      delete (window as { matchMedia?: unknown }).matchMedia;
+    });
+
+    it('fades out an image that has no place on the page', () => {
+      open({ originOf: index => (index === 0 ? origins[0] : null) });
+      frames(3);
+      step('next');
+      fireEvent.keyDown(window, { key: 'Escape' });
+      expect(picture().style.transform).toBe('');
+      expect(picture().parentElement!.style.opacity).toBe('0');
+    });
+  });
+
   it('sizes its close icon for each layout, larger on the narrower ones', () => {
     open();
     expect(css()).toMatch(/\.image-lightbox-close \{\s*width: 8\.1vw;/);

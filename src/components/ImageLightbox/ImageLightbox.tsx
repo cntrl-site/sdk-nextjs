@@ -13,8 +13,15 @@ export interface LightboxImage {
 interface Props {
   images: LightboxImage[];
   initialIndex: number;
-  /** Called once the lightbox has faded out: the moment to unmount it. */
+  /** Called once the lightbox has closed: the moment to unmount it. */
   onClose: () => void;
+  /**
+   * The element on the page that shows the image at an index. Given it, the lightbox opens by
+   * moving a copy of the image from that place to the middle of the screen and closes by moving the
+   * image shown back to its own, the page itself staying as it is; without it, or for a reader who
+   * asked for less motion, it fades in and out.
+   */
+  originOf?: (index: number) => HTMLElement | null;
 }
 
 interface OverlayProps {
@@ -23,6 +30,7 @@ interface OverlayProps {
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
+  originOf?: (index: number) => HTMLElement | null;
 }
 
 type Rect = { top: number; left: number; width: number; height: number };
@@ -49,6 +57,22 @@ function rectOf(element: HTMLElement): Rect {
   return { top, left, width, height };
 }
 
+/** Where an image starts from or returns to: the place of its element on the page, if it has one and takes up room there. */
+function originRect(origin: HTMLElement | null | undefined): Rect | null {
+  if (!origin) return null;
+  const rect = rectOf(origin);
+  return rect.width && rect.height ? rect : null;
+}
+
+/** The transform that draws an element laid out at `from` over `to`, its top left corner the one held in place. */
+function moveTo(from: Rect, to: Rect): string {
+  return `translate(${to.left - from.left}px, ${to.top - from.top}px) scale(${to.width / from.width}, ${to.height / from.height})`;
+}
+
+function prefersReducedMotion(): boolean {
+  return typeof window !== 'undefined' && Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+}
+
 function containIn(box: Rect, natural: { width: number; height: number } | null): Rect {
   if (!natural || !natural.width || !natural.height || !box.width || !box.height) return box;
   const imageRatio = natural.width / natural.height;
@@ -63,10 +87,11 @@ function containIn(box: Rect, natural: { width: number; height: number } | null)
 /**
  * A full-screen viewer of images, one at a time, each fitted within the screen: stepped through by
  * the halves of the image or a sideways swipe, around from the last to the first, and closed by
- * Escape, the backdrop, the close icon or a swipe down. It holds the page still while it is up.
- * Mount it to open it, and unmount it when it calls `onClose`.
+ * Escape, the backdrop, the close icon or a swipe down. Told where its images are on the page, it
+ * opens the first out of its place there and closes the one shown back into its own. It holds the
+ * page still while it is up. Mount it to open it, and unmount it when it calls `onClose`.
  */
-export const ImageLightbox: FC<Props> = ({ images, initialIndex, onClose }) => {
+export const ImageLightbox: FC<Props> = ({ images, initialIndex, onClose, originOf }) => {
   const { layouts } = useCntrlContext();
   const [index, setIndex] = useState(initialIndex);
   const count = images.length;
@@ -84,7 +109,7 @@ export const ImageLightbox: FC<Props> = ({ images, initialIndex, onClose }) => {
   if (typeof document === 'undefined') return null;
   return createPortal(
     <>
-      <Overlay images={images} index={index} onClose={onClose} onPrev={showPrev} onNext={showNext} />
+      <Overlay images={images} index={index} onClose={onClose} onPrev={showPrev} onNext={showNext} originOf={originOf} />
       <JSXStyle id="image-lightbox">{`
         .image-lightbox {
           position: fixed;
@@ -130,7 +155,7 @@ export const ImageLightbox: FC<Props> = ({ images, initialIndex, onClose }) => {
   );
 };
 
-const Overlay: FC<OverlayProps> = ({ images, index, onClose, onPrev, onNext }) => {
+const Overlay: FC<OverlayProps> = ({ images, index, onClose, onPrev, onNext, originOf }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const ghostRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -156,11 +181,22 @@ const Overlay: FC<OverlayProps> = ({ images, index, onClose, onPrev, onNext }) =
   const [slideAnimating, setSlideAnimating] = useState(false);
   const [isSwiping, setIsSwiping] = useState(false);
   const [swipeDismiss, setSwipeDismiss] = useState(false);
-  const [naturalSize, setNaturalSize] = useState<{ width: number; height: number } | null>(null);
-  const prevIndexRef = useRef(index);
-  const prevSrcRef = useRef<string | undefined>(undefined);
   const current = images[index];
-  const isSliding = slideDir !== null;
+  // whether images move between their places on the page and the lightbox, settled as it opens
+  const [moves] = useState(() => Boolean(originOf) && !prefersReducedMotion());
+  // the place the first image opens out of, with the size its file is known to have there, which
+  // fits it in the lightbox before its own copy has loaded
+  const [opening] = useState(() => {
+    const origin = moves ? originOf?.(index) : null;
+    const rect = originRect(origin);
+    const picture = origin instanceof HTMLImageElement ? origin : origin?.querySelector('img');
+    return rect ? { rect, natural: picture?.naturalWidth && picture.naturalHeight ? { width: picture.naturalWidth, height: picture.naturalHeight } : null } : null;
+  });
+  // the place the image shown closes back into, measured when it starts to; none while it is open, or where it has none
+  const [closingRect, setClosingRect] = useState<Rect | null>(null);
+  const [naturalSize, setNaturalSize] = useState<{ width: number; height: number } | null>(opening?.natural ?? null);
+  const prevIndexRef = useRef(index);
+  const prevSrcRef = useRef<string | undefined>(current?.src);
 
   const handleImageLoad = useCallback((event: React.SyntheticEvent<HTMLImageElement>) => {
     const { naturalWidth, naturalHeight } = event.currentTarget;
@@ -307,8 +343,26 @@ const Overlay: FC<OverlayProps> = ({ images, index, onClose, onPrev, onNext }) =
   }, [computeFinalRect]);
 
   useEffect(() => {
-    if (phase === 'opening' && finalRect) setPhase('open');
-  }, [phase, finalRect]);
+    if (phase !== 'opening' || !finalRect) return;
+    if (!opening) {
+      setPhase('open');
+      return;
+    }
+    // the image is drawn over its place on the page first, so that it has somewhere to move from
+    let frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() => setPhase('open'));
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [phase, finalRect, opening]);
+
+  const close = useCallback(() => {
+    const rect = moves ? originRect(originOf?.(index)) : null;
+    setClosingRect(rect);
+    setPhase('closing');
+    return rect !== null;
+  }, [moves, originOf, index]);
+  const closeRef = useRef(close);
+  closeRef.current = close;
 
   useEffect(() => {
     if (phase !== 'closing') return;
@@ -449,11 +503,13 @@ const Overlay: FC<OverlayProps> = ({ images, index, onClose, onPrev, onNext }) =
         blockSwipeClick();
       } else if (wasSwiping && axis === 'vertical') {
         if (swipeOffsetRef.current > SWIPE_CLOSE_THRESHOLD) {
-          const dismissOffset = window.innerHeight;
+          // let go of, the image returns to its place on the page from where it was dragged to, or is
+          // carried on down off the screen where it has no such place
+          const returns = closeRef.current();
+          const dismissOffset = returns ? 0 : window.innerHeight;
           swipeOffsetRef.current = dismissOffset;
-          setSwipeDismiss(true);
+          setSwipeDismiss(!returns);
           setSwipeOffset(dismissOffset);
-          setPhase('closing');
         } else {
           swipeOffsetRef.current = 0;
           setSwipeOffset(0);
@@ -490,13 +546,11 @@ const Overlay: FC<OverlayProps> = ({ images, index, onClose, onPrev, onNext }) =
       if (event.key !== 'Escape') return;
       event.preventDefault();
       event.stopPropagation();
-      setPhase('closing');
+      closeRef.current();
     };
     window.addEventListener('keydown', onKeyDown, true);
     return () => window.removeEventListener('keydown', onKeyDown, true);
   }, []);
-
-  const close = () => setPhase('closing');
 
   const isOpen = phase === 'open';
   const isClosing = phase === 'closing';
@@ -514,13 +568,17 @@ const Overlay: FC<OverlayProps> = ({ images, index, onClose, onPrev, onNext }) =
     pointerEvents: 'none'
   };
 
+  // moved between its place on the page and the lightbox, an image is seen all the way; otherwise it fades
+  const fadesIn = phase === 'opening' && !opening;
+  const fadesOut = isClosing && !closingRect;
+
   const currentTransition = (isSwiping && !slideAnimating)
     ? 'none'
     : slideAnimating
       ? `transform ${ANIM_MS}ms ${EASING}`
-      : swipeDismiss
+      : swipeDismiss || isClosing
         ? `transform ${ANIM_MS}ms ${EASING}, opacity ${ANIM_MS}ms ${EASING}`
-        : phase === 'opening' || isClosing
+        : phase === 'opening'
           ? `opacity ${ANIM_MS}ms ${EASING}`
           : 'none';
 
@@ -529,7 +587,7 @@ const Overlay: FC<OverlayProps> = ({ images, index, onClose, onPrev, onNext }) =
     transform: (slideOffset !== 0 || swipeOffset > 0) ? `translate(${slideOffset}px, ${swipeOffset}px)` : undefined,
     opacity: swipeOffset > 0
       ? swipeImageOpacity
-      : phase === 'opening' || isClosing
+      : fadesIn || fadesOut
         ? 0
         : 1,
     transition: currentTransition
@@ -543,6 +601,16 @@ const Overlay: FC<OverlayProps> = ({ images, index, onClose, onPrev, onNext }) =
     height: rect?.height,
     objectFit: 'contain',
     pointerEvents: 'none'
+  });
+
+  // where the image shown is drawn instead of in the middle of the screen: its place on the page, as it opens out of it and closes back into it
+  const pageRect = phase === 'opening' ? opening?.rect : closingRect;
+  const currentImageStyle = (rect: Rect | null): React.CSSProperties => ({
+    ...imageStyle(rect),
+    transformOrigin: 'top left',
+    transform: rect && pageRect ? moveTo(rect, pageRect) : undefined,
+    // set down over its place on the page at once, moved from and to it in time
+    transition: phase === 'opening' ? 'none' : `transform ${ANIM_MS}ms ${EASING}`
   });
 
   const slideWidth = viewportRect?.width ?? 0;
@@ -582,7 +650,9 @@ const Overlay: FC<OverlayProps> = ({ images, index, onClose, onPrev, onNext }) =
       role="dialog"
       aria-modal="true"
       style={{ touchAction: isOpen ? 'none' : undefined }}
-      onClick={close}
+      onClick={() => {
+        close();
+      }}
     >
       <div
         style={{
@@ -612,7 +682,7 @@ const Overlay: FC<OverlayProps> = ({ images, index, onClose, onPrev, onNext }) =
             src={current.src}
             alt={current.alt}
             onLoad={handleImageLoad}
-            style={imageStyle(contentRect)}
+            style={currentImageStyle(contentRect)}
           />
         </div>
       )}

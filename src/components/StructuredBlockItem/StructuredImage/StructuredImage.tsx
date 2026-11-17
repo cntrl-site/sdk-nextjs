@@ -1,5 +1,5 @@
 import { getLayoutStyles, getShownCaption, ImageStructuredBlock } from '@cntrl-site/sdk';
-import { FC, useCallback, useId, useState } from 'react';
+import { FC, useCallback, useId, useRef, useState } from 'react';
 import JSXStyle from 'styled-jsx/style';
 import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { useItemGeometry } from '../../../ItemGeometry/useItemGeometry';
@@ -17,7 +17,8 @@ const HOVER_ZOOM = 1.03;
  * caption under them. Until an image has loaded its ratio is taken to be square. A gallery that opens
  * in a lightbox on some layout makes each image a button, live on the layouts it does: there it opens
  * the image full screen, to step through the gallery's own images, and the image zooms a little under
- * the pointer, within its place in the row, to say so.
+ * the pointer, within its place in the row, to say so. The image opened moves out of its place in the
+ * row into the lightbox, and the one shown when the lightbox closes moves back into its own.
  */
 export const StructuredImage: FC<StructuredBlockItemProps<ImageStructuredBlock>> = ({ block, readingWidth }) => {
   const reactId = useId();
@@ -33,6 +34,8 @@ export const StructuredImage: FC<StructuredBlockItemProps<ImageStructuredBlock>>
   const caption = getShownCaption(block.commonParams);
   const [ratios, setRatios] = useState<Record<string, number>>({});
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const openers = useRef<(HTMLButtonElement | null)[]>([]);
+  const openerOf = useCallback((index: number) => openers.current[index] ?? null, []);
   // an image already loaded when the page hydrates fires no load event of its own
   const measure = useCallback((url: string, image: HTMLImageElement | null) => {
     if (!image || !image.complete || !image.naturalHeight) return;
@@ -60,6 +63,9 @@ export const StructuredImage: FC<StructuredBlockItemProps<ImageStructuredBlock>>
     return (
       <button
         key={`${url}-${index}`}
+        ref={(button) => {
+          openers.current[index] = button;
+        }}
         type="button"
         className={`structured-gallery-open-${block.id}`}
         aria-label={`Open image ${index + 1} of ${pictures.length}`}
@@ -80,6 +86,7 @@ export const StructuredImage: FC<StructuredBlockItemProps<ImageStructuredBlock>>
           images={pictures.map(({ url, altText }) => ({ src: url, alt: altText }))}
           initialIndex={openIndex}
           onClose={() => setOpenIndex(null)}
+          originOf={openerOf}
         />
       )}
       <JSXStyle id={`${reactId}-gallery-${block.id}`}>{`
