@@ -35,10 +35,12 @@ function convertCells(block: TableStructuredBlock, layouts: Layout[]): { cells: 
 
 /**
  * A table of one of three kinds, as served: its cells rich text set, spaced above and below and
- * lined in the styles it comes with, their ranges styled over them, each column its share of the
- * width and padded on either side as its own values say. Cells draw a heading row over a grid; rows
- * draw every row plain, the two fills alternating from the first; lines draw the heading and a line
- * between each pair of rows only. The table is drawn in a box, which grows out past its columns.
+ * lined in the styles it comes with, their ranges styled over them, each column padded on either
+ * side as its own values say. Cells draw a heading row over a grid; rows draw every row plain, the
+ * two fills alternating from the first; lines draw the heading and a line between each pair of rows
+ * only. The table is drawn in a box, which grows out past its columns. On each layout it fills the
+ * box, each column its share of it; or it is as wide as its columns, each as wide as it is set, and
+ * scrolls sideways inside the box where it is wider than that.
  */
 export const StructuredTable: FC<StructuredBlockItemProps<TableStructuredBlock>> = ({ block }) => {
   const reactId = useId();
@@ -51,29 +53,34 @@ export const StructuredTable: FC<StructuredBlockItemProps<TableStructuredBlock>>
   const Heading = headingAsRow ? 'td' : 'th';
   const table = `.structured-table-${block.id}`;
   const box = `.structured-table-box-${block.id}`;
+  const scroller = `.structured-table-scroller-${block.id}`;
   const cells = `${table} th, ${table} td`;
   const cellContent = (cell: StructuredBlockTableCell) => content.get(cell.id);
   return (
     <>
       <div className={`structured-table-box-${block.id}`}>
-        <table ref={setRef} className={`structured-table-${block.id}`}>
-          <colgroup>
-            {header.map((_, col) => <col key={col} />)}
-          </colgroup>
-          <thead className={`structured-table-heading-${block.id}`}>
-            <tr>{header.map(cell => <Heading key={cell.id}>{cellContent(cell)}</Heading>)}</tr>
-          </thead>
-          <tbody className={`structured-table-body-${block.id}`}>
-            {rows.map((row, index) => <tr key={row[0]?.id ?? index}>{row.map(cell => <td key={cell.id}>{cellContent(cell)}</td>)}</tr>)}
-          </tbody>
-        </table>
+        <div className={`structured-table-scroller-${block.id}`}>
+          <table ref={setRef} className={`structured-table-${block.id}`}>
+            <colgroup>
+              {header.map((_, col) => <col key={col} />)}
+            </colgroup>
+            <thead className={`structured-table-heading-${block.id}`}>
+              <tr>{header.map(cell => <Heading key={cell.id}>{cellContent(cell)}</Heading>)}</tr>
+            </thead>
+            <tbody className={`structured-table-body-${block.id}`}>
+              {rows.map((row, index) => <tr key={row[0]?.id ?? index}>{row.map(cell => <td key={cell.id}>{cellContent(cell)}</td>)}</tr>)}
+            </tbody>
+          </table>
+        </div>
       </div>
       {listStyles && <JSXStyle id={LIST_STYLES_ID}>{listStyles}</JSXStyle>}
       <JSXStyle id={`${reactId}-table-${block.id}`}>
         {rangeStyles}
         {`
+        ${scroller} {
+          overflow-y: hidden;
+        }
         ${table} {
-          width: 100%;
           table-layout: fixed;
           border-collapse: collapse;
         }
@@ -89,8 +96,16 @@ export const StructuredTable: FC<StructuredBlockItemProps<TableStructuredBlock>>
         ${getLayoutStyles(layouts, [block.layoutParams], ([layoutParams], exemplary) => {
       const border = vw(BORDER_PX / exemplary);
       const fill = (selector: string, color: string | undefined) => (color ? colorRule(selector, 'background-color', color) : '');
+      // as wide as its columns where it scrolls, served with that width; its box's width where it fills it
+      const isScrolling = layoutParams.sizing === 'scroll' && layoutParams.tableWidth !== undefined;
       return (`
             ${boxRule(box, layoutParams)}
+            ${scroller} {
+              overflow-x: ${isScrolling ? 'auto' : 'visible'};
+            }
+            ${table} {
+              width: ${isScrolling ? vw(layoutParams.tableWidth) : '100%'};
+            }
             ${textStylesRule(table, layoutParams)}
             ${cells} {
               padding-top: ${vw(layoutParams.cellPaddingTop)};
