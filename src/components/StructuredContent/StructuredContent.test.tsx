@@ -178,6 +178,11 @@ describe('StructuredContent', () => {
     expect(css()).not.toMatch(/\.structured-block-item-[\w-]+ \{[^}]*margin-top: [1-9]/);
   });
 
+  it('keeps a divider\'s inner paddings around its height, whatever box sizing the site sets', () => {
+    draw(section(false));
+    expect(css()).toMatch(/\.structured-block-item-divider \{[^}]*height: 0\.1vw;[^}]*padding-top: 0\.5vw;[^}]*padding-bottom: 0\.6vw;[^}]*box-sizing: content-box;/);
+  });
+
   it('keeps the gap above a block of a default section', () => {
     draw(section(false, 'default'));
     expect(css()).toMatch(/\.structured-block-item-text \{[^}]*margin-top: 1vw;/);

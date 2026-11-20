@@ -10,6 +10,8 @@ export function blockPlacement(area: StructuredBlockArea, layoutParams: object):
   const sizing = parseSizing('sizing' in layoutParams ? layoutParams.sizing as string | undefined : undefined);
   const height = sizing.y === 'manual' && area.height !== undefined ? `${area.height * 100}vw` : 'auto';
   if (area.left !== undefined) {
+    // the paddings go around the height, a divider's being its line's: sized by its border box,
+    // as under a site's own reset, they would come out of the line
     return `
       align-self: flex-start;
       left: ${area.left * 100}vw;
@@ -17,6 +19,7 @@ export function blockPlacement(area: StructuredBlockArea, layoutParams: object):
       height: ${height};
       padding-top: ${(area.innerPaddingTop ?? 0) * 100}vw;
       padding-bottom: ${(area.innerPaddingBottom ?? 0) * 100}vw;
+      box-sizing: content-box;
     `;
   }
   return `
