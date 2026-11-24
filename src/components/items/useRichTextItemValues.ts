@@ -3,6 +3,7 @@ import { KeyframeType, RichTextItem } from '@cntrl-site/sdk';
 import { useLayoutContext } from '../useLayoutContext';
 
 const DEFAULT_COLOR = 'rgba(0, 0, 0, 1)';
+const EMPTY_FONT_VARIATION: Record<string, number> = {};
 
 export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => {
   const layoutId = useLayoutContext();
@@ -58,6 +59,21 @@ export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => 
     [layoutId]
   );
 
+  const fontVariation = useKeyframeValue(
+    item,
+    KeyframeType.FontVariation,
+    (item, layoutId) => {
+      if (!layoutId) return;
+      const layoutParams = item.layoutParams[layoutId];
+      return 'fontVariables' in layoutParams && layoutParams.fontVariables
+        ? layoutParams.fontVariables
+        : EMPTY_FONT_VARIATION;
+    },
+    (animator, scroll, value) => value ? animator.getFontVariation(value, scroll) : undefined,
+    sectionId,
+    [layoutId]
+  );
+
   const fontSize = layoutId ? item.layoutParams[layoutId].fontSize : undefined;
   const lineHeight = layoutId ? item.layoutParams[layoutId].lineHeight : undefined;
   const xSizing = layoutId ? item.layoutParams[layoutId].sizing : undefined;
@@ -65,5 +81,5 @@ export const useRichTextItemValues = (item: RichTextItem, sectionId: string) => 
   const columnGutter = layoutId ? item.layoutParams[layoutId].columnGutter : undefined;
   const hyphens = layoutId ? item.layoutParams[layoutId].hyphens : undefined;
 
-  return { blur, letterSpacing, wordSpacing, color, fontSize, lineHeight, xSizing, columns, columnGutter, hyphens };
+  return { blur, letterSpacing, wordSpacing, color, fontVariation, fontSize, lineHeight, xSizing, columns, columnGutter, hyphens };
 };

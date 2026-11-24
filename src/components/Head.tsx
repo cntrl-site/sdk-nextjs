@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import HTMLReactParser, { domToReact } from 'html-react-parser';
 import Head from 'next/head';
-import { FontFaceGenerator, Meta, Project, FontVault } from '@cntrl-site/sdk';
+import { FontFaceGenerator, getDeclaredFonts, Meta, Project, FontVault } from '@cntrl-site/sdk';
 
 interface Props {
   project: Project;
@@ -21,7 +21,7 @@ export const CNTRLHead: FC<Props> = ({ meta, project, slug, siteUrl, fontsVault 
   };
   const customFonts = project.fonts.custom;
   const htmlHead = HTMLReactParser(project.html.head);
-  const ffGenerator = new FontFaceGenerator([...customFonts, ...fontsVault]);
+  const ffGenerator = new FontFaceGenerator(getDeclaredFonts(customFonts, fontsVault));
   const links = Object.values(parsedFonts as ReturnType<typeof domToReact>).map((value) => {
     if (!value) return null;
     const rel = value?.rel || value.props?.rel;

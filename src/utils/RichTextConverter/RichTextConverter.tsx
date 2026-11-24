@@ -179,11 +179,12 @@ export class RichTextConverter {
         const item = group[0];
         const entitiesGroups = this.groupEntities(entities, item.styles) ?? [];
         let offset = 0;
+        // every child covers its own stretch of the text, so its start offset keys it
         for (const entity of entitiesGroups) {
           const entityKids: ReactNode[] = [];
           if (offset < entity.start) {
             kids.push(
-              <span>
+              <span key={offset}>
                 {sliceSymbols(content, offset, entity.start)}
               </span>
             );
@@ -192,7 +193,7 @@ export class RichTextConverter {
           for (const style of entity.stylesGroup) {
             if (offset < style.start) {
               entityKids.push(
-                <span>
+                <span key={offset}>
                   {sliceSymbols(content, offset, style.start)}
                 </span>
               );
@@ -206,7 +207,7 @@ export class RichTextConverter {
           }
           if (offset < entity.end) {
             entityKids.push(
-              <span>
+              <span key={offset}>
                 {sliceSymbols(content, offset, entity.end)}
               </span>
             );
@@ -220,7 +221,7 @@ export class RichTextConverter {
         }
         if (offset < getSymbolsCount(content)) {
           kids.push(
-            <span>
+            <span key={offset}>
               {sliceSymbols(content, offset)}
             </span>
           );

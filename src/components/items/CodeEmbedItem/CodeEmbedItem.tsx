@@ -1,4 +1,4 @@
-import { getLayoutStyles, CodeEmbedItem as TCodeEmbedItem, AreaAnchor, FontFaceGenerator } from '@cntrl-site/sdk';
+import { getLayoutStyles, CodeEmbedItem as TCodeEmbedItem, AreaAnchor, FontFaceGenerator, getDeclaredFonts } from '@cntrl-site/sdk';
 import { FC, useEffect, useId, useState } from 'react';
 import { useCntrlContext } from '../../../provider/useCntrlContext';
 import { ItemProps } from '../Item';
@@ -27,7 +27,7 @@ export const CodeEmbedItem: FC<ItemProps<TCodeEmbedItem>> = ({ item, sectionId, 
   const { layouts, fonts } = useCntrlContext();
   const fontGoogleTags = fonts?.google;
   const fontAdobeTags = fonts?.adobe;
-  const fontCustomTags = new FontFaceGenerator(fonts?.custom ?? []).generate();
+  const fontCustomTags = new FontFaceGenerator(getDeclaredFonts(fonts?.custom ?? [])).generate();
   const { anchor, blur: itemBlur, opacity: itemOpacity } = useCodeEmbedItem(item, sectionId);
   const itemAngle = useItemAngle(item, sectionId);
   const html = decodeBase64(item.commonParams.html);

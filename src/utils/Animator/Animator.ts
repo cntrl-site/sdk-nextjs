@@ -59,6 +59,31 @@ export class Animator {
     }, {});
   }
 
+  /**
+   * Axis values of a variable font. Keyframes normally hold every axis, but may differ (e.g. optical
+   * size left automatic in one): each axis interpolates between the keyframes that set it, and axes
+   * no keyframe sets keep `values`.
+   */
+  getFontVariation(
+    values: KeyframeValueMap[KeyframeType.FontVariation],
+    pos: number
+  ): KeyframeValueMap[KeyframeType.FontVariation] {
+    const keyframes = this.keyframesMap[KeyframeType.FontVariation];
+    if (!keyframes || !keyframes.length) return values;
+    const result: Record<string, number> = { ...values };
+    const tags = new Set(keyframes.flatMap(keyframe => Object.keys(keyframe.value)));
+    for (const tag of tags) {
+      const axisKeyframes = keyframes.filter(keyframe => keyframe.value[tag] !== undefined);
+      if (axisKeyframes.length === 1) {
+        result[tag] = axisKeyframes[0].value[tag];
+        continue;
+      }
+      const { start, end } = this.getStartEnd<KeyframeType.FontVariation>(pos, axisKeyframes);
+      result[tag] = rangeMap(pos, start.position, end.position, start.value[tag], end.value[tag], true);
+    }
+    return result;
+  }
+
   getDimensions(
     values: KeyframeValueMap[KeyframeType.Dimensions],
     pos: number
@@ -565,6 +590,7 @@ function createKeyframesMap(): KeyframesMap {
     [KeyframeType.WordSpacing]: [],
     [KeyframeType.TextColor]: [],
     [KeyframeType.FXParams]: [],
-    [KeyframeType.Fill]: []
+    [KeyframeType.Fill]: [],
+    [KeyframeType.FontVariation]: []
   };
 }

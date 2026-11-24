@@ -18,6 +18,7 @@ import { RichTextGeometryController } from '../../../ItemGeometry/RichTextGeomet
 import { RICH_TEXT_LAYOUT_PENDING_CLASS } from '../../../utils/RichTextConverter/RichTextConverter';
 import { getHeadingTag } from '../../../utils/getHeadingTag';
 import { detectLang } from '../../../utils/detectLang';
+import { getFontVariationSettings } from '../../../utils/getFontVariationSettings';
 
 export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, onResize, interactionCtrl, onVisibilityChange }) => {
   const reactId = useId();
@@ -30,6 +31,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
     wordSpacing: itemWordSpacing,
     letterSpacing: itemLetterSpacing,
     color: itemColor,
+    fontVariation,
     fontSize,
     lineHeight,
     xSizing,
@@ -44,7 +46,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   useRegisterResize(ref, onResize);
   const geometry = useItemGeometry(item.id, ref, RichTextGeometryController, { xSizing });
   geometry?.setAngle(itemAngle!);
-  const stateParams = interactionCtrl?.getState<number | string>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color']);
+  const stateParams = interactionCtrl?.getState<number | string | Record<string, number>>(['angle', 'blur', 'letterSpacing', 'wordSpacing', 'color', 'fontVariables']);
   const stateStyles = stateParams?.styles ?? {};
   const transition = stateParams?.transition ?? 'none';
   const textColor = useMemo(() => {
@@ -55,6 +57,9 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
   const blur = getStyleFromItemStateAndParams(stateStyles.blur, itemBlur);
   const letterSpacing = getStyleFromItemStateAndParams(stateStyles.letterSpacing, itemLetterSpacing);
   const wordSpacing = getStyleFromItemStateAndParams(stateStyles.wordSpacing, itemWordSpacing);
+  // a state sets only the axes it changes; the rest keep the text's own (or animated) values
+  const stateFontVariation = stateStyles.fontVariables as Record<string, number> | undefined;
+  const fontVariationSettings = getFontVariationSettings(stateFontVariation ? { ...fontVariation, ...stateFontVariation } : fontVariation);
   const colorAlpha = textColor?.getAlpha();
   const rangeStyles = layoutId ? item.layoutParams[layoutId]?.rangeStyles ?? [] : [];
   const rangeColors = rangeStyles.filter((style) => style.style === 'COLOR');
@@ -82,6 +87,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
           ...(angle !== undefined ? { transform: `rotate(${angle}deg)` } : {}),
           ...(letterSpacing !== undefined ? { letterSpacing: `${letterSpacing as number * exemplary}px` } : {}),
           ...(wordSpacing !== undefined ? { wordSpacing: `${wordSpacing as number * exemplary}px` } : {}),
+          ...(fontVariationSettings !== undefined ? { fontVariationSettings } : {}),
           ...(fontSize !== undefined ? { fontSize: `${Math.round(fontSize * exemplary)}px` } : {}),
           ...(lineHeight !== undefined ? { lineHeight: `${lineHeight * exemplary}px` } : {}),
           ...(columnsEnabled ? { columnCount: columns, columnFill: 'balance' as const } : {}),
@@ -112,6 +118,7 @@ export const RichTextItem: FC<ItemProps<TRichTextItem>> = ({ item, sectionId, on
               font-style: ${layoutParams.fontStyle ? layoutParams.fontStyle : 'normal'};
               vertical-align: ${layoutParams.verticalAlign};
               font-variant: ${layoutParams.fontVariant};
+              font-variation-settings: ${getFontVariationSettings(layoutParams.fontVariables) ?? 'normal'};
               color: ${color.fmt('rgba')};
               transform: rotate(${area.angle}deg);
               filter: ${layoutParams.blur !== 0 ? `blur(${layoutParams.blur * 100}vw)` : 'unset'};

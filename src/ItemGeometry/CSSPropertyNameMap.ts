@@ -16,7 +16,8 @@ export const CSSPropertyNameMap: Record<keyof ItemState<ArticleItemType>, string
   backdropBlur: 'backdrop-filter',
   letterSpacing: 'letter-spacing',
   wordSpacing: 'word-spacing',
-  color: 'color'
+  color: 'color',
+  fontVariables: 'font-variation-settings'
 };
 
 const PropertyNameCSSMap: Record<string, string[]> = {
@@ -29,6 +30,7 @@ const PropertyNameCSSMap: Record<string, string[]> = {
   'backdrop-filter': ['backdrop-blur'],
   'letter-spacing': ['letterSpacing'],
   'word-spacing': ['wordSpacing'],
+  'font-variation-settings': ['fontVariables'],
 };
 
 export function getStyleKeysFromCSSProperty(cssProp: string): string[] {
